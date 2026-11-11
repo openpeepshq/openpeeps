@@ -47,8 +47,8 @@ importers:
         specifier: 19.2.6
         version: 19.2.6(react@19.2.6)
       react-router-dom:
-        specifier: ^7.0.0
-        version: 7.17.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        specifier: ^7.18.5
+        version: 7.18.5(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
     devDependencies:
       '@tailwindcss/typography':
         specifier: ^0.5.15
@@ -111,8 +111,8 @@ importers:
         specifier: ^7.73.1
         version: 7.73.1(react@19.2.6)
       react-router-dom:
-        specifier: ^7.0.0
-        version: 7.17.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        specifier: ^7.18.5
+        version: 7.18.5(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
     devDependencies:
       '@types/react':
         specifier: 19.2.14
@@ -1091,8 +1091,8 @@ importers:
         specifier: ^25.0.1
         version: 25.0.1
       react-router-dom:
-        specifier: ^7.0.0
-        version: 7.17.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        specifier: ^7.18.5
+        version: 7.18.5(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       tsc-alias:
         specifier: ^1.8.10
         version: 1.8.10
@@ -1699,8 +1699,8 @@ importers:
         specifier: ^7.73.1
         version: 7.73.1(react@19.2.6)
       react-router-dom:
-        specifier: ^7.0.0
-        version: 7.17.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+        specifier: ^7.18.5
+        version: 7.18.5(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
     devDependencies:
       '@eslint/js':
         specifier: ^9.17.0
@@ -12537,6 +12537,7 @@ packages:
 
   node-abort-controller@3.1.1:
     resolution: {integrity: sha512-AGK2yQKIjRuqnc6VkX2Xj5d+QW8xZ87pa1UK6yA6ouUyuxfHuMP6umE5QK7UmTeOAymo+Zx1Fxiuw9rVx8taHQ==}
+    deprecated: This package is no longer needed on supported Node.js versions. Node.js 16+ includes AbortController and AbortSignal as built-in globals. All Node.js versions requiring this polyfill are end-of-life. Use the built-in globals instead.
 
   node-addon-api@5.1.0:
     resolution: {integrity: sha512-eh0GgfEkpnoWDq+VY8OyvYhFEzBk6jIYbRKdIlyTiAXIVJ8PyBaKb0rp7oDtoddbdoHWhq8wwr+XZ81F1rpNdA==}
@@ -13632,15 +13633,15 @@ packages:
       '@types/react':
         optional: true
 
-  react-router-dom@7.17.0:
-    resolution: {integrity: sha512-fyU2yjGups/hE6Xz0I5ZYbVL8Gx29eCjgpHaRaTaVU+OOAdfRX05KsvyRm0GO8YQwOkhpU3MurW1jyMUJn+zSw==}
+  react-router-dom@7.18.5:
+    resolution: {integrity: sha512-9HcfDMU6JJ/fp6gJZYGwNE6RknVGS4kBjH1HkNw959mCJi70TVwdipQWv2FEol9uGpi+SZTFtVpJPtEQfayeOw==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       react: 19.2.6
       react-dom: 19.2.6
 
-  react-router@7.17.0:
-    resolution: {integrity: sha512-FDELK7rTMlCHO5+reyXsPlmfr7N1F91lPHsWYfMEGQm/KQ+F4JFM8jGoeQDmDvdTs93Fw9aSilH+uKRb4/jXvQ==}
+  react-router@7.18.5:
+    resolution: {integrity: sha512-dTgvcXDOrLPrlLHrcZAqWveiK1hMSqN+rGAJzegP8HtmNkfRxOoshGWBNX3ZJ0cZjOHkRdlUJtaIhZMLLyGyPw==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       react: 19.2.6
@@ -17282,7 +17283,7 @@ snapshots:
       '@types/node': 20.5.1
       chalk: 4.1.2
       cosmiconfig: 8.3.6(typescript@5.8.3)
-      cosmiconfig-typescript-loader: 4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.8.3))(ts-node@10.9.2(@types/node@20.5.1)(typescript@5.8.3))(typescript@5.8.3)
+      cosmiconfig-typescript-loader: 4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@6.0.3))(ts-node@10.9.2(@types/node@22.19.17)(typescript@6.0.3))(typescript@5.8.3)
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       lodash.uniq: 4.5.0
@@ -23693,7 +23694,7 @@ snapshots:
     dependencies:
       layout-base: 2.0.1
 
-  cosmiconfig-typescript-loader@4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.8.3))(ts-node@10.9.2(@types/node@20.5.1)(typescript@5.8.3))(typescript@5.8.3):
+  cosmiconfig-typescript-loader@4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@6.0.3))(ts-node@10.9.2(@types/node@22.19.17)(typescript@6.0.3))(typescript@5.8.3):
     dependencies:
       '@types/node': 20.5.1
       cosmiconfig: 8.3.6(typescript@5.8.3)
@@ -28924,13 +28925,13 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.14
 
-  react-router-dom@7.17.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6):
+  react-router-dom@7.18.5(react-dom@19.2.6(react@19.2.6))(react@19.2.6):
     dependencies:
       react: 19.2.6
       react-dom: 19.2.6(react@19.2.6)
-      react-router: 7.17.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      react-router: 7.18.5(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
 
-  react-router@7.17.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6):
+  react-router@7.18.5(react-dom@19.2.6(react@19.2.6))(react@19.2.6):
     dependencies:
       cookie: 1.1.1
       react: 19.2.6

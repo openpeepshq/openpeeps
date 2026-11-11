@@ -15,7 +15,7 @@
     "mermaid": "^11.17.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^7.0.0"
+    "react-router-dom": "^7.18.5"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.15",
