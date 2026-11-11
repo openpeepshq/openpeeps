@@ -15,7 +15,8 @@ overrides:
   react-dom: "19.2.6"
   # icon-set-creator pins sharp@0.30.7; its prebuild often times out in CI and
   # then node-gyp fails (no make). Force the same sharp used by core/server.
-  sharp: "0.33.5"
+  # Bump to 0.35.5 clears the libvips/libheif/librsvg advisories.
+  sharp: "0.35.5"
   # mermaid pulls dompurify ^3.3.3 which resolved to vulnerable 3.4.15
   # (GHSA-cg2g-xh64-v4q7 + others). Force the patched 3.4.17 tree-wide.
   dompurify: "3.4.17"
