@@ -521,8 +521,8 @@ importers:
         specifier: ^13.1.0
         version: 13.1.0
       deepmerge-ts:
-        specifier: ^5.1.0
-        version: 5.1.0
+        specifier: ^8.0.2
+        version: 8.0.2
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
@@ -740,8 +740,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0
       deepmerge-ts:
-        specifier: ^7.1.3
-        version: 7.1.3
+        specifier: ^8.0.2
+        version: 8.0.2
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
@@ -1769,8 +1769,8 @@ importers:
         specifier: ^5.2.1
         version: 5.2.1
       deepmerge-ts:
-        specifier: ^5.1.0
-        version: 5.1.0
+        specifier: ^8.0.2
+        version: 8.0.2
       uuidv7:
         specifier: ^0.6.3
         version: 0.6.3
@@ -9609,13 +9609,9 @@ packages:
   deep-is@0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
 
-  deepmerge-ts@5.1.0:
-    resolution: {integrity: sha512-eS8dRJOckyo9maw9Tu5O5RUi/4inFLrnoLkBe3cPfDMx3WZioXtmOew4TXQaxq7Rhl4xjDtR7c6x8nNTxOvbFw==}
-    engines: {node: '>=16.0.0'}
-
-  deepmerge-ts@7.1.3:
-    resolution: {integrity: sha512-qCSH6I0INPxd9Y1VtAiLpnYvz5O//6rCfJXKk0z66Up9/VOSr+1yS8XSKA5IWRxjocFGlzPyaZYe+jxq7OOLtQ==}
-    engines: {node: '>=16.0.0'}
+  deepmerge-ts@8.0.2:
+    resolution: {integrity: sha512-uqbvqLUMrc6p0MO+WBRtTxY55hmyh94WRwI5a++PZe54X+bfVh59FSN7uWCBCW1CCVjzjnrwzfI8zidE2obMMw==}
+    engines: {node: '>=16.9.0'}
 
   deepmerge@4.3.1:
     resolution: {integrity: sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==}
@@ -12537,6 +12533,7 @@ packages:
 
   node-abort-controller@3.1.1:
     resolution: {integrity: sha512-AGK2yQKIjRuqnc6VkX2Xj5d+QW8xZ87pa1UK6yA6ouUyuxfHuMP6umE5QK7UmTeOAymo+Zx1Fxiuw9rVx8taHQ==}
+    deprecated: This package is no longer needed on supported Node.js versions. Node.js 16+ includes AbortController and AbortSignal as built-in globals. All Node.js versions requiring this polyfill are end-of-life. Use the built-in globals instead.
 
   node-addon-api@5.1.0:
     resolution: {integrity: sha512-eh0GgfEkpnoWDq+VY8OyvYhFEzBk6jIYbRKdIlyTiAXIVJ8PyBaKb0rp7oDtoddbdoHWhq8wwr+XZ81F1rpNdA==}
@@ -17282,7 +17279,7 @@ snapshots:
       '@types/node': 20.5.1
       chalk: 4.1.2
       cosmiconfig: 8.3.6(typescript@5.8.3)
-      cosmiconfig-typescript-loader: 4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.8.3))(ts-node@10.9.2(@types/node@20.5.1)(typescript@5.8.3))(typescript@5.8.3)
+      cosmiconfig-typescript-loader: 4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@6.0.3))(ts-node@10.9.2(@types/node@22.19.17)(typescript@6.0.3))(typescript@5.8.3)
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       lodash.uniq: 4.5.0
@@ -23693,7 +23690,7 @@ snapshots:
     dependencies:
       layout-base: 2.0.1
 
-  cosmiconfig-typescript-loader@4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@5.8.3))(ts-node@10.9.2(@types/node@20.5.1)(typescript@5.8.3))(typescript@5.8.3):
+  cosmiconfig-typescript-loader@4.4.0(@types/node@20.5.1)(cosmiconfig@8.3.6(typescript@6.0.3))(ts-node@10.9.2(@types/node@22.19.17)(typescript@6.0.3))(typescript@5.8.3):
     dependencies:
       '@types/node': 20.5.1
       cosmiconfig: 8.3.6(typescript@5.8.3)
@@ -24086,9 +24083,7 @@ snapshots:
 
   deep-is@0.1.4: {}
 
-  deepmerge-ts@5.1.0: {}
-
-  deepmerge-ts@7.1.3: {}
+  deepmerge-ts@8.0.2: {}
 
   deepmerge@4.3.1: {}
 
