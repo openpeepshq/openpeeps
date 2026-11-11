@@ -42,7 +42,7 @@
     "@types/validator": "^13.11.9",
     "@typescript-eslint/eslint-plugin": "^8.72.0",
     "@typescript-eslint/parser": "^8.72.0",
-    "concurrently": "^9.1.2",
+    "concurrently": "^9.2.5",
     "eslint": "^10.1.0",
     "i18next": "^24.2.3",
     "livekit-client": "^2.19.2",
