@@ -26,6 +26,13 @@ overrides:
   # boundary for the two 6.x consumers (declared ^6.22.0 / ^6.28.0); undici's
   # public fetch API is stable across the major, so the risk is low.
   undici: "7.30.2"
+  # handlebars 4.7.9 (via ts-jest 29.4.9 and
+  # @release-it/conventional-changelog > conventional-changelog-writer 8.0.0,
+  # both dev tooling) has 2 critical JS-injection advisories (GHSA-8r5x-fm3f-whwj,
+  # GHSA-p8wg-vrv2-v86f) + 1 moderate, all fixed in 4.7.10. Both parents' caret
+  # ranges (^4.7.9 / ^4.7.7) already allow 4.7.10; the lockfile is stale.
+  # Patch-level, dev-only.
+  handlebars: "4.7.10"
 
 allowBuilds:
   "@evilmartians/lefthook": true
