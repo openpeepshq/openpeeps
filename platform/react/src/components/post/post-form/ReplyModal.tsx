@@ -101,7 +101,12 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
     replyStore.set({
       ...draft,
       type,
-      data: base.data,
+      data: {
+        ...base.data,
+        // Carry the current text over when switching note <-> poll so the
+        // typed content isn't erased (mirrors NewPostModal behavior).
+        ...(content ? { content } : {}),
+      },
     });
   };
 
