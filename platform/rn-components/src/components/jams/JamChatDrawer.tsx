@@ -1,5 +1,12 @@
 import React, { useEffect, useRef } from 'react';
-import { ActivityIndicator, FlatList, Pressable, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  View,
+} from 'react-native';
 import { useParticipants } from '@livekit/react-native';
 import { useTranslation } from 'react-i18next';
 import { useJamChat } from '@openpeepshq/react';
@@ -56,59 +63,66 @@ export const JamChatDrawer = ({
 
   return (
     <JamDrawer title={t('jams.drawer.chatTitle')} onClose={onClose}>
-      <FlatList
-        ref={listRef}
+      {/* iOS: shrink above the soft keyboard; Android: no-op (host app adjustResize). */}
+      <KeyboardAvoidingView
         className="flex-1"
-        data={messages}
-        keyExtractor={(message) => message.id}
-        contentContainerClassName="gap-4 px-2 pb-4"
-        // Older messages load when the user scrolls to the top (web: sentinel).
-        onStartReached={loadOlder}
-        onStartReachedThreshold={0.1}
-        ListHeaderComponent={
-          isFetchingNextPage ? (
-            <View className="items-center py-2">
-              <ActivityIndicator size="small" />
-            </View>
-          ) : null
-        }
-        ListEmptyComponent={
-          !isLoading ? (
-            <ThemedText className="mt-4 text-center text-muted-foreground">
-              {t('jams.chat.noMessages')}
-            </ThemedText>
-          ) : null
-        }
-        renderItem={({ item }) => (
-          <JamChatMessage message={item} mentionProfiles={mentionProfiles} />
-        )}
-      />
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+      >
+        <FlatList
+          ref={listRef}
+          className="flex-1"
+          data={messages}
+          keyExtractor={(message) => message.id}
+          contentContainerClassName="gap-4 px-2 pb-4"
+          // Older messages load when the user scrolls to the top (web: sentinel).
+          onStartReached={loadOlder}
+          onStartReachedThreshold={0.1}
+          ListHeaderComponent={
+            isFetchingNextPage ? (
+              <View className="items-center py-2">
+                <ActivityIndicator size="small" />
+              </View>
+            ) : null
+          }
+          ListEmptyComponent={
+            !isLoading ? (
+              <ThemedText className="mt-4 text-center text-muted-foreground">
+                {t('jams.chat.noMessages')}
+              </ThemedText>
+            ) : null
+          }
+          renderItem={({ item }) => (
+            <JamChatMessage message={item} mentionProfiles={mentionProfiles} />
+          )}
+        />
 
-      {!readOnly ? (
-        <View className="w-full flex-row items-center gap-x-2 bg-background p-2">
-          <Textarea
-            editable={!isSending}
-            value={newMessage}
-            numberOfLines={1}
-            onChangeText={setNewMessage}
-            onSubmitEditing={() => void handleSendMessage()}
-            blurOnSubmit
-            className="min-h-0 flex-1 border-0"
-            placeholder={t('jams.chat.messagePlaceholder')}
-          />
-          <Pressable
-            accessibilityLabel={t('jams.chat.sendTitle')}
-            disabled={isSending}
-            onPress={() => void handleSendMessage()}
-          >
-            {isSending ? (
-              <ActivityIndicator size="small" />
-            ) : (
-              <SendHorizontalIcon size={24} className="text-foreground" />
-            )}
-          </Pressable>
-        </View>
-      ) : null}
+        {!readOnly ? (
+          <View className="w-full flex-row items-center gap-x-2 bg-background p-2">
+            <Textarea
+              editable={!isSending}
+              value={newMessage}
+              numberOfLines={1}
+              onChangeText={setNewMessage}
+              onSubmitEditing={() => void handleSendMessage()}
+              blurOnSubmit
+              className="min-h-0 flex-1 border-0"
+              placeholder={t('jams.chat.messagePlaceholder')}
+            />
+            <Pressable
+              accessibilityLabel={t('jams.chat.sendTitle')}
+              disabled={isSending}
+              onPress={() => void handleSendMessage()}
+            >
+              {isSending ? (
+                <ActivityIndicator size="small" />
+              ) : (
+                <SendHorizontalIcon size={24} className="text-foreground" />
+              )}
+            </Pressable>
+          </View>
+        ) : null}
+      </KeyboardAvoidingView>
     </JamDrawer>
   );
 };
