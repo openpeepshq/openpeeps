@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Room } from 'livekit-client';
+import type { PublicProfile } from '@openpeepshq/common/types';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { useServerInfo } from '../../components/server-data/context';
@@ -12,6 +13,15 @@ import { useRaisedHands } from '../../components/jams/useJamHands';
 import { logger } from '../../log';
 
 const log = logger('jams:recording');
+
+/** Return entries present in `next` but not in `prev` (keyed by profile id). */
+export const diffWaitingRoomAdditions = (
+  prev: Record<string, PublicProfile> | null,
+  next: Record<string, PublicProfile> | undefined,
+): PublicProfile[] => {
+  if (!prev || !next) return [];
+  return Object.values(next).filter((profile) => !(profile.id in prev));
+};
 
 export type UseJamFooterControlsArgs = {
   room: Room;
@@ -49,6 +59,37 @@ export const useJamFooterControls = ({
     isModerator && jam.waitingRoom ? jamPost.id : '',
     occurrence,
   );
+
+  /** Baseline snapshot to prevent an initial toast burst on stream connect. */
+  const waitingRoomBaseline = useRef<Record<string, PublicProfile> | null>(
+    null,
+  );
+
+  useEffect(() => {
+    if (!waitingRoom) return;
+
+    if (waitingRoomBaseline.current === null) {
+      waitingRoomBaseline.current = { ...waitingRoom };
+      return;
+    }
+
+    const additions = diffWaitingRoomAdditions(
+      waitingRoomBaseline.current,
+      waitingRoom,
+    );
+
+    if (additions.length > 0) {
+      waitingRoomBaseline.current = { ...waitingRoom };
+      onSuccess(
+        t(
+          additions.length === 1
+            ? 'jams.waitingRoom.joinedToastOne'
+            : 'jams.waitingRoom.joinedToastMany',
+          { count: additions.length },
+        ),
+      );
+    }
+  }, [waitingRoom, t, onSuccess, isModerator, jam.waitingRoom]);
 
   const [busy, setBusy] = useState(false);
 
