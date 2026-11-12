@@ -19,6 +19,12 @@ overrides:
   # mermaid pulls dompurify ^3.3.3 which resolved to vulnerable 3.4.15
   # (GHSA-cg2g-xh64-v4q7 + others). Force the patched 3.4.17 tree-wide.
   dompurify: "3.4.17"
+  # @google-cloud/storage (under firebase-admin) pulls fast-xml-parser ^4.4.1
+  # which resolved to vulnerable 4.5.1 (GHSA-m7jm-9gc2-mpf2 DOCTYPE regex
+  # injection + 2 high + 1 moderate + 1 low). Force the patched 4.5.7 (latest
+  # 4.x) for the storage instance only; the RN CLI's fast-xml-parser@5.7.1 is
+  # untouched. Two advisories need 5.x and stay.
+  "@google-cloud/storage>fast-xml-parser": "4.5.7"
   # undici is pulled in by @sentry/cli (6.25.0), @digitalbazaar/http-client
   # (6.29.1), apns2 (7.10.0) and @fedify/vocab-runtime (7.30.1). The 6.x lines
   # are end-of-life; 7.30.1 still carries CVE-2025-7783 (HTTP/2 Rapid Reset,
