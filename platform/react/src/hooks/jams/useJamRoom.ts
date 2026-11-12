@@ -271,7 +271,7 @@ export const useJamRoom = () => {
     shouldAutoRsvp,
     capacityBlock,
     canDirectJoin: isModerator || (jamActive && !jam?.waitingRoom),
-    canRequestJoin: !isModerator && !!jam?.waitingRoom,
+    canRequestJoin: !!me && !isModerator && !!jam?.waitingRoom,
     handleJoin,
     handleDisconnected,
     tryReconnect,
