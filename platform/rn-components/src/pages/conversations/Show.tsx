@@ -10,7 +10,6 @@ import {
   DM_MAX_ATTACHMENTS,
 } from '@openpeepshq/react';
 import { useTranslation } from 'react-i18next';
-import { useSetPageHeader } from '../../components/layout';
 import { ThemedView } from '../../components/ui/themed-view';
 import {
   KeyboardAvoidingView,
@@ -21,7 +20,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Toast from 'react-native-toast-message';
-import { ImageIcon, InfoIcon, SearchIcon } from '../../components/icons/index';
+import { ImageIcon } from '../../components/icons/index';
 import {
   MediaAttachment,
   MediaAttachmentData,
@@ -39,7 +38,6 @@ import { ProfileAvatar } from '../../components/profile/Avatar';
 import { ThemedText } from '../../components/ui/themed-text';
 import {
   ConversationParticipantsModal,
-  ConversationProfileHeader,
   DirectMessageSearch,
   MessageInThread,
 } from '../../components/conversations/index';
@@ -202,46 +200,6 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
     if (unseenIds.length === 0) return;
     void markPostsSeen({ postIds: unseenIds });
   }, [id, currentProfile, messages, isLoading, markPostsSeen]);
-
-  const searchLabel = searchOpen
-    ? t('common.close', { defaultValue: 'Close' })
-    : t('conversations.search.toggle', {
-        defaultValue: 'Search this conversation',
-      });
-
-  useSetPageHeader(
-    isLoading ? undefined : (
-      <ConversationProfileHeader
-        participants={participants}
-        onPress={
-          multipleParticipants ? () => setParticipantsOpen(true) : undefined
-        }
-      />
-    ),
-    isLoading ? undefined : (
-      <View className="flex-row items-center">
-        <TouchableOpacity
-          onPress={() => setSearchOpen((open) => !open)}
-          accessibilityRole="button"
-          accessibilityLabel={searchLabel}
-          accessibilityState={{ expanded: searchOpen }}
-          testID="conversation-search-toggle"
-          className={`rounded-md p-1.5 ${searchOpen ? 'bg-muted' : ''}`}
-        >
-          <SearchIcon
-            size={18}
-            className={searchOpen ? 'text-foreground' : 'text-muted-foreground'}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('ConversationInfo', { id })}
-          className="rounded-md p-1.5"
-        >
-          <InfoIcon size={18} className="text-foreground" />
-        </TouchableOpacity>
-      </View>
-    )
-  );
 
   if (isLoading) {
     return (

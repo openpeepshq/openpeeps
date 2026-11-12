@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import type {
   MediaAttachmentData,
@@ -6,14 +6,12 @@ import type {
   PostCreationData,
   PublicPost,
 } from '@openpeepshq/common/types';
-import { Image, Info, Search } from 'lucide-react';
+import { Image } from 'lucide-react';
 import {
   useT,
   useOpenpeeps,
-  useSetPageHeader,
   usePostViewFlush,
   adjustUnseenCounts,
-  useNavigate,
 } from '../../index';
 import { canCreatePost } from '@openpeepshq/common';
 import {
@@ -165,69 +163,6 @@ export function ConversationShow() {
     participants.length > 0
       ? participants.map((p) => p.displayName || `@${p.handle}`).join(', ')
       : t('conversations.title', { defaultValue: 'Conversation' });
-  const openParticipantsLabel = t('conversations.participants.openList', {
-    defaultValue: 'View participants',
-  });
-
-  const headerTitle = useMemo(() => {
-    if (!multipleParticipants) return participantNames;
-    return (
-      <button
-        type="button"
-        className="min-w-0 truncate text-left text-xl font-semibold"
-        onClick={() => setParticipantsOpen(true)}
-        title={openParticipantsLabel}
-        aria-haspopup="dialog"
-        data-testid="conversation-participants-open"
-      >
-        {participantNames}
-      </button>
-    );
-  }, [multipleParticipants, participantNames, openParticipantsLabel]);
-
-  const navigate = useNavigate();
-
-  const searchLabel = searchOpen
-    ? t('common.close', { defaultValue: 'Close' })
-    : t('conversations.search.toggle', {
-        defaultValue: 'Search this conversation',
-      });
-
-  const headerActions = useMemo(
-    () => (
-      <div className="flex items-center">
-        <button
-          type="button"
-          onClick={() => setSearchOpen((open) => !open)}
-          title={searchLabel}
-          aria-label={searchLabel}
-          aria-expanded={searchOpen}
-          aria-controls={searchOpen ? 'conversation-message-search' : undefined}
-          data-testid="conversation-search-toggle"
-          className={`rounded-md p-1.5 ${
-            searchOpen
-              ? 'bg-muted text-foreground'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          <Search size={18} />
-        </button>
-        <button
-          type="button"
-          onClick={() => navigate({ type: 'conversation', id, view: 'info' })}
-          title={t('conversations.info.title', {
-            defaultValue: 'Conversation info',
-          })}
-          className="text-muted-foreground hover:text-foreground rounded-md p-1.5"
-        >
-          <Info size={18} />
-        </button>
-      </div>
-    ),
-    [id, navigate, searchLabel, searchOpen, t],
-  );
-
-  useSetPageHeader(headerTitle, headerActions);
 
   const [sending, setSending] = useState(false);
 
@@ -331,8 +266,6 @@ export function ConversationShow() {
             type="button"
             className="flex w-full min-w-0 items-center gap-2 p-3 text-left"
             onClick={() => setParticipantsOpen(true)}
-            title={openParticipantsLabel}
-            aria-haspopup="dialog"
           >
             <div className="flex shrink-0 -space-x-2">
               {participants.slice(0, 4).map((p) => (
