@@ -29,6 +29,11 @@ overrides:
   # express 5.x allows proxy-addr ^2.0.7; 2.0.7 has an IP-spoofing
   # bug via IPv4-mapped IPv6 trust subnet (GHSA-jqcg). Force the patched 2.0.8.
   proxy-addr: "2.0.8"
+  # jsdom (vitest/jsdom dev trees) pulls form-data ^4.0.0 which resolved to
+  # vulnerable 4.0.0 (GHSA-fjxv-7rqg-78g4 unsafe-random boundary,
+  # GHSA-hmw2-7cc7-3qxx CRLF injection). Force the patched 4.0.6 for the jsdom
+  # instances only; both jsdom 24/25 declare ^4.0.0 so this stays in-range.
+  "jsdom>form-data": "4.0.6"
   # undici is pulled in by @sentry/cli (6.25.0), @digitalbazaar/http-client
   # (6.29.1), apns2 (7.10.0) and @fedify/vocab-runtime (7.30.1). The 6.x lines
   # are end-of-life; 7.30.1 still carries CVE-2025-7783 (HTTP/2 Rapid Reset,
