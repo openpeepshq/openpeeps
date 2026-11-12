@@ -62,7 +62,7 @@
     "@vitest/coverage-v8": "^2.1.8",
     "@vitest/ui": "^2.1.8",
     "concurrently": "^9.2.1",
-    "eslint": "^10.1.0",
+    "eslint": "^10.14.0",
     "eslint-config-prettier": "^9.1.0",
     "i18next": "^26.0.3",
     "livekit-client": "^2.19.2",

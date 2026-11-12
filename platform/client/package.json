@@ -41,7 +41,7 @@
     "@typescript-eslint/eslint-plugin": "^8.72.0",
     "@typescript-eslint/parser": "^8.72.0",
     "concurrently": "^9.1.2",
-    "eslint": "^10.1.0",
+    "eslint": "^10.14.0",
     "i18next": "^24.2.3",
     "livekit-client": "^2.19.2",
     "prettier": "^3.4.2",
