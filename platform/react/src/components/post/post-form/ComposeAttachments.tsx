@@ -127,6 +127,13 @@ export function useComposeAttachments({
   };
 
   const handleImageSelected = async (file: File) => {
+    // If a file is already pending crop/alt, enqueue it (no crop for queued
+    // files) so sequential single-picks don't clobber the earlier one and
+    // preserve add-order in the gallery.
+    if (pendingImage) {
+      enqueueFile(pendingImage.file);
+      URL.revokeObjectURL(pendingImage.previewUrl);
+    }
     const processed = await convertToWebpIfHeic(file);
     if (processed.type.startsWith('image/')) {
       setPendingImage({
