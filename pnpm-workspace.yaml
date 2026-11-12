@@ -36,6 +36,11 @@ overrides:
   # ranges (^4.7.9 / ^4.7.7) already allow 4.7.10; the lockfile is stale.
   # Patch-level, dev-only.
   handlebars: "4.7.10"
+  # fast-jwt 6.0.2 (pulled in by apns2, ^6.0.1 declared) carries multiple GHSA
+  # advisories (3 critical as of 2026-11: algorithm confusion, cache-key
+  # collision, HMAC bypass). 6.3.6 patches all of them and sits inside apns2's
+  # declared range. 6.3.6 requires node >=20, which matches the CI base image.
+  fast-jwt: "6.3.6"
 
 allowBuilds:
   "@evilmartians/lefthook": true
