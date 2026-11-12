@@ -60,24 +60,32 @@ const countDistinctActives = async (
   const db = await database();
   const start = utcDayStart(from);
   const end = exclusiveEnd(to);
+  // Scope actors to the same population as totalMembersAt (local,
+  // non-deleted profiles) so federated or deleted actors cannot make
+  // active members exceed total members.
   const result = await db.execute(sql`
     select count(*)::int as c from (
-      select creator_id as profile_id from posts
-        where deleted_at is null
-          and created_at >= ${start} and created_at < ${end}
-      union
-      select from_id from entries
-        where body->>'type' in ('reaction', 'unreaction')
-        and created_at >= ${start} and created_at < ${end}
-      union
-      select from_id from repost
-        where created_at >= ${start} and created_at < ${end}
-      union
-      select from_id from reply_to
-        where created_at >= ${start} and created_at < ${end}
-      union
-      select from_id from bookmarks
-        where created_at >= ${start} and created_at < ${end}
+      select a.actor_id as profile_id
+        from (
+          select creator_id as actor_id from posts
+            where deleted_at is null
+              and created_at >= ${start} and created_at < ${end}
+          union
+          select from_id from entries
+            where body->>'type' in ('reaction', 'unreaction')
+            and created_at >= ${start} and created_at < ${end}
+          union
+          select from_id from repost
+            where created_at >= ${start} and created_at < ${end}
+          union
+          select from_id from reply_to
+            where created_at >= ${start} and created_at < ${end}
+          union
+          select from_id from bookmarks
+            where created_at >= ${start} and created_at < ${end}
+        ) a
+        join profiles p on p.id::text = a.actor_id
+        where p.type = 'local' and p.deleted_at is null
     ) active
   `);
   const rows = result.rows as Array<Record<string, unknown>>;

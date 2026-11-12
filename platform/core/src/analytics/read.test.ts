@@ -23,22 +23,11 @@ const CURRENT_POSTS = [10, 20, 30, 40, 50, 60, 70];
 const PREV_ACTIVE = 10;
 const PREV_POSTS = 100;
 
-// Fixed UUIDs so we can seed distinct creators for the distinct-active-count
-// query in countDistinctActives (read.ts). Posts with these creator_ids drive
-// the activeMembers metric value; the analytics_daily_totals.active_members
-// rollups drive the series/chart instead.
-const CURRENT_CREATOR_UUIDS = [
-  '00000000-0000-0000-0000-000000000001',
-  '00000000-0000-0000-0000-000000000002',
-  '00000000-0000-0000-0000-000000000003',
-  '00000000-0000-0000-0000-000000000004',
-  '00000000-0000-0000-0000-000000000005',
-];
-const PREV_CREATOR_UUIDS = [
-  '00000000-0000-0000-0000-000000000006',
-  '00000000-0000-0000-0000-000000000007',
-  '00000000-0000-0000-0000-000000000008',
-];
+// Active members are measured by countDistinctActives (read.ts), which counts
+// distinct actor profiles from the activity tables joined to local, non-deleted
+// profiles. The posts below use real seeded profile ids as creators so those
+// actors are counted; the analytics_daily_totals.active_members rollups drive
+// the series/chart independently.
 
 /**
  * Seed the tables that getAnalyticsOverview reads for the overview metric
@@ -135,23 +124,55 @@ const seed = async () => {
     }
   }
 
-  // posts: 5 on Aug 3 (5 distinct creators → activeMembers=5), 3 on Jul 28
-  // (3 distinct creators → prevActiveMembers=3), all public visibility
+  // posts: 5 on Aug 3 by 5 distinct local members (indices 5..9) → activeMembers=5,
+  // 3 on Jul 28 by 3 distinct local members (indices 0..2) → prevActiveMembers=3,
+  // all public visibility. Creators reference real seeded local profiles so
+  // countDistinctActives (which joins to local, non-deleted profiles) counts them.
   // allTimePosts@07-31 = 3, allTimePosts@08-07 = 8
-  for (let i = 0; i < PREV_CREATOR_UUIDS.length; i++) {
+  for (let i = 0; i < 3; i++) {
     await pool.query(
       `INSERT INTO posts (id, type, visibility, creator_id, created_at, updated_at)
        VALUES (gen_random_uuid(), 'note', 'public', $1, $2, $2)`,
-      [PREV_CREATOR_UUIDS[i], '2026-07-28T00:00:00.000Z'],
+      [createdProfileIds[i], '2026-07-28T00:00:00.000Z'],
     );
   }
-  for (let i = 0; i < CURRENT_CREATOR_UUIDS.length; i++) {
+  for (let i = 5; i < 10; i++) {
     await pool.query(
       `INSERT INTO posts (id, type, visibility, creator_id, created_at, updated_at)
        VALUES (gen_random_uuid(), 'note', 'public', $1, $2, $2)`,
-      [CURRENT_CREATOR_UUIDS[i], '2026-08-03T00:00:00.000Z'],
+      [createdProfileIds[i], '2026-08-03T00:00:00.000Z'],
     );
   }
+
+  // Non-member actors who post in the current window. Neither may be counted
+  // in active members: federated profiles are not local members, and a deleted
+  // local profile is excluded from the member population. Both would inflate
+  // the count (and could push it past totalMembers) without the scope join.
+  const fedRes = await pool.query(
+    `INSERT INTO profiles (id, handle, type, created_at, updated_at)
+     VALUES (gen_random_uuid(), 'fed-1', 'federated', $1, $1)
+     RETURNING id`,
+    ['2026-08-02T00:00:00.000Z'],
+  );
+  const fedId = fedRes.rows[0].id;
+  await pool.query(
+    `INSERT INTO posts (id, type, visibility, creator_id, created_at, updated_at)
+     VALUES (gen_random_uuid(), 'note', 'public', $1, $2, $2)`,
+    [fedId, '2026-08-04T00:00:00.000Z'],
+  );
+
+  const deletedRes = await pool.query(
+    `INSERT INTO profiles (id, handle, type, created_at, updated_at, deleted_at)
+     VALUES (gen_random_uuid(), 'gone-1', 'local', $1, $1, $2)
+     RETURNING id`,
+    ['2026-07-20T00:00:00.000Z', '2026-08-01T00:00:00.000Z'],
+  );
+  const deletedId = deletedRes.rows[0].id;
+  await pool.query(
+    `INSERT INTO posts (id, type, visibility, creator_id, created_at, updated_at)
+     VALUES (gen_random_uuid(), 'note', 'public', $1, $2, $2)`,
+    [deletedId, '2026-08-05T00:00:00.000Z'],
+  );
 };
 
 // Integration tests require a real PostgreSQL instance.
@@ -206,9 +227,9 @@ maybe('getAnalyticsOverview', () => {
 
   it('returns allTimePosts as cumulative count through range end', () => {
     const card = overview.metrics.allTimePosts;
-    expect(card.value).toBe(8);
+    expect(card.value).toBe(10);
     expect(card.previousValue).toBe(3);
-    expect(card.deltaPct).toBe(166.7);
+    expect(card.deltaPct).toBe(233.3);
   });
 
   it('returns totalMembers as cumulative count through range end', () => {
