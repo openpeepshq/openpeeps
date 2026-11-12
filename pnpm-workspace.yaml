@@ -8,6 +8,12 @@ packages:
 linkWorkspacePackages: deep
 
 overrides:
+  # faye-websocket@0.11.4 (pulled by @firebase/database via firebase-admin /
+  # @react-native-firebase) declares websocket-driver >=0.5.1, which resolved
+  # to 0.7.4 (GHSA-xv26-6w52-cph6 critical, GHSA-mp7j-qc5w-4988 moderate,
+  # both fixed in 0.7.5). Force the patched 0.7.5 — in-range, no direct-dep
+  # bump path exists.
+  faye-websocket>websocket-driver: "0.7.5"
   "@types/react": "19.2.14"
   "@types/react-dom": "19.2.3"
   "@tanstack/react-query": "5.90.16"
