@@ -8,6 +8,13 @@ packages:
 linkWorkspacePackages: deep
 
 overrides:
+  # form-data 2.5.3 arrives only via @types/request (declared by firebase-admin
+  # and via google-gax > retry-request in the firebase-admin chain). 2.5.3
+  # carries GHSA-fjxv-7rqg-78g4 (critical) + GHSA-hmw2-7cc7-3qxx (high); the
+  # latest 2.x, 2.5.6, clears both and is in-range for @types/request (^2.5.0).
+  # Scoped because @types/request is a transitive type-only dep (no direct bump
+  # handle) and jsdom's form-data 4.x instance must not be affected.
+  "@types/request>form-data": "2.5.6"
   "@types/react": "19.2.14"
   "@types/react-dom": "19.2.3"
   "@tanstack/react-query": "5.90.16"
