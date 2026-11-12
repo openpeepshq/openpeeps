@@ -211,31 +211,35 @@ export const JamFooter = ({
         />
       ) : null}
 
-      <JamMicSelector />
-      <JamCameraSelector />
-      <JamAudioOutputSelector
-        speakerDeviceId={speakerDeviceId}
-        speakerEnabled={speakerEnabled}
-        onSpeakerChange={onSpeakerChange}
-        onToggleSpeaker={onToggleSpeaker}
-      />
+      <View className="flex min-w-0 flex-1 flex-row items-center gap-x-2">
+        <JamMicSelector />
+        <JamCameraSelector />
+        <JamAudioOutputSelector
+          speakerDeviceId={speakerDeviceId}
+          speakerEnabled={speakerEnabled}
+          onSpeakerChange={onSpeakerChange}
+          onToggleSpeaker={onToggleSpeaker}
+        />
+      </View>
 
-      <JamToolbarButton
-        title={t('jams.reactions.sendTitle')}
-        tone={reactionTone}
-        action={() => setReactionMenuOpen((open) => !open)}
-      >
-        <LaughIcon size={20} className={toneIconClass[reactionTone]} />
-      </JamToolbarButton>
+      <View className="flex shrink-0 flex-row items-center gap-x-2">
+        <JamToolbarButton
+          title={t('jams.reactions.sendTitle')}
+          tone={reactionTone}
+          action={() => setReactionMenuOpen((open) => !open)}
+        >
+          <LaughIcon size={20} className={toneIconClass[reactionTone]} />
+        </JamToolbarButton>
 
-      <JamToolbarButton
-        title={t('jams.drawer.jamControls')}
-        action={() => setMobileMenuOpen((open) => !open)}
-      >
-        <CircleEllipsisIcon size={20} className="text-foreground" />
-      </JamToolbarButton>
+        <JamToolbarButton
+          title={t('jams.drawer.jamControls')}
+          action={() => setMobileMenuOpen((open) => !open)}
+        >
+          <CircleEllipsisIcon size={20} className="text-foreground" />
+        </JamToolbarButton>
 
-      <LeaveCloseButton />
+        <LeaveCloseButton />
+      </View>
     </View>
   );
 };

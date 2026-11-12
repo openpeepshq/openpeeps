@@ -4,7 +4,6 @@ import { formatBadgeCount, GroupWithMeta } from '@openpeepshq/common';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { ThemedText } from '../ui/themed-text';
-import { truncateText } from '../../lib/utils';
 import { Button } from '../ui/button';
 import { UsersIcon } from '../icons/index';
 import { useTranslation } from 'react-i18next';
@@ -27,12 +26,12 @@ export const GroupCard = ({
   const { t } = useTranslation();
 
   return (
-    <View className="flex flex-row justify-between w-full mb-8">
+    <View className="flex flex-row items-center justify-between w-full mb-8">
       <Pressable
         onPress={handleViewGroup}
-        className="flex flex-row items-center gap-x-2"
+        className="flex min-w-0 flex-1 flex-row items-center gap-x-2"
       >
-        <Avatar alt="profile" className="size-16">
+        <Avatar alt="profile" className="size-16 shrink-0">
           {group?.avatar ? (
             <AvatarImage
               source={{
@@ -45,10 +44,10 @@ export const GroupCard = ({
             </AvatarFallback>
           )}
         </Avatar>
-        <View className="ml-2">
+        <View className="ml-2 min-w-0 flex-1">
           <View className="flex-row items-center gap-x-2">
-            <ThemedText className="text-lg font-semibold">
-              {truncateText(group.displayName, 25) || '-'}
+            <ThemedText className="text-lg font-semibold" numberOfLines={1}>
+              {group.displayName || '-'}
             </ThemedText>
             {unreadCount > 0 ? (
               <View className="bg-destructive size-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1">
@@ -59,26 +58,28 @@ export const GroupCard = ({
             ) : null}
           </View>
           <View className="flex-row gap-x-3 mt-2 items-center">
-            <ThemedText className="text-sm">
+            <ThemedText className="text-sm" numberOfLines={1}>
               {group?.membersCount} Member
               {group?.membersCount && group?.membersCount > 1 ? 's' : ''}
             </ThemedText>
           </View>
         </View>
       </Pressable>
-      {!isGroupMember ? (
-        <JoinGroupButton
-          group={group}
-          onJoined={async () => {
-            await queryClient.invalidateQueries();
-            handleViewGroup();
-          }}
-        />
-      ) : (
-        <Button variant="outline" onPress={handleViewGroup}>
-          <ThemedText>{t('groups.actions.view')}</ThemedText>
-        </Button>
-      )}
+      <View className="flex shrink-0 ml-2">
+        {!isGroupMember ? (
+          <JoinGroupButton
+            group={group}
+            onJoined={async () => {
+              await queryClient.invalidateQueries();
+              handleViewGroup();
+            }}
+          />
+        ) : (
+          <Button variant="outline" onPress={handleViewGroup}>
+            <ThemedText>{t('groups.actions.view')}</ThemedText>
+          </Button>
+        )}
+      </View>
     </View>
   );
 };

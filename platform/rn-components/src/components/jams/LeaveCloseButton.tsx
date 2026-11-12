@@ -51,8 +51,12 @@ export const LeaveCloseButton = () => {
       accessibilityLabel={t('jams.exit.confirm')}
       disabled={busy}
       onPress={handleClick}
+      className="shrink-0"
     >
-      <ThemedText className="text-sm text-destructive-foreground">
+      <ThemedText
+        className="text-sm text-destructive-foreground"
+        numberOfLines={1}
+      >
         {t('jams.exit.confirm')}
       </ThemedText>
     </Button>
