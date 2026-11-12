@@ -37,6 +37,12 @@ overrides:
   # ranges (^4.7.9 / ^4.7.7) already allow 4.7.10; the lockfile is stale.
   # Patch-level, dev-only.
   handlebars: "4.7.10"
+  # @google-cloud/storage (under firebase-admin) pulls fast-xml-parser ^4.4.1
+  # which resolved to vulnerable 4.5.1 (GHSA-m7jm-9gc2-mpf2 DOCTYPE regex
+  # injection + 2 high + 1 moderate + 1 low). Force the patched 4.5.7 (latest
+  # 4.x) for the storage instance only; the RN CLI's fast-xml-parser@5.7.1 is
+  # untouched. Two advisories need 5.x and stay.
+  "@google-cloud/storage>fast-xml-parser": "4.5.7"
 
 allowBuilds:
   "@evilmartians/lefthook": true
