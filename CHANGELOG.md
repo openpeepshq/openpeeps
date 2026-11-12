@@ -19,6 +19,7 @@ Changelog for OpenPeeps
 - **deps**: force proxy-addr 2.0.8 in pnpm overrides
 - **deps**: bump handlebars to 4.7.10
 - **events**: preserve the event timezone in generated ICS files
+- **react**: land on the welcome page after login (password, SSO, OIDC paths)
 - **previews**: prefer og:* metadata in link previews
 - **deps**: bump react-router-dom to 7.18.5 to clear 2 high + 3 moderate
 - **react, rn-components**: post-signup email verification reminder

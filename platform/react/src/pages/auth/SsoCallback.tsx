@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCredentialsStore, useOpenpeeps, useT } from '../../index';
+import { useCredentialsStore, useOpenpeeps, useT, useHrefOf } from '../../index';
 
 export function SsoCallback() {
   const t = useT();
   const navigate = useNavigate();
+  const hrefOf = useHrefOf();
   const { client } = useOpenpeeps();
   const { credentialsStore } = useCredentialsStore();
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +24,7 @@ export function SsoCallback() {
       .then(async (res) => {
         if ('data' in res) {
           await credentialsStore.set({ token: res.data.token });
-          navigate('/feeds/local');
+          navigate(hrefOf({ type: 'welcome' }));
         } else {
           setError(
             (res.error as { error?: string })?.error ?? 'Authentication failed',

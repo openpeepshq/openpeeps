@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useCredentialsStore, useT } from '../../index';
+import { useCredentialsStore, useT, useHrefOf } from '../../index';
 
 /**
  * Lands the browser after the server's OIDC callback has exchanged the code.
@@ -9,6 +9,7 @@ import { useCredentialsStore, useT } from '../../index';
 export function OidcCallback() {
   const t = useT();
   const navigate = useNavigate();
+  const hrefOf = useHrefOf();
   const [searchParams] = useSearchParams();
   const { credentialsStore } = useCredentialsStore();
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +24,9 @@ export function OidcCallback() {
     }
 
     if (token) {
-      void credentialsStore.set({ token }).then(() => navigate('/feeds/local'));
+      void credentialsStore.set({ token }).then(() =>
+        navigate(hrefOf({ type: 'welcome' })),
+      );
       return;
     }
 
