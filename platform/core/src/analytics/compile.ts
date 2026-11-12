@@ -105,7 +105,7 @@ export const compileAnalyticsDay = async (day: string): Promise<void> => {
 
   const activeMembers = await countScalar(
     db,
-    sql`select count(*)::int as c from (
+    sql`select count(distinct u.profile_id)::int as c from (
           select creator_id as profile_id from posts
             where deleted_at is null
               and created_at >= ${start} and created_at < ${end}
@@ -122,7 +122,9 @@ export const compileAnalyticsDay = async (day: string): Promise<void> => {
           union
           select from_id from bookmarks
             where created_at >= ${start} and created_at < ${end}
-        ) active`,
+        ) u
+        join profiles p on p.id::text = u.profile_id
+        where p.deleted_at is null and p.type = 'local'`,
   );
 
   await db

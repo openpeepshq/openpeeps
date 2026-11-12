@@ -61,7 +61,7 @@ const countDistinctActives = async (
   const start = utcDayStart(from);
   const end = exclusiveEnd(to);
   const result = await db.execute(sql`
-    select count(*)::int as c from (
+    select count(distinct u.profile_id)::int as c from (
       select creator_id as profile_id from posts
         where deleted_at is null
           and created_at >= ${start} and created_at < ${end}
@@ -78,7 +78,9 @@ const countDistinctActives = async (
       union
       select from_id from bookmarks
         where created_at >= ${start} and created_at < ${end}
-    ) active
+    ) u
+    join profiles p on p.id::text = u.profile_id
+    where p.deleted_at is null and p.type = 'local'
   `);
   const rows = result.rows as Array<Record<string, unknown>>;
   return Number(rows[0]?.c ?? 0);

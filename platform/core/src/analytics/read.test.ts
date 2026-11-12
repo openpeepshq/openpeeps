@@ -26,7 +26,8 @@ const PREV_POSTS = 100;
 // Fixed UUIDs so we can seed distinct creators for the distinct-active-count
 // query in countDistinctActives (read.ts). Posts with these creator_ids drive
 // the activeMembers metric value; the analytics_daily_totals.active_members
-// rollups drive the series/chart instead.
+// rollups drive the series/chart instead. Each creator below is backed by a
+// seeded local profile so the activity-to-profile join keeps counting it.
 const CURRENT_CREATOR_UUIDS = [
   '00000000-0000-0000-0000-000000000001',
   '00000000-0000-0000-0000-000000000002',
@@ -38,6 +39,13 @@ const PREV_CREATOR_UUIDS = [
   '00000000-0000-0000-0000-000000000006',
   '00000000-0000-0000-0000-000000000007',
   '00000000-0000-0000-0000-000000000008',
+];
+// Actors with no backing member profile: they must not count as active
+// members even though their activity lands in the same edge tables.
+const NON_MEMBER_ACTOR_UUIDS = [
+  '00000000-0000-0000-0000-000000000101',
+  '00000000-0000-0000-0000-000000000102',
+  '00000000-0000-0000-0000-000000000103',
 ];
 
 /**
@@ -90,6 +98,17 @@ const seed = async () => {
     }
   }
 
+  // Back the fixed creator UUIDs with real local profiles so their posts
+  // survive the activity-to-profile join in countDistinctActives.
+  const creatorProfileIds = [...PREV_CREATOR_UUIDS, ...CURRENT_CREATOR_UUIDS];
+  for (let i = 0; i < creatorProfileIds.length; i++) {
+    await pool.query(
+      `INSERT INTO profiles (id, handle, type, created_at, updated_at)
+       VALUES ($1, $2, 'local', '2026-07-20T00:00:00.000Z', '2026-07-20T00:00:00.000Z')`,
+      [creatorProfileIds[i], `seed-creator-${i}`],
+    );
+  }
+
   // Guest profiles must not be counted in member totals
   await pool.query(
     `INSERT INTO profiles (id, handle, type, created_at, updated_at)
@@ -100,6 +119,20 @@ const seed = async () => {
     `INSERT INTO profiles (id, handle, type, created_at, updated_at)
      VALUES (gen_random_uuid(), 'guest-2', 'guest', $1, $1)`,
     ['2026-07-25T00:00:00.000Z'],
+  );
+
+  // Federated and deleted profiles that act in the window must stay excluded
+  // from activeMembers: the federated one is not a member, the deleted one is
+  // no longer a member.
+  await pool.query(
+    `INSERT INTO profiles (id, handle, type, created_at, updated_at)
+     VALUES ($1, 'federated-1', 'federated', '2026-07-25T00:00:00.000Z', '2026-07-25T00:00:00.000Z')`,
+    [NON_MEMBER_ACTOR_UUIDS[0]],
+  );
+  await pool.query(
+    `INSERT INTO profiles (id, handle, type, deleted_at, created_at, updated_at)
+     VALUES ($1, 'deleted-1', 'local', '2026-07-26T00:00:00.000Z', '2026-07-20T00:00:00.000Z', '2026-07-20T00:00:00.000Z')`,
+    [NON_MEMBER_ACTOR_UUIDS[1]],
   );
 
   // Link an account (verified or unverified) to each local profile via controls edge
@@ -151,6 +184,23 @@ const seed = async () => {
        VALUES (gen_random_uuid(), 'note', 'public', $1, $2, $2)`,
       [CURRENT_CREATOR_UUIDS[i], '2026-08-03T00:00:00.000Z'],
     );
+  }
+
+  // Non-member actors (federated, deleted local, guest) are active in the
+  // window via bookmarks, but none of them is a live local member — the
+  // activeMembers metric must stay at 5 (current) / 3 (previous).
+  const bookmarkDates = [
+    '2026-08-03T00:00:00.000Z',
+    '2026-07-28T00:00:00.000Z',
+  ];
+  for (let i = 0; i < NON_MEMBER_ACTOR_UUIDS.length; i++) {
+    for (const date of bookmarkDates) {
+      await pool.query(
+        `INSERT INTO bookmarks (id, from_id, to_id, created_at, updated_at)
+         VALUES (gen_random_uuid(), $1, gen_random_uuid()::text, $2, $2)`,
+        [NON_MEMBER_ACTOR_UUIDS[i], date],
+      );
+    }
   }
 };
 
@@ -213,17 +263,29 @@ maybe('getAnalyticsOverview', () => {
 
   it('returns totalMembers as cumulative count through range end', () => {
     const card = overview.metrics.totalMembers;
-    expect(card.value).toBe(10);
-    expect(card.previousValue).toBe(7);
-    expect(card.deltaPct).toBe(42.9);
+    expect(card.value).toBe(18);
+    expect(card.previousValue).toBe(15);
+    expect(card.deltaPct).toBe(20);
   });
 
   it('excludes guest profiles from totalMembers', () => {
     // 2 guest profiles were seeded on Jul 25; they must not inflate the count.
-    // totalMembers@08-07 = 10 (local only), previous@07-31 = 7 (local only)
+    // totalMembers@08-07 = 18 (10 + 8 backed post creators), previous@07-31 = 15
     const card = overview.metrics.totalMembers;
-    expect(card.value).toBe(10);
-    expect(card.previousValue).toBe(7);
+    expect(card.value).toBe(18);
+    expect(card.previousValue).toBe(15);
+  });
+
+  it('excludes non-member actors from activeMembers and keeps active <= total', () => {
+    // A federated profile, a deleted local profile, and a guest profile all
+    // bookmark in the window (see seed); their activity must not count as
+    // active members — only the 8 backed local post creators do.
+    const active = overview.metrics.activeMembers;
+    const total = overview.metrics.totalMembers;
+    expect(active.value).toBe(5);
+    expect(active.previousValue).toBe(3);
+    expect(active.value).toBeLessThanOrEqual(total.value);
+    expect(active.previousValue).toBeLessThanOrEqual(total.previousValue);
   });
 
   it('returns verified members as all verified profiles through range end', () => {
