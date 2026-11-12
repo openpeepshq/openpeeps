@@ -7,6 +7,7 @@ import {
   Pressable,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useParticipants } from '@livekit/react-native';
 import { useTranslation } from 'react-i18next';
 import { useJamChat } from '@openpeepshq/react';
@@ -30,6 +31,11 @@ export const JamChatDrawer = ({
 }: JamChatDrawerProps) => {
   const { t } = useTranslation();
   const participants = useParticipants();
+  const insets = useSafeAreaInsets();
+  // JamDrawer title bar height: size-10 (40px) + p-2 vertical padding (16px) = 56px.
+  // Combined with useSafeAreaInsets().top, this makes the KAV offset dynamic
+  // across device classes, orientations, and safe-area changes.
+  const TITLE_BAR_HEIGHT = 56;
   const {
     messages,
     mentionProfiles,
@@ -42,6 +48,13 @@ export const JamChatDrawer = ({
     send,
   } = useJamChat({ participants, readOnly });
   const listRef = useRef<FlatList<JamEvent>>(null);
+
+  // iOS: offset = safe-area top inset + title bar height — adapts across
+  // devices, orientations, and split-screen.
+  // Android: KAV disabled (enabled={false}) so it does not double-shrink the
+  // list against the host app's adjustResize windowSoftInputMode.
+  const keyboardVerticalOffset =
+    Platform.OS === 'ios' ? insets.top + TITLE_BAR_HEIGHT : 0;
 
   useEffect(() => {
     if (!open || messages.length === 0) return;
@@ -67,8 +80,11 @@ export const JamChatDrawer = ({
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+        keyboardVerticalOffset={keyboardVerticalOffset}
+        enabled={Platform.OS === 'ios'}
       >
+        {/* flex-1 is load-bearing here — without it FlatList sizes to content
+            and does not fill the remaining KAV space. */}
         <FlatList
           ref={listRef}
           className="flex-1"
