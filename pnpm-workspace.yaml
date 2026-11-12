@@ -19,6 +19,11 @@ overrides:
   # mermaid pulls dompurify ^3.3.3 which resolved to vulnerable 3.4.15
   # (GHSA-cg2g-xh64-v4q7 + others). Force the patched 3.4.17 tree-wide.
   dompurify: "3.4.17"
+  # @types/request (dev chain: firebase-admin -> retry-request) pulls form-data
+  # ^2.5.0 which resolved to vulnerable 2.5.3 (GHSA-fjxv-7rqg-78g4 unsafe-random
+  # boundary, GHSA-hmw2-7cc7-3qxx CRLF injection). Force the patched 2.5.6 for
+  # the @types/request instance only; it declares ^2.5.0 so this stays in-range.
+  "@types/request>form-data": "2.5.6"
   # undici is pulled in by @sentry/cli (6.25.0), @digitalbazaar/http-client
   # (6.29.1), apns2 (7.10.0) and @fedify/vocab-runtime (7.30.1). The 6.x lines
   # are end-of-life; 7.30.1 still carries CVE-2025-7783 (HTTP/2 Rapid Reset,
