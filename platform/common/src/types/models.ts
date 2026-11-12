@@ -235,6 +235,7 @@ const profileResourceTypes = [
   'reports',
   'webhooks',
   'notifications',
+  'conversations',
 ] as const;
 
 export const profileResourceTypeSchema = z.enum(profileResourceTypes);

@@ -6,7 +6,11 @@ import {
   postDataSchema,
   type PostData,
 } from '@openpeepshq/common/types';
-import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
+import {
+  ensureLocalProfile,
+  ensurePostCapabilities,
+  ensureScope,
+} from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import {
   createPost,
@@ -36,6 +40,8 @@ export const Error = {
 export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
   async (input, event: RequestEvent) => {
     const profile = await ensureLocalProfile(event);
+    // Sending a direct message requires the conversations scope.
+    await ensureScope(event, 'write', { type: 'conversations' });
 
     const post = await findPost(input.conversationId);
     if (!post) {

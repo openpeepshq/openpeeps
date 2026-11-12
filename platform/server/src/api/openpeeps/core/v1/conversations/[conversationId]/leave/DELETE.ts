@@ -1,6 +1,10 @@
 import { endpoint, z } from '#lib/endpoint';
 import { forbidden, notFound } from '#lib/errors';
-import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
+import {
+  ensureLocalProfile,
+  ensurePostCapabilities,
+  ensureScope,
+} from '#lib/auth';
 import {
   findPost,
   findLatestThreadPostId,
@@ -22,6 +26,7 @@ export const Error = {
 export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
   async (input, event) => {
     const profile = await ensureLocalProfile(event);
+    await ensureScope(event, 'write', { type: 'conversations' });
 
     const post = await findPost(input.conversationId, event.context.authData);
 

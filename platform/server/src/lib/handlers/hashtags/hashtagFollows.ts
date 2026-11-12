@@ -1,8 +1,8 @@
 import type { SuccessResponse } from '@openpeepshq/common/types';
-import { ensureLocalProfile } from '#lib/auth';
+import { ensureLocalProfile, ensureScope } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import { z } from '#lib/';
-import { notFound } from '#lib/helpers';
+import { notFound } from '#lib/errors';
 import {
   findHashtagByTag,
   findOrCreateHashtag,
@@ -21,6 +21,7 @@ export const followHashtagHandler = async (
   event: RequestEvent,
 ): Promise<SuccessResponse> => {
   const profile = await ensureLocalProfile(event);
+  await ensureScope(event, 'write', { type: 'profiles', id: profile.id });
   const hashtag = await findOrCreateHashtag(input.tag);
   await followHashtag(profile, hashtag);
   return { success: true };
@@ -31,6 +32,7 @@ export const unfollowHashtagHandler = async (
   event: RequestEvent,
 ): Promise<SuccessResponse> => {
   const profile = await ensureLocalProfile(event);
+  await ensureScope(event, 'write', { type: 'profiles', id: profile.id });
   const hashtag = await findHashtagByTag(input.tag);
   if (!hashtag) {
     throw notFound(`hashtag ${input.tag}`);

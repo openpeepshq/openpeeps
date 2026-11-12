@@ -3,7 +3,11 @@ import { directMessageSearchHitSchema } from '@openpeepshq/common/types';
 import { blockedPairIds, isOneToOneWithBlocked } from '@openpeepshq/common/lib';
 import { findPost, searchDirectMessages } from '@openpeepshq/core/posts';
 import { notFound } from '#lib/errors';
-import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
+import {
+  ensureLocalProfile,
+  ensurePostCapabilities,
+  ensureScope,
+} from '#lib/auth';
 
 export const Query = z.object({
   q: z.string().trim().min(2).max(200),
@@ -19,6 +23,7 @@ export const Error = {
 export const apiEndpoint = endpoint({ Query, Output, Error }).handle(
   async (query, event) => {
     await ensureLocalProfile(event);
+    await ensureScope(event, 'read', { type: 'conversations' });
     const authData = event.context.authData;
     const post = query.conversationId
       ? await findPost(query.conversationId, authData)

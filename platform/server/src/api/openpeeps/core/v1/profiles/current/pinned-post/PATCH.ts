@@ -1,7 +1,7 @@
 import { endpoint, z } from '#lib/endpoint';
 import { successResponseSchema } from '@openpeepshq/common/types';
 import { authNeeded, forbidden, notFound } from '#lib/errors';
-import { ensureLocalProfile } from '#lib/auth';
+import { ensureLocalProfile, ensureScope } from '#lib/auth';
 import { findPost } from '@openpeepshq/core/posts';
 import { pinPostOnProfile } from '@openpeepshq/core/profiles';
 
@@ -20,6 +20,7 @@ export const Error = {
 export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
   async (input, event) => {
     const profile = await ensureLocalProfile(event);
+    await ensureScope(event, 'write', { type: 'profiles', id: profile.id });
 
     if (input.postId) {
       const post = await findPost(input.postId, event.context.authData);

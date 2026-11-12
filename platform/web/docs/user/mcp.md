@@ -2,11 +2,14 @@
 
 AllPeep can speak [Model Context Protocol](https://modelcontextprotocol.io)
 (MCP). That lets an AI assistant — for example Cursor, Claude, or another MCP
-client — search and read your community the same way you can: groups, posts,
-profiles, and reports you already have access to.
+client — use your community the same way you can: search and read posts,
+groups, and profiles, and act as you — post, join groups, follow people, send
+direct messages, RSVP to events, and more.
 
 The assistant does **not** get extra privileges. It uses a personal access
-token that acts as you, and it only sees what that token is allowed to see.
+token that acts as you, and it can only do what that token's scopes allow.
+A read-only token sees a read-only community; a token with write scopes can
+also make changes.
 
 Operators who need server stats, backups, or moderation tools should use the
 [ops MCP documentation](/docs/admin/mcp) instead.
@@ -29,13 +32,33 @@ Operators who need server stats, backups, or moderation tools should use the
 2. Open **Settings → Access tokens**.
 3. Give the token a name you will recognize later (for example `Cursor MCP`).
 4. Choose an expiration (30 days is a reasonable default).
-5. Add **read** scopes for the things you want the assistant to use:
-   - `posts` — list and open posts
-   - `profiles` — look up people
-   - `groups` — list groups and members
-   - `reports` — your own reports
+5. Add scopes for the things you want the assistant to use. Each scope has a
+   **level** (`read`, `write`, or `admin`) and a **resource**
+   (`posts`, `profiles`, `groups`, `jams`, `notifications`, `reports`,
+   `conversations`).
+   - **Read-only assistant** — grant `read` on the resources it should be
+     allowed to see:
+     - `posts` — list and open posts
+     - `profiles` — look up people
+     - `groups` — list groups and members
+     - `reports` — your own reports
+     - `conversations` — list, search, and open direct messages
+   - **Assistant that acts for you** — grant `write` on the resources it
+     should be allowed to change:
+     - `posts` — post, reply, react, repost, vote on polls, RSVP to events,
+       bookmark
+     - `profiles` — follow/unfollow, block/unblock, follow hashtags, update
+       your own profile and settings
+     - `groups` — join/leave, create, manage members
+     - `jams` — close a jam, manage jam events
+     - `reports` — file reports
+     - `conversations` — send direct messages and leave conversations
+   - `notifications` — read or mark notifications.
 6. Create the token and **copy it immediately**. AllPeep shows the secret only
    once.
+
+Start with the narrowest scope that works. Granting `write` lets the assistant
+post and make other changes as you — only do that if you want it to.
 
 Treat the token like a password. Anyone who has it can act as you through the
 API until you revoke it or it expires. Revoke unused tokens on the same
@@ -303,20 +326,27 @@ Claude Code `.mcp.json` entry into this YAML shape.
 
 ## What the community tools can do
 
-| Tool                 | What it does                                                  |
-| -------------------- | ------------------------------------------------------------- |
-| `search`             | Search posts, profiles, groups, events, or jams               |
-| `list_posts`         | List posts, optionally filtered by group, profile, or hashtag |
-| `get_post`           | Open a post by id                                             |
-| `list_groups`        | List groups you can see                                       |
-| `get_group`          | Open a group by id or handle                                  |
-| `list_group_members` | List members of a group                                       |
-| `get_profile`        | Open a profile by id or handle                                |
-| `list_reports`       | List reports you can see                                      |
-| `get_report`         | Open one of those reports                                     |
+Read tools work with a `read` scope. Write tools need the matching `write`
+scope and act as you.
+
+| Area          | Tools                                                                                                                                                                   | What they do                                                                          |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Posts         | `list_posts`, `get_post`, `get_post_context`, `list_post_reposts`, `list_post_recordings`, `list_feed`, `list_my_bookmarks`, `search`                                   | List or open posts, feed items, bookmarks, jam recordings, and search results         |
+| Posts         | `create_post`, `update_post`, `delete_post`, `react`, `unreact`, `bookmark`, `unbookmark`, `repost`, `vote_on_poll`, `create_event_rsvp`                                | Post, reply, edit, delete, react, repost, bookmark, vote on polls, RSVP to events     |
+| Events        | `list_my_events`, `list_upcoming_events`, `manage_event_rsvp`                                                                                                           | List your or the community’s events, and (as organizer) manage another member’s RSVP  |
+| Groups        | `list_groups`, `get_group`, `list_group_members`                                                                                                                        | List or open groups and their members                                                 |
+| Groups        | `create_group`, `update_group`, `delete_group`, `join_group`, `leave_group`, `add_group_member`, `remove_group_member`, `set_group_member_roles`                        | Create and manage groups, join or leave, add, remove, and set member roles            |
+| Profiles      | `get_profile`, `get_current_profile`, `list_followers`, `list_following`, `list_blocked`                                                                                | Open profiles and see followers, following, and blocked lists                         |
+| Profiles      | `follow_profile`, `unfollow_profile`, `block_profile`, `unblock_profile`, `follow_hashtag`, `unfollow_hashtag`, `update_profile`, `update_profile_settings`, `pin_post` | Follow, block, follow hashtags, and update your own profile, settings, or pinned post |
+| DMs           | `list_conversations`, `list_archived_conversations`, `search_conversations`, `get_conversation`, `send_dm`, `leave_conversation`                                        | List, search, open, send, and leave direct message conversations                      |
+| Reports       | `list_reports`, `get_report`, `create_report`                                                                                                                           | List, open, and file reports                                                          |
+| Notifications | `list_notifications`, `get_notification_stats`, `mark_all_notifications_as_seen`                                                                                        | List your notifications, see unread counts, and mark them all seen                    |
+| Jams          | `list_jams`, `get_jam_state`, `close_jam`, `list_jam_events`, `list_jam_attendance`                                                                                     | List jams, inspect state and events, and (with permission) close a jam                |
+| Media         | `list_media_attachments`, `get_media_attachment`, `delete_media_attachment`                                                                                             | List, open, and delete your media attachments                                         |
 
 Community MCP never lists admin tools (`admin_*`). It cannot change
-configuration, create backups, or moderate other people's content.
+configuration, create backups, or moderate other people's content — those
+belong to the [ops MCP](/docs/admin/mcp).
 
 <div style="height:20px"></div>
 

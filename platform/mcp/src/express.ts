@@ -32,6 +32,37 @@ const resolveApiBaseUrl = (override?: string): string => {
   return `http://127.0.0.1:${port}`;
 };
 
+/**
+ * Minimal token-keyed sliding-window rate limiter. There is no rate limiting
+ * anywhere else on these routes, and the community MCP now exposes write/DM
+ * tools, so an autonomous agent loop could mass-post / mass-DM / mass-follow.
+ * Keyed by token (not IP) because MCP sits behind auth and a single IP may
+ * hold many tokens. In-memory: fine for a single-process server.
+ */
+const rateLimitStore = new Map<
+  string,
+  { windowStart: number; count: number }
+>();
+
+const createRateLimiter =
+  (maxRequests: number, windowMs: number): ((token: string) => boolean) =>
+  (token: string): boolean => {
+    const now = Date.now();
+    const entry = rateLimitStore.get(token);
+    if (!entry || now - entry.windowStart >= windowMs) {
+      rateLimitStore.set(token, { windowStart: now, count: 1 });
+      return true;
+    }
+    entry.count += 1;
+    return entry.count <= maxRequests;
+  };
+
+// Generous for normal assistant use, tight enough to stop runaway loops.
+const communityRateLimiter = createRateLimiter(
+  Number(process.env.OPENPEEPS_MCP_COMMUNITY_RATE_LIMIT) || 120,
+  60_000,
+);
+
 const attachAuth = (req: Request, token: string): void => {
   const auth: McpAuthInfo = {
     token,
@@ -45,6 +76,7 @@ const mountProfile = (
   app: Express,
   profile: McpProfile,
   apiBaseUrl: string,
+  rateLimiter?: (token: string) => boolean,
 ): void => {
   const path = `/mcp/${profile}`;
   const handler = toNodeHandler(
@@ -56,6 +88,10 @@ const mountProfile = (
     const token = readBearer(req);
     if (!token) {
       res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+    if (rateLimiter && !rateLimiter(token)) {
+      res.status(429).json({ error: 'Too many requests' });
       return;
     }
     attachAuth(req, token);
@@ -75,7 +111,7 @@ export const installMcpEndpoints = (
   }
 
   const apiBaseUrl = resolveApiBaseUrl(options.apiBaseUrl);
-  mountProfile(app, 'community', apiBaseUrl);
+  mountProfile(app, 'community', apiBaseUrl, communityRateLimiter);
   mountProfile(app, 'ops', apiBaseUrl);
   return true;
 };

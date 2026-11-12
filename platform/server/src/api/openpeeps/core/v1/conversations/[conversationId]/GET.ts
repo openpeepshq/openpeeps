@@ -2,7 +2,11 @@ import { endpoint, z } from '#lib/endpoint';
 import { findPost, getConversationByStart } from '@openpeepshq/core/posts';
 import { publicPostSchema } from '@openpeepshq/common/types';
 import { notFound } from '#lib/errors';
-import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
+import {
+  ensureLocalProfile,
+  ensurePostCapabilities,
+  ensureScope,
+} from '#lib/auth';
 import { isOneToOneWithBlocked, blockedPairIds } from '@openpeepshq/common/lib';
 
 export const Param = z.object({
@@ -22,6 +26,8 @@ export const Error = {
 export const apiEndpoint = endpoint({ Param, Query, Output, Error }).handle(
   async (param, event) => {
     await ensureLocalProfile(event);
+    // The conversation is a direct message; require the conversations scope.
+    await ensureScope(event, 'read', { type: 'conversations' });
     const post = await findPost(param.conversationId, event.context.authData);
 
     if (!post) {

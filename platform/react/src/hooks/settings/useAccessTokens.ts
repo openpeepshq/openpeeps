@@ -18,6 +18,7 @@ export const ACCESS_TOKEN_RESOURCE_TYPES = [
   'notifications',
   'reports',
   'webhooks',
+  'conversations',
 ] as const;
 
 export type AccessTokenResourceType =
