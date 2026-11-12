@@ -73,7 +73,7 @@
     "@hookform/resolvers": "^5.4.2",
     "@livekit/react-native": "2.11.0",
     "@livekit/react-native-krisp-noise-filter": "^0.0.3",
-    "@livekit/react-native-webrtc": "144.1.0",
+    "@livekit/react-native-webrtc": "144.1.1",
     "@notifee/react-native": "^9.1.8",
     "@openpeepshq/common": "workspace:^",
     "@openpeepshq/react": "workspace:^",
