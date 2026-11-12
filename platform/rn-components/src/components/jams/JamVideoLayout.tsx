@@ -2,6 +2,7 @@ import React, { type ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import {
   isTrackReference,
+  type TrackReference,
   type TrackReferenceOrPlaceholder,
   useParticipants,
   useRoomContext,
@@ -19,6 +20,7 @@ import {
 import { ThemedText } from '../ui/themed-text';
 import { AvatarWithName } from '../profile/AvatarWithName';
 import { JamCallParticipant } from './JamCallParticipant';
+import { useLateTrackMediaStream } from './useLateTrackMediaStream';
 
 export interface JamVideoLayoutProps {
   /** One camera track reference (or placeholder) per participant. */
@@ -182,6 +184,14 @@ const ScreenSharingLayout = ({
   const profile = parseParticipantMetadata(
     screenShareTrack.participant.metadata
   ).profile;
+  const videoTrack = isTrackReference(screenShareTrack)
+    ? screenShareTrack.publication.track
+    : undefined;
+  const mediaStreamEpoch = useLateTrackMediaStream(videoTrack);
+  // TrackReferenceOrPlaceholder -> TrackReference is narrowed by isTrackReference above
+  const trackRef = videoTrack
+    ? (screenShareTrack as TrackReference)
+    : undefined;
 
   return (
     <View className="size-full gap-2">
@@ -191,9 +201,10 @@ const ScreenSharingLayout = ({
           <ThemedText>{t('jams.screenShare.presenting')}</ThemedText>
         </View>
         <View className="relative min-h-0 w-full flex-1 overflow-hidden rounded-xl border border-border">
-          {isTrackReference(screenShareTrack) ? (
+          {videoTrack ? (
             <VideoTrack
-              trackRef={screenShareTrack}
+              key={`${videoTrack.sid}-${mediaStreamEpoch}`}
+              trackRef={trackRef}
               style={StyleSheet.absoluteFill}
               objectFit="contain"
             />
