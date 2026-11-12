@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useLocalParticipant } from '@livekit/react-native';
 import { ConnectionQuality } from 'livekit-client';
 import { useTranslation } from 'react-i18next';
@@ -45,6 +45,7 @@ export const JamRecordingIndicator = () => {
 /** Dismissable banner shown when the local connection quality degrades. */
 export const JamNetworkQuality = () => {
   const { t } = useTranslation();
+  const { colors } = useOpenPeepsTheme();
   const { localParticipant } = useLocalParticipant();
   const quality = useConnectionQuality(localParticipant);
   const [dismissed, setDismissed] = useState(false);
@@ -55,11 +56,18 @@ export const JamNetworkQuality = () => {
   if (!poor || dismissed) return null;
 
   return (
-    <View className="absolute left-4 right-4 top-4 z-50 flex-row items-center gap-3 rounded-lg bg-accent/90 px-4 py-2">
+    // NativeWind v4 can't apply `/N` opacity to CSS-variable colors (e.g.
+    // `bg-accent/90`), so the banner background uses an inline rgba style —
+    // without it the pill renders transparent, leaving the text floating over
+    // the video grid.
+    <View
+      style={{ backgroundColor: hexWithOpacity(colors.accent, 0.9) }}
+      className="absolute left-4 right-4 top-4 z-50 flex-row items-center gap-3 rounded-lg px-4 py-2"
+    >
       <ThemedText className="flex-1 text-sm text-accent-foreground">
-        <ThemedText className="text-sm font-medium text-accent-foreground">
+        <Text className="font-medium">
           {t('jams.network.connectionStatus')}
-        </ThemedText>{' '}
+        </Text>{' '}
         {t('jams.network.connectionDetail', { quality })}
       </ThemedText>
       <Pressable
