@@ -1119,13 +1119,13 @@ importers:
         version: 5.7.1(@sinclair/typebox@0.27.8)(@standard-schema/spec@1.1.0)(ajv@8.20.0)(joi@17.13.3)(react-hook-form@7.73.1(react@19.2.6))(zod@4.4.3)
       '@livekit/react-native':
         specifier: 2.11.0
-        version: 2.11.0(@livekit/react-native-webrtc@144.1.0(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6)))(livekit-client@2.19.2(@types/dom-mediacapture-record@1.0.22))(react-dom@19.2.6(react@19.2.6))(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6))(react@19.2.6)(tslib@2.8.1)
+        version: 2.11.0(@livekit/react-native-webrtc@144.1.1(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6)))(livekit-client@2.19.2(@types/dom-mediacapture-record@1.0.22))(react-dom@19.2.6(react@19.2.6))(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6))(react@19.2.6)(tslib@2.8.1)
       '@livekit/react-native-krisp-noise-filter':
         specifier: ^0.0.3
-        version: 0.0.3(3fab734d5f9bad119d8e9f57d89e265e)
+        version: 0.0.3(27453568bb2967a3a86e62db422dfca2)
       '@livekit/react-native-webrtc':
-        specifier: 144.1.0
-        version: 144.1.0(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6))
+        specifier: 144.1.1
+        version: 144.1.1(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6))
       '@notifee/react-native':
         specifier: ^9.1.8
         version: 9.1.8(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6))
@@ -4860,9 +4860,8 @@ packages:
       react: 19.2.6
       react-native: '*'
 
-  '@livekit/react-native-webrtc@144.1.0':
-    resolution: {integrity: sha512-KP5Q2+eIwHe8eZfKv7wwb2cayZ4Uoqi7qkv4tbgKphWRQUZewMNNnV3jBI0vZy9DL0v3Nfpy+fhfmvGxwmHAkA==}
-    deprecated: Deprecated due to a potential deadlock whenever the audio state changes. Please use 144.1.1 or newer.
+  '@livekit/react-native-webrtc@144.1.1':
+    resolution: {integrity: sha512-nRONGKZrQDBSM7DLBPLGintJZmoCjIcXAbMxlhwn4PCAqhz6KjY67VrDrN9oX0JM3lKMSLBwF6hfDC6Nog+G8Q==}
     peerDependencies:
       react-native: '>=0.60.0'
 
@@ -18859,16 +18858,16 @@ snapshots:
     dependencies:
       '@bufbuild/protobuf': 1.10.1
 
-  '@livekit/react-native-krisp-noise-filter@0.0.3(3fab734d5f9bad119d8e9f57d89e265e)':
+  '@livekit/react-native-krisp-noise-filter@0.0.3(27453568bb2967a3a86e62db422dfca2)':
     dependencies:
-      '@livekit/react-native': 2.11.0(@livekit/react-native-webrtc@144.1.0(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6)))(livekit-client@2.19.2(@types/dom-mediacapture-record@1.0.22))(react-dom@19.2.6(react@19.2.6))(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6))(react@19.2.6)(tslib@2.8.1)
-      '@livekit/react-native-webrtc': 144.1.0(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6))
+      '@livekit/react-native': 2.11.0(@livekit/react-native-webrtc@144.1.1(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6)))(livekit-client@2.19.2(@types/dom-mediacapture-record@1.0.22))(react-dom@19.2.6(react@19.2.6))(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6))(react@19.2.6)(tslib@2.8.1)
+      '@livekit/react-native-webrtc': 144.1.1(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6))
       event-target-shim: 6.0.2
       livekit-client: 2.19.2(@types/dom-mediacapture-record@1.0.22)
       react: 19.2.6
       react-native: 0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6)
 
-  '@livekit/react-native-webrtc@144.1.0(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6))':
+  '@livekit/react-native-webrtc@144.1.1(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6))':
     dependencies:
       base64-js: 1.5.1
       debug: 4.3.4
@@ -18876,11 +18875,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@livekit/react-native@2.11.0(@livekit/react-native-webrtc@144.1.0(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6)))(livekit-client@2.19.2(@types/dom-mediacapture-record@1.0.22))(react-dom@19.2.6(react@19.2.6))(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6))(react@19.2.6)(tslib@2.8.1)':
+  '@livekit/react-native@2.11.0(@livekit/react-native-webrtc@144.1.1(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6)))(livekit-client@2.19.2(@types/dom-mediacapture-record@1.0.22))(react-dom@19.2.6(react@19.2.6))(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6))(react@19.2.6)(tslib@2.8.1)':
     dependencies:
       '@livekit/components-react': 2.9.21(livekit-client@2.19.2(@types/dom-mediacapture-record@1.0.22))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(tslib@2.8.1)
       '@livekit/mutex': 1.1.1
-      '@livekit/react-native-webrtc': 144.1.0(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6))
+      '@livekit/react-native-webrtc': 144.1.1(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6))
       array.prototype.at: 1.1.3
       base64-js: 1.5.1
       events: 3.3.0

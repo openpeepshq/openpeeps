@@ -1,6 +1,6 @@
 {
   "name": "@openpeepshq/rn-components",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "React Native community screens and shared UI (extracted from the Black Ambition app) for the OpenPeeps stack.",
   "source": "./src/index.ts",
   "main": "./src/index.ts",
@@ -73,7 +73,7 @@
     "@hookform/resolvers": "^5.4.2",
     "@livekit/react-native": "2.11.0",
     "@livekit/react-native-krisp-noise-filter": "^0.0.3",
-    "@livekit/react-native-webrtc": "144.1.0",
+    "@livekit/react-native-webrtc": "144.1.1",
     "@notifee/react-native": "^9.1.8",
     "@openpeepshq/common": "workspace:^",
     "@openpeepshq/react": "workspace:^",
