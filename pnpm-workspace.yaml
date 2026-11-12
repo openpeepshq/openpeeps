@@ -26,6 +26,11 @@ overrides:
   # boundary for the two 6.x consumers (declared ^6.22.0 / ^6.28.0); undici's
   # public fetch API is stable across the major, so the risk is low.
   undici: "7.30.2"
+  # @grpc/proto-loader / @google-cloud/firestore / google-gax / proto3-json-serializer
+  # all declare protobufjs ^7.x. 7.5.3 carries 13 advisories (1 critical, 5 high,
+  # 6 moderate, plus 1 moderate on the @protobufjs/utf8 sub-package) all patched
+  # by <=7.6.5; 7.6.6 is the latest 7.x and keeps the same @protobufjs/* ranges.
+  protobufjs: "7.6.6"
 
 allowBuilds:
   "@evilmartians/lefthook": true
