@@ -37,6 +37,11 @@ overrides:
   # ranges (^4.7.9 / ^4.7.7) already allow 4.7.10; the lockfile is stale.
   # Patch-level, dev-only.
   handlebars: "4.7.10"
+  # tar 6.2.1 (via node-pre-gyp > bcrypt) carries 12 advisories
+  # (1 critical decompression DoS GHSA-23hp, 8 high path-traversal/file-creation,
+  # 3 moderate PAX size-override/numeric path/NUL-byte DoS). Force 7.5.22 tree-wide;
+  # tar is install-time tooling only, not production runtime.
+  tar: "7.5.22"
 
 allowBuilds:
   "@evilmartians/lefthook": true
