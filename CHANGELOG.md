@@ -3,9 +3,25 @@ Changelog for OpenPeeps
 
 ## Current
 
+### Features
+
+- **community**: bug report form link in side menu
+
 ### Bug Fixes
 
+- **previews**: prefer og:* metadata in link previews
+- **deps**: bump react-router-dom to 7.18.5 to clear 2 high + 3 moderate
+- **react, rn-components**: post-signup email verification reminder
+- **conversations**: treat only replies that exclude their author as conversation leaves
+- **jams**: warn before closing the tab while in a jam
+- **deps**: bump undici to 7.30.2 via tree-wide override
+- **admin**: search invites by invited member name or handle
+- **roles**: prevent duplicate role assignments for a profile
 - **posts**: reject replies to deleted posts
+
+### Documentation
+
+- codify org-level and issue-flow label rules in AGENTS.md
 
 ## 2026-11-05
 
