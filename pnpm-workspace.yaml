@@ -19,6 +19,11 @@ overrides:
   # mermaid pulls dompurify ^3.3.3 which resolved to vulnerable 3.4.15
   # (GHSA-cg2g-xh64-v4q7 + others). Force the patched 3.4.17 tree-wide.
   dompurify: "3.4.17"
+  # get-uri (dev-only release tooling: release-it -> proxy-agent) pulls basic-ftp
+  # ^5.0.2 which resolved to vulnerable 5.0.5 (GHSA-5rq4-664w-9x2c path traversal,
+  # plus 3 high DoS/CRLF). Force the patched 5.3.1 (latest 5.x); the 5th advisory
+  # needs 6.2.1, outside the consumer's ^5 range, so it stays.
+  "get-uri>basic-ftp": "5.3.1"
   # undici is pulled in by @sentry/cli (6.25.0), @digitalbazaar/http-client
   # (6.29.1), apns2 (7.10.0) and @fedify/vocab-runtime (7.30.1). The 6.x lines
   # are end-of-life; 7.30.1 still carries CVE-2025-7783 (HTTP/2 Rapid Reset,
