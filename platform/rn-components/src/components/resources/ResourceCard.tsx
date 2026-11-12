@@ -231,7 +231,10 @@ export const ResourceCard = ({
         </View>
         <View className="flex-row items-center gap-2">
           {resource.resourceKind !== 'link' && actionLabel ? (
-            actionLabel === 'Download' && downloadUrl ? (
+            // Gate on the stable resource kind, not the translated label:
+            // in non-English locales the label differs and the download
+            // action would silently stop working (web gates the same way).
+            resource.resourceKind === 'file' && downloadUrl ? (
               <Pressable onPress={() => Linking.openURL(downloadUrl)}>
                 <ThemedText className="text-primary text-xs font-medium">
                   {actionLabel}
