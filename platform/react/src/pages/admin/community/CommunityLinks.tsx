@@ -29,7 +29,9 @@ export function AdminConfigurationCommunityLinks() {
   } | null>(null);
 
   useSetPageHeader(
-    t('configuration.community.links.title', { defaultValue: 'Policy & Contact Links' }),
+    t('configuration.community.links.title', {
+      defaultValue: 'Policy & Support Links',
+    }),
   );
 
   const form = useForm<CommunityConfig>({
