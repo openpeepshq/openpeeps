@@ -5,7 +5,7 @@
   "dependencies": {
     "@openpeepshq/core": "workspace:^",
     "commander": "^13.1.0",
-    "deepmerge-ts": "^5.1.0",
+    "deepmerge-ts": "^8.0.2",
     "dotenv": "^16.4.7",
     "uuidv7": "^0.6.3"
   },
