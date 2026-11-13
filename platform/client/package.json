@@ -6,7 +6,8 @@
   "sideEffects": false,
   "dependencies": {
     "@openpeepshq/common": "workspace:^",
-    "@openpeepshq/fetch-client": "workspace:^"
+    "@openpeepshq/fetch-client": "workspace:^",
+    "validator": "^13.11.0"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -38,6 +39,7 @@
   ],
   "devDependencies": {
     "@types/node": "^22.14.1",
+    "@types/validator": "^13.11.9",
     "@typescript-eslint/eslint-plugin": "^8.72.0",
     "@typescript-eslint/parser": "^8.72.0",
     "concurrently": "^9.1.2",
