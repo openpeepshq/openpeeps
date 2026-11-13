@@ -345,9 +345,14 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
                 onPress={() =>
                   navigation.navigate('JamSession', {
                     jamId: post.id,
+                    occurrence,
                   })
                 }
-                className="mt-2"
+                onLongPress={() => Clipboard.setString(jamLink)}
+                accessibilityLabel={jamLink}
+                accessibilityRole="link"
+                activeOpacity={0.7}
+                className="-mt-2 mt-4 px-2 py-1"
               >
                 <ThemedText className="text-muted-foreground underline">
                   {truncateText(jamLink, 30)}
