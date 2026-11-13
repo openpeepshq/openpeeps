@@ -5,10 +5,20 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **skill**: add forgejo-first-issue skill for label-based issue picking
+- **mcp**: extend community MCP to full member interactions
+- **conversations**: enhance conversation creation with media attachments
+- **posts**: playable video embeds for YouTube/Vimeo links
+- **conversations**: allow reacting to DM messages
 - **community**: bug report form link in side menu
 
 ### Bug Fixes
 
+- **deps**: remove unused validator from platform/client to clear 2 advisories
+- **deps**: bump sharp to 0.35.5 in core + server
+- **deps**: force proxy-addr 2.0.8 in pnpm overrides
+- **deps**: bump handlebars to 4.7.10
+- **events**: preserve the event timezone in generated ICS files
 - **previews**: prefer og:* metadata in link previews
 - **deps**: bump react-router-dom to 7.18.5 to clear 2 high + 3 moderate
 - **react, rn-components**: post-signup email verification reminder
