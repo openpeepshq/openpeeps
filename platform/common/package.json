@@ -70,7 +70,7 @@
     "tsc-alias": "^1.8.16",
     "typed-emitter": "^2.1.0",
     "typescript": "^6.0.2",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.9"
   },
   "scripts": {
     "lint": "eslint .",
