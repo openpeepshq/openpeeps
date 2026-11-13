@@ -330,6 +330,73 @@ describe('buildEventIcs', () => {
     expect(ics).toContain('RRULE:FREQ=WEEKLY');
     expect(ics).toContain('COUNT=4');
   });
+
+  it('emits a timed override with RECURRENCE-ID for a rescheduled timed exception', () => {
+    // Regression guard: timed series with a moved exception should emit
+    // RECURRENCE-ID;TZID and the new DTSTART/DTEND for the override.
+    const ics = unfoldIcs(
+      buildEventIcs({
+        ...baseEventPost,
+        data: {
+          ...timedEventFields,
+          timeZone: 'America/Los_Angeles',
+          recurrence: { freq: 'WEEKLY' as const, interval: 1, count: 4 },
+          exceptions: [
+            {
+              recurrenceId: '2026-07-14T21:00:00.000Z',
+              start: '2026-07-14T23:00:00.000Z',
+              end: '2026-07-15T00:00:00.000Z',
+            },
+          ],
+        },
+      } as PublicPost)!,
+    );
+    // Original slot: 21:00Z = 14:00 PDT → RECURRENCE-ID
+    expect(ics).toContain(
+      'RECURRENCE-ID;TZID=America/Los_Angeles:20260714T140000',
+    );
+    // New time: 23:00Z = 16:00 PDT → DTSTART/DTEND for override
+    expect(ics).toContain('DTSTART;TZID=America/Los_Angeles:20260714T160000');
+    expect(ics).toContain('DTEND;TZID=America/Los_Angeles:20260715T000000');
+  });
+
+  it('emits a DATE-form override with DATE-form RECURRENCE-ID for a rescheduled all-day exception', () => {
+    // B1 semantics: all-day series with a rescheduled exception should emit
+    // DTSTART;VALUE=DATE, DTEND;VALUE=DATE, and RECURRENCE-ID;VALUE=DATE.
+    const ics = unfoldIcs(
+      buildEventIcs({
+        ...baseEventPost,
+        data: {
+          type: 'event' as const,
+          name: 'All week',
+          content: '',
+          start: '2026-07-06T12:00:00.000Z',
+          end: '2026-07-12T12:00:00.000Z',
+          wholeDay: true,
+          timeZone: 'America/Los_Angeles',
+          recurrence: { freq: 'WEEKLY' as const, interval: 1, count: 4 },
+          exceptions: [
+            {
+              recurrenceId: '2026-07-13T12:00:00.000Z',
+              start: '2026-07-13T12:00:00.000Z',
+              end: '2026-07-14T12:00:00.000Z',
+            },
+          ],
+        },
+      } as PublicPost)!,
+    );
+    expect(ics).toContain('BEGIN:VEVENT');
+    // The series DTSTART/DTEND
+    expect(ics).toContain('DTSTART;VALUE=DATE:20260706');
+    expect(ics).toContain('DTEND;VALUE=DATE:20260713');
+    // The override RECURRENCE-ID must be DATE-form
+    expect(ics).toContain('RECURRENCE-ID;VALUE=DATE:20260713');
+    // The override DTSTART/DTEND must be DATE-form
+    expect(ics).toContain('DTSTART;VALUE=DATE:20260713');
+    expect(ics).toContain('DTEND;VALUE=DATE:20260714');
+    // No TZID anywhere on all-day events
+    expect(ics).not.toContain('TZID');
+  });
 });
 
 describe('buildRsvpIcs', () => {

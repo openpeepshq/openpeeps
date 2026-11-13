@@ -10,6 +10,9 @@ import { effectiveEventTimes } from './eventRecurrence';
 import { getJamUrl } from './jamHelpers';
 import { isIanaTimeZone } from './timeZone';
 
+/** Feed cache TTL in seconds (1 day). Used by HTTP headers and ICS REFRESH-INTERVAL. */
+export const EVENTS_ICS_FEED_TTL_SECONDS = 86400;
+
 const utcDateFromYmd = (yyyyMmDd: string): Date => {
   const [y, m, d] = yyyyMmDd.split('-').map(Number);
   return new Date(Date.UTC(y, m - 1, d));
@@ -58,6 +61,33 @@ const withVtimezone = (calendarText: string, timeZone: string): string => {
     normalized +
     calendarText.slice(veventIndex)
   );
+};
+
+/**
+ * ical-generator serialises a Date-like recurrenceId as a TIMESTAMP line
+ * (e.g. `RECURRENCE-ID:20240101T000000Z`).
+ * RFC 5545 §3.8.4.4 requires the RECURRENCE-ID value type to match the
+ * original DTSTART's value type — DATE for all-day events.  Post-process
+ * each RECURRENCE-ID line to DATE form.
+ */
+const withDateRecurrenceId = (calendarText: string): string => {
+  // Split into lines, find RECURRENCE-ID lines, and convert TIMESTAMP→DATE
+  return calendarText
+    .split('\n')
+    .map((line) => {
+      if (!line.startsWith('RECURRENCE-ID')) return line;
+      // Already has VALUE=DATE — leave it
+      if (line.includes(';VALUE=DATE')) return line;
+      // Extract the timestamp value (after the colon)
+      const colonIdx = line.indexOf(':');
+      if (colonIdx === -1) return line;
+      const value = line.slice(colonIdx + 1);
+      // Take just the YYYYMMDD portion
+      const ymd = value.replace(/[^0-9]/g, '').slice(0, 8);
+      return `RECURRENCE-ID;VALUE=DATE:${ymd}`;
+    })
+    .join('\r\n')
+    .replace(/\r?\n/g, '\r\n');
 };
 
 const originFromUrl = (url?: string): string | undefined => {
@@ -185,26 +215,53 @@ export const buildEventIcs = (
 
   for (const exception of event.exceptions ?? []) {
     if (exception.cancelled || !exception.start) continue;
-    const start = instantInZone(exception.start, timeZone);
-    const end = exception.end
-      ? instantInZone(exception.end, timeZone)
-      : defaultEnd(start, timeZone);
-    calendar.createEvent({
-      id: `openpeeps-event-${post.id}-${exception.recurrenceId}@openpeepshq`,
-      start,
-      end,
-      ...(timeZone ? { timezone: timeZone } : {}),
-      summary,
-      ...(description ? { description } : {}),
-      ...(location ? { location } : {}),
-      ...(link ? { url: link } : {}),
-      recurrenceId: instantInZone(exception.recurrenceId, timeZone),
-    });
+    if (event.wholeDay) {
+      // All-day exception: DATE-form DTSTART/DTEND and DATE-form RECURRENCE-ID.
+      const excStartYmd = exception.start.slice(0, 10);
+      const excLastInclusiveYmd =
+        exception.end?.slice(0, 10) ?? excStartYmd;
+      calendar.createEvent({
+        id: `openpeeps-event-${post.id}-${exception.recurrenceId}@openpeepshq`,
+        allDay: true,
+        start: utcDateFromYmd(excStartYmd),
+        end: exclusiveEndAfterInclusiveDay(excLastInclusiveYmd),
+        summary,
+        ...(description ? { description } : {}),
+        ...(location ? { location } : {}),
+        ...(link ? { url: link } : {}),
+        // ical-generator v10 serialises a TZDate recurrenceId using the
+        // event's timezone when the parent event carries one.  All-day series
+        // must use DATE form; post-process the RECURRENCE-ID line after the
+        // event is created (same splice style as withVtimezone).
+        recurrenceId: utcDateFromYmd(excStartYmd),
+      });
+    } else {
+      const start = instantInZone(exception.start, timeZone);
+      const end = exception.end
+        ? instantInZone(exception.end, timeZone)
+        : defaultEnd(start, timeZone);
+      calendar.createEvent({
+        id: `openpeeps-event-${post.id}-${exception.recurrenceId}@openpeepshq`,
+        start,
+        end,
+        ...(timeZone ? { timezone: timeZone } : {}),
+        summary,
+        ...(description ? { description } : {}),
+        ...(location ? { location } : {}),
+        ...(link ? { url: link } : {}),
+        recurrenceId: instantInZone(exception.recurrenceId, timeZone),
+      });
+    }
   }
 
   const calendarText = calendar.toString();
+  // ical-generator v10 writes DATE values for all-day events, but the
+  // RECURRENCE-ID line must also be DATE-form to match the series DTSTART.
+  const processed = event.wholeDay
+    ? withDateRecurrenceId(calendarText)
+    : calendarText;
   return (
-    (timeZone ? withVtimezone(calendarText, timeZone) : calendarText) + '\r\n'
+    (timeZone ? withVtimezone(processed, timeZone) : processed) + '\r\n'
   );
 };
 
@@ -318,4 +375,31 @@ export const rsvpConfirmationContent = (
     allDay: event.wholeDay ?? false,
     occurrenceCount: occurrenceIds.length,
   };
+};
+
+/** Build a multi-event ICS feed string from public posts. */
+export const buildEventsFeedIcs = (
+  posts: PublicPost[],
+  options: { postUrl?: string; name: string; ttl?: number },
+): string => {
+  const { name, ttl = EVENTS_ICS_FEED_TTL_SECONDS } = options;
+  const calendar = ical({
+    prodId: '//OpenPeeps//Feed//EN',
+    method: ICalCalendarMethod.PUBLISH,
+    scale: 'GREGORIAN',
+    name,
+    ttl,
+  });
+
+  for (const post of posts) {
+    if (post.type === 'event' && post.data?.type === 'event') {
+      const ics = buildEventIcs(post, options);
+      if (ics) {
+        calendar.fromICS(ics);
+      }
+    }
+  }
+
+  const calendarText = calendar.toString();
+  return calendarText + '\r\n';
 };

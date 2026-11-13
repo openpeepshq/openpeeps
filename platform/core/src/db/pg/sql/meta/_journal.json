@@ -127,6 +127,13 @@
       "when": 1794031928690,
       "tag": "0017_unique_has_role_edges",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794100000000,
+      "tag": "0018_add_calendar_feed_tokens",
+      "breakpoints": false
     }
   ]
 }
