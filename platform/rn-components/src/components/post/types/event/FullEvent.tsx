@@ -341,9 +341,16 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
               <ThemedText className="text-xl">
                 {t('events.location.jam', { defaultValue: 'Jam Event' })}
               </ThemedText>
-              <ThemedText className="text-muted-foreground mt-2">
-                {truncateText(jamLink, 30)}
-              </ThemedText>
+              <Pressable
+                onPress={() =>
+                  navigation.navigate('JamSession', { jamId: post.id })
+                }
+                className="mt-2"
+              >
+                <ThemedText className="text-muted-foreground underline">
+                  {truncateText(jamLink, 30)}
+                </ThemedText>
+              </Pressable>
             </>
           ) : event?.url ? (
             <>
