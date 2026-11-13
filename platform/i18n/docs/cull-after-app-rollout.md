@@ -18,7 +18,7 @@ Copies in JSON are Weblate-safe. A compile-time alias layer can wait until
 this cull.
 
 The live mapping of 4+ English values is
-`scripts/i18n-duplicate-report.mjs`.
+`../../scripts/i18n-duplicate-report.mjs` (run from the repository root).
 
 ## Alias table (pass 2 delete candidates)
 
@@ -26,7 +26,9 @@ Last known platform consumers are `@openpeepshq/react` and
 `@openpeepshq/rn-components` **0.9.0**. This repo does not record which
 community apps still pin that version (or older). Treat every shipped app
 below **0.10.0** as a consumer of these aliases. The table uses `≤0.9.0`
-for that set.
+for that set. The 0.10.0 boundary (set by main's 3c50cab, the "one minor
+from main" fleet convention) aligns with the i18n package 0.4.11→0.5.0
+and rn-components 0.9.1→0.10.0 bumps in this PR.
 
 | Old key                                                   | Canonical key               | Last known consumer |
 | --------------------------------------------------------- | --------------------------- | ------------------- |
@@ -35,8 +37,8 @@ for that set.
 | `admin.analytics.table.link`                              | `common.labels.link`        | `≤0.9.0`            |
 | `admin.analytics.table.members`                           | `common.entities.members`   | `≤0.9.0`            |
 | `admin.analytics.table.visibility`                        | `common.labels.visibility`  | `≤0.9.0`            |
-| `admin.analytics.tabs.groups`                             | `common.entities.groups`    | `≤0.9.0`            |
-| `admin.analytics.tabs.members`                            | `common.entities.members`   | `≤0.9.0`            |
+| `admin.analytics.tabs.groups`                             | `common.entities.groups`    | `≤0.9.0` (reachable via template-literal fallback: `t(tab.i18nKey ?? \`admin.analytics.tabs.${tab.labelKey}\`)` in `AnalyticsLayout.tsx`) |
+| `admin.analytics.tabs.members`                            | `common.entities.members`   | `≤0.9.0` (reachable via template-literal fallback: `t(tab.i18nKey ?? \`admin.analytics.tabs.${tab.labelKey}\`)` in `AnalyticsLayout.tsx`) |
 | `admin.apiKeys.descriptionLabel`                          | `common.labels.description` | `≤0.9.0`            |
 | `admin.apiKeys.name`                                      | `common.labels.name`        | `≤0.9.0`            |
 | `admin.apiKeys.never`                                     | `common.states.never`       | `≤0.9.0`            |
@@ -205,7 +207,8 @@ Do **not** delete these in pass 2, even when they share English with a
 
 `configuration.*` / `emails.*` keys that happen to match a 4+ English
 value (`Cancel`, `Email`, `Save`, …) are listed by
-`scripts/i18n-duplicate-report.mjs` as `(schema/email — do not retarget)`.
+`../../scripts/i18n-duplicate-report.mjs` (run from the repository root) as
+`(schema/email — do not retarget)`.
 
 ## Preconditions to delete
 
@@ -220,7 +223,7 @@ value (`Cancel`, `Email`, `Save`, …) are listed by
    Check both forms before deleting.
 3. Remove the old keys from `platform/i18n/src/locales/en.json` and
    `de.json` only. Do not change the canonical values.
-4. Re-run `node scripts/check-i18n-parity.mjs --strict`.
+4. Re-run `node ../../scripts/check-i18n-parity.mjs --strict`.
 5. Optionally add CI: no unused locale key in `platform/react` +
    `platform/rn-components` + server email templates, so aliases do not
    grow back.

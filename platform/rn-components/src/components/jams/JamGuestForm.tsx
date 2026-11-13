@@ -76,6 +76,7 @@ export const JamGuestForm = () => {
             value={guestData.email}
             onChangeText={(email) => setGuestData((d) => ({ ...d, email }))}
             placeholder={t('jams.lobby.guestEmailPlaceholder')}
+            keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
           />
