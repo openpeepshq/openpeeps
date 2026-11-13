@@ -36,7 +36,7 @@
     "prettier": "^3.4.2",
     "tsc-alias": "^1.8.10",
     "typescript": "^6.0.2",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.9"
   },
   "scripts": {
     "lint": "eslint .",

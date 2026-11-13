@@ -59,8 +59,8 @@
     "@types/validator": "^13.15.10",
     "@typescript-eslint/eslint-plugin": "^8.72.0",
     "@typescript-eslint/parser": "^8.72.0",
-    "@vitest/coverage-v8": "^2.1.8",
-    "@vitest/ui": "^2.1.8",
+    "@vitest/coverage-v8": "^2.1.9",
+    "@vitest/ui": "^2.1.9",
     "concurrently": "^9.2.1",
     "eslint": "^10.1.0",
     "eslint-config-prettier": "^9.1.0",
@@ -70,7 +70,7 @@
     "tsc-alias": "^1.8.16",
     "typed-emitter": "^2.1.0",
     "typescript": "^6.0.2",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.9"
   },
   "scripts": {
     "lint": "eslint .",

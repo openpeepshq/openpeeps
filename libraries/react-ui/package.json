@@ -92,7 +92,7 @@
     "typescript": "^6.0.2",
     "vite": "^6.0.7",
     "vite-plugin-dts": "^4.4.0",
-    "vitest": "^2.1.8",
+    "vitest": "^2.1.9",
     "eslint-config-prettier": "^9.1.0",
     "@eslint/js": "^9.17.0"
   }
