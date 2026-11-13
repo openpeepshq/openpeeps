@@ -37,6 +37,14 @@ overrides:
   # ranges (^4.7.9 / ^4.7.7) already allow 4.7.10; the lockfile is stale.
   # Patch-level, dev-only.
   handlebars: "4.7.10"
+  # fast-xml-parser 4.5.1 (via firebase-admin > @google-cloud/storage@7.16.0)
+  # carries 7 advisories; the scoped override below clears 5 (1 critical, 2 high,
+  # 1 moderate, 1 low) by bumping to 4.5.7. The 2 remaining (GHSA-gh4j-gqv2-49f6,
+  # GHSA-474x-hrwr-fgx4) require 5.x and stay after this change.
+  # @google-cloud/storage@7.16.0 declares fast-xml-parser ^4.4.1, so 4.5.7 is
+  # in-range — no cross-major jump. The other resolved instance (5.7.1 via RN CLI)
+  # is untouched by this scoped override.
+  '@google-cloud/storage>fast-xml-parser': "4.5.7"
 
 allowBuilds:
   "@evilmartians/lefthook": true
