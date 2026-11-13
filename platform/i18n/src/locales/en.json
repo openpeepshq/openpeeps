@@ -2228,8 +2228,8 @@
         "description": "This page shows up for people not logged in to your community.  <br/>  You can format it using Markdown.  Learn more about Markdown syntax at https://www.markdownguide.org/, or use your favorite AI tool to convert your formatted document to markdown that you can paste here."
       },
       "links": {
-        "title": "Policy Links",
-        "description": "Add links to your community's privacy policy and terms of service"
+        "title": "Policy & Bug Report Links",
+        "description": "Add links to your community's privacy policy, terms of service, and a bug report form"
       },
       "profileFields": {
         "title": "Profile Fields",
