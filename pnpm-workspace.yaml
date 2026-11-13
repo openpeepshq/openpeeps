@@ -43,6 +43,13 @@ overrides:
   # ranges (^4.7.9 / ^4.7.7) already allow 4.7.10; the lockfile is stale.
   # Patch-level, dev-only.
   handlebars: "4.7.10"
+  # fast-jwt 6.0.2 (pulled in by apns2, ^6.0.1 declared) carries multiple
+  # GHSA advisories (3 critical as of 2026-11). 6.3.6 clears all of them
+  # (one — GHSA-hm7r-c7qw-ghp6 — has no patched release; cleared by range
+  # since 6.3.6 > the advisory's <=6.1.0 ceiling) and sits inside apns2's
+  # declared range. (fast-jwt@6.3.6 requires node >=20, which matches CI's
+  # node:24-alpine base image.)
+  fast-jwt: "6.3.6"
 
 allowBuilds:
   "@evilmartians/lefthook": true
