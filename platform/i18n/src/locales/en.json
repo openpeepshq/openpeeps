@@ -2175,7 +2175,7 @@
       "fontFamily": "Font",
       "typographyAndRadii": "Typography and radii",
       "bugReportUrl": "Bug report form URL",
-      "bugReportUrlDescription": "Link to an external bug report form. When set, a \"Report a bug\" link appears in the side menu.",
+      "bugReportUrlDescription": "Link to an external bug report form. When set, a \"Report a bug\" link appears in the side menu and footer.",
       "buttonRadius": "Button border radius",
       "radius": "Default border radius (cards, modals)",
       "contactEmail": "Contact Email",
@@ -2228,8 +2228,8 @@
         "description": "This page shows up for people not logged in to your community.  <br/>  You can format it using Markdown.  Learn more about Markdown syntax at https://www.markdownguide.org/, or use your favorite AI tool to convert your formatted document to markdown that you can paste here."
       },
       "links": {
-        "title": "Policy Links",
-        "description": "Add links to your community's privacy policy and terms of service"
+        "title": "Policy & Contact Links",
+        "description": "Add links to your community's privacy policy, terms of service, and bug report form"
       },
       "profileFields": {
         "title": "Profile Fields",

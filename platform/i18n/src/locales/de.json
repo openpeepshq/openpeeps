@@ -2247,8 +2247,8 @@
         "description": "Diese Seite wird Personen angezeigt, die nicht in Ihrer Community angemeldet sind. <br/> Sie können sie mit Markdown formatieren. Erfahren Sie mehr über die Markdown-Syntax unter https://www.markdownguide.org/ oder verwenden Sie Ihr bevorzugtes KI-Tool, um Ihr formatiertes Dokument in Markdown umzuwandeln, das Sie hier einfügen können."
       },
       "links": {
-        "title": "Richtlinien-Links",
-        "description": "Fügen Sie Links zur Datenschutzerklärung und den Nutzungsbedingungen Ihrer Community hinzu"
+        "title": "Richtlinien & Kontakt-Links",
+        "description": "Fügen Sie Links zur Datenschutzerklärung, den Nutzungsbedingungen und dem Fehlermeldeformular Ihrer Community hinzu"
       },
       "profileFields": {
         "title": "Profilfelder",
@@ -2311,7 +2311,7 @@
       "fontFamily": "Schriftart",
       "typographyAndRadii": "Typografie und Rundungen",
       "bugReportUrl": "URL des Fehlermeldeformulars",
-      "bugReportUrlDescription": "Link zu einem externen Fehlermeldeformular. Wenn gesetzt, erscheint im Seitenmenü ein Link „Fehler melden“.",
+      "bugReportUrlDescription": "Link zu einem externen Fehlermeldeformular. Wenn gesetzt, erscheint im Seitenmenü und in der Fußzeile ein Link „Fehler melden“.",
       "buttonRadius": "Eckenradius für Buttons",
       "radius": "Standard-Eckenradius (Karten, Dialoge)",
       "codeOfConduct": {
