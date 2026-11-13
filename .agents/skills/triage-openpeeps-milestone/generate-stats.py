@@ -66,16 +66,6 @@ _args = parse_args()
 TOKEN = _args.token
 MILESTONE_ID = _args.milestone_id
 
-# Stats-table buckets (kept verbatim from the previous format).
-FLOW_LABELS = [
-    "flow/ready-to-test",
-    "flow/ready-to-rework",
-    "flow/on-test-instance",
-    "flow/waiting-for-app-build",
-]
-LABEL_READY = "flow/ready-to-test"
-LABEL_REWORK = "flow/ready-to-rework"
-
 # Burndown stages, in pipeline order. Every issue with a flow label maps to
 # exactly one; unlabeled issues are pre-planning (the intake backlog).
 STAGE_PRE = "pre-planning"
@@ -319,7 +309,6 @@ human_line = (
 )
 
 burndown_section = [
-    "",
     f"## Burndown ({start.isoformat()} to {end.isoformat()})",
     "",
     *chart_lines,
@@ -336,42 +325,7 @@ burndown_section = [
     f"Scope changes (issues moved in/out of the milestone during the window) are not reflected.",
 ]
 
-# --- Stats table (open issues only) ---
-open_items = [i for i in all_items.values() if i["state"] == "open"]
-
-to_do = []
-to_test = []
-to_rework = []
-for num, i in sorted(((i["number"], i) for i in open_items), key=lambda x: x[0]):
-    labels = [l["name"] for l in i.get("labels", [])]
-    has_flow = any(l in labels for l in FLOW_LABELS)
-    assignee = i.get("assignee")
-    a = assignee.get("login", "") if isinstance(assignee, dict) else ""
-    if LABEL_READY in labels:
-        to_test.append((num, a))
-    elif LABEL_REWORK in labels:
-        to_rework.append((num, a))
-    elif not has_flow:
-        to_do.append((num, a))
-
-
-def counts(lst):
-    return len(lst), sum(1 for _, a in lst if a), sum(1 for _, a in lst if not a)
-
-
-todo_total, todo_asn, todo_unasn = counts(to_do)
-test_total, test_asn, test_unasn = counts(to_test)
-rework_total, rework_asn, rework_unasn = counts(to_rework)
-
-stats_lines = [
-    "| Metric | To be worked on | To be reworked | To be tested |",
-    "|--------|-----------------|----------------|--------------|",
-    f"| Total (open) | {todo_total} | {rework_total} | {test_total} |",
-    f"| Assigned | {todo_asn} | {rework_asn} | {test_asn} |",
-    f"| Unassigned | {todo_unasn} | {rework_unasn} | {test_unasn} |",
-]
-
-desc = "\n".join(stats_lines + burndown_section)
+desc = "\n".join(burndown_section)
 print(f"\n=== Description ({len(desc)} chars) ===")
 print(desc)
 

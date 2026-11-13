@@ -1,23 +1,14 @@
 ---
 name: triage-openpeeps-milestone
-description: Update an OpenPeeps milestone description with a compact stats table (open issues into "to be worked on" / "to be reworked" / "to be tested") plus a burndown chart for the 7 days before the due date. Use when refreshing milestone stats on code.openpeeps.org.
+description: Update an OpenPeeps milestone description with a burndown chart for the 7 days before the due date (open-issue count per day, split across four pipeline stages) plus a "needs human intervention" line. Use when refreshing milestone stats on code.openpeeps.org.
 ---
 
 # Triage OpenPeeps Milestone
 
-Updates a Gitea/Forgejo milestone description with a compact stats table that
-categorizes **open** issues into three buckets based on `flow/*` labels:
-
-- **To be worked on** — no `flow/*` label
-- **To be reworked** — has `flow/ready-to-rework` label
-- **To be tested** — has `flow/ready-to-test` label
-
-Closed issues are ignored in the stats table. The table has one column per
-category and rows for Total / Assigned / Unassigned.
-
-`generate-stats.py` also appends a **burndown chart** for the 7 days before
-the milestone due date. Each day's bar is split into four pipeline stages by
-mapping each issue's `flow/*` label (and its label history) to a stage:
+Updates a Gitea/Forgejo milestone description with a **burndown chart** for the
+7 days before the milestone due date. Each day's bar is split into four
+pipeline stages by mapping each issue's `flow/*` label (and its label history)
+to a stage:
 
 - `░` **pre-planning** — no `flow/*` label, `flow/needs-specs`, `flow/ready-to-schedule`
 - `▒` **planning** — `flow/ready-to-plan`, `flow/ready-to-review-plan`
@@ -41,7 +32,7 @@ are not reflected.
 
 Two scripts live in this skill directory:
 
-### `generate-stats.py` — stats table
+### `generate-stats.py` — burndown chart
 
 ```bash
 python3 .agents/skills/triage-openpeeps-milestone/generate-stats.py --milestone-id <ID>
@@ -49,12 +40,11 @@ python3 .agents/skills/triage-openpeeps-milestone/generate-stats.py --milestone-
 
 Scans all repository issues (the `milestone=N` API filter returns incomplete
 results due to a Gitea pagination bug, so it scans all issues and filters
-client-side), categorizes open issues by `flow/*` labels into the stats table,
-and appends a 7-day burndown chart (open-issue count per day, split across the
-four pipeline stages, + ideal line). Each issue's stage history comes from its
-`/timeline` label events. Writes the combined description via
-`PATCH /milestones/{id}`. Pass `--dry-run` to print the description without
-updating the milestone.
+client-side) and renders a 7-day burndown chart (open-issue count per day,
+split across the four pipeline stages, + ideal line) and a "needs human
+intervention" line. Each issue's stage history comes from its `/timeline`
+label events. Writes the description via `PATCH /milestones/{id}`. Pass
+`--dry-run` to print the description without updating the milestone.
 
 ### `find-ready-to-test.py` — label issues with merged PRs
 
