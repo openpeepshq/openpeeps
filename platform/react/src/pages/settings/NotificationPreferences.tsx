@@ -234,6 +234,8 @@ export function NotificationPreferences() {
     saving,
     status,
     clearStatus,
+    dirty,
+    settingsReady,
   } = useNotificationPreferences({
     ensurePush: vapidKey
       ? async () => {
@@ -251,7 +253,7 @@ export function NotificationPreferences() {
     }),
   );
 
-  if (!me) return null;
+  if (!me || !settingsReady) return null;
 
   return (
     <section className="mr-4 mt-5 p-4">
@@ -282,12 +284,41 @@ export function NotificationPreferences() {
         </Toast>
       ) : null}
 
-      <div className="pt-3">
+      <NotificationSaveBar dirty={dirty} saving={saving} onSave={save} />
+    </section>
+  );
+}
+
+/** Persistent sticky save bar for the notification preferences page. */
+export function NotificationSaveBar({
+  dirty,
+  saving,
+  onSave,
+}: {
+  dirty: boolean;
+  saving: boolean;
+  onSave: () => void;
+}) {
+  const t = useT();
+  return (
+    <div
+      className="sticky bottom-0 mx-[-1rem] mb-[-1rem] border-t bg-surface px-4 py-3"
+      role="status"
+    >
+      <div className="flex items-center justify-between">
+        {dirty ? (
+          <p className="text-sm text-muted-foreground">
+            {t('settings.notifications.unsavedChanges', {
+              defaultValue: 'You have unsaved changes',
+            })}
+          </p>
+        ) : (
+          <span />
+        )}
         <Button
           variant="default"
-          className="w-full"
-          action={save}
-          disabled={saving}
+          action={onSave}
+          disabled={saving || !dirty}
           data-testid="settings-save-button"
         >
           {saving
@@ -295,6 +326,6 @@ export function NotificationPreferences() {
             : t('common.submit', { defaultValue: 'Submit' })}
         </Button>
       </div>
-    </section>
+    </div>
   );
 }

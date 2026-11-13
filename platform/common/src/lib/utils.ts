@@ -329,3 +329,31 @@ export const hasVisibilityChanged = (
 
   return false;
 };
+
+/**
+ * Deep equality check — works on plain objects, arrays, primitives.
+ * Returns false for `undefined` / `null` inputs so callers can safely
+ * use `deepEqual(a ?? {}, b ?? {})` without extra guards.
+ */
+export function deepEqual(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  if (typeof a !== typeof b) return false;
+
+  if (Array.isArray(a)) {
+    if (!Array.isArray(b)) return false;
+    if (a.length !== b.length) return false;
+    return a.every((v, i) => deepEqual(v, b[i]));
+  }
+
+  if (typeof a === 'object') {
+    const keysA = Object.keys(a as object).sort();
+    const keysB = Object.keys(b as object).sort();
+    if (keysA.length !== keysB.length) return false;
+    return keysA.every(
+      (k, i) => keysA[i] === keysB[i] && deepEqual((a as any)[k], (b as any)[k]),
+    );
+  }
+
+  return false;
+}

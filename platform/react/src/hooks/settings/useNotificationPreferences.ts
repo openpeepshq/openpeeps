@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import {
-  deepSet,
+  deepEqual,
   type ProfileNotificationSettings,
   type ProfileSettings,
 } from '@openpeepshq/common';
@@ -13,6 +13,41 @@ export type UseNotificationPreferencesArgs = {
   ensurePush?: () => Promise<void>;
 };
 
+/**
+ * Immutable helper that replaces only the targeted notification type,
+ * returning a **new** ProfileSettings object (does not mutate the input).
+ */
+export function setNotificationSetting(
+  current: ProfileSettings,
+  type: string,
+  next: ProfileNotificationSettings,
+): ProfileSettings {
+  const notifications = { ...(current.notifications ?? {}) };
+  notifications[type] = next;
+  return { ...current, notifications };
+}
+
+/**
+ * Derive notifications-only dirty flag.
+ * Compares `local` edits vs `saved` baseline, key-order-insensitive.
+ * Normalizes entries with `?? {}` so `undefined` vs `{}` is treated as equal.
+ */
+export function isNotificationsDirty(
+  local: ProfileSettings | null,
+  saved: ProfileSettings | null,
+): boolean {
+  if (!local || !saved) return false;
+  const localN = local.notifications ?? {};
+  const savedN = saved.notifications ?? {};
+  const allTypes = new Set([...Object.keys(localN), ...Object.keys(savedN)]);
+  for (const type of allTypes) {
+    const a = localN[type] ?? {};
+    const b = savedN[type] ?? {};
+    if (!deepEqual(a, b)) return true;
+  }
+  return false;
+}
+
 export const useNotificationPreferences = ({
   ensurePush,
 }: UseNotificationPreferencesArgs = {}) => {
@@ -23,30 +58,39 @@ export const useNotificationPreferences = ({
     openpeepsApi.useCurrentProfileNotificationTypes();
   const settingsQuery = openpeepsApi.useCurrentProfileSettings();
   const updateSettings = openpeepsApi.updateCurrentProfileSettingsAction();
-  const [settings, setSettings] = useState<ProfileSettings>(
-    () =>
-      ({
-        id: me?.id ?? '',
-        notifications: {},
-      }) as unknown as ProfileSettings,
-  );
+  // Edits-only local state — the baseline is always the query cache.
+  const [edits, setEdits] = useState<ProfileSettings | null>(null);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<{
     type: 'success' | 'error';
     message: string;
   } | null>(null);
 
-  useEffect(() => {
-    if (settingsQuery.data) setSettings(settingsQuery.data);
-  }, [settingsQuery.data]);
+  const settingsReady = !!settingsQuery.data;
 
-  const setTypeSettings = (type: string, next: ProfileNotificationSettings) => {
-    setSettings((current) => {
-      const copy = { ...current };
-      deepSet(copy, `notifications.${type}`, next);
-      return copy;
-    });
-  };
+  // Derive full settings: edits ?? query data ?? stub
+  const settings = edits ?? (settingsQuery.data as ProfileSettings | undefined) ??
+    ({ id: me?.id ?? '', notifications: {} }) as unknown as ProfileSettings;
+
+  const dirty = useMemo(() => {
+    if (!edits || !settingsQuery.data) return false;
+    return isNotificationsDirty(edits, settingsQuery.data);
+  }, [edits, settingsQuery.data]);
+
+  const setTypeSettings = useCallback(
+    (type: string, next: ProfileNotificationSettings) => {
+      setEdits((prev) =>
+        setNotificationSetting(
+          prev ??
+            (settingsQuery.data as ProfileSettings | undefined) ??
+            ({ id: me?.id ?? '', notifications: {} }) as unknown as ProfileSettings,
+          type,
+          next,
+        ),
+      );
+    },
+    [settingsQuery.data, me?.id],
+  );
 
   const save = async () => {
     setStatus(null);
@@ -70,6 +114,7 @@ export const useNotificationPreferences = ({
         }
       }
       await updateSettings(settings);
+      setEdits(null);
       setStatus({
         type: 'success',
         message: pushWarning
@@ -98,5 +143,7 @@ export const useNotificationPreferences = ({
     saving,
     status,
     clearStatus: () => setStatus(null),
+    dirty,
+    settingsReady,
   };
 };
