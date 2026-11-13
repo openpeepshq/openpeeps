@@ -1,6 +1,6 @@
 {
   "name": "@openpeepshq/common",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -14,7 +14,7 @@
     "timezones-ical-library": "^2.4.0",
     "type-fest": "^5.5.0",
     "validator": "^13.15.35",
-    "zod": "^4.4.3"
+    "zod": "^4.6.6"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

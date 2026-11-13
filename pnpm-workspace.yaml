@@ -37,6 +37,10 @@ overrides:
   # ranges (^4.7.9 / ^4.7.7) already allow 4.7.10; the lockfile is stale.
   # Patch-level, dev-only.
   handlebars: "4.7.10"
+  # zod <4.6.6 can exhaust memory on oversized constrained collections
+  # (GHSA-mrhx-c7xc-m3w5, CVSS 7.5). Force the patched 4.6.7 tree-wide so the
+  # publish gate sees exactly one zod version.
+  zod: "4.6.7"
 
 allowBuilds:
   "@evilmartians/lefthook": true
