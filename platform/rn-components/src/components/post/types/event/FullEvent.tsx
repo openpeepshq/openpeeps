@@ -21,7 +21,7 @@ import {
   DropdownMenuTrigger,
 } from '../../../ui/dropdown-menu';
 import { ThemedText } from '../../../ui/themed-text';
-import { Image, Pressable, Share, TouchableOpacity, View } from 'react-native';
+import { Image, Linking, Pressable, Share, TouchableOpacity, View } from 'react-native';
 import RNFS from 'react-native-fs';
 import {
   Event,
@@ -341,9 +341,13 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
               <ThemedText className="text-xl">
                 {t('events.location.jam', { defaultValue: 'Jam Event' })}
               </ThemedText>
-              <ThemedText className="text-muted-foreground mt-2">
-                {truncateText(jamLink, 30)}
-              </ThemedText>
+              <Pressable
+                onPress={() => void Linking.openURL(jamLink)}
+              >
+                <ThemedText className="text-muted-foreground mt-2 underline">
+                  {truncateText(jamLink, 30)}
+                </ThemedText>
+              </Pressable>
             </>
           ) : event?.url ? (
             <>
