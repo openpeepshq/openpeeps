@@ -15,7 +15,6 @@
       "showPassword": "Show password",
       "forgotPassword": "Forgot Password?",
       "logIn": "Log in",
-      "joinCommunity": "Join Community",
       "seeCommunityFeed": "See community feed",
       "loginWith": "Login with {{provider}}",
       "loginLink": "Continue to sign in",
@@ -24,33 +23,21 @@
     },
     "register": {
       "title": "Sign Up",
-      "submit": "Sign Up",
       "error": "Registration failed",
       "loading": "Creating account…",
       "success": "Account created successfully",
       "verificationReminder": "We've sent you a verification email. Check your inbox and click the link to verify your address.",
-      "welcome": "Welcome",
       "createAccount": "Create account",
       "inviteMessage": "You've been invited to join {{communityName}}, enter details below to be a part of the community.",
-      "handle": "Handle",
-      "handlePlaceholder": "Handle",
       "name": "Name",
       "namePlaceholder": "Name",
       "email": "Email",
-      "emailPlaceholder": "you@email.org",
-      "password": "Password",
-      "hidePassword": "Hide password",
-      "showPassword": "Show password",
       "confirmPassword": "Confirm Password",
       "passwordRules": "8+ characters, with an uppercase letter, lowercase letter, number, and symbol",
       "passwordsDoNotMatch": "Passwords do not match",
       "mustAgreePrivacyPolicy": "You must agree to the privacy policy",
       "privacyPolicyAgreement": "I have read and agree to the",
       "privacyPolicy": "Privacy Policy",
-      "signUp": "Sign Up",
-      "alreadyHaveAccount": "Already have an account?",
-      "signIn": "Sign In",
-      "seeCommunityFeed": "See community feed",
       "inviteInactive": "This invite link is expired or no longer active."
     },
     "resetPassword": {
@@ -59,22 +46,17 @@
       "error": "Password reset failed",
       "success": "Password reset email sent.  Please check your spam folder if you don't see it in a few minutes.",
       "loading": "Sending reset email…",
-      "heading": "Reset Password",
       "newPassword": "New Password",
-      "confirmPassword": "Confirm Password",
-      "submitButton": "Submit",
       "done": "Password reset done.",
       "goToLogin": "Go to login"
     },
     "requestResetPassword": {
       "title": "Request Password Reset",
-      "heading": "Request Password Reset",
       "prompt": "Enter your email address and we will send you a link to reset your password.",
       "successPrompt": "If your email belongs to an account in this community, you'll receive a message with a link where you can change your password.",
       "successToast": "Reset password link has been sent to {{email}} successfully.",
       "errorFallback": "Failed to send reset password link, wrong email",
       "email": "Email",
-      "emailPlaceholder": "you@email.org",
       "proceed": "Proceed"
     },
     "closed": {
@@ -104,8 +86,7 @@
     }
   },
   "previewLink": {
-    "embeddedVideo": "Embedded video",
-    "playVideo": "Play video"
+    "embeddedVideo": "Embedded video"
   },
   "navigation": {
     "welcome": "Welcome",
@@ -150,10 +131,8 @@
     "articles": "Articles",
     "resources": "Resources",
     "bookmarks": "Bookmarks",
-    "conversations": "Messages",
     "primaryMobile": "Primary",
     "breadcrumbs": "Breadcrumbs",
-    "primary": "Primary",
     "openMenu": "Open menu",
     "openMessages": "Open messages",
     "about": "About",
@@ -198,47 +177,30 @@
       "label": "Profile sections"
     },
     "activity": {
-      "tab": "Activity",
       "yourContent": "Your posts",
       "yourActions": "Your actions",
       "received": "Received",
       "postsCount": "Posts",
-      "repliesCount": "Replies",
-      "eventsCount": "Events",
-      "reactionsGiven": "Reactions",
-      "reactionsReceived": "Reactions",
-      "repostsCount": "Reposts",
-      "repostsReceived": "Reposts",
-      "repliesReceived": "Replies",
       "rsvpsCount": "RSVPs",
-      "bookmarksCount": "Bookmarks",
-      "groupsCount": "Groups",
-      "topPosts": "Top posts",
       "emptyTopPosts": "No posts to rank yet."
     },
     "edit": {
       "title": "Edit Profile",
-      "save": "Save Changes",
-      "cancel": "Cancel",
       "success": "Profile updated",
       "error": "Failed to update profile"
     },
     "follow": {
-      "follow": "Follow",
-      "unfollow": "Unfollow",
       "error": "Action failed",
       "unfollowedSuccess": "You're no longer following this profile",
       "followedSuccess": "Successfully followed this profile",
       "success": "You are now following this profile"
     },
     "notifications": {
-      "title": "Notifications",
       "empty": "No notifications",
       "markRead": "Mark all as read"
     },
     "form": {
       "displayName": "Display Name",
-      "handle": "Handle",
       "handlePlaceholder": "your-handle",
       "handleHint": "1–16 characters. Letters, numbers, underscores, and hyphens only — no spaces or punctuation.",
       "handleInvalid": "Handle must be 1–16 characters: letters, numbers, underscores, or hyphens (no spaces or punctuation)",
@@ -247,28 +209,21 @@
       "bioPlaceholder": "Tell us about yourself",
       "avatar": "Avatar",
       "banner": "Banner",
-      "location": "Location",
       "website": "Website",
       "fields": {
         "label": "Label",
-        "value": "Value",
-        "add": "Add Field",
-        "remove": "Remove Field"
+        "value": "Value"
       }
     },
     "header": {
       "roles": "Roles",
-      "followers": "Followers",
-      "following": "Following",
       "posts": "Posts",
       "joined": "Joined {{date}}",
       "avatarAlt": "Profile picture"
     },
     "actions": {
-      "edit": "Edit Profile",
       "follow": "Follow",
       "unfollow": "Unfollow",
-      "message": "Message",
       "copyProfileLink": "Copy Profile Link",
       "copyPostLink": "Copy Post Link",
       "inviteViaEmail": "Invite via Email",
@@ -279,15 +234,11 @@
       "deleteProfile": {
         "title": "Delete Profile",
         "description": "Are you sure you want to delete this profile {{username}} with handle: {{handle}}? This action cannot be undone.",
-        "confirm": "Delete Profile",
-        "cancel": "Cancel",
         "profileDeleted": "Profile has been successfully deleted from your community.",
         "error": "Failed to delete profile",
-        "delete": "Delete",
         "accountDeleted": "The account associated with this profile was also deleted"
       },
       "editProfile": {
-        "saveChanges": "Save Changes",
         "description": "Choose one or more roles for this profile",
         "title": "Edit Roles",
         "roles": "Roles",
@@ -302,11 +253,8 @@
       "invitedBy": "Invited By",
       "emailVerified": "Email Verified",
       "actions": "Actions",
-      "editEmail": "Edit Email",
-      "editRoles": "Edit Roles",
       "viewDetails": "View Details",
-      "deleteMember": "Delete Member",
-      "delete": "Delete"
+      "deleteMember": "Delete Member"
     },
     "followers": {
       "title": "Followers",
@@ -319,31 +267,19 @@
       "noFollowers": "Not following anyone yet"
     },
     "copyProfileLink": {
-      "success": "Profile link copied to clipboard",
-      "error": "Failed to copy profile link"
+      "success": "Profile link copied to clipboard"
     },
     "search": {
-      "placeholder": "Search for people",
       "profilesPlaceholder": "Search profiles…",
-      "noResults": "No results found",
       "noProfilesAvailable": "No profiles available"
     },
     "selector": {
       "title": "Select profiles",
-      "search": "Search profiles…",
-      "empty": "No profiles available",
-      "emptySearch": "No results found",
-      "confirm": "OK",
-      "remove": "Remove"
+      "confirm": "OK"
     },
-    "input": {
-      "placeholder": "Select profiles"
-    },
-    "postsAndReplies": {
-      "openGroupTitle": "Open group"
-    },
+    "input": {},
+    "postsAndReplies": {},
     "groups": {
-      "tabName": "Groups",
       "noCommonGroups": "Nothing to see here yet"
     },
     "notFound": {
@@ -351,7 +287,6 @@
       "description": "This profile does not exist.  You may try to find them in the Members list."
     },
     "block": {
-      "title": "Block @{{handle}}",
       "description": "Are you sure you want to block @{{handle}}? You will no longer see each other or each other’s posts.",
       "confirm": "Block",
       "unblock": "Unblock",
@@ -408,9 +343,7 @@
       "undo": "Undo"
     },
     "menu": {
-      "title": "Post menu",
-      "reposts": "Reposts",
-      "reactions": "Reactions"
+      "title": "Post menu"
     },
     "reactionsModal": {
       "title": "Reactions",
@@ -425,12 +358,7 @@
       "content": "What's on your mind?",
       "changeGroup": "Change group",
       "notifyEveryone": "Notify everyone",
-      "visibility": {
-        "label": "Visibility",
-        "public": "Public",
-        "private": "Private",
-        "followers": "Followers"
-      },
+      "visibility": {},
       "selectGroup": "Select group",
       "poll": {
         "addOption": "Add Option",
@@ -438,16 +366,13 @@
         "option": "Option {{number}}",
         "duration": "Poll Duration",
         "multipleChoice": "Allow Multiple Choices",
-        "submit": "Submit",
         "seeWhoVoted": "See who voted",
         "questionPlaceholder": "What's your question?",
         "pollEnd": "Poll end",
         "multipleAnswers": "Multiple answers",
-        "seeWhoVotedTitle": "See who voted",
         "multipleAnswersDescription": "Allow people to choose multiple answers",
         "votersVisibleDescription": "Allow everyone to see who voted and what option they voted for",
-        "question": "Poll question…",
-        "expiresAt": "Expires at"
+        "question": "Poll question…"
       },
       "changeAudience": "Change audience",
       "chooseAudience": "Choose who can see this",
@@ -455,34 +380,26 @@
       "addImage": "Add Media",
       "addAudio": "Add audio",
       "addDocument": "Add Document",
-      "title": "New Post",
       "note": {
         "placeholder": "What is on your mind?"
       }
     },
     "copyPostLink": {
-      "submit": "Copy Link",
       "success": "Copy success",
       "successMessage": "post link copied to clipboard",
       "errorMessage": "Failed to copy profile link",
       "error": "Copy error"
     },
-    "event": {
-      "attendees": "Attendees",
-      "online": "Online",
-      "viewEvent": "View Event"
-    },
+    "event": {},
     "actions": {
       "shareMessage": "Share this post",
       "seeThread": "See Thread",
-      "seeEvent": "View Event",
       "react": "React",
       "reply": "Reply",
       "repost": "Repost"
     },
     "footer": {
       "reply": "Reply",
-      "repost": "Repost",
       "like": "Like",
       "share": "Share"
     },
@@ -492,9 +409,6 @@
       "repostToFeed": "Repost to feed",
       "reposting": "Reposting…",
       "directMessage": "Direct message",
-      "sendInMessage": "Send in a message",
-      "otherOptions": "Other options",
-      "copyLink": "Copy link",
       "linkCopied": "Link copied",
       "copyFailed": "Couldn't copy the link",
       "systemShare": "Share via…",
@@ -525,9 +439,7 @@
       "pollOptions": "{{count}} options",
       "document": "Document",
       "audio": "Audio",
-      "imageAlt": "Attachment",
-      "viewOriginal": "View original post",
-      "viewPost": "View post"
+      "viewOriginal": "View original post"
     },
     "truncatedMarkdown": {
       "show": "Show more",
@@ -535,7 +447,6 @@
       "close": "Close"
     },
     "feed": {
-      "empty": "No posts yet.",
       "pinned": "Pinned post"
     },
     "hiddenMessage": "Hidden message",
@@ -567,9 +478,7 @@
       "length": "Length"
     },
     "deleteModal": {
-      "deletePostTitle": "Delete post",
-      "delete": "Delete",
-      "cancel": "Cancel"
+      "deletePostTitle": "Delete post"
     },
     "stats": {
       "viewReactions": "View reactions",
@@ -585,11 +494,9 @@
       "newReplies": "New replies"
     },
     "visibility": {
-      "title": "Post visibility",
-      "selectGroup": "Select group"
+      "title": "Post visibility"
     },
     "replyTo": " Replied to",
-    "reposted": "Reposted",
     "unpinInGroup": {
       "title": "Unpin from group",
       "success": "The post is no longer pinned to this group"
@@ -614,13 +521,10 @@
     "edit": {
       "success": "Post updated successfully",
       "title": "Editing Post",
-      "submit": "Update",
       "loading": "Loading"
     },
     "deleteEvent": {
       "description": "Deleting this event will remove it from the community.  Any attendees will not be notified.",
-      "cancel": "Cancel",
-      "confirm": "Delete Event",
       "title": "Delete this event?"
     },
     "article": {
@@ -674,14 +578,11 @@
   },
   "groups": {
     "type": {
-      "public": "Public",
-      "private": "Private",
       "open": "Open",
       "closed": "Closed"
     },
     "create": {
       "title": "Create Group",
-      "submit": "Create",
       "error": "Failed to create group",
       "success": "Group created"
     },
@@ -714,20 +615,13 @@
     "delete": {
       "title": "Delete Group",
       "description": "Are you sure you want to delete the group {{groupName}}?",
-      "confirm": "Confirm",
-      "deleteButton": "Delete",
-      "cancel": "Cancel",
-      "deleting": "Deleting…",
       "successMessage": "Group deleted successfully!",
       "errorMessage": "Failed to delete group",
       "toastError": "Couldn't delete group. Please try again later."
     },
     "selection": {
       "title": "Select Groups",
-      "description": "Select groups to add members to",
-      "noGroups": "No groups available",
-      "public": "Public",
-      "private": "Private"
+      "description": "Select groups to add members to"
     },
     "makeAdmin": {
       "title": "Make Admin",
@@ -748,7 +642,6 @@
     "removeMember": {
       "title": "Remove Member",
       "description": "Are you sure you want to remove @{{handle}} from group?",
-      "confirm": "Remove",
       "loading": "Removing…",
       "successMessage": "Member removed successfully",
       "errorMessage": "Failed to remove member"
@@ -756,10 +649,7 @@
     "handleExists": "This handle is already in use.  Please try a different one.",
     "sections": {
       "label": "Group sections",
-      "posts": "Posts",
-      "events": "Events",
-      "resources": "Resources",
-      "description": "Description"
+      "posts": "Posts"
     },
     "eventsTabs": {
       "label": "Event timeframe"
@@ -772,7 +662,6 @@
         "description": "Visible to the internet"
       },
       "local": {
-        "title": "Community",
         "description": "Everyone who can log in to this community"
       },
       "private": {
@@ -784,17 +673,12 @@
       "title": "Content  Visibility",
       "description": "Who can see group content",
       "public": {
-        "title": "General Public",
         "description": "Visible on the internet"
       },
       "local": {
-        "title": "Community",
         "description": "Profiles logged in to this community"
       },
-      "private": {
-        "title": "Private",
-        "description": "Only selected profiles"
-      }
+      "private": {}
     },
     "whoCanJoin": {
       "title": "Who can join",
@@ -828,7 +712,6 @@
         "description": "All members can add events to the calendar"
       },
       "admin": {
-        "title": "Owners and admins",
         "description": "Only group owners and admins can add events to the calendar"
       }
     },
@@ -866,14 +749,11 @@
       "title": "Handle"
     },
     "description": {
-      "title": "Description",
       "placeholder": "Type your group description here"
     },
     "roles": {
       "none": "None",
       "local": "Local",
-      "member": "Member",
-      "moderator": "Moderator",
       "admin": "Admin",
       "owner": "Owner"
     },
@@ -891,7 +771,6 @@
     "capabilities": {
       "title": "Role capabilities",
       "description": "Choose what each relationship can do. “None” applies to everyone (including signed-in users). “Local” applies only to profiles with the core-local community role. Owner is omitted because owners always have full access.",
-      "capability": "Capability",
       "allowAll": "All",
       "coveredByWildcard": "Granted by allow-all; uncheck to exclude",
       "stateHint": "Click a cell to cycle: empty → allow (+) → deny (−). ~ = allowed by “All” or by the none column (applies to everyone). × = denied by a wildcard and cannot be changed.",
@@ -923,29 +802,24 @@
       "success": "Group posts marked as read"
     },
     "noGroupsYet": "You have no groups yet",
-    "noGroupsFound": "No groups found",
     "searchPlaceholder": "Search by group name",
     "openGroup": "Open group",
     "members": {
-      "title": "Members",
       "searchPlaceholder": "Search members by name or handle",
       "empty": "No members found"
     },
     "form": {
       "groupName": "Group Name",
       "displayNameMaxLength": "Group name should be {{max}} characters or fewer",
-      "members": "Members",
       "membersPlaceholder": "Add members to this group"
     },
     "actions": {
-      "editGroup": "Edit group",
       "addMembers": "Add Members",
       "leaveGroup": "Leave group",
       "removeFromGroup": "Remove from group",
       "viewPosts": "View posts",
       "updateGroup": "Update group",
       "update": "Update",
-      "create": "Create",
       "shareOnCommunity": "Share on community",
       "shareToFeed": "Share to feed",
       "shareInMessage": "Share in a message",
@@ -1003,17 +877,14 @@
     },
     "feed": {
       "label": "Jam timeframe",
-      "past": "Past",
-      "upcoming": "Upcoming"
+      "past": "Past"
     },
     "create": {
       "title": "Create Jam",
-      "submit": "Create",
       "error": "Failed to create jam",
       "success": "Jam created"
     },
     "join": {
-      "submit": "Join Jam",
       "error": "Failed to join jam",
       "waiting": "Waiting for approval…",
       "requestToJoin": "Request to join",
@@ -1022,24 +893,20 @@
       "waitingForModerator": "Waiting for a moderator to let you in"
     },
     "start": {
-      "submit": "Start Jam",
       "error": "Failed to start jam"
     },
     "close": {
       "error": "Failed to close jam",
       "success": "Jam ended",
       "title": "Close Jam",
-      "description": "Are you sure you want to close this jam?",
-      "confirm": "Close Jam"
+      "description": "Are you sure you want to close this jam?"
     },
     "exit": {
       "error": "Failed to exit jam",
       "success": "Exited jam successfully",
       "title": "Exit Jam",
       "description": "Are you sure you want to exit this jam?",
-      "leave": "Leave Jam",
       "endForAll": "End for All",
-      "confirm": "Leave Jam",
       "closeOrExit": {
         "description": "Do you want to Leave the Jam (everyone else gets to stay) or Close the Jam (everyone gets kicked out)?"
       }
@@ -1054,7 +921,6 @@
       "muteError": "Failed to mute participant",
       "cameraOffSuccess": "Participant camera turned off successfully",
       "cameraOffError": "Failed to turn off participant camera",
-      "muteParticipant": "Mute Participant",
       "muting": "muting…",
       "turnOffCamera": "Turn off Camera",
       "turningOffCamera": "Turning off…"
@@ -1092,7 +958,6 @@
       "guestTermsAgreePrefix": "By continuing, you agree to the",
       "guestTermsLink": "Terms of Service",
       "guestTermsAgreeSuffix": "as regards jam activities",
-      "continue": "Continue",
       "fallbackTitle": "Jam",
       "cameraOff": "Camera is off"
     },
@@ -1101,16 +966,11 @@
       "debugTitle": "Debug Panel",
       "toggleDebug": "Toggle Debug Panel",
       "jamControls": "Jam Controls",
-      "audioLevel": "Audio Level",
       "activityHistory": "Activity History",
-      "chatTitle": "In-Jam Messages",
-      "peopleTitle": "People",
-      "searchPeoplePlaceholder": "Search for people",
-      "searchButton": "Search"
+      "chatTitle": "In-Jam Messages"
     },
     "chat": {
       "messagePlaceholder": "Send a message",
-      "sendTitle": "Send Message",
       "openEveryoneTitle": "Chat with Everyone",
       "noMessages": "No messages found"
     },
@@ -1138,7 +998,6 @@
     "mobileMenu": {
       "inJamMessage": "In-jam message",
       "jamDetails": "Jam Details",
-      "people": "People",
       "info": "Info",
       "hostControls": "Host Controls",
       "shareInvite": "Share invite",
@@ -1157,7 +1016,6 @@
       "stopSharing": "Stop sharing",
       "youPresenting": "(You presenting)",
       "presenting": "(presenting)",
-      "showGrid": "Show everyone",
       "backToPresentation": "Back to presentation"
     },
     "reactions": {
@@ -1196,7 +1054,6 @@
       "rtmpStopError": "Failed to stop live stream"
     },
     "hand": {
-      "raiseTitle": "Raise Hand",
       "raiseLabel": "Raise Hand"
     },
     "blur": {
@@ -1230,8 +1087,6 @@
       "deleteScheduled": {
         "title": "Delete this Jam?",
         "body": "This jam details will no longer be available for anyone including you. Would you still like to delete this jam?",
-        "cancel": "Cancel",
-        "delete": "Delete",
         "deleteEventTitle": "Delete Event",
         "successToast": "Event deleted successfully!"
       }
@@ -1239,7 +1094,6 @@
     "liveJams": "Live Jams",
     "noLiveJams": "No live jams to join",
     "unavailable": {
-      "message": "Jams are unavailable because LiveKit is not connected.",
       "diagnose": "Diagnose LiveKit",
       "diagnoseHint": "Open Diagnostics → LiveKit in the web admin (/admin/diagnostics/livekit)."
     },
@@ -1249,7 +1103,6 @@
       "jamNotActive": "This Jam is not active",
       "loading": "Loading jam…",
       "notFound": "Jam not found",
-      "viewEvent": "View event",
       "autoRsvpInProgress": "Registering you for this event…",
       "autoRsvpError": "Failed to register for this event.",
       "reconnecting": "Reconnecting to the jam…"
@@ -1261,12 +1114,10 @@
     },
     "speakerView": {
       "enlarge": "Enlarge {{name}}",
-      "showGrid": "Show everyone",
       "speaking": "Speaking",
       "spotlight": "Spotlight for everyone",
       "removeSpotlight": "Remove spotlight",
-      "spotlighted": "Spotlighted",
-      "cameraOff": "Camera is off"
+      "spotlighted": "Spotlighted"
     }
   },
   "admin": {
@@ -1283,7 +1134,6 @@
       "createError": "Failed to create service token.",
       "name": "Name",
       "nameRequired": "Name is required.",
-      "descriptionLabel": "Description",
       "expiration": "Expiration",
       "expirationOptions": {
         "sevenDays": "7 days",
@@ -1293,11 +1143,9 @@
       },
       "scopes": "Scopes",
       "addScope": "Add Scope",
-      "removeScope": "Remove",
       "scopeRequired": "At least one scope is required.",
       "copy": "Copy",
       "copyWarning": "Copy this token now. It will not be shown again.",
-      "listTitle": "Service Access Tokens",
       "empty": "No active service access tokens.",
       "expiresAt": "Expires at",
       "never": "Never",
@@ -1307,7 +1155,6 @@
       "expiredToggle": "Expired tokens ({{count}})"
     },
     "plugins": {
-      "title": "Plugins",
       "empty": "No plugins loaded.",
       "error": "Failed to load plugins",
       "repository": "Repository",
@@ -1315,7 +1162,6 @@
       "install": "Install",
       "installTitle": "Install Plugin",
       "installing": "Installing...",
-      "installConfirm": "Install",
       "uninstall": "Uninstall",
       "npmPlaceholder": "Package name (e.g. @namespace/plugin-name)",
       "gitPlaceholder": "Repository URL",
@@ -1326,7 +1172,6 @@
       "sshAuth": "SSH deploy key",
       "registryPlaceholder": "Registry URL (optional, defaults to npmjs.org)",
       "usernamePlaceholder": "Git username",
-      "tokenPlaceholder": "Access token",
       "privateKeyPlaceholder": "Unencrypted SSH private key",
       "sshTrustHint": "The repository host key is trusted on first use for this installation.",
       "credentialsHint": "Credentials are used only for this installation and are not stored.",
@@ -1347,17 +1192,12 @@
       "copyError": "Failed to copy invite link",
       "title": "Create Invite Link",
       "description": "Invite Links can be limited to a number of uses or by date",
-      "twoDays": "Two Days",
-      "oneMonth": "One Month",
       "deactivate": "Deactivate Link",
       "never": "Never",
       "generateTitle": "Click to create the invite link",
       "totalLinkUses": "Total uses:",
-      "expiresAfter": "Expires After",
       "closeModal": "Save and Close",
       "numberOfUses": "Number of Uses",
-      "oneDay": "One Day",
-      "oneWeek": "One Week",
       "copyToClipboard": "Copy to Clipboard",
       "saveAsQrCode": "Save as QR code",
       "qrCodeAlt": "QR code for this invite link",
@@ -1392,11 +1232,9 @@
       "description": "All backups are stored in the server temporarily. Please download the backups and store them in a safe place. You can restore the backups by uploading them here.",
       "noBackupsFound": "No Backups found",
       "errorFetching": "Error fetching",
-      "loading": "Loading…",
       "testRestore": {
         "title": "Use Test Backup",
         "confirm": "Are you sure you want to use Test Backup data?",
-        "cancel": "Cancel",
         "continue": "Continue",
         "restoreSuccess": "Backup restored successfully",
         "restoreError": "Error using test backup"
@@ -1406,9 +1244,7 @@
         "selectFile": "Select File",
         "success": "Restore Successful.  The community server will now restart.",
         "error": "There was an error while restoring the backup",
-        "title": "Restore backup",
-        "cancel": "Cancel",
-        "confirm": "Confirm"
+        "title": "Restore backup"
       },
       "create": "Create backup"
     },
@@ -1417,7 +1253,6 @@
       "description": "Removing a post or jam recording leaves the file on the server, because another post, the welcome page, the about page, the code of conduct, a profile, or a custom field may still link to it. Garbage collection deletes a file {{days}} days after it first has no live link. Delete now removes a file immediately.",
       "counts": "{{total}} files · {{unused}} unused · {{inUse}} in use",
       "search": "Search by file id",
-      "loading": "Loading…",
       "error": "Could not load media files",
       "empty": "No media files",
       "open": "Open",
@@ -1428,10 +1263,7 @@
         "inUse": "In use"
       },
       "status": {
-        "referenced": "In use",
-        "pending": "Unused",
-        "due": "Ready to collect",
-        "unseen": "Unused"
+        "due": "Ready to collect"
       },
       "collects": {
         "referenced": "Kept — still linked",
@@ -1443,16 +1275,13 @@
         "title": "Delete this file?",
         "unused": "This file is unused. Deleting it now removes it from the server instead of waiting for garbage collection.",
         "referenced": "This file is still linked from a post, page, or profile. Deleting it now removes it from the server, and those links will stop working.",
-        "action": "Delete file",
-        "cancel": "Cancel"
+        "action": "Delete file"
       }
     },
     "database": {
-      "title": "Database",
       "browseTab": "Browse",
       "sqlTab": "SQL",
       "tables": "Tables",
-      "loading": "Loading…",
       "selectTable": "Select a table to browse rows.",
       "filterColumn": "Filter column",
       "anyColumn": "—",
@@ -1470,7 +1299,6 @@
       "sqlMeta": "{{command}} — {{count}} row(s)",
       "sqlMetaTruncated": "{{command}} — showing {{shown}} of {{count}} row(s)",
       "editTitle": "Edit {{column}}",
-      "cancel": "Cancel",
       "save": "Save"
     },
     "invites": {
@@ -1478,7 +1306,6 @@
       "newInvite": "New Invite",
       "seeInvitedAccounts": "See Invited Accounts",
       "copyLink": "Copy Link",
-      "saveAsQrCode": "Save as QR code",
       "deactivate": "Deactivate",
       "activate": "Activate",
       "edit": "Edit",
@@ -1503,13 +1330,10 @@
       "deleteError": "Failed to delete invite link",
       "noInvitesFound": "No invites found",
       "searchPlaceholder": "Search by name or handle",
-      "title": "Invites",
       "linkColumn": "Link",
       "createdByColumn": "Created By",
-      "groupsColumn": "Groups",
       "expirationDateColumn": "Expiration Date",
       "usesColumn": "Uses",
-      "statusColumn": "Status",
       "linkHeading": "Link",
       "statusActive": "Active",
       "statusInactive": "Inactive"
@@ -1543,67 +1367,40 @@
     },
     "members": {
       "inviteWithEmailTitle": "Invite member with email",
-      "inviteWithLinkTitle": "Invite member with link",
-      "title": "Members",
       "searchPlaceholder": "Search member by name or email",
       "noUsersFound": "No users found",
-      "profileColumn": "Profile",
       "rolesColumn": "Roles",
-      "createdColumn": "Created",
-      "handleColumn": "Handle",
-      "downloadCsv": "Download CSV",
       "profileInfo": "Profile Information",
-      "dateJoined": "Date joined",
       "emailAddress": "Email address",
       "profileId": "Profile ID",
-      "activity": "Activity",
-      "followers": "Followers",
-      "following": "Following",
       "posts": "Posts",
-      "replies": "Replies",
-      "events": "Events",
-      "reports": "Reports",
       "blockedBy": "Blocked by",
-      "groups": "Groups",
       "rsvps": "RSVPs",
-      "bookmarks": "Bookmarks",
-      "backToMembers": "Back to members",
-      "notFound": "Profile not found"
+      "backToMembers": "Back to members"
     },
     "groups": {
-      "title": "Groups",
       "delete": "Delete group",
-      "deleteTitle": "Delete group",
       "deleteDescription": "Are you sure you want to delete this group? This action cannot be undone.",
       "created": "Created",
       "lastPost": "Last post",
-      "members": "Members",
-      "posts": "Posts",
-      "settings": "Settings"
+      "posts": "Posts"
     },
     "community": {
       "totalProfiles": "Total profiles",
       "activeProfiles": "Active profiles",
       "recentInteractions": "Recent Interactions",
-      "totalMembers": "Total members",
-      "activeMembers": "Active members",
       "recentSignups": "Recent Signups"
     },
     "overview": {
-      "title": "Analytics",
       "communityOverview": "Community overview",
-      "newSignups": "New signups",
-      "content": "Content",
       "postsRepliesReposts": "Posts, replies, reposts",
       "allPosts": "All Posts",
       "postsWithoutReplies": "Posts without replies",
       "postsWithReplies": "Post with replies",
-      "replies": "Replies",
       "topProfilesOfYear": "Top {{count}} profiles of the year",
       "topPostsOfYear": "Top {{count}} posts of the year",
       "totalProfiles": "Total Profiles",
       "activeProfiles": "Active Profiles",
-      "recentInteractions": "Recent Interactions",
       "jamSessions": "Jam Sessions",
       "jamParticipants": "Jam Participants",
       "lastWeek": "Last Week",
@@ -1622,13 +1419,11 @@
       "cpuUsed": "CPU",
       "percentFilled": "{{percent}}%",
       "noStats": "No stats available",
-      "profilesSection": "Profiles",
       "postsSection": "Posts",
       "jamsSection": "Jams",
       "activeWeek": "Active (week)",
       "postsThisPeriod": "This week",
       "sessions": "Sessions",
-      "participants": "Participants",
       "info": {
         "communityName": "Display name from community settings.",
         "serverVersion": "Running OpenPeeps version. Build is set when the image was produced with a BUILD identifier.",
@@ -1644,7 +1439,6 @@
       }
     },
     "moderation": {
-      "title": "Moderation",
       "summaryTab": "Summary",
       "resolvedTab": "Resolved",
       "tabsLabel": "Moderation sections",
@@ -1659,8 +1453,7 @@
           "title": "Close this report?",
           "description": "You are about to close this report, select an action below to close it:",
           "deleteProfile": {
-            "description": "Prevents the profile from showing up in lists and being seen by anyone, removes content also.",
-            "button": "Delete Profile"
+            "description": "Prevents the profile from showing up in lists and being seen by anyone, removes content also."
           },
           "deletePost": {
             "description": "Post will no longer be on the feed and community",
@@ -1691,12 +1484,10 @@
         "delete": {
           "title": "Delete this profile?",
           "description": "You are about to delete this profile. Prevents the profile from showing up in lists and being seen by anyone, removes content also.. Are you sure about this?",
-          "cancel": "Back",
-          "confirm": "Yes, delete it"
+          "cancel": "Back"
         }
       },
       "reportList": {
-        "allResolvedBadge": "All reports resolved",
         "seeReports": "See reports",
         "postHeading": "Post",
         "unresolvedBadge": "Not resolved",
@@ -1705,7 +1496,6 @@
       }
     },
     "configuration": {
-      "unnamedSection": "Configuration",
       "community": {
         "capabilities": {
           "title": "Roles and Capabilities",
@@ -1735,17 +1525,10 @@
       }
     },
     "analytics": {
-      "title": "Analytics",
       "tabsLabel": "Analytics sections",
       "tabs": {
-        "overview": "Overview",
-        "members": "Members",
         "content": "Content",
-        "engagement": "Engagement",
-        "groups": "Groups",
-        "reports": "Reports",
         "ai-insights": "AI Insights",
-        "growth": "Growth",
         "retention": "Retention"
       },
       "export": "Export",
@@ -1789,16 +1572,12 @@
         "bookmark": "Bookmark rate",
         "comment": "Comment rate"
       },
-      "visibility": {
-        "public": "Public",
-        "private": "Private"
-      },
+      "visibility": {},
       "cohortRetention": "Cohort D7 retention",
       "retentionByGroup": "Activity by group",
       "table": {
         "member": "Member",
         "channel": "Channel",
-        "joined": "Date joined",
         "dateJoined": "Date joined",
         "role": "Role",
         "contributions": "Contributions",
@@ -1808,8 +1587,6 @@
         "type": "Type",
         "group": "Group",
         "groupName": "Group name",
-        "visibility": "Visibility",
-        "members": "Members",
         "activeShort": "active",
         "engagement": "Engagement",
         "growth": "Growth",
@@ -1839,7 +1616,6 @@
         "verifiedMembers": "Verified members",
         "unverifiedMembers": "Unverified members",
         "newMembers": "New members",
-        "activeMembers": "Active members",
         "dau": "DAU",
         "mau": "MAU",
         "dauMau": "DAU/MAU",
@@ -1850,8 +1626,6 @@
         "newSignups": "New signups",
         "likes": "Likes",
         "comments": "Comments",
-        "reposts": "Reposts",
-        "bookmarks": "Bookmarks",
         "dms": "Direct messages",
         "uniqueViewers": "Unique viewers",
         "impressions": "Impressions",
@@ -1915,9 +1689,7 @@
         "tableLinkClicks": "Anonymous outbound click counts in the selected range."
       }
     },
-    "dashboard": {
-      "title": "Administration"
-    },
+    "dashboard": {},
     "inviteEmail": {
       "composeMessage": "Compose a message",
       "defaultMessage": "You have been invited to join our community.",
@@ -1940,7 +1712,6 @@
     }
   },
   "configuration": {
-    "title": "Configuration",
     "sso": {
       "title": "SSO",
       "description": "Configure single sign-on providers so members can sign in with GitLab, GitHub, or another identity provider.",
@@ -1955,27 +1726,16 @@
       "backToList": "Back to SSO",
       "typeLabel": "Provider type",
       "saveProvider": "Save provider",
-      "removeProvider": "Remove",
       "editProvider": "Edit",
-      "cancelEdit": "Cancel",
       "updateSuccess": "SSO configuration updated.",
       "duplicateId": "A provider with this id already exists.",
       "idRequired": "Enter a short, URL-safe id.",
       "callbackUrl": "Redirect URI",
       "kind": {
-        "gitlab": "GitLab",
-        "gitlab-selfhosted": "GitLab",
-        "github": "GitHub",
-        "google": "Google",
         "entra": "Microsoft",
-        "discord": "Discord",
         "auth0": "Auth0",
         "okta": "Okta",
-        "keycloak": "Keycloak",
-        "authentik": "Authentik",
-        "pocketid": "Pocket ID",
-        "oidc": "OIDC",
-        "generic": "Generic"
+        "oidc": "OIDC"
       },
       "types": {
         "gitlab": {
@@ -2114,7 +1874,6 @@
         "authPassDescription": "Leave placeholder characters unchanged to keep the saved password."
       },
       "updateSuccess": "Email configuration updated.",
-      "testTitle": "Send test email",
       "testHint": "Sends a fully rendered test email through the draft SMTP transport, bypassing the queue.",
       "testRecipient": "Send test to",
       "testRecipientPlaceholder": "you@example.com",
@@ -2134,15 +1893,12 @@
       "fields": {
         "name": "Field Name",
         "type": "Field Type",
-        "required": "Required",
         "options": "Options",
-        "placeholder": "Placeholder",
-        "description": "Description"
+        "placeholder": "Placeholder"
       },
       "types": {
         "text": "Text",
         "number": "Number",
-        "select": "Select",
         "multiselect": "Multi-select",
         "date": "Date",
         "boolean": "Yes/No"
@@ -2181,7 +1937,6 @@
       "contactEmail": "Contact Email",
       "contactEmailDescription": "This email is displayed to community members on the Welcome page, welcome email, and other places for them to contact community owner.",
       "email": "Email",
-      "name": "Community Name",
       "nameDescription": "This appears in the browser title bar and in email subjects and represents the name of your community.",
       "tagline": "Community Tagline",
       "taglineDescription": "This appears on the sign up page and provides a brief description of your community.",
@@ -2212,7 +1967,6 @@
         "description": "Add your own browser and mobile icons"
       },
       "welcomePage": {
-        "title": "Welcome Page",
         "description": "Tell your peeps about your community as part of their onboarding experience.  <br/> You can use [Markdown](https://www.markdownguide.org) to format the contents of this page."
       },
       "codeOfConduct": {
@@ -2242,14 +1996,12 @@
         "builtIn": "Built-in",
         "add": "Add username",
         "placeholder": "username",
-        "remove": "Remove",
         "empty": "Enter a username to add.",
         "invalid": "Usernames must be 1–16 characters: letters, numbers, underscores, or hyphens.",
         "duplicate": "That username is already on the list.",
         "builtInError": "Built-in usernames are always reserved and cannot be changed."
       },
       "roles": {
-        "title": "Roles and Capabilities",
         "description": "Set up the features and capabilities available to each role within the community"
       },
       "language": {
@@ -2327,7 +2079,6 @@
     }
   },
   "diagnostics": {
-    "title": "Diagnostics",
     "description": "Inspect runtime services and confirm they work end-to-end.",
     "performance": {
       "title": "Performance",
@@ -2336,25 +2087,19 @@
       "dbTiming": "DB timing",
       "on": "on",
       "off": "off",
-      "refresh": "Refresh",
       "loadError": "Could not load performance stats.",
       "empty": "No slow requests recorded yet.",
       "when": "When",
       "hostname": "Hostname",
       "method": "Method",
       "path": "Path",
-      "status": "Status",
       "duration": "Duration"
     },
     "email": {
       "title": "Email",
       "description": "Inspect the outbound email queue and queue a test email through the regular delivery pipeline.",
-      "testTitle": "Queue test email",
       "testHint": "Adds a test email to the queue using the saved configuration, just like the CLI command.",
-      "testRecipient": "Send test to",
-      "testRecipientPlaceholder": "you@example.com",
       "queueTest": "Queue test email",
-      "recipientRequired": "Enter an email address to receive the test.",
       "queueSuccess": "Test email queued. Watch the queue counters to see it picked up.",
       "queueFailed": "Failed to queue test email",
       "queueTitle": "Outbound email queue",
@@ -2364,7 +2109,6 @@
       "waiting": "Waiting",
       "active": "In progress",
       "completed": "Completed",
-      "failed": "Failed",
       "delayed": "Delayed",
       "prioritized": "Prioritized",
       "recentFailures": "Recent send failures",
@@ -2375,7 +2119,6 @@
       "viewLogs": "View job logs",
       "notFound": "Job not found. It may have been removed from the queue.",
       "details": "Job details",
-      "refresh": "Refresh",
       "queue": "Queue",
       "id": "Job ID",
       "name": "Job name",
@@ -2395,9 +2138,7 @@
       "date": "Date",
       "level": "Level",
       "allLevels": "All levels",
-      "filter": "Filter",
       "filterPlaceholder": "Search…",
-      "refresh": "Refresh",
       "autoRefresh": "Auto-refreshing every 5 seconds",
       "showing": "Showing {{count}} of {{total}} entries",
       "loadError": "Could not load logs.",
@@ -2410,7 +2151,6 @@
     "livekit": {
       "title": "LiveKit",
       "description": "Check whether jams can reach the LiveKit server. Missing or invalid credentials disable live jams.",
-      "refresh": "Refresh",
       "loadError": "Could not load the LiveKit diagnosis.",
       "connected": "Connected",
       "notConnected": "Not connected",
@@ -2421,11 +2161,9 @@
       "set": "Set",
       "missing": "Missing",
       "ok": "OK",
-      "failed": "Failed",
       "error": "Last error",
       "recording": "Recording",
       "recordingOn": "Enabled",
-      "recordingOff": "Disabled",
       "envHint": "Set JAMS_LIVEKIT_URL, JAMS_LIVEKIT_API_KEY, and JAMS_LIVEKIT_API_SECRET on the server, then refresh."
     }
   },
@@ -2467,7 +2205,6 @@
       "edit": "Edit",
       "delete": "Delete",
       "confirm": "Confirm",
-      "cancel": "Cancel",
       "remove": "Remove",
       "reportProfile": "Report @{{handle}}",
       "blockProfile": "Block @{{handle}}",
@@ -2480,7 +2217,6 @@
     },
     "submit": "Submit",
     "listEditor": {
-      "removeTitle": "Remove",
       "addTitle": "Add"
     },
     "next": "Next",
@@ -2498,9 +2234,7 @@
         "chooseFromLibrary": "Choose from library"
       },
       "video": {
-        "recents": "Recents",
-        "recordVideo": "Record video",
-        "chooseFromLibrary": "Choose from library"
+        "recordVideo": "Record video"
       },
       "send": "Send",
       "sending": "Sending…",
@@ -2513,18 +2247,14 @@
       "adding": "Adding…"
     },
     "add": "Add",
-    "cancel": "Cancel",
     "none": "None",
-    "remove": "Remove",
     "thisDevice": "This device and browser",
     "error": "Error",
-    "loading": "Loading…",
     "loadingMore": "Loading more…",
     "posting": "Posting…",
     "save": "Save",
     "saving": "Saving…",
     "send": "Send",
-    "sending": "Sending…",
     "submitting": "Submitting…",
     "downloading": "Downloading…",
     "restoreDefaults": "Restore defaults",
@@ -2534,12 +2264,9 @@
   },
   "conversations": {
     "newMessage": "New Message",
-    "noMessages": "No direct messages here",
     "sendError": "Failed to send message",
-    "messageLog": "Messages",
     "info": {
       "title": "Conversation info",
-      "participants": "Participants",
       "messageCount_one": "{{count}} message in this conversation.",
       "messageCount_other": "{{count}} messages in this conversation."
     },
@@ -2585,9 +2312,7 @@
         "deleteForMe": "Delete for me",
         "deleteForEveryone": "Delete for everyone",
         "description": "Are you sure you want to delete this message?",
-        "confirm": "Delete",
         "loading": "Deleting…",
-        "deleteDescription": "Are you sure you want to delete this message?",
         "deleteSuccess": "Message deleted successfully",
         "deleteError": "Failed to delete message"
       }
@@ -2623,18 +2348,15 @@
     "title": "Conversation",
     "titleWithYou": "{{names}} and You",
     "participants": {
-      "title": "Participants",
       "openList": "View participants"
     },
     "tabs": {
       "label": "Conversation lists",
-      "active": "Active",
       "archived": "Archived"
     }
   },
   "settings": {
     "description": "Manage all settings relating to your acccount here:",
-    "menu": "Settings",
     "profile": {
       "description": "Make changes to your profile details",
       "updateError": "There was an error updating your profile: {{error}}",
@@ -2650,12 +2372,9 @@
       "description": "Make changes to your account information",
       "oldPassword": "Current Password",
       "oldPasswordDescription": "Enter your current password",
-      "oldPasswordPlaceholder": "Enter your current password",
       "email": "Email",
       "emailPlaceholder": "Enter your email",
-      "newPassword": "New Password",
       "newPasswordPlaceholder": "Enter your new password",
-      "confirmPassword": "Confirm Password",
       "confirmPasswordPlaceholder": "Confirm your new password",
       "verifyEmailButton": "Verify email",
       "verifyEmailDescription": "Your email is not verified. Resend a verification email.",
@@ -2680,15 +2399,12 @@
       "currentPeriod": "Current Period",
       "autoRenewal": "Auto Renewal",
       "autoRenewalCanceled": "Canceled",
-      "autoRenewalActive": "Active",
       "createPortal": "Customer Portal",
       "noSubscription": "No active subscription. Subscribe to support your community."
     },
     "notifications": {
-      "inApp": "In-App Notifications",
       "push": "Push Notifications",
       "email": "Email Notifications",
-      "updateSuccess": "Community settings updated",
       "description": "Manage your notification preferences",
       "types": {
         "reply": {
@@ -2700,7 +2416,6 @@
           "description": "Manage notifications for when your posts gets reposted"
         },
         "reaction": {
-          "label": "Reactions",
           "description": "Manage notifications for when your posts gets reactions"
         },
         "jamStarted": {
@@ -2723,10 +2438,7 @@
           "label": "Announcements",
           "description": "Manage notifications for when you receive an announcement"
         },
-        "directMessage": {
-          "label": "Direct Messages",
-          "description": "Manage notifications for when you receive a direct message"
-        },
+        "directMessage": {},
         "follow": {
           "description": "Manage notifications for when someone follows you",
           "label": "New follower"
@@ -2776,7 +2488,6 @@
           "description": "Receive a notification when someone mentions you in a post"
         }
       },
-      "pushSettings": "Push Notifications",
       "pushEnabled": "Enabled for this Browser",
       "testPush": "Send a Push Notification",
       "serverPushDisabled": "Push notifications are not configured on this server.",
@@ -2789,12 +2500,8 @@
       "feedPreferences": {
         "modalTitle": "Notification feed preferences",
         "subtitle": "Manage the content you see on your notifications feed",
-        "markAllRead": "Mark all as read",
         "unreadSection": "Unread notifications",
-        "newFollowersSection": "New Followers",
-        "newPostSection": "New Post",
-        "mentionsSection": "Mentions",
-        "repostsSection": "Reposts"
+        "newFollowersSection": "New Followers"
       },
       "headerPreferencesTitle": "Notification Preferences",
       "markAllReadSuccess": "Notifications cleared successfully",
@@ -2810,7 +2517,6 @@
           "success": "Device removed",
           "description": "You will no longer receive notifications on this device and browser",
           "confirm": "OK",
-          "cancel": "Cancel",
           "header": "Remove this device?"
         }
       },
@@ -2822,10 +2528,7 @@
     },
     "form": {
       "imageEditModal": {
-        "title": "Edit Image",
-        "placeholder": "Describe your image for visually-impaired viewers",
-        "cropping": "Image Crop",
-        "altText": "Alt Text"
+        "title": "Edit Image"
       }
     },
     "publicProfile": {
@@ -2876,38 +2579,23 @@
       "description": "Manage your API access tokens",
       "addScope": "Add scope",
       "copy": "Copy",
-      "copyWarning": "Copy this token now. It will not be shown again.",
       "create": "Create token",
       "createDescription": "Create a personal access token to use the API.",
       "createError": "Failed to create token",
-      "createTitle": "Create token",
-      "creating": "Creating…",
-      "descriptionLabel": "Description",
       "descriptionPlaceholder": "What is this token for?",
       "empty": "No access tokens yet.",
-      "expiration": "Expiration",
-      "expirationOptions": {
-        "ninetyDays": "90 days",
-        "oneYear": "1 year",
-        "sevenDays": "7 days",
-        "thirtyDays": "30 days"
-      },
+      "expirationOptions": {},
       "expiresAt": "Expires",
       "listTitle": "Your tokens",
       "name": "Name",
       "namePlaceholder": "My integration",
       "nameRequired": "Name is required",
       "never": "Never",
-      "noScopes": "No scopes",
-      "revoke": "Revoke",
-      "revoked": "Revoked",
-      "scopeRequired": "At least one scope is required",
-      "scopes": "Scopes"
+      "scopeRequired": "At least one scope is required"
     }
   },
   "form": {
     "imageEditModal": {
-      "title": "Edit Image",
       "placeholder": "Describe your image for visually-impaired viewers",
       "cropping": "Image Crop",
       "altText": "Alt Text",
@@ -2921,7 +2609,6 @@
     "imageInput": {
       "maxSize": "Max size: {{size}}",
       "uploadText": "Upload Image",
-      "uploadTitle": "Upload Image",
       "replace": "Replace image",
       "remove": "Remove image",
       "aspectRatio": "Minimum 800px wide.",
@@ -2953,8 +2640,7 @@
   "accounts": {
     "login": {
       "title": "Login",
-      "description": "Login to your account",
-      "loginButton": "Log In"
+      "description": "Login to your account"
     },
     "editEmail": {
       "title": "Edit Email",
@@ -2978,8 +2664,7 @@
         "title": "Specific Group"
       },
       "local": {
-        "description": "Posting to the entire community",
-        "title": "Community"
+        "description": "Posting to the entire community"
       },
       "title": "Who can see this",
       "public": {
@@ -2989,29 +2674,23 @@
       "direct": {
         "title": "Specific People",
         "description": "Only specific people can see this post"
-      },
-      "no-groups": "No groups available"
+      }
     },
     "event": {
       "description": "Who can see and join this event.",
       "group": {
-        "description": "Only people in the selected group can see and join",
-        "title": "Specific Group"
+        "description": "Only people in the selected group can see and join"
       },
       "local": {
-        "description": "Everyone in the community can join",
-        "title": "Community"
+        "description": "Everyone in the community can join"
       },
       "title": "Event Visibility",
       "public": {
-        "description": "Everyone on the internet can join",
-        "title": "Public"
+        "description": "Everyone on the internet can join"
       },
       "direct": {
-        "title": "Specific People",
         "description": "Only individuals you invite can see this event"
-      },
-      "no-groups": "No groups available"
+      }
     },
     "accessDenied": "You do not have access to this content"
   },
@@ -3023,10 +2702,8 @@
       "descriptionPlaceholder": "Describe your event",
       "dateAndTimeTitle": "Date and Time",
       "startDate": "Start Date",
-      "endDate": "End Date",
       "addEndDate": "Add end date and time",
       "endBeforeStart": "The end date and time must be after the start date and time.",
-      "timezone": "Timezone",
       "timezonePlaceholder": "Select your timezone",
       "location": "Location",
       "address": "Address",
@@ -3036,7 +2713,6 @@
       "externalFormatLabel": "External event link",
       "inPersonFormatLabel": "In-person event",
       "people": "People",
-      "visibility": "Visibility",
       "visibilityDescription": "Choose who can view and join your event",
       "attendeeListPublic": "Let an attendee see others attending this event",
       "maxAttendees": "Maximum attendees",
@@ -3079,7 +2755,6 @@
       }
     },
     "feed": {
-      "label": "Event timeframe",
       "past": "Past",
       "upcoming": "Upcoming",
       "current": "Now",
@@ -3121,7 +2796,6 @@
       "attendees": "Attendees",
       "invited": "Invited",
       "jamAttendees": "Jam Attendees",
-      "description": "Description",
       "recordings": "Recordings"
     },
     "profileRelationship": {
@@ -3144,7 +2818,6 @@
     },
     "hostedBy": "Organizer {{profileName}}",
     "group": "Group Event In:",
-    "startDate": "Start Date",
     "endDate": "End Date",
     "community": "Community Event",
     "noRsvps": "No RSVPs yet",
@@ -3170,13 +2843,9 @@
     "slotsLeft": "{{count}} slots left",
     "noSpotsAvailable": "No spots available",
     "rsvp": {
-      "removeAttendee": "Remove",
       "restoreAttendee": "Restore",
       "historyTitle": "RSVP history",
       "canceled": "canceled their RSVP",
-      "canceledSeries": "All dates in the series",
-      "removedMessage": "The organizer has removed you from this event.",
-      "ended": "This event has ended.",
       "full": "Event is full",
       "atCapacity": "This event is at capacity.",
       "joinWaitlist": "Join waitlist",
@@ -3184,7 +2853,6 @@
       "waitlistConfirmBody": "If a spot opens, you will have {{minutes}} minutes to claim it.",
       "onWaitlist": "You are on the waitlist.",
       "leaveWaitlist": "Leave waitlist",
-      "claimSpot": "Claim spot",
       "offerOpen": "A spot is open for you until {{until}}.",
       "spotsOpen": "Spots still open",
       "waitlistTitle": "Waitlist",
@@ -3192,23 +2860,16 @@
       "waitlistRemote": "Remote member, not offered a spot automatically",
       "scope": {
         "title": "Which dates?",
-        "thisDate": "This date",
         "thisDateWith": "This date ({{date}})",
         "selectedDates": "Selected dates",
-        "wholeSeries": "All dates in the series",
-        "confirm": "Confirm",
-        "cancel": "Cancel",
         "seriesFull": "Some dates in this series are full.",
         "selectAtLeastOne": "Select at least one date.",
         "waitlistTitle": "Join the waitlist for which dates?"
       }
     },
     "repeat": {
-      "badge": "Repeats",
       "label": "Repeats",
       "daily": "Daily",
-      "weekly": "Weekly",
-      "monthly": "Monthly",
       "everyNDays": "Every {{count}} days",
       "everyNWeeks": "Every {{count}} weeks",
       "everyNMonths": "Every {{count}} months",
@@ -3245,18 +2906,13 @@
         "title": "Report post",
         "description": "Help us understand the issue, what’s the problem with this post?",
         "anythingElse": "Anything else?",
-        "continue": "Continue",
         "confirmMessageHeading": "Are you sure you want to report this post by @{{handle}}?"
       },
       "profile": {
-        "title": "Report {{handle}}",
         "description": "Help us understand the issue, what’s the problem with member?",
-        "anythingElse": "Anything else?",
-        "continue": "Continue",
         "confirmMessageHeading": "Are you sure you want to report @{{handle}}",
         "confirmMessageDescription": "Your report will be sent to the community moderator.   @{{handle}} won't be notified of your report."
       },
-      "sendReport": "Send Report",
       "reportSuccess": "Thank you for letting us know. Your feedback help us make the {{name}} community better for everyone!",
       "reportError": "Failed to send report. Please try again later."
     }
@@ -3265,16 +2921,11 @@
     "lookup": "Looking for matching locations"
   },
   "jam": {
-    "join": {
-      "submit": "Join Jam"
-    },
-    "start": {
-      "submit": "Start Jam"
-    },
+    "join": {},
+    "start": {},
     "exit": {
       "title": "Leave Jam",
       "description": "Leave the jam.  Moderators may end the jam for all.",
-      "leave": "Leave Jam",
       "endForAll": "End the Jam"
     },
     "close": {
@@ -3313,22 +2964,12 @@
     "pollVote": {
       "text": "{{profileName}} has voted on your poll"
     },
-    "pollEnded": {
-      "text": "A poll has ended. See the results."
-    },
+    "pollEnded": {},
     "rsvp": {
       "text": "{{profileName}} RSVP'd to your event"
     },
-    "rsvpCanceled": {
-      "text": "{{profileName}} canceled their RSVP to {{eventName}}",
-      "series": "All dates in the series",
-      "eventFallback": "your event"
-    },
-    "waitlistOffer": {
-      "text": "A spot opened at {{eventName}}",
-      "eventFallback": "an event",
-      "expires": "Claim it before {{until}}."
-    },
+    "rsvpCanceled": {},
+    "waitlistOffer": {},
     "reaction": {
       "text": "{{profileName}} reacted"
     },
@@ -3385,23 +3026,17 @@
     },
     "groupAdded": {
       "title": "You've been added to a group {{groupName}} in {{communityName}}",
-      "subject": "You've been added to a group {{groupName}} in {{communityName}}",
       "body": "{{profileName}} has added you to the group {{groupName}} in the {{communityName}} community.\n\nMore about {{groupName}}:",
       "cta": "Click here to visit the group and manage your membership"
     },
     "groupMemberJoined": {
       "title": "{{profileName}} joined {{groupName}} in {{communityName}}",
-      "subject": "{{profileName}} joined {{groupName}} in {{communityName}}",
       "body": "{{profileName}} has joined the group {{groupName}}.",
-      "profileCta": "View Profile",
-      "cta": "Click here to visit the group and manage your membership"
+      "profileCta": "View Profile"
     },
     "groupMemberLeft": {
       "title": "{{profileName}} left {{groupName}} in {{communityName}}",
-      "subject": "{{profileName}} left {{groupName}} in {{communityName}}",
-      "body": "{{profileName}} has left the group {{groupName}}.",
-      "profileCta": "View Profile",
-      "cta": "Click here to visit the group and manage your membership"
+      "body": "{{profileName}} has left the group {{groupName}}."
     },
     "jamModerator": {
       "subject": "You have been invited to {{jamName}} as a moderator!",
@@ -3410,59 +3045,44 @@
       "cta": "View Event"
     },
     "jamSpeaker": {
-      "subject": "{{profileName}} invited you to speak at a jam!",
       "body": "{{profileName}} invited you to speak at a jam!",
       "cta": "Join Jam"
     },
     "jamStarted": {
-      "subject": "{{profileName}} started a jam!",
-      "body": "{{profileName}} started a jam!",
-      "cta": "Join Jam"
+      "body": "{{profileName}} started a jam!"
     },
     "newGroupPost": {
       "title": "{{profileName}} made a new post in {{groupName}} in {{communityName}}",
-      "subject": "{{profileName}} made a new post in {{groupName}} in {{communityName}}",
-      "eventTitle": "{{profileName}} added a new event to {{groupName}} in {{communityName}}",
       "eventSubject": "{{profileName}} added a new event to {{groupName}} in {{communityName}}",
-      "repostTitle": "{{profileName}} reposted a post in {{groupName}} in {{communityName}}",
       "repostSubject": "{{profileName}} reposted a post in {{groupName}} in {{communityName}}",
       "body": "{{profileName}} made a new post in the group {{groupName}}.",
       "repostLabel": "Reposted",
       "originalAuthor": "By {{profileName}}",
-      "profileCta": "View Profile",
-      "postCta": "View post",
-      "cta": "Click here to visit the group and manage your membership"
+      "postCta": "View post"
     },
     "newProfile": {
       "title": "New Profile created on {{communityName}}",
-      "subject": "New Profile created on {{communityName}}",
       "body": "{{profileName}} has been onboarded to {{communityName}}! \nWelcome them to the community.",
       "cta": "To view their profile, click here."
     },
     "pollVote": {
       "title": "A new poll vote has been recorded in {{communityName}}",
-      "subject": "A new poll vote has been recorded in {{communityName}}",
-      "body": "{{profileName}} has voted on your poll:",
-      "cta": "View poll"
+      "body": "{{profileName}} has voted on your poll:"
     },
     "pollEnded": {
       "title": "A poll has ended in {{communityName}}",
-      "subject": "A poll has ended in {{communityName}}",
       "body": "A poll has ended. See the results.",
       "cta": "View poll"
     },
     "rsvp": {
       "title": "A new RSVP has been created in {{communityName}}",
-      "subject": "A new RSVP has been created in {{communityName}}",
-      "body": "{{profileName}} has RSVP'd to your event",
-      "cta": "View event"
+      "body": "{{profileName}} has RSVP'd to your event"
     },
     "rsvpCanceled": {
       "subject": "{{profileName}} canceled their RSVP",
       "body": "{{profileName}} canceled their RSVP to {{eventName}}",
       "series": "All dates in the series",
-      "eventFallback": "your event",
-      "cta": "View event"
+      "eventFallback": "your event"
     },
     "waitlistOffer": {
       "subject": "A spot opened at {{eventName}}",
@@ -3483,20 +3103,15 @@
       "cta": "View event"
     },
     "reaction": {
-      "subject": "{{profileName}} reacted to your post",
       "body": "{{profileName}} reacted to your post",
       "cta": "Take a look!"
     },
     "reply": {
-      "subject": "{{profileName}} replied to your post",
       "subtitle": "They replied:",
-      "body": "{{profileName}} replied to your post",
-      "cta": "Take a look!"
+      "body": "{{profileName}} replied to your post"
     },
     "repost": {
-      "subject": "{{profileName}} reposted your post",
-      "body": "{{profileName}} reposted your post",
-      "cta": "Take a look!"
+      "body": "{{profileName}} reposted your post"
     },
     "welcome": {
       "content": {
@@ -3511,17 +3126,14 @@
       "header": "Welcome to"
     },
     "jams": {
-      "moderator": "Jam Moderator",
       "speaker": {
         "description": "{{profileName}} made you a speaker in a jam"
-      },
-      "started": "Jam Started"
+      }
     },
     "reset": {
       "password": {
         "title": "Reset Your Password",
-        "description": "We received a request to reset your password for your {{communityName}} account. If you didn't make this request, you can safely ignore this email.",
-        "cta": "Reset Password"
+        "description": "We received a request to reset your password for your {{communityName}} account. If you didn't make this request, you can safely ignore this email."
       }
     },
     "verify": {
@@ -3549,10 +3161,8 @@
     },
     "image": {
       "addAltText": "Add alt text to your image",
-      "addAltTextLabel": "Alt Text",
       "addAltTextDescription": "invalid string do not use",
       "altTextPlaceholder": "Add your alt text here",
-      "altTextLabel": "Alt Text",
       "altTextDescription": "A good description of your image can help visually-impaired people understand more about your post. "
     }
   },
@@ -3560,14 +3170,10 @@
     "enterSearchQuery": "Please enter a search query above",
     "selectTab": "Choose a tab to see relevant results",
     "SearchButton": "Search",
-    "title": "Explore",
     "tabs": {
       "label": "Result types",
-      "members": "Members",
       "posts": "Posts",
-      "jams": "Jams",
-      "events": "Events",
-      "groups": "Groups"
+      "jams": "Jams"
     },
     "noProfilesFound": "No profiles found",
     "noPostsFound": "No posts found",
@@ -3610,7 +3216,6 @@
     }
   },
   "resources": {
-    "new": "New resource",
     "edit": "Edit resource",
     "notFound": "Resource not found",
     "kinds": {
@@ -3635,7 +3240,6 @@
       "addLevel": "Add a folder",
       "addLevelAction": "Add",
       "clearPath": "Clear",
-      "visibility": "Who can see this (Required)",
       "visibilityNotChangeable": "Once you post your resource, you can't change the visibility",
       "groupOnly": "You can only share resources with a group."
     },
@@ -3661,7 +3265,6 @@
     },
     "actions": {
       "watch": "Watch",
-      "download": "Download",
       "listen": "Listen",
       "view": "View images",
       "save": "Save",
@@ -3684,12 +3287,8 @@
       "inGroup": "in {{groupName}}"
     }
   },
-  "about": {
-    "welcomeTo": "Welcome to {{name}}"
-  },
-  "codeOfConduct": {
-    "title": "Code of conduct"
-  },
+  "about": {},
+  "codeOfConduct": {},
   "error": {
     "eventAtCapacity": "This event is full.",
     "eventEnded": "This event has ended.",
@@ -3719,11 +3318,9 @@
     }
   },
   "profiles": {
-    "handleExists": "This handle is already in use by someone else.",
-    "notFound": "Profile not found"
+    "handleExists": "This handle is already in use by someone else."
   },
   "members": {
-    "empty": "No profiles found",
     "fetchError": "Failed to fetch accounts. Please try again later.",
     "searchPlaceholder": "Search member by name or handle"
   },
@@ -3762,9 +3359,6 @@
     "verifyEmail": "Verify your email address"
   },
   "plugins": {
-    "pageTitle": "Plugins",
-    "noPlugins": "No plugins loaded.",
-    "error": "Failed to load plugins",
     "errorBoundary": "Plugin error: component failed to render.",
     "configTitle": "Plugin config (sensitive values are masked)"
   },
@@ -3777,15 +3371,12 @@
   },
   "capabilities": {
     "roles": {
-      "capability": "Capability",
       "allowAll": "All",
       "saveSuccess": "Role capabilities updated",
       "noUpdateCapability": "You can view but not edit role capabilities without core-roles-update.",
       "newRole": "New role",
       "create": "Create",
-      "creating": "Creating…",
       "name": "Name",
-      "description": "Description",
       "key": "Key",
       "createSuccess": "Role created",
       "defaultRoles": "Default roles",
@@ -3811,7 +3402,6 @@
         "description": "Who can create and read reports depending on their relationship to the report."
       },
       "accessToken": {
-        "title": "Access tokens",
         "description": "Who can manage a service token depending on their relationship to the token owner."
       }
     }

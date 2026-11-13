@@ -1,21 +1,13 @@
 {
   "auth": {
     "login": {
-      "title": "Anmelden",
-      "submit": "Anmelden",
       "error": "Ungültige Anmeldedaten",
       "loading": "Anmeldung läuft…",
       "success": "Erfolgreich angemeldet",
-      "heading": "Anmelden",
       "welcomeBack": "Willkommen zurück, geben Sie Ihre Daten ein, um sich in Ihrer Community anzumelden",
-      "email": "E-Mail",
       "emailPlaceholder": "du@email.org",
       "password": "Passwort",
-      "hidePassword": "Passwort verbergen",
-      "showPassword": "Passwort anzeigen",
       "forgotPassword": "Passwort vergessen?",
-      "logIn": "Anmelden",
-      "joinCommunity": "Community beitreten",
       "seeCommunityFeed": "Community-Feed ansehen",
       "loginWith": "Mit {{provider}} anmelden",
       "loginLink": "Weiter zur Anmeldung",
@@ -24,58 +16,36 @@
     },
     "register": {
       "title": "Registrieren",
-      "submit": "Registrieren",
       "error": "Registrierung fehlgeschlagen",
       "loading": "Konto wird erstellt…",
       "success": "Konto erfolgreich erstellt",
       "verificationReminder": "Wir haben Ihnen eine Bestätigungs-E-Mail gesendet. Öffnen Sie Ihren Posteingang und klicken Sie auf den Link, um Ihre E-Mail-Adresse zu bestätigen.",
-      "welcome": "Willkommen",
       "createAccount": "Konto erstellen",
       "inviteMessage": "Sie wurden eingeladen, {{communityName}} beizutreten. Geben Sie Ihre Daten ein, um Teil der Community zu werden.",
-      "handle": "Benutzername",
-      "handlePlaceholder": "Benutzername",
       "name": "Name",
       "namePlaceholder": "Name",
-      "email": "E-Mail",
-      "emailPlaceholder": "du@email.org",
-      "password": "Passwort",
-      "hidePassword": "Passwort verbergen",
-      "showPassword": "Passwort anzeigen",
       "confirmPassword": "Passwort bestätigen",
       "passwordRules": "Mindestens 8 Zeichen mit Großbuchstabe, Kleinbuchstabe, Zahl und Symbol",
       "passwordsDoNotMatch": "Passwörter stimmen nicht überein",
       "mustAgreePrivacyPolicy": "Sie müssen der Datenschutzerklärung zustimmen",
       "privacyPolicyAgreement": "Ich habe die folgende Erklärung gelesen und stimme ihr zu:",
       "privacyPolicy": "Datenschutzerklärung",
-      "signUp": "Registrieren",
-      "alreadyHaveAccount": "Bereits ein Konto?",
-      "signIn": "Anmelden",
-      "seeCommunityFeed": "Community-Feed ansehen",
       "inviteInactive": "Dieser Einladungslink ist abgelaufen oder nicht mehr aktiv."
     },
     "resetPassword": {
       "title": "Passwort zurücksetzen",
-      "submit": "Zurücksetzen",
       "error": "Passwort konnte nicht zurückgesetzt werden",
       "success": "E-Mail zum Zurücksetzen des Passworts wurde gesendet. Bitte prüfen Sie auch Ihren Spam-Ordner, falls Sie die E-Mail nicht innerhalb weniger Minuten erhalten.",
       "loading": "E-Mail wird gesendet…",
-      "heading": "Passwort zurücksetzen",
       "newPassword": "Neues Passwort",
-      "confirmPassword": "Passwort bestätigen",
-      "submitButton": "Absenden",
-      "done": "Passwort zurückgesetzt.",
-      "goToLogin": "Zur Anmeldung"
+      "done": "Passwort zurückgesetzt."
     },
     "requestResetPassword": {
       "title": "Passwort-Zurücksetzung anfordern",
-      "heading": "Passwort-Zurücksetzung anfordern",
       "prompt": "Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen Ihres Passworts.",
       "successPrompt": "Falls Ihre E-Mail-Adresse zu einem Konto in dieser Community gehört, erhalten Sie eine Nachricht mit einem Link, über den Sie Ihr Passwort ändern können.",
       "successToast": "Link zum Zurücksetzen des Passworts wurde erfolgreich an {{email}} gesendet.",
-      "errorFallback": "Link zum Zurücksetzen des Passworts konnte nicht gesendet werden, falsche E-Mail",
-      "email": "E-Mail",
-      "emailPlaceholder": "du@email.org",
-      "proceed": "Fortfahren"
+      "errorFallback": "Link zum Zurücksetzen des Passworts konnte nicht gesendet werden, falsche E-Mail"
     },
     "closed": {
       "heading": "Registrierungen sind derzeit geschlossen",
@@ -104,8 +74,7 @@
     }
   },
   "previewLink": {
-    "embeddedVideo": "Eingebettetes Video",
-    "playVideo": "Video abspielen"
+    "embeddedVideo": "Eingebettetes Video"
   },
   "navigation": {
     "welcome": "Willkommen",
@@ -122,7 +91,6 @@
     "newPost": "Neuer Beitrag",
     "jams": "Jams",
     "notifications": "Benachrichtigungen",
-    "back": "Zurück",
     "community": "Community",
     "groups": "Gruppen",
     "events": "Veranstaltungen",
@@ -150,10 +118,8 @@
     "bookmarks": "Lesezeichen",
     "apiKeys": "API-Schlüssel",
     "database": "Datenbank",
-    "conversations": "Nachrichten",
     "primaryMobile": "Primär",
     "breadcrumbs": "Breadcrumbs",
-    "primary": "Primär",
     "about": "Über",
     "openMenu": "Menü öffnen",
     "openMessages": "Nachrichten öffnen",
@@ -193,63 +159,45 @@
   },
   "profile": {
     "noBio": "Noch keine Biografie",
-    "posts": "Beiträge",
     "edit": {
       "title": "Profil bearbeiten",
-      "save": "Änderungen speichern",
-      "cancel": "Abbrechen",
       "success": "Profil aktualisiert",
       "error": "Profil konnte nicht aktualisiert werden"
     },
     "follow": {
-      "follow": "Folgen",
-      "unfollow": "Entfolgen",
       "error": "Aktion fehlgeschlagen",
       "unfollowedSuccess": "Sie folgen diesem Profil nicht mehr",
-      "followedSuccess": "Sie folgen diesem Profil jetzt",
-      "success": "Sie folgen diesem Profil jetzt"
+      "followedSuccess": "Sie folgen diesem Profil jetzt"
     },
     "notifications": {
-      "title": "Benachrichtigungen",
       "empty": "Keine Benachrichtigungen",
       "markRead": "Alle als gelesen markieren"
     },
     "form": {
       "displayName": "Anzeigename",
-      "handle": "Benutzername",
       "handlePlaceholder": "Geben Sie Ihren Benutzernamen ein",
       "bio": "Biografie",
       "bioPlaceholder": "Erzählen Sie etwas über sich",
-      "avatar": "Profilbild",
       "banner": "Banner",
       "location": "Standort",
       "website": "Webseite",
       "fields": {
         "label": "Bezeichnung",
-        "value": "Wert",
-        "add": "Feld hinzufügen",
-        "remove": "Feld entfernen"
+        "value": "Wert"
       },
       "handleHint": "1–16 Zeichen. Nur Buchstaben, Zahlen, Unterstriche und Bindestriche – keine Leerzeichen oder Satzzeichen.",
       "handleInvalid": "Der Benutzername muss 1–16 Zeichen lang sein: Buchstaben, Zahlen, Unterstriche oder Bindestriche (keine Leerzeichen oder Satzzeichen)",
       "handleReserved": "Dieser Benutzername ist reserviert. Bitte wählen Sie einen anderen."
     },
     "header": {
-      "followers": "Follower",
       "following": "Folgt",
-      "posts": "Beiträge",
-      "joined": "Beigetreten {{date}}",
-      "avatarAlt": "Profilbild",
-      "roles": "Rollen"
+      "joined": "Beigetreten {{date}}"
     },
     "actions": {
-      "edit": "Profil bearbeiten",
       "follow": "Folgen",
       "unfollow": "Entfolgen",
-      "message": "Nachricht",
       "copyProfileLink": "Profillink kopieren",
       "copyPostLink": "Beitragslink kopieren",
-      "inviteViaEmail": "Per E-Mail einladen",
       "inviteViaLink": "Per Link einladen",
       "menu": "Profilaktionen"
     },
@@ -257,18 +205,13 @@
       "deleteProfile": {
         "title": "Profil löschen",
         "description": "Möchten Sie dieses Profil {{username}} mit dem Benutzernamen {{handle}} wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
-        "confirm": "Profil löschen",
-        "cancel": "Abbrechen",
         "profileDeleted": "Das Profil wurde erfolgreich aus Ihrer Community entfernt.",
         "error": "Profil konnte nicht gelöscht werden",
-        "delete": "Löschen",
         "accountDeleted": "Das mit diesem Profil verknüpfte Konto wurde ebenfalls gelöscht"
       },
       "editProfile": {
-        "saveChanges": "Änderungen speichern",
         "description": "Wählen Sie eine oder mehrere Rollen für dieses Profil",
         "title": "Rollen bearbeiten",
-        "roles": "Rollen",
         "rolesUpdated": "Rolle für {{profileName}} aktualisiert"
       },
       "closeReport": {
@@ -276,14 +219,10 @@
       }
     },
     "table": {
-      "dateJoined": "Beitrittsdatum",
       "invitedBy": "Eingeladen von",
       "emailVerified": "E-Mail verifiziert",
       "actions": "Aktionen",
-      "editEmail": "E-Mail bearbeiten",
-      "editRoles": "Rollen bearbeiten",
       "deleteMember": "Mitglied löschen",
-      "delete": "Löschen",
       "viewDetails": "Details anzeigen"
     },
     "followers": {
@@ -297,20 +236,16 @@
       "noFollowers": "Folgt noch niemandem"
     },
     "copyProfileLink": {
-      "success": "Profillink in die Zwischenablage kopiert",
-      "error": "Profillink konnte nicht kopiert werden"
+      "success": "Profillink in die Zwischenablage kopiert"
     },
     "search": {
-      "placeholder": "Personen suchen",
       "profilesPlaceholder": "Profile durchsuchen…",
-      "noResults": "Keine Ergebnisse gefunden",
       "noProfilesAvailable": "Keine Profile verfügbar"
     },
     "postsAndReplies": {
       "openGroupTitle": "Offene Gruppe"
     },
     "groups": {
-      "tabName": "Gruppen",
       "noCommonGroups": "Hier gibt es noch nichts zu sehen"
     },
     "notFound": {
@@ -318,9 +253,7 @@
       "description": "Dieses Profil existiert nicht. Sie können versuchen, die Person in der Mitgliederliste zu finden."
     },
     "block": {
-      "title": "@{{handle}} blockieren",
       "description": "Möchten Sie @{{handle}} wirklich blockieren? Ihr seht euch und eure Beiträge dann gegenseitig nicht mehr.",
-      "confirm": "Blockieren",
       "unblock": "Blockierung aufheben",
       "blockedTitle": "Sie haben dieses Profil blockiert",
       "blockedDescription": "Heben Sie die Blockierung von @{{handle}} auf, um das Profil und die Beiträge wieder zu sehen.",
@@ -330,40 +263,22 @@
       "label": "Profilbereiche"
     },
     "activity": {
-      "tab": "Aktivität",
       "yourContent": "Deine Beiträge",
       "yourActions": "Deine Aktionen",
       "received": "Erhalten",
-      "postsCount": "Beiträge",
-      "repliesCount": "Antworten",
-      "eventsCount": "Veranstaltungen",
-      "reactionsGiven": "Reaktionen",
-      "reactionsReceived": "Reaktionen",
-      "repostsCount": "Reposts",
-      "repostsReceived": "Reposts",
-      "repliesReceived": "Antworten",
-      "rsvpsCount": "Zusagen",
-      "bookmarksCount": "Lesezeichen",
-      "groupsCount": "Gruppen",
       "topPosts": "Beliebteste Beiträge",
       "emptyTopPosts": "Noch keine Beiträge zum Rangieren."
     },
     "selector": {
       "title": "Profile auswählen",
       "search": "Profile suchen…",
-      "empty": "Keine Profile verfügbar",
-      "emptySearch": "Keine Ergebnisse gefunden",
-      "confirm": "OK",
-      "remove": "Entfernen"
+      "confirm": "OK"
     },
-    "input": {
-      "placeholder": "Profile auswählen"
-    }
+    "input": {}
   },
   "posts": {
     "create": {
       "title": "Beitrag erstellen",
-      "submit": "Veröffentlichen",
       "error": "Beitrag konnte nicht erstellt werden",
       "errorGeneric": "Beim Erstellen des Beitrags ist ein Fehler aufgetreten",
       "loading": "Beitrag wird erstellt…",
@@ -400,17 +315,13 @@
       "votesCount": "{{count}} Stimmen"
     },
     "poll": {
-      "ended": "Umfrage beendet",
       "timeLeft": "{{time}} verbleibend",
       "undoVote": "Stimme zurücknehmen",
-      "undoVoteTitle": "Stimme zurücknehmen",
       "vote": "Abstimmen",
       "undo": "Rückgängig"
     },
     "menu": {
-      "title": "Beitrag-Menü",
-      "reposts": "Geteilte Beiträge",
-      "reactions": "Reaktionen"
+      "title": "Beitrag-Menü"
     },
     "reactionsModal": {
       "title": "Reaktionen",
@@ -420,12 +331,7 @@
       "content": "Was beschäftigt Sie?",
       "changeGroup": "Gruppe ändern",
       "notifyEveryone": "Alle benachrichtigen",
-      "visibility": {
-        "label": "Sichtbarkeit",
-        "public": "Öffentlich",
-        "private": "Privat",
-        "followers": "Follower"
-      },
+      "visibility": {},
       "selectGroup": "Gruppe auswählen",
       "poll": {
         "addOption": "Option hinzufügen",
@@ -433,16 +339,13 @@
         "option": "Option {{number}}",
         "duration": "Umfragedauer",
         "multipleChoice": "Mehrfachauswahl erlauben",
-        "submit": "Absenden",
         "seeWhoVoted": "Sehen, wer abgestimmt hat",
         "questionPlaceholder": "Was ist Ihre Frage?",
         "pollEnd": "Umfrage endet",
         "multipleAnswers": "Mehrfachantworten",
-        "seeWhoVotedTitle": "Sehen, wer abgestimmt hat",
         "multipleAnswersDescription": "Erlauben Sie den Teilnehmenden, mehrere Antworten auszuwählen",
         "votersVisibleDescription": "Erlauben Sie allen zu sehen, wer abgestimmt hat und welche Option gewählt wurde",
-        "question": "Umfragefrage…",
-        "expiresAt": "Läuft ab am"
+        "question": "Umfragefrage…"
       },
       "changeAudience": "Zielgruppe ändern",
       "chooseAudience": "Wählen Sie, wer das sehen kann",
@@ -450,46 +353,30 @@
       "addImage": "Medien hinzufügen",
       "addAudio": "Audio hinzufügen",
       "addDocument": "Dokument hinzufügen",
-      "title": "Neuer Beitrag",
       "note": {
         "placeholder": "Was möchten Sie mitteilen?"
       }
     },
     "copyPostLink": {
-      "submit": "Link kopieren",
       "success": "Kopieren erfolgreich",
       "successMessage": "Beitragslink in die Zwischenablage kopiert",
       "errorMessage": "Profillink konnte nicht kopiert werden",
       "error": "Fehler beim Kopieren"
     },
-    "event": {
-      "attendees": "Teilnehmende",
-      "online": "Online",
-      "viewEvent": "Veranstaltung ansehen"
-    },
+    "event": {},
     "actions": {
       "shareMessage": "Diesen Beitrag teilen",
       "seeThread": "Thread anzeigen",
-      "seeEvent": "Veranstaltung ansehen",
       "react": "Reagieren",
-      "reply": "Antworten",
       "repost": "Repost"
     },
     "footer": {
-      "reply": "Antworten",
-      "repost": "Teilen",
-      "like": "Gefällt mir",
-      "share": "Teilen"
+      "like": "Gefällt mir"
     },
     "shareMenu": {
       "title": "Teilen",
-      "shareOnCommunity": "In der Community teilen",
-      "repostToFeed": "Im Feed teilen",
       "reposting": "Wird geteilt…",
       "directMessage": "Direktnachricht",
-      "sendInMessage": "In einer Nachricht senden",
-      "otherOptions": "Weitere Optionen",
-      "copyLink": "Link kopieren",
       "linkCopied": "Link kopiert",
       "copyFailed": "Link konnte nicht kopiert werden",
       "systemShare": "Teilen über…",
@@ -497,21 +384,16 @@
       "downloadCalendarIcsTitle": ".ics-Datei herunterladen"
     },
     "gallery": {
-      "previous": "Zurück",
-      "next": "Weiter",
-      "close": "Schließen",
       "videoProcessing": "Video wird vorbereitet…",
       "videoError": "Dieses Video konnte nicht für die Wiedergabe vorbereitet werden.",
       "openDocument": "Datei öffnen"
     },
     "replyBox": {
-      "reply": "Antworten",
       "logInToReply": "Anmelden zum Antworten",
       "addReplyPlaceholder": "Antwort hinzufügen…"
     },
     "replyModal": {
       "title": "Antwort",
-      "submit": "Antworten",
       "successToast": "Antwort erfolgreich erstellt",
       "errorToast": "Beim Erstellen der Antwort ist ein Fehler aufgetreten"
     },
@@ -520,17 +402,13 @@
       "pollOptions": "{{count}} Optionen",
       "document": "Dokument",
       "audio": "Audio",
-      "imageAlt": "Anhang",
-      "viewOriginal": "Originalbeitrag anzeigen",
-      "viewPost": "Beitrag anzeigen"
+      "viewOriginal": "Originalbeitrag anzeigen"
     },
     "truncatedMarkdown": {
       "show": "Mehr anzeigen",
-      "showHint": "Lange drücken oder loshovern, um den vollständigen Text zu lesen",
-      "close": "Schließen"
+      "showHint": "Lange drücken oder loshovern, um den vollständigen Text zu lesen"
     },
     "feed": {
-      "empty": "Noch keine Beiträge.",
       "pinned": "Angepinnt"
     },
     "hiddenMessage": "Ausgeblendete Nachricht",
@@ -544,8 +422,7 @@
       "prioritizeFollowingTitle": "Personen priorisieren, denen ich folge",
       "prioritizeFollowingDescription": "Ungelesene Beiträge von Personen, denen Sie folgen, vor Beiträgen von Fremden anzeigen",
       "showRepostsTitle": "Geteilte Beiträge anzeigen",
-      "showRepostsDescription": "Alle geteilten Beiträge werden in Ihrem Feed angezeigt",
-      "done": "Fertig"
+      "showRepostsDescription": "Alle geteilten Beiträge werden in Ihrem Feed angezeigt"
     },
     "previewVideo": {
       "playTitle": "Video abspielen"
@@ -561,14 +438,9 @@
       "seek": "Position",
       "length": "Länge"
     },
-    "deleteModal": {
-      "deletePostTitle": "Beitrag löschen",
-      "delete": "Löschen",
-      "cancel": "Abbrechen"
-    },
+    "deleteModal": {},
     "stats": {
       "viewReactions": "Reaktionen anzeigen",
-      "viewReposts": "Geteilte Beiträge anzeigen",
       "repliesCount_one": "{{count}} Antwort",
       "repliesCount_other": "{{count}} Antworten",
       "repostsCount_one": "{{count}} geteilter Beitrag",
@@ -580,11 +452,9 @@
       "newReplies": "Neue Antworten"
     },
     "visibility": {
-      "title": "Beitragssichtbarkeit",
-      "selectGroup": "Gruppe auswählen"
+      "title": "Beitragssichtbarkeit"
     },
     "replyTo": " Geantwortet auf",
-    "reposted": "Geteilt",
     "unpinInGroup": {
       "title": "Von Gruppe lösen",
       "success": "Der Beitrag ist nicht mehr in dieser Gruppe angepinnt"
@@ -600,7 +470,6 @@
     "rsvp": {
       "attendingMessage": "Sie nehmen an dieser Veranstaltung teil",
       "cancelRegistration": "RSVP zurücknehmen",
-      "maybe": "Vielleicht",
       "success": "RSVP erfolgreich",
       "register": "RSVP: Ja",
       "no": "Nein",
@@ -609,13 +478,10 @@
     "edit": {
       "success": "Beitrag erfolgreich aktualisiert",
       "title": "Beitrag bearbeiten",
-      "submit": "Aktualisieren",
       "loading": "Wird geladen"
     },
     "deleteEvent": {
       "description": "Durch das Löschen dieser Veranstaltung wird sie aus der Community entfernt. Teilnehmende werden nicht benachrichtigt.",
-      "cancel": "Abbrechen",
-      "confirm": "Veranstaltung löschen",
       "title": "Diese Veranstaltung löschen?"
     },
     "article": {
@@ -634,7 +500,6 @@
     },
     "switcher": {
       "note": "Notiz schreiben",
-      "event": "Veranstaltung erstellen",
       "poll": "Umfrage hinzufügen",
       "article": "Artikel schreiben",
       "resource": "Ressource hinzufügen"
@@ -658,30 +523,24 @@
       "empty": "Noch keine Reposts",
       "andMore": "und {{count}} weitere"
     },
-    "newPost": {
-      "title": "Neuer Beitrag"
-    }
+    "newPost": {}
   },
   "post": {
     "detail": {
       "title": "Beitrag von {{author}}",
       "repostTitle": "{{author}} hat einen Beitrag geteilt",
       "eventTitle": "Veranstaltung von {{author}}",
-      "fallbackTitle": "Beitrag",
       "inGroup": "in"
     },
     "notFound": "Beitrag nicht gefunden"
   },
   "groups": {
     "type": {
-      "public": "Öffentlich",
-      "private": "Privat",
       "open": "Offen",
       "closed": "Geschlossen"
     },
     "create": {
       "title": "Gruppe erstellen",
-      "submit": "Erstellen",
       "error": "Gruppe konnte nicht erstellt werden",
       "success": "Gruppe erstellt"
     },
@@ -693,7 +552,6 @@
     "leave": {
       "confirm": "Möchten Sie diese Gruppe wirklich verlassen?",
       "error": "Gruppe konnte nicht verlassen werden",
-      "success": "Gruppe verlassen",
       "lastAdminError": "Sie sind der letzte Administrator dieser Gruppe. Bitte weisen Sie einen neuen Administrator zu, bevor Sie die Gruppe verlassen.",
       "removedToast": "Sie wurden erfolgreich entfernt.",
       "removeErrorToast": "Beim Entfernen ist ein Fehler aufgetreten.",
@@ -702,20 +560,13 @@
     "delete": {
       "title": "Gruppe löschen",
       "description": "Möchten Sie die Gruppe {{groupName}} wirklich löschen?",
-      "confirm": "Bestätigen",
-      "deleteButton": "Löschen",
-      "cancel": "Abbrechen",
-      "deleting": "Wird gelöscht…",
       "successMessage": "Gruppe erfolgreich gelöscht!",
       "errorMessage": "Gruppe konnte nicht gelöscht werden",
       "toastError": "Gruppe konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut."
     },
     "selection": {
       "title": "Gruppen auswählen",
-      "description": "Wählen Sie Gruppen aus, denen Mitglieder hinzugefügt werden sollen",
-      "noGroups": "Keine Gruppen verfügbar",
-      "public": "Öffentlich",
-      "private": "Privat"
+      "description": "Wählen Sie Gruppen aus, denen Mitglieder hinzugefügt werden sollen"
     },
     "makeAdmin": {
       "title": "Zum Administrator machen",
@@ -736,17 +587,12 @@
     "removeMember": {
       "title": "Mitglied entfernen",
       "description": "Möchten Sie @{{handle}} wirklich aus der Gruppe entfernen?",
-      "confirm": "Entfernen",
       "loading": "Wird entfernt…",
       "successMessage": "Mitglied erfolgreich entfernt",
       "errorMessage": "Mitglied konnte nicht entfernt werden"
     },
     "handleExists": "Dieser Benutzername wird bereits verwendet. Bitte versuchen Sie einen anderen.",
     "sections": {
-      "posts": "Beiträge",
-      "events": "Veranstaltungen",
-      "resources": "Ressourcen",
-      "description": "Beschreibung",
       "label": "Gruppenbereiche"
     },
     "visibility": {
@@ -757,7 +603,6 @@
         "description": "Im Internet sichtbar"
       },
       "local": {
-        "title": "Community",
         "description": "Alle, die sich in dieser Community anmelden können"
       },
       "private": {
@@ -768,18 +613,11 @@
     "postsVisibility": {
       "title": "Inhaltssichtbarkeit",
       "description": "Wer kann Gruppeninhalte sehen",
-      "public": {
-        "title": "Allgemeine Öffentlichkeit",
-        "description": "Im Internet sichtbar"
-      },
+      "public": {},
       "local": {
-        "title": "Community",
         "description": "In dieser Community angemeldete Profile"
       },
-      "private": {
-        "title": "Privat",
-        "description": "Nur ausgewählte Profile"
-      }
+      "private": {}
     },
     "whoCanJoin": {
       "title": "Wer kann beitreten",
@@ -813,22 +651,16 @@
         "description": "Alle Mitglieder können Veranstaltungen zum Kalender hinzufügen"
       },
       "admin": {
-        "title": "Nur Admins",
         "description": "Nur Gruppen-Admins können Veranstaltungen zum Kalender hinzufügen"
       }
     },
     "handle": {
-      "placeholder": "Benutzername",
       "title": "Benutzername"
     },
     "description": {
-      "title": "Beschreibung",
       "placeholder": "Geben Sie hier Ihre Gruppenbeschreibung ein"
     },
     "roles": {
-      "member": "Mitglied",
-      "admin": "Administrator",
-      "moderator": "Moderator",
       "none": "Keine",
       "local": "Lokal",
       "owner": "Besitzer"
@@ -845,30 +677,22 @@
       "ownerForbidden": "Nur eine Besitzerin bzw. ein Besitzer der Gruppe kann die Besitzerrolle erteilen oder entziehen."
     },
     "new": {
-      "label": "Neue Gruppe",
-      "title": "Gruppe erstellen"
+      "label": "Neue Gruppe"
     },
     "goto": "Zur Gruppe",
     "viewMembers": "Mitglieder anzeigen",
     "noGroupsYet": "Sie haben noch keine Gruppen",
-    "noGroupsFound": "Keine Gruppen gefunden",
     "searchPlaceholder": "Nach Gruppenname suchen",
     "openGroup": "Gruppe öffnen",
     "form": {
-      "groupName": "Gruppenname",
-      "members": "Mitglieder",
       "membersPlaceholder": "Mitglieder zu dieser Gruppe hinzufügen",
       "displayNameMaxLength": "Der Gruppenname sollte höchstens {{max}} Zeichen lang sein"
     },
     "actions": {
-      "editGroup": "Gruppe bearbeiten",
       "addMembers": "Mitglieder hinzufügen",
-      "leaveGroup": "Gruppe verlassen",
       "removeFromGroup": "Aus Gruppe entfernen",
       "viewPosts": "Beiträge anzeigen",
       "updateGroup": "Gruppe aktualisieren",
-      "update": "Aktualisieren",
-      "create": "Erstellen",
       "shareOnCommunity": "In der Community teilen",
       "shareToFeed": "Im Feed teilen",
       "shareInMessage": "In einer Nachricht teilen",
@@ -879,13 +703,11 @@
     },
     "modals": {
       "addMembers": {
-        "title": "Mitglieder zu {{groupName}} hinzufügen",
-        "add": "Hinzufügen"
+        "title": "Mitglieder zu {{groupName}} hinzufügen"
       },
       "confirmExit": {
         "title": "Gruppe verlassen",
-        "body": "Möchten Sie die Gruppe {{handle}} wirklich verlassen?",
-        "leave": "Verlassen"
+        "body": "Möchten Sie die Gruppe {{handle}} wirklich verlassen?"
       },
       "manageNotifications": {
         "title": "Benachrichtigungen verwalten",
@@ -906,7 +728,6 @@
       "inviteBlurb": "Treten Sie unserer Gruppe bei für exklusive Updates und tolle Gespräche! {{url}}",
       "postToFeed": "Im Feed posten",
       "sendInMessage": "In einer Nachricht senden",
-      "copyLink": "Link kopieren",
       "copyEventsLink": "Link zu Veranstaltungen kopieren",
       "copyResourcesLink": "Link zu Ressourcen kopieren",
       "copyDescriptionLink": "Link zur Beschreibung kopieren",
@@ -928,7 +749,6 @@
       "success": "Gruppenbeiträge als gelesen markiert"
     },
     "members": {
-      "title": "Mitglieder",
       "searchPlaceholder": "Mitglieder nach Name oder Handle suchen",
       "empty": "Keine Mitglieder gefunden"
     },
@@ -980,7 +800,6 @@
     "capabilities": {
       "title": "Rollenberechtigungen",
       "description": "Legen Sie fest, was die jeweilige Beziehung tun darf. „Keine“ gilt für alle (einschließlich angemeldeter Nutzerinnen und Nutzer). „Lokal“ gilt nur für Profile mit der Community-Rolle „core-local“. Der Besitzer wird nicht angezeigt, weil Besitzer immer vollständigen Zugriff haben.",
-      "capability": "Berechtigung",
       "allowAll": "Alle",
       "coveredByWildcard": "Durch „Alle erlauben“ gewährt; zum Ausschließen deaktivieren",
       "stateHint": "Klicken Sie auf eine Zelle, um zu wechseln: leer → erlaubt (+) → verboten (−). ~ = erlaubt durch „Alle“ oder durch die Spalte „Keine“ (gilt für alle). × = durch einen Platzhalter verboten und nicht änderbar.",
@@ -1003,12 +822,10 @@
     },
     "create": {
       "title": "Jam erstellen",
-      "submit": "Erstellen",
       "error": "Jam konnte nicht erstellt werden",
       "success": "Jam erstellt"
     },
     "join": {
-      "submit": "Jam beitreten",
       "error": "Beitritt zum Jam fehlgeschlagen",
       "waiting": "Warten auf Genehmigung…",
       "requestToJoin": "Beitritt anfragen",
@@ -1017,24 +834,20 @@
       "waitingForModerator": "Warten auf einen Moderator, der Sie einlässt"
     },
     "start": {
-      "submit": "Jam starten",
       "error": "Jam konnte nicht gestartet werden"
     },
     "close": {
       "error": "Jam konnte nicht beendet werden",
       "success": "Jam beendet",
       "title": "Jam beenden",
-      "description": "Möchten Sie diesen Jam wirklich beenden?",
-      "confirm": "Jam beenden"
+      "description": "Möchten Sie diesen Jam wirklich beenden?"
     },
     "exit": {
       "error": "Jam konnte nicht verlassen werden",
       "success": "Jam erfolgreich verlassen",
       "title": "Jam verlassen",
       "description": "Möchten Sie diesen Jam wirklich verlassen?",
-      "leave": "Jam verlassen",
       "endForAll": "Für alle beenden",
-      "confirm": "Jam verlassen",
       "closeOrExit": {
         "description": "Möchten Sie den Jam verlassen (alle anderen bleiben) oder den Jam beenden (alle werden entfernt)?"
       }
@@ -1049,9 +862,7 @@
       "muteError": "Teilnehmer konnte nicht stummgeschaltet werden",
       "cameraOffSuccess": "Kamera des Teilnehmers erfolgreich ausgeschaltet",
       "cameraOffError": "Kamera des Teilnehmers konnte nicht ausgeschaltet werden",
-      "muteParticipant": "Teilnehmer stummschalten",
       "muting": "Wird stummgeschaltet…",
-      "turnOffCamera": "Kamera ausschalten",
       "turningOffCamera": "Wird ausgeschaltet…"
     },
     "waitingRoom": {
@@ -1081,13 +892,8 @@
       "readyTitle": "Bereit zum Starten?",
       "guestIntro": "Geben Sie unten Ihre Daten ein, um zum Warteraum zu gelangen",
       "guestFullNameLabel": "Vollständiger Name",
-      "guestFullNamePlaceholder": "Vollständiger Name",
-      "guestEmailLabel": "E-Mail",
-      "guestEmailPlaceholder": "E-Mail",
       "guestTermsAgreePrefix": "Durch das Fortfahren stimmen Sie den",
-      "guestTermsLink": "Nutzungsbedingungen",
       "guestTermsAgreeSuffix": "bezüglich der Jam-Aktivitäten zu",
-      "continue": "Fortfahren",
       "fallbackTitle": "Jam",
       "cameraOff": "Kamera ist aus"
     },
@@ -1096,16 +902,10 @@
       "debugTitle": "Debug-Panel",
       "toggleDebug": "Debug-Panel umschalten",
       "jamControls": "Jam-Steuerung",
-      "audioLevel": "Audiopegel",
       "activityHistory": "Aktivitätsverlauf",
-      "chatTitle": "Nachrichten im Jam",
-      "peopleTitle": "Personen",
-      "searchPeoplePlaceholder": "Personen suchen",
-      "searchButton": "Suchen"
+      "chatTitle": "Nachrichten im Jam"
     },
     "chat": {
-      "messagePlaceholder": "Nachricht senden",
-      "sendTitle": "Nachricht senden",
       "openEveryoneTitle": "Mit allen chatten",
       "noMessages": "Keine Nachrichten gefunden"
     },
@@ -1124,7 +924,6 @@
       "changeTitle": "Gerät wechseln",
       "turnOn": "Einschalten",
       "turnOff": "Ausschalten",
-      "switchTitle": "Gerät wechseln",
       "loadingDevices": "Verfügbare Geräte werden geladen…",
       "microphone": "Mikrofon",
       "camera": "Kamera",
@@ -1132,8 +931,6 @@
     },
     "mobileMenu": {
       "inJamMessage": "Nachricht im Jam",
-      "jamDetails": "Jam-Details",
-      "people": "Personen",
       "info": "Info",
       "hostControls": "Gastgebersteuerung",
       "shareInvite": "Einladung teilen",
@@ -1141,18 +938,15 @@
     },
     "network": {
       "connectionStatus": "Verbindungsstatus",
-      "connectionDetail": "Ihre Internetverbindung ist {{quality}}.",
-      "dismiss": "Schließen"
+      "connectionDetail": "Ihre Internetverbindung ist {{quality}}."
     },
     "screenShare": {
-      "stopTitle": "Bildschirmfreigabe beenden",
       "startScreenshareMobile": "Bildschirmfreigabe starten",
       "stopScreenshareMobile": "Bildschirmfreigabe beenden",
       "startStopTitle": "Bildschirmfreigabe starten/beenden",
       "stopSharing": "Freigabe beenden",
       "youPresenting": "(Sie präsentieren)",
       "presenting": "(präsentiert)",
-      "showGrid": "Alle anzeigen",
       "backToPresentation": "Zurück zur Präsentation"
     },
     "reactions": {
@@ -1170,13 +964,9 @@
       "joiningInfoHeading": "Beitrittsinformationen",
       "copyJoiningInfo": "Beitrittsinformationen kopieren",
       "copiedJoiningInfo": "Beitrittsinformationen kopiert",
-      "copyJoiningInfoButtonTitle": "Beitrittsinformationen kopieren",
-      "copiedJoiningInfoButtonTitle": "Beitrittsinformationen kopiert",
       "observerLinkHeading": "Beobachterlink",
       "copyObserverLink": "Beobachterlink kopieren",
       "copiedObserverLink": "Beobachterlink kopiert",
-      "copyObserverLinkButtonTitle": "Beobachterlink kopieren",
-      "copiedObserverLinkButtonTitle": "Beobachterlink kopiert",
       "rtmpHeading": "Live-Stream",
       "rtmpHelp": "Fügen Sie die RTMP-URL und den Stream-Key aus StreamYard ein, um diesen Jam live zu übertragen.",
       "rtmpUrlLabel": "RTMP-URL",
@@ -1191,7 +981,6 @@
       "rtmpStopError": "Live-Stream konnte nicht beendet werden"
     },
     "hand": {
-      "raiseTitle": "Hand heben",
       "raiseLabel": "Hand heben"
     },
     "participantMenu": {
@@ -1203,11 +992,8 @@
       "pickDateTime": "Wählen Sie Datum und Uhrzeit für Ihren Jam:",
       "scheduleForLater": "Für später planen",
       "dateLabel": "Datum",
-      "timeLabel": "Uhrzeit",
       "selectTime": "Uhrzeit auswählen",
-      "eventCreatedSuccess": "Veranstaltung erfolgreich erstellt",
-      "back": "Zurück",
-      "save": "Speichern"
+      "eventCreatedSuccess": "Veranstaltung erfolgreich erstellt"
     },
     "createFlow": {
       "schedule": "Planen"
@@ -1215,14 +1001,11 @@
     "modals": {
       "attendance": {
         "title": "Jam-Teilnahme",
-        "empty": "Noch niemand beigetreten",
-        "close": "Schließen"
+        "empty": "Noch niemand beigetreten"
       },
       "deleteScheduled": {
         "title": "Diesen Jam löschen?",
         "body": "Die Details dieses Jams werden für niemanden mehr verfügbar sein, auch nicht für Sie. Möchten Sie diesen Jam dennoch löschen?",
-        "cancel": "Abbrechen",
-        "delete": "Löschen",
         "deleteEventTitle": "Veranstaltung löschen",
         "successToast": "Veranstaltung erfolgreich gelöscht!"
       }
@@ -1230,7 +1013,6 @@
     "liveJams": "Live-Jams",
     "noLiveJams": "Keine Live-Jams zum Beitreten",
     "unavailable": {
-      "message": "Jams sind nicht verfügbar, weil LiveKit nicht verbunden ist.",
       "diagnose": "LiveKit diagnostizieren",
       "diagnoseHint": "Öffnen Sie in der Web-Administration Diagnose → LiveKit (/admin/diagnostics/livekit)."
     },
@@ -1240,7 +1022,6 @@
       "jamNotActive": "Dieser Jam ist nicht aktiv",
       "loading": "Jam wird geladen…",
       "notFound": "Jam nicht gefunden",
-      "viewEvent": "Veranstaltung ansehen",
       "autoRsvpInProgress": "Sie werden für diese Veranstaltung angemeldet…",
       "autoRsvpError": "Anmeldung zu dieser Veranstaltung fehlgeschlagen.",
       "reconnecting": "Verbindung zum Jam wird wiederhergestellt…"
@@ -1252,12 +1033,10 @@
     },
     "speakerView": {
       "enlarge": "{{name}} vergrößern",
-      "showGrid": "Alle anzeigen",
       "speaking": "Spricht",
       "spotlight": "Für alle hervorheben",
       "removeSpotlight": "Hervorhebung aufheben",
-      "spotlighted": "Hervorgehoben",
-      "cameraOff": "Kamera ist aus"
+      "spotlighted": "Hervorgehoben"
     },
     "feed": {
       "label": "Jam-Zeitraum",
@@ -1271,7 +1050,6 @@
   },
   "admin": {
     "plugins": {
-      "title": "Plugins",
       "empty": "Keine Plugins geladen.",
       "error": "Plugins konnten nicht geladen werden",
       "repository": "Repository",
@@ -1287,18 +1065,15 @@
       "install": "Installieren",
       "installTitle": "Plugin installieren",
       "installing": "Wird installiert…",
-      "installConfirm": "Installieren",
       "uninstall": "Deinstallieren",
       "npmPlaceholder": "Paketname (z. B. @namespace/plugin-name)",
       "gitPlaceholder": "Repository-URL",
       "versionPlaceholder": "Version (optional, standardmäßig die neueste)",
       "refPlaceholder": "Branch oder Tag (optional, standardmäßig main)",
       "publicSource": "Öffentliche Quelle",
-      "tokenAuth": "Zugriffstoken",
       "sshAuth": "SSH-Deploy-Key",
       "registryPlaceholder": "Registry-URL (optional, standardmäßig npmjs.org)",
       "usernamePlaceholder": "Git-Benutzername",
-      "tokenPlaceholder": "Zugriffstoken",
       "privateKeyPlaceholder": "Unverschlüsselter privater SSH-Key",
       "sshTrustHint": "Der Host-Key des Repositories wird für diese Installation beim ersten Gebrauch vertraut.",
       "credentialsHint": "Zugangsdaten werden nur für diese Installation verwendet und nicht gespeichert."
@@ -1311,25 +1086,18 @@
       "copyError": "Einladungslink konnte nicht kopiert werden",
       "title": "Einladungslink erstellen",
       "description": "Einladungslinks können auf eine Anzahl von Nutzungen oder nach Datum begrenzt werden",
-      "twoDays": "Zwei Tage",
-      "oneMonth": "Ein Monat",
       "deactivate": "Link deaktivieren",
       "never": "Nie",
       "generateTitle": "Klicken Sie, um den Einladungslink zu erstellen",
       "totalLinkUses": "Gesamtnutzungen:",
-      "expiresAfter": "Läuft ab nach",
       "closeModal": "Speichern und schließen",
       "numberOfUses": "Anzahl der Nutzungen",
-      "oneDay": "Ein Tag",
-      "oneWeek": "Eine Woche",
       "copyToClipboard": "In die Zwischenablage kopieren",
       "saveAsQrCode": "Als QR-Code speichern",
       "qrCodeAlt": "QR-Code für diesen Einladungslink",
       "qrError": "QR-Code konnte nicht erzeugt werden",
       "deactivateTitle": "Link deaktivieren: Keine neuen Registrierungen werden zugelassen",
       "generateButton": "Link erstellen",
-      "done": "Fertig",
-      "generateSuccess": "Einladungslink erfolgreich erstellt",
       "generateError": "Der Einladungslink konnte nicht erstellt werden",
       "autoJoinGroups": "Automatisch Gruppen beitreten",
       "autoJoinGroupsHint": "Personen, die sich über diesen Link registrieren, werden als Mitglieder der ausgewählten Gruppen hinzugefügt.",
@@ -1337,7 +1105,6 @@
       "noGroupsToAdd": "Sie können derzeit keine Mitglieder zu einer Gruppe hinzufügen. Treten Sie einer Gruppe bei, in der Sie berechtigt sind, Mitglieder hinzuzufügen (z. B. als Admin), und versuchen Sie es erneut."
     },
     "signupChart": {
-      "last30Days": "Letzte 30 Tage",
       "today": "Heute",
       "yesterday": "Gestern",
       "last7Days": "Letzte 7 Tage",
@@ -1360,28 +1127,22 @@
       "testRestore": {
         "title": "Testsicherung verwenden",
         "confirm": "Möchten Sie wirklich die Testsicherungsdaten verwenden?",
-        "cancel": "Abbrechen",
         "continue": "Fortfahren",
         "restoreSuccess": "Sicherung erfolgreich wiederhergestellt",
         "restoreError": "Fehler bei der Verwendung der Testsicherung"
       },
-      "restoreTitle": "Sicherung wiederherstellen",
       "restore": {
         "selectFile": "Datei auswählen",
         "success": "Wiederherstellung erfolgreich. Der Community-Server wird jetzt neu gestartet.",
         "error": "Beim Wiederherstellen der Sicherung ist ein Fehler aufgetreten",
-        "title": "Sicherung wiederherstellen",
-        "cancel": "Abbrechen",
-        "confirm": "Bestätigen"
+        "title": "Sicherung wiederherstellen"
       },
       "create": "Backup erstellen"
     },
     "media": {
-      "title": "Medien",
       "description": "Wenn ein Beitrag oder eine Jam-Aufnahme gelöscht wird, bleibt die Datei auf dem Server, weil ein anderer Beitrag, die Willkommensseite, die Über-Seite, der Verhaltenskodex, ein Profil oder ein eigenes Feld noch darauf verlinken kann. Die Speicherbereinigung löscht eine Datei {{days}} Tage, nachdem sie zum ersten Mal keine aktive Verlinkung mehr hat. Mit „Jetzt löschen“ wird die Datei sofort entfernt.",
       "counts": "{{total}} Dateien · {{unused}} unbenutzt · {{inUse}} in Verwendung",
       "search": "Nach Datei-ID suchen",
-      "loading": "Wird geladen…",
       "error": "Mediendateien konnten nicht geladen werden",
       "empty": "Keine Mediendateien",
       "open": "Öffnen",
@@ -1392,10 +1153,7 @@
         "inUse": "In Verwendung"
       },
       "status": {
-        "referenced": "In Verwendung",
-        "pending": "Unbenutzt",
-        "due": "Bereit zum Entfernen",
-        "unseen": "Unbenutzt"
+        "due": "Bereit zum Entfernen"
       },
       "collects": {
         "referenced": "Behalten — noch verlinkt",
@@ -1407,8 +1165,7 @@
         "title": "Diese Datei löschen?",
         "unused": "Diese Datei wird nicht verwendet. Wenn du sie jetzt löschst, wird sie sofort vom Server entfernt, statt auf die Speicherbereinigung zu warten.",
         "referenced": "Diese Datei ist noch von einem Beitrag, einer Seite oder einem Profil verlinkt. Wenn du sie jetzt löschst, wird sie vom Server entfernt und diese Links funktionieren nicht mehr.",
-        "action": "Datei löschen",
-        "cancel": "Abbrechen"
+        "action": "Datei löschen"
       }
     },
     "invites": {
@@ -1416,10 +1173,8 @@
       "newInvite": "Neue Einladung",
       "seeInvitedAccounts": "Eingeladene Konten anzeigen",
       "copyLink": "Link kopieren",
-      "saveAsQrCode": "Als QR-Code speichern",
       "deactivate": "Deaktivieren",
       "activate": "Aktivieren",
-      "edit": "Bearbeiten",
       "editTitle": "Einladungslink bearbeiten",
       "editDescription": "Aktualisieren Sie, wie oft dieser Link verwendet werden kann oder wann er abläuft.",
       "expirationDate": "Ablaufdatum",
@@ -1441,13 +1196,9 @@
       "deleteError": "Einladungslink konnte nicht gelöscht werden",
       "noInvitesFound": "Keine Einladungen gefunden",
       "searchPlaceholder": "Nach Name oder Handle suchen",
-      "title": "Einladungen",
       "linkColumn": "Link",
       "createdByColumn": "Erstellt von",
-      "groupsColumn": "Gruppen",
-      "expirationDateColumn": "Ablaufdatum",
       "usesColumn": "Nutzungen",
-      "statusColumn": "Status",
       "linkHeading": "Link",
       "statusActive": "Aktiv",
       "statusInactive": "Inaktiv"
@@ -1461,11 +1212,7 @@
       "dateSent": "Sendedatum",
       "from": "Von",
       "to": "Bis",
-      "dateAccepted": "Annahmedatum",
-      "resetTitle": "Zurücksetzen",
-      "reset": "Zurücksetzen",
-      "applyTitle": "Anwenden",
-      "apply": "Anwenden"
+      "dateAccepted": "Annahmedatum"
     },
     "sort": {
       "title": "Sortieren",
@@ -1481,56 +1228,32 @@
     },
     "members": {
       "inviteWithEmailTitle": "Mitglied per E-Mail einladen",
-      "inviteWithLinkTitle": "Mitglied per Link einladen",
-      "title": "Mitglieder",
       "searchPlaceholder": "Mitglied nach Name oder E-Mail suchen",
       "noUsersFound": "Keine Benutzer gefunden",
-      "profileColumn": "Profil",
       "rolesColumn": "Rollen",
-      "createdColumn": "Erstellt",
-      "handleColumn": "Benutzername",
-      "downloadCsv": "CSV herunterladen",
       "profileInfo": "Profilinformationen",
       "dateJoined": "Beitrittsdatum",
       "emailAddress": "E-Mail-Adresse",
       "profileId": "Profil-ID",
-      "activity": "Aktivität",
-      "followers": "Follower",
       "following": "Folgt",
-      "posts": "Beiträge",
-      "replies": "Antworten",
-      "events": "Veranstaltungen",
-      "reports": "Meldungen",
       "blockedBy": "Blockiert von",
-      "groups": "Gruppen",
       "rsvps": "Zusagen",
-      "bookmarks": "Lesezeichen",
-      "backToMembers": "Zurück zur Mitgliederliste",
-      "notFound": "Profil nicht gefunden"
+      "backToMembers": "Zurück zur Mitgliederliste"
     },
     "community": {
       "totalProfiles": "Profile gesamt",
       "activeProfiles": "Aktive Profile",
       "recentInteractions": "Letzte Interaktionen",
-      "totalMembers": "Mitglieder gesamt",
-      "activeMembers": "Aktive Mitglieder",
-      "recentSignups": "Letzte Registrierungen"
+      "totalMembers": "Mitglieder gesamt"
     },
     "overview": {
-      "title": "Statistiken",
       "communityOverview": "Community-Übersicht",
-      "newSignups": "Neue Registrierungen",
-      "content": "Inhalte",
       "postsRepliesReposts": "Beiträge, Antworten, Reposts",
       "allPosts": "Alle Beiträge",
       "postsWithoutReplies": "Beiträge ohne Antworten",
       "postsWithReplies": "Beiträge mit Antworten",
-      "replies": "Antworten",
       "topProfilesOfYear": "Top {{count}} Profile des Jahres",
       "topPostsOfYear": "Top {{count}} Beiträge des Jahres",
-      "totalProfiles": "Profile gesamt",
-      "activeProfiles": "Aktive Profile",
-      "recentInteractions": "Letzte Interaktionen",
       "jamSessions": "Jam-Sitzungen",
       "jamParticipants": "Jam-Teilnehmende",
       "lastWeek": "Letzte Woche",
@@ -1549,13 +1272,10 @@
       "cpuUsed": "CPU",
       "percentFilled": "{{percent}} %",
       "noStats": "Keine Statistiken verfügbar",
-      "profilesSection": "Profile",
-      "postsSection": "Beiträge",
       "jamsSection": "Jams",
       "activeWeek": "Aktiv (Woche)",
       "postsThisPeriod": "Diese Woche",
       "sessions": "Sitzungen",
-      "participants": "Teilnehmende",
       "info": {
         "communityName": "Anzeigename aus den Community-Einstellungen.",
         "serverVersion": "Aktuelle OpenPeeps-Version. Build wird gesetzt, wenn das Image mit einer BUILD-Kennung erzeugt wurde.",
@@ -1571,7 +1291,6 @@
       }
     },
     "moderation": {
-      "title": "Moderation",
       "summaryTab": "Zusammenfassung",
       "resolvedTab": "Gelöst",
       "report": {
@@ -1583,8 +1302,7 @@
           "title": "Diese Meldung schließen?",
           "description": "Sie sind dabei, diese Meldung zu schließen. Wählen Sie eine Aktion aus:",
           "deleteProfile": {
-            "description": "Verhindert, dass das Profil in Listen angezeigt und von anderen gesehen wird. Inhalte werden ebenfalls entfernt.",
-            "button": "Profil löschen"
+            "description": "Verhindert, dass das Profil in Listen angezeigt und von anderen gesehen wird. Inhalte werden ebenfalls entfernt."
           },
           "deletePost": {
             "description": "Der Beitrag wird nicht mehr im Feed und in der Community angezeigt",
@@ -1598,7 +1316,6 @@
         "close": {
           "title": "Meldung einfach schließen?",
           "description": "Sie sind dabei, diese Meldung zu schließen, ohne eine Maßnahme zu ergreifen. Sie wird als gelöst markiert. Sind Sie sicher?",
-          "cancel": "Zurück",
           "confirm": "Ja, schließen"
         },
         "tabsLabel": "Meldungsarten",
@@ -1608,34 +1325,26 @@
         "delete": {
           "title": "Diesen Beitrag löschen?",
           "description": "Sie sind dabei, diesen Beitrag zu löschen. Er wird nicht mehr in der Community verfügbar sein. Sind Sie sicher?",
-          "cancel": "Zurück",
           "confirm": "Ja, löschen"
         }
       },
       "profile": {
         "delete": {
           "title": "Dieses Profil löschen?",
-          "description": "Sie sind dabei, dieses Profil zu löschen. Das Profil wird nicht mehr in Listen angezeigt und von niemandem gesehen. Inhalte werden ebenfalls entfernt. Sind Sie sicher?",
-          "cancel": "Zurück",
-          "confirm": "Ja, löschen"
+          "description": "Sie sind dabei, dieses Profil zu löschen. Das Profil wird nicht mehr in Listen angezeigt und von niemandem gesehen. Inhalte werden ebenfalls entfernt. Sind Sie sicher?"
         }
       },
       "reportList": {
-        "allResolvedBadge": "Alle Meldungen gelöst",
         "seeReports": "Meldungen anzeigen",
-        "postHeading": "Beitrag",
         "unresolvedBadge": "Nicht gelöst",
-        "goToPost": "Zum Beitrag",
-        "closeReport": "Schließen"
+        "goToPost": "Zum Beitrag"
       },
       "tabsLabel": "Moderationsbereiche",
       "reopen": "Wieder öffnen"
     },
     "configuration": {
-      "unnamedSection": "Konfiguration",
       "community": {
         "capabilities": {
-          "title": "Rollen und Berechtigungen",
           "rolesTitle": "Instanzenrollen",
           "rolesDescription": "Legen Sie die Berechtigungen fest, die jede Instanzenrolle gewährt. Entspricht der Matrix der Gruppenrollen: Klicken Sie auf eine Zelle, um zu wechseln: leer → erlaubt (+) → verboten (−). ~ = von einem Platzhalter geerbt und × = gesperrt.",
           "relationsTitle": "Beziehungs-Berechtigungen",
@@ -1667,14 +1376,12 @@
     },
     "apiKeys": {
       "title": "Dienstzugriffstoken",
-      "createTitle": "Dienstzugriffstoken erstellen",
       "createDescription": "Erstellen Sie ein Dienstzugriffstoken für Integrationen. Kopieren Sie den Tokenwert bei der Erstellung.",
       "create": "Dienstzugriffstoken erstellen",
       "creating": "Wird erstellt…",
       "createError": "Dienstzugriffstoken konnte nicht erstellt werden.",
       "name": "Name",
       "nameRequired": "Name ist erforderlich.",
-      "descriptionLabel": "Beschreibung",
       "expiration": "Ablauf",
       "expirationOptions": {
         "sevenDays": "7 Tage",
@@ -1684,25 +1391,20 @@
       },
       "scopes": "Berechtigungen",
       "addScope": "Berechtigung hinzufügen",
-      "removeScope": "Entfernen",
       "scopeRequired": "Mindestens eine Berechtigung ist erforderlich.",
       "copy": "Kopieren",
       "copyWarning": "Kopieren Sie dieses Token jetzt. Es wird nicht erneut angezeigt.",
-      "listTitle": "Dienstzugriffstoken",
       "empty": "Keine aktiven Dienstzugriffstoken.",
       "expiresAt": "Läuft ab am",
       "never": "Nie",
       "revoke": "Widerrufen",
-      "revoked": "Widerrufen",
       "noScopes": "Keine Berechtigungen",
       "expiredToggle": "Abgelaufene Token ({{count}})"
     },
     "database": {
-      "title": "Datenbank",
       "browseTab": "Durchsuchen",
       "sqlTab": "SQL",
       "tables": "Tabellen",
-      "loading": "Wird geladen…",
       "selectTable": "Wählen Sie eine Tabelle aus, um Zeilen zu durchsuchen.",
       "filterColumn": "Spalte filtern",
       "anyColumn": "—",
@@ -1712,39 +1414,24 @@
       "downloadCsv": "CSV herunterladen",
       "loadError": "Zeilen konnten nicht geladen werden.",
       "showing": "{{from}}–{{to}} von {{total}} werden angezeigt",
-      "prev": "Zurück",
-      "next": "Weiter",
       "runSql": "Ausführen",
       "pageSize": "Zeilen",
       "pageSizeAll": "Alle",
       "sqlMeta": "{{command}} — {{count}} Zeile(n)",
       "sqlMetaTruncated": "{{command}} — {{shown}} von {{count}} Zeile(n) angezeigt",
-      "editTitle": "{{column}} bearbeiten",
-      "cancel": "Abbrechen",
-      "save": "Speichern"
+      "editTitle": "{{column}} bearbeiten"
     },
     "groups": {
-      "title": "Gruppen",
-      "delete": "Gruppe löschen",
-      "deleteTitle": "Gruppe löschen",
       "deleteDescription": "Möchten Sie diese Gruppe wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
       "created": "Erstellt",
-      "lastPost": "Letzter Beitrag",
-      "members": "Mitglieder",
-      "posts": "Beiträge",
-      "settings": "Einstellungen"
+      "lastPost": "Letzter Beitrag"
     },
     "analytics": {
       "title": "Analysen",
       "tabsLabel": "Analysebereiche",
       "tabs": {
-        "overview": "Übersicht",
-        "members": "Mitglieder",
         "content": "Inhalte",
-        "engagement": "Interaktion",
-        "groups": "Gruppen",
         "reports": "Berichte",
-        "growth": "Wachstum",
         "retention": "Bindung",
         "ai-insights": "KI-Erkenntnisse"
       },
@@ -1789,27 +1476,20 @@
         "bookmark": "Lesezeichen-Rate",
         "comment": "Kommentar-Rate"
       },
-      "visibility": {
-        "public": "Öffentlich",
-        "private": "Privat"
-      },
+      "visibility": {},
       "cohortRetention": "D7-Kohortenbindung",
       "retentionByGroup": "Aktivität nach Gruppe",
       "table": {
         "member": "Mitglied",
         "channel": "Kanal",
-        "joined": "Beigetreten am",
         "dateJoined": "Beigetreten am",
         "role": "Rolle",
-        "contributions": "Beiträge",
         "post": "Beitrag",
         "author": "Autor",
         "creator": "Ersteller",
         "type": "Typ",
         "group": "Gruppe",
         "groupName": "Gruppenname",
-        "visibility": "Sichtbarkeit",
-        "members": "Mitglieder",
         "activeShort": "aktiv",
         "engagement": "Interaktion",
         "growth": "Wachstum",
@@ -1825,7 +1505,6 @@
         "enabled": "Monatliche Bericht-E-Mails aktivieren",
         "recipients": "Empfänger",
         "recipientsHelp": "Eine E-Mail pro Zeile oder durch Komma getrennt.",
-        "save": "Speichern",
         "saved": "Berichtseinstellungen gespeichert",
         "saveFailed": "Berichtseinstellungen konnten nicht gespeichert werden"
       },
@@ -1837,7 +1516,6 @@
       "metrics": {
         "totalMembers": "Mitglieder insgesamt",
         "newMembers": "Neue Mitglieder",
-        "activeMembers": "Aktive Mitglieder",
         "dau": "DAU",
         "mau": "MAU",
         "dauMau": "DAU/MAU",
@@ -1849,8 +1527,6 @@
         "likes": "Likes",
         "comments": "Kommentare",
         "reposts": "Reposts",
-        "bookmarks": "Lesezeichen",
-        "dms": "Direktnachrichten",
         "uniqueViewers": "Eindeutige Betrachter",
         "impressions": "Impressionen",
         "day1": "Tag-1-Bindung %",
@@ -1940,7 +1616,6 @@
     }
   },
   "diagnostics": {
-    "title": "Diagnose",
     "description": "Laufzeitsysteme überprüfen und prüfen, ob sie funktionsfähig sind.",
     "performance": {
       "title": "Leistung",
@@ -1949,25 +1624,19 @@
       "dbTiming": "DB-Zeitmessung",
       "on": "an",
       "off": "aus",
-      "refresh": "Aktualisieren",
       "loadError": "Leistungsstatistiken konnten nicht geladen werden.",
       "empty": "Noch keine langsamen Anfragen aufgezeichnet.",
       "when": "Wann",
       "hostname": "Hostname",
       "method": "Methode",
       "path": "Pfad",
-      "status": "Status",
       "duration": "Dauer"
     },
     "email": {
       "title": "E-Mail",
       "description": "Postausgangs-Warteschlange überprüfen und eine Test-E-Mail über den regulären Zustellungsprozess in die Warteschlange setzen.",
-      "testTitle": "Test-E-Mail in Warteschlange setzen",
       "testHint": "Fügt eine Test-E-Mail an die Warteschlange, genau wie der CLI-Befehl.",
-      "testRecipient": "Test senden an",
-      "testRecipientPlaceholder": "sie@beispiel.de",
       "queueTest": "Test-E-Mail in Warteschlange setzen",
-      "recipientRequired": "Geben Sie eine E-Mail-Adresse für den Test ein.",
       "queueSuccess": "Test-E-Mail in Warteschlange gesetzt. Beobachten Sie die Warteschlangenzähler, um zu sehen, wann sie verarbeitet wird.",
       "queueFailed": "Test-E-Mail konnte nicht in die Warteschlange gesetzt werden",
       "queueTitle": "Postausgangs-Warteschlange",
@@ -1977,7 +1646,6 @@
       "waiting": "Wartend",
       "active": "In Bearbeitung",
       "completed": "Abgeschlossen",
-      "failed": "Fehlgeschlagen",
       "delayed": "Verzögert",
       "prioritized": "Priorisiert",
       "recentFailures": "Aktuelle Sendefehler",
@@ -1988,11 +1656,9 @@
       "viewLogs": "Job-Protokolle anzeigen",
       "notFound": "Job nicht gefunden. Er wurde möglicherweise aus der Warteschlange entfernt.",
       "details": "Job-Details",
-      "refresh": "Aktualisieren",
       "queue": "Warteschlange",
       "id": "Job-ID",
       "name": "Job-Name",
-      "state": "Status",
       "queuedAt": "In Warteschlange gesetzt am",
       "finishedAt": "Beendet am",
       "failedReason": "Fehlergrund",
@@ -2002,97 +1668,12 @@
       "logsEmpty": "Noch keine Protokollzeilen für diesen Job aufgezeichnet."
     },
     "logs": {
-      "title": "Protokolle",
       "description": "Server-Protokolleinträge nach Tag durchsuchen, nach Stufe oder Text filtern und den heutigen Protokollstrom live beobachten.",
       "hint": "Protokolle werden in täglichen Dateien auf dem Server gespeichert. Wählen Sie ein Datum aus, um vergangene Einträge anzuzeigen.",
       "date": "Datum",
       "level": "Stufe",
       "allLevels": "Alle Stufen",
-      "filter": "Filter",
       "filterPlaceholder": "Suchen…",
-      "refresh": "Aktualisieren",
-      "autoRefresh": "Automatische Aktualisierung alle 5 Sekunden",
-      "showing": "{{count}} von {{total}} Einträgen angezeigt",
-      "loadError": "Protokolle konnten nicht geladen werden.",
-      "empty": "Keine Protokolleinträge entsprechen den aktuellen Filtern.",
-      "timestamp": "Zeit (UTC)",
-      "levelColumn": "Stufe",
-      "namespaceColumn": "Namensbereich",
-      "messageColumn": "Nachricht"
-    }
-  },
-  "diagnostics": {
-    "title": "Diagnose",
-    "description": "Laufzeitsysteme überprüfen und prüfen, ob sie funktionsfähig sind.",
-    "performance": {
-      "title": "Leistung",
-      "description": "Aktuelle langsame HTTP-Anfragen aus diesem Prozess (In-Memory-Ringpuffer). Schwellenwert wird über PERF_SLOW_REQUEST_MS gesteuert.",
-      "threshold": "Langsamer Schwellenwert",
-      "dbTiming": "DB-Zeitmessung",
-      "on": "an",
-      "off": "aus",
-      "refresh": "Aktualisieren",
-      "loadError": "Leistungsstatistiken konnten nicht geladen werden.",
-      "empty": "Noch keine langsamen Anfragen aufgezeichnet.",
-      "when": "Wann",
-      "hostname": "Hostname",
-      "method": "Methode",
-      "path": "Pfad",
-      "status": "Status",
-      "duration": "Dauer"
-    },
-    "email": {
-      "title": "E-Mail",
-      "description": "Postausgangs-Warteschlange überprüfen und eine Test-E-Mail über den regulären Zustellungsprozess in die Warteschlange setzen.",
-      "testTitle": "Test-E-Mail in Warteschlange setzen",
-      "testHint": "Fügt eine Test-E-Mail an die Warteschlange, genau wie der CLI-Befehl.",
-      "testRecipient": "Test senden an",
-      "testRecipientPlaceholder": "sie@beispiel.de",
-      "queueTest": "Test-E-Mail in Warteschlange setzen",
-      "recipientRequired": "Geben Sie eine E-Mail-Adresse für den Test ein.",
-      "queueSuccess": "Test-E-Mail in Warteschlange gesetzt. Beobachten Sie die Warteschlangenzähler, um zu sehen, wann sie verarbeitet wird.",
-      "queueFailed": "Test-E-Mail konnte nicht in die Warteschlange gesetzt werden",
-      "queueTitle": "Postausgangs-Warteschlange",
-      "refresh": "Aktualisieren",
-      "countsHint": "Jobs in Redis für den E-Mail-Worker. Abgeschlossene Jobs werden nach ca. 24 Stunden entfernt; fehlgeschlagene Jobs werden länger aufbewahrt, damit Sie Probleme diagnostizieren können.",
-      "statsError": "Warteschlangenstatistiken konnten nicht geladen werden. Läuft Redis und ist es erreichbar?",
-      "waiting": "Wartend",
-      "active": "In Bearbeitung",
-      "completed": "Abgeschlossen",
-      "failed": "Fehlgeschlagen",
-      "delayed": "Verzögert",
-      "prioritized": "Priorisiert",
-      "recentFailures": "Aktuelle Sendefehler",
-      "bounceNote": "Diese Zahlen zeigen an, ob Ihr Server die E-Mail an Ihren SMTP-Anbieter übergeben konnte. Sie enthalten keine Bounce-Rückmeldungen, Spam-Ordner-Zustellungen oder ungültige Adressen nach der Übergabe."
-    },
-    "jobs": {
-      "title": "Warteschlangen-Job",
-      "viewLogs": "Job-Protokolle anzeigen",
-      "notFound": "Job nicht gefunden. Er wurde möglicherweise aus der Warteschlange entfernt.",
-      "details": "Job-Details",
-      "refresh": "Aktualisieren",
-      "queue": "Warteschlange",
-      "id": "Job-ID",
-      "name": "Job-Name",
-      "state": "Status",
-      "queuedAt": "In Warteschlange gesetzt am",
-      "finishedAt": "Beendet am",
-      "failedReason": "Fehlergrund",
-      "payload": "Job-Nutzdaten",
-      "logs": "Job-Protokolle",
-      "logsHint": "{{count}} Protokollzeile(n) für diesen Job gespeichert.",
-      "logsEmpty": "Noch keine Protokollzeilen für diesen Job aufgezeichnet."
-    },
-    "logs": {
-      "title": "Protokolle",
-      "description": "Server-Protokolleinträge nach Tag durchsuchen, nach Stufe oder Text filtern und den heutigen Protokollstrom live beobachten.",
-      "hint": "Protokolle werden in täglichen Dateien auf dem Server gespeichert. Wählen Sie ein Datum aus, um vergangene Einträge anzuzeigen.",
-      "date": "Datum",
-      "level": "Stufe",
-      "allLevels": "Alle Stufen",
-      "filter": "Filter",
-      "filterPlaceholder": "Suchen…",
-      "refresh": "Aktualisieren",
       "autoRefresh": "Automatische Aktualisierung alle 5 Sekunden",
       "showing": "{{count}} von {{total}} Einträgen angezeigt",
       "loadError": "Protokolle konnten nicht geladen werden.",
@@ -2105,29 +1686,23 @@
     "livekit": {
       "title": "LiveKit",
       "description": "Prüfen, ob Jams den LiveKit-Server erreichen. Fehlende oder ungültige Zugangsdaten deaktivieren Live-Jams.",
-      "refresh": "Aktualisieren",
       "loadError": "Die LiveKit-Diagnose konnte nicht geladen werden.",
       "connected": "Verbunden",
       "notConnected": "Nicht verbunden",
       "url": "Server-URL",
-      "apiKey": "API-Schlüssel",
       "apiSecret": "API-Geheimnis",
       "reachable": "Server erreichbar",
       "set": "Gesetzt",
       "missing": "Fehlt",
       "ok": "OK",
-      "failed": "Fehlgeschlagen",
       "error": "Letzter Fehler",
       "recording": "Aufnahme",
       "recordingOn": "Aktiviert",
-      "recordingOff": "Deaktiviert",
       "envHint": "Setzen Sie JAMS_LIVEKIT_URL, JAMS_LIVEKIT_API_KEY und JAMS_LIVEKIT_API_SECRET auf dem Server und aktualisieren Sie dann diese Seite."
     }
   },
   "configuration": {
-    "title": "Konfiguration",
     "email": {
-      "title": "E-Mail",
       "description": "SMTP-Transport konfigurieren und Zustellbarkeit mit Ihren Entwurfseinstellungen testen.",
       "intro": "Bearbeiten Sie SMTP-Transport und Absenderangaben, und senden Sie dann eine Test-E-Mail mit den unten stehenden Werten (gespeichert oder nicht). Wenn das Passwortfeld Platzhalterzeichen anzeigt, wird das gespeicherte Passwort verwendet.",
       "sections": {
@@ -2147,7 +1722,6 @@
         "authPassDescription": "Platzhalterzeichen unverändert lassen, um das gespeicherte Passwort beizubehalten."
       },
       "updateSuccess": "E-Mail-Konfiguration aktualisiert.",
-      "testTitle": "Test-E-Mail senden",
       "testHint": "Sendet eine vollständig gerenderte Test-E-Mail über den SMTP-Transport des Entwurfs, ohne die Warteschlange.",
       "testRecipient": "Test senden an",
       "testRecipientPlaceholder": "sie@beispiel.de",
@@ -2167,10 +1741,8 @@
       "fields": {
         "name": "Feldname",
         "type": "Feldtyp",
-        "required": "Erforderlich",
         "options": "Optionen",
-        "placeholder": "Platzhalter",
-        "description": "Beschreibung"
+        "placeholder": "Platzhalter"
       },
       "types": {
         "text": "Text",
@@ -2207,8 +1779,6 @@
       "colorDescription": "Diese Farbe wird für Schaltflächen, Links und andere Hervorhebungen verwendet",
       "contactEmail": "Kontakt-E-Mail",
       "contactEmailDescription": "Diese E-Mail-Adresse wird Community-Mitgliedern auf der Willkommensseite, in der Begrüßungs-E-Mail und an anderen Stellen angezeigt, um den Community-Inhaber zu kontaktieren.",
-      "email": "E-Mail",
-      "name": "Community-Name",
       "nameDescription": "Dieser Name erscheint in der Titelleiste des Browsers und in E-Mail-Betreffs und repräsentiert den Namen Ihrer Community.",
       "tagline": "Community-Slogan",
       "taglineDescription": "Dieser Text erscheint auf der Registrierungsseite und bietet eine kurze Beschreibung Ihrer Community.",
@@ -2261,14 +1831,12 @@
         "builtIn": "Integriert",
         "add": "Benutzernamen hinzufügen",
         "placeholder": "benutzername",
-        "remove": "Entfernen",
         "empty": "Geben Sie einen Benutzernamen ein.",
         "invalid": "Benutzernamen müssen 1–16 Zeichen lang sein: Buchstaben, Zahlen, Unterstriche oder Bindestriche.",
         "duplicate": "Dieser Benutzername steht bereits auf der Liste.",
         "builtInError": "Integrierte Benutzernamen sind immer reserviert und können nicht geändert werden."
       },
       "roles": {
-        "title": "Rollen und Berechtigungen",
         "description": "Richten Sie die Funktionen und Berechtigungen ein, die jeder Rolle innerhalb der Community zur Verfügung stehen"
       },
       "language": {
@@ -2352,8 +1920,7 @@
     "i18n": {
       "title": "Benutzerdefinierter Text",
       "description": "Texte in der gesamten Community ändern",
-      "pageTitle": "Übersetzungen",
-      "save": "Speichern"
+      "pageTitle": "Übersetzungen"
     },
     "pluginPage": {
       "description": "Dieses Plugin konfigurieren."
@@ -2372,27 +1939,15 @@
       "backToList": "Zurück zu SSO",
       "typeLabel": "Anbietertyp",
       "saveProvider": "Anbieter speichern",
-      "removeProvider": "Entfernen",
-      "editProvider": "Bearbeiten",
-      "cancelEdit": "Abbrechen",
       "updateSuccess": "SSO-Konfiguration aktualisiert.",
       "duplicateId": "Ein Anbieter mit dieser ID existiert bereits.",
       "idRequired": "Geben Sie eine kurze, URL-sichere ID ein.",
       "callbackUrl": "Weiterleitungs-URI",
       "kind": {
-        "gitlab": "GitLab",
-        "gitlab-selfhosted": "GitLab",
-        "github": "GitHub",
-        "google": "Google",
         "entra": "Microsoft",
-        "discord": "Discord",
         "auth0": "Auth0",
         "okta": "Okta",
-        "keycloak": "Keycloak",
-        "authentik": "Authentik",
-        "pocketid": "Pocket ID",
-        "oidc": "OIDC",
-        "generic": "Generisch"
+        "oidc": "OIDC"
       },
       "types": {
         "gitlab": {
@@ -2549,7 +2104,6 @@
       "edit": "Bearbeiten",
       "delete": "Löschen",
       "confirm": "Bestätigen",
-      "cancel": "Abbrechen",
       "remove": "Entfernen",
       "reportProfile": "@{{handle}} melden",
       "blockProfile": "@{{handle}} blockieren",
@@ -2561,15 +2115,11 @@
       "duplicate": "Veranstaltung duplizieren"
     },
     "submit": "Absenden",
-    "listEditor": {
-      "removeTitle": "Entfernen",
-      "addTitle": "Hinzufügen"
-    },
+    "listEditor": {},
     "next": "Weiter",
     "back": "Zurück",
     "done": "Fertig",
     "close": "Schließen",
-    "edit": "Bearbeiten",
     "you": "Sie",
     "media": {
       "audioPlayer": "Audio-Player",
@@ -2580,9 +2130,7 @@
         "chooseFromLibrary": "Aus Galerie wählen"
       },
       "video": {
-        "recents": "Zuletzt verwendet",
-        "recordVideo": "Video aufnehmen",
-        "chooseFromLibrary": "Aus Galerie wählen"
+        "recordVideo": "Video aufnehmen"
       },
       "send": "Senden",
       "sending": "Wird gesendet…",
@@ -2594,19 +2142,11 @@
       "addError": "Mitglied konnte nicht hinzugefügt werden",
       "adding": "Wird hinzugefügt…"
     },
-    "add": "Hinzufügen",
-    "cancel": "Abbrechen",
     "none": "Keine",
-    "remove": "Entfernen",
     "thisDevice": "Dieses Gerät und dieser Browser",
-    "error": "Fehler",
-    "loading": "Wird geladen…",
     "loadingMore": "Weitere werden geladen…",
     "posting": "Wird gepostet…",
-    "save": "Speichern",
     "saving": "Wird gespeichert…",
-    "send": "Senden",
-    "sending": "Wird gesendet…",
     "submitting": "Wird übermittelt…",
     "downloading": "Wird heruntergeladen…",
     "restoreDefaults": "Standardwerte wiederherstellen",
@@ -2616,14 +2156,12 @@
   },
   "conversations": {
     "newMessage": "Neue Nachricht",
-    "noMessages": "Keine Direktnachrichten vorhanden",
     "empty": "Keine Direktnachrichten vorhanden",
     "createNew": {
       "title": "Neue Unterhaltung",
       "searchPlaceholder": "Personen suchen",
       "sendMessage": "Nachricht senden",
-      "messagePlaceholder": "Nachricht eingeben",
-      "send": "Senden"
+      "messagePlaceholder": "Nachricht eingeben"
     },
     "messageInThread": {
       "startedBy": "Gestartet von {{name}}",
@@ -2646,9 +2184,7 @@
         "deleteForMe": "Für mich löschen",
         "deleteForEveryone": "Für alle löschen",
         "description": "Möchten Sie diese Nachricht wirklich löschen?",
-        "confirm": "Löschen",
         "loading": "Wird gelöscht…",
-        "deleteDescription": "Möchten Sie diese Nachricht wirklich löschen?",
         "deleteSuccess": "Nachricht erfolgreich gelöscht",
         "deleteError": "Nachricht konnte nicht gelöscht werden"
       }
@@ -2656,8 +2192,7 @@
     "leaveConversation": {
       "title": "Unterhaltung verlassen",
       "description": "Möchten Sie diese Unterhaltung wirklich verlassen?",
-      "leave": "Verlassen",
-      "left": "Unterhaltung verlassen"
+      "leave": "Verlassen"
     },
     "blockAccount": {
       "title": "{{handle}} blockieren",
@@ -2679,10 +2214,8 @@
       }
     },
     "sendError": "Nachricht konnte nicht gesendet werden",
-    "messageLog": "Nachrichten",
     "info": {
       "title": "Informationen zur Unterhaltung",
-      "participants": "Teilnehmende",
       "messageCount_one": "{{count}} Nachricht in diesem Gespräch.",
       "messageCount_other": "{{count}} Nachrichten in diesem Gespräch."
     },
@@ -2705,7 +2238,6 @@
     "title": "Unterhaltung",
     "titleWithYou": "{{names}} und Sie",
     "participants": {
-      "title": "Teilnehmende",
       "openList": "Teilnehmende anzeigen"
     },
     "tabs": {
@@ -2731,12 +2263,8 @@
       "description": "Ändern Sie Ihre Kontoinformationen",
       "oldPassword": "Aktuelles Passwort",
       "oldPasswordDescription": "Geben Sie Ihr aktuelles Passwort ein",
-      "oldPasswordPlaceholder": "Geben Sie Ihr aktuelles Passwort ein",
-      "email": "E-Mail",
       "emailPlaceholder": "Geben Sie Ihre E-Mail-Adresse ein",
-      "newPassword": "Neues Passwort",
       "newPasswordPlaceholder": "Geben Sie Ihr neues Passwort ein",
-      "confirmPassword": "Passwort bestätigen",
       "confirmPasswordPlaceholder": "Bestätigen Sie Ihr neues Passwort",
       "verifyEmailButton": "E-Mail verifizieren",
       "verifyEmailDescription": "Ihre E-Mail ist nicht verifiziert. Senden Sie eine Verifizierungs-E-Mail erneut.",
@@ -2766,10 +2294,8 @@
       "noSubscription": "Kein aktives Abonnement. Abonnieren Sie, um Ihre Community zu unterstützen."
     },
     "notifications": {
-      "inApp": "In-App-Benachrichtigungen",
       "push": "Push-Benachrichtigungen",
       "email": "E-Mail-Benachrichtigungen",
-      "updateSuccess": "Community-Einstellungen aktualisiert",
       "description": "Verwalten Sie Ihre Benachrichtigungseinstellungen",
       "types": {
         "reply": {
@@ -2781,7 +2307,6 @@
           "description": "Benachrichtigungen verwalten, wenn Ihr Beitrag geteilt wird"
         },
         "reaction": {
-          "label": "Reaktionen",
           "description": "Benachrichtigungen verwalten, wenn Ihr Beitrag Reaktionen erhält"
         },
         "jamStarted": {
@@ -2804,10 +2329,7 @@
           "label": "Ankündigungen",
           "description": "Benachrichtigungen verwalten, wenn Sie eine Ankündigung erhalten"
         },
-        "directMessage": {
-          "label": "Direktnachrichten",
-          "description": "Benachrichtigungen verwalten, wenn Sie eine Direktnachricht erhalten"
-        },
+        "directMessage": {},
         "follow": {
           "description": "Benachrichtigungen verwalten, wenn Ihnen jemand folgt",
           "label": "Neuer Follower"
@@ -2857,7 +2379,6 @@
           "description": "Benachrichtigung erhalten, wenn Sie in einem Beitrag erwähnt werden"
         }
       },
-      "pushSettings": "Push-Benachrichtigungen",
       "pushEnabled": "Für diesen Browser aktiviert",
       "testPush": "Push-Benachrichtigung senden",
       "create": "In-App-Benachrichtigungen",
@@ -2865,14 +2386,9 @@
       "feedPreferences": {
         "modalTitle": "Benachrichtigungs-Feed-Einstellungen",
         "subtitle": "Verwalten Sie die Inhalte, die Sie in Ihrem Benachrichtigungs-Feed sehen",
-        "markAllRead": "Alle als gelesen markieren",
         "unreadSection": "Ungelesene Benachrichtigungen",
-        "newFollowersSection": "Neue Follower",
-        "newPostSection": "Neuer Beitrag",
-        "mentionsSection": "Erwähnungen",
-        "repostsSection": "Geteilte Beiträge"
+        "newFollowersSection": "Neue Follower"
       },
-      "headerPreferencesTitle": "Benachrichtigungseinstellungen",
       "markAllReadSuccess": "Benachrichtigungen erfolgreich gelöscht",
       "serverPushDisabled": "Push-Benachrichtigungen sind auf diesem Server nicht konfiguriert.",
       "pushUnsupported": "Push-Benachrichtigungen werden in diesem Browser nicht unterstützt.",
@@ -2891,7 +2407,6 @@
           "success": "Gerät entfernt",
           "description": "Sie erhalten auf diesem Gerät und Browser keine Benachrichtigungen mehr",
           "confirm": "OK",
-          "cancel": "Abbrechen",
           "header": "Dieses Gerät entfernen?"
         }
       },
@@ -2903,10 +2418,7 @@
     },
     "form": {
       "imageEditModal": {
-        "title": "Bild bearbeiten",
-        "placeholder": "Beschreiben Sie Ihr Bild für sehbeeinträchtigte Betrachtende",
-        "cropping": "Bildzuschnitt",
-        "altText": "Alternativtext"
+        "title": "Bild bearbeiten"
       }
     },
     "publicProfile": {
@@ -2956,23 +2468,12 @@
       "title": "Zugriffstoken",
       "description": "Verwalten Sie Ihre API-Zugriffstoken",
       "addScope": "Bereich hinzufügen",
-      "copy": "Kopieren",
-      "copyWarning": "Kopieren Sie dieses Token jetzt. Es wird nicht erneut angezeigt.",
       "create": "Token erstellen",
       "createDescription": "Erstellen Sie ein persönliches Zugriffstoken für die API.",
       "createError": "Token konnte nicht erstellt werden",
-      "createTitle": "Token erstellen",
-      "creating": "Wird erstellt…",
-      "descriptionLabel": "Beschreibung",
       "descriptionPlaceholder": "Wofür ist dieses Token?",
       "empty": "Noch keine Zugriffstoken.",
-      "expiration": "Ablauf",
-      "expirationOptions": {
-        "ninetyDays": "90 Tage",
-        "oneYear": "1 Jahr",
-        "sevenDays": "7 Tage",
-        "thirtyDays": "30 Tage"
-      },
+      "expirationOptions": {},
       "expiresAt": "Läuft ab",
       "listTitle": "Ihre Token",
       "name": "Name",
@@ -2980,19 +2481,14 @@
       "nameRequired": "Name ist erforderlich",
       "never": "Nie",
       "noScopes": "Keine Bereiche",
-      "revoke": "Widerrufen",
-      "revoked": "Widerrufen",
       "scopeRequired": "Mindestens ein Bereich ist erforderlich",
       "scopes": "Bereiche"
-    },
-    "menu": "Einstellungen"
+    }
   },
   "form": {
     "imageEditModal": {
-      "title": "Bild bearbeiten",
       "placeholder": "Beschreiben Sie Ihr Bild für sehbeeinträchtigte Betrachtende",
       "cropping": "Bildzuschnitt",
-      "altText": "Alternativtext",
       "crop": "Zuschneiden"
     },
     "headerAvatarInput": {
@@ -3003,7 +2499,6 @@
     "imageInput": {
       "maxSize": "Maximale Größe: {{size}}",
       "uploadText": "Bild hochladen",
-      "uploadTitle": "Bild hochladen",
       "replace": "Bild ersetzen",
       "remove": "Bild entfernen",
       "aspectRatio": "Mindestens 800px breit.",
@@ -3034,15 +2529,11 @@
   },
   "accounts": {
     "login": {
-      "title": "Anmelden",
-      "description": "Melden Sie sich bei Ihrem Konto an",
-      "loginButton": "Anmelden"
+      "description": "Melden Sie sich bei Ihrem Konto an"
     },
     "editEmail": {
       "title": "E-Mail bearbeiten",
       "description": "Geben Sie Ihre neue E-Mail-Adresse ein",
-      "emailLabel": "E-Mail",
-      "emailPlaceholder": "Geben Sie Ihre neue E-Mail-Adresse ein",
       "saveChanges": "E-Mail aktualisieren",
       "sameEmail": "Geben Sie eine andere E-Mail-Adresse als Ihre aktuelle ein.",
       "updateSuccess": "E-Mail erfolgreich aktualisiert",
@@ -3060,8 +2551,7 @@
         "title": "Bestimmte Gruppe"
       },
       "local": {
-        "description": "An die gesamte Community posten",
-        "title": "Community"
+        "description": "An die gesamte Community posten"
       },
       "title": "Wer kann das sehen",
       "public": {
@@ -3071,29 +2561,23 @@
       "direct": {
         "title": "Bestimmte Personen",
         "description": "Nur bestimmte Personen können diesen Beitrag sehen"
-      },
-      "no-groups": "Keine Gruppen verfügbar"
+      }
     },
     "event": {
       "description": "Wer diese Veranstaltung sehen und daran teilnehmen kann.",
       "group": {
-        "description": "Nur Personen in der ausgewählten Gruppe können sehen und teilnehmen",
-        "title": "Bestimmte Gruppe"
+        "description": "Nur Personen in der ausgewählten Gruppe können sehen und teilnehmen"
       },
       "local": {
-        "description": "Alle in der Community können teilnehmen",
-        "title": "Community"
+        "description": "Alle in der Community können teilnehmen"
       },
       "title": "Veranstaltungssichtbarkeit",
       "public": {
-        "description": "Alle im Internet können teilnehmen",
-        "title": "Öffentlich"
+        "description": "Alle im Internet können teilnehmen"
       },
       "direct": {
-        "title": "Bestimmte Personen",
         "description": "Nur von Ihnen eingeladene Personen können diese Veranstaltung sehen"
-      },
-      "no-groups": "Keine Gruppen verfügbar"
+      }
     },
     "accessDenied": "Sie haben keinen Zugriff auf diesen Inhalt"
   },
@@ -3105,10 +2589,8 @@
       "descriptionPlaceholder": "Beschreiben Sie Ihre Veranstaltung",
       "dateAndTimeTitle": "Datum und Uhrzeit",
       "startDate": "Startdatum",
-      "endDate": "Enddatum",
       "addEndDate": "Enddatum und -uhrzeit hinzufügen",
       "endBeforeStart": "Das Enddatum und die Uhrzeit müssen nach dem Startdatum und der Uhrzeit liegen.",
-      "timezone": "Zeitzone",
       "timezonePlaceholder": "Wählen Sie Ihre Zeitzone",
       "location": "Ort",
       "address": "Adresse",
@@ -3118,7 +2600,6 @@
       "externalFormatLabel": "Externer Veranstaltungslink",
       "inPersonFormatLabel": "Vor-Ort-Veranstaltung",
       "people": "Personen",
-      "visibility": "Sichtbarkeit",
       "visibilityDescription": "Wählen Sie, wer Ihre Veranstaltung sehen und daran teilnehmen kann",
       "attendeeListPublic": "Teilnehmenden erlauben, andere Teilnehmende dieser Veranstaltung zu sehen",
       "jamModerators": "Jam-Moderatoren (optional).",
@@ -3165,7 +2646,6 @@
       "upcoming": "Kommende",
       "current": "Aktuell",
       "empty": "Keine {{type}}s",
-      "label": "Veranstaltungszeitraum",
       "view": {
         "switchLabel": "Veranstaltungsansicht",
         "list": "Liste",
@@ -3199,10 +2679,7 @@
     "tabs": {
       "rsvps": "RSVPs",
       "discussion": "Diskussion",
-      "attendees": "Teilnehmende",
       "invited": "Eingeladen",
-      "jamAttendees": "Jam-Teilnehmende",
-      "description": "Beschreibung",
       "label": "Veranstaltungsbereiche",
       "recordings": "Aufzeichnungen"
     },
@@ -3215,15 +2692,12 @@
     },
     "jam": {
       "start": "Jam starten",
-      "attendee": "Teilnehmer",
-      "attendees": "Teilnehmer"
+      "attendee": "Teilnehmer"
     },
     "hostedBy": "Veranstalter {{profileName}}",
     "group": "Gruppenveranstaltung in:",
-    "startDate": "Startdatum",
     "endDate": "Enddatum",
     "location": {
-      "jam": "Jam-Veranstaltung",
       "online": "Online",
       "external": "Externe Veranstaltung",
       "physical": "Physischer Ort"
@@ -3248,13 +2722,9 @@
     "slotsLeft": "{{count}} Plätze verfügbar",
     "noSpotsAvailable": "Keine Plätze verfügbar",
     "rsvp": {
-      "removeAttendee": "Entfernen",
       "restoreAttendee": "Wiederherstellen",
       "historyTitle": "RSVP-Verlauf",
       "canceled": "hat sein RSVP zurückgenommen",
-      "canceledSeries": "Alle Termine der Serie",
-      "removedMessage": "Der Organisator hat Sie von dieser Veranstaltung entfernt.",
-      "ended": "Diese Veranstaltung ist beendet.",
       "full": "Veranstaltung ist ausgebucht",
       "atCapacity": "Diese Veranstaltung ist ausgebucht.",
       "joinWaitlist": "Auf die Warteliste",
@@ -3262,7 +2732,6 @@
       "waitlistConfirmBody": "Wenn ein Platz frei wird, haben Sie {{minutes}} Minuten, um ihn zu beanspruchen.",
       "onWaitlist": "Sie stehen auf der Warteliste.",
       "leaveWaitlist": "Warteliste verlassen",
-      "claimSpot": "Platz beanspruchen",
       "offerOpen": "Ein Platz ist für Sie frei bis {{until}}.",
       "spotsOpen": "Noch Plätze frei",
       "waitlistTitle": "Warteliste",
@@ -3273,9 +2742,6 @@
         "thisDate": "Diesen Termin",
         "thisDateWith": "Diesen Termin ({{date}})",
         "selectedDates": "Ausgewählte Termine",
-        "wholeSeries": "Alle Termine der Serie",
-        "confirm": "Bestätigen",
-        "cancel": "Abbrechen",
         "seriesFull": "Einige Termine dieser Serie sind ausgebucht.",
         "selectAtLeastOne": "Wählen Sie mindestens einen Termin.",
         "waitlistTitle": "Für welche Termine auf die Warteliste?"
@@ -3294,11 +2760,6 @@
     "exportRsvps": "RSVPs exportieren",
     "exportRsvpsError": "Export der RSVPs fehlgeschlagen",
     "repeat": {
-      "badge": "Wiederholung",
-      "label": "Wiederholung",
-      "daily": "Täglich",
-      "weekly": "Wöchentlich",
-      "monthly": "Monatlich",
       "everyNDays": "Alle {{count}} Tage",
       "everyNWeeks": "Alle {{count}} Wochen",
       "everyNMonths": "Alle {{count}} Monate",
@@ -3322,23 +2783,16 @@
       "violationDescription": "Rassistisch, sexistisch oder hasserfüllt"
     },
     "create": {
-      "back": "Zurück",
       "post": {
-        "title": "Beitrag melden",
         "description": "Helfen Sie uns, das Problem zu verstehen. Was stimmt mit diesem Beitrag nicht?",
         "anythingElse": "Möchten Sie noch etwas hinzufügen?",
-        "continue": "Weiter",
         "confirmMessageHeading": "Möchten Sie diesen Beitrag von @{{handle}} wirklich melden?"
       },
       "profile": {
-        "title": "{{handle}} melden",
         "description": "Helfen Sie uns, das Problem zu verstehen. Was stimmt mit diesem Mitglied nicht?",
-        "anythingElse": "Möchten Sie noch etwas hinzufügen?",
-        "continue": "Weiter",
         "confirmMessageHeading": "Möchten Sie @{{handle}} wirklich melden?",
         "confirmMessageDescription": "Ihre Meldung wird an den Community-Moderator gesendet. @{{handle}} wird nicht über Ihre Meldung informiert."
       },
-      "sendReport": "Meldung senden",
       "reportSuccess": "Vielen Dank für Ihre Mitteilung. Ihr Feedback hilft uns, die {{name}}-Community für alle besser zu machen!",
       "reportError": "Meldung konnte nicht gesendet werden. Bitte versuchen Sie es später erneut."
     }
@@ -3347,17 +2801,10 @@
     "lookup": "Passende Standorte werden gesucht"
   },
   "jam": {
-    "join": {
-      "submit": "Jam beitreten"
-    },
-    "start": {
-      "submit": "Jam starten"
-    },
+    "join": {},
+    "start": {},
     "exit": {
-      "title": "Jam verlassen",
-      "description": "Verlassen Sie den Jam. Moderatoren können den Jam für alle beenden.",
-      "leave": "Jam verlassen",
-      "endForAll": "Jam beenden"
+      "description": "Verlassen Sie den Jam. Moderatoren können den Jam für alle beenden."
     },
     "close": {
       "success": "Der Jam ist jetzt geschlossen."
@@ -3373,9 +2820,7 @@
     "directMessage": {
       "text": "{{profileName}} hat Ihnen eine Direktnachricht gesendet"
     },
-    "follow": {
-      "text": "{{profileName}} folgt Ihnen jetzt"
-    },
+    "follow": {},
     "jamModerator": {
       "text": "{{profileName}} hat Sie zur Moderation einer Veranstaltung eingeladen"
     },
@@ -3395,22 +2840,10 @@
     "pollVote": {
       "text": "{{profileName}} hat an Ihrer Umfrage teilgenommen"
     },
-    "pollEnded": {
-      "text": "Eine Umfrage ist beendet. Sehen Sie sich die Ergebnisse an."
-    },
-    "rsvp": {
-      "text": "{{profileName}} hat sich für Ihre Veranstaltung angemeldet"
-    },
-    "rsvpCanceled": {
-      "text": "{{profileName}} hat sein RSVP für {{eventName}} zurückgenommen",
-      "series": "Alle Termine der Serie",
-      "eventFallback": "Ihre Veranstaltung"
-    },
-    "waitlistOffer": {
-      "text": "Ein Platz ist frei bei {{eventName}}",
-      "eventFallback": "einer Veranstaltung",
-      "expires": "Beanspruchen Sie ihn vor {{until}}."
-    },
+    "pollEnded": {},
+    "rsvp": {},
+    "rsvpCanceled": {},
+    "waitlistOffer": {},
     "reaction": {
       "text": "{{profileName}} hat reagiert"
     },
@@ -3467,29 +2900,22 @@
     },
     "groupAdded": {
       "title": "Sie wurden zur Gruppe {{groupName}} in {{communityName}} hinzugefügt",
-      "subject": "Sie wurden zur Gruppe {{groupName}} in {{communityName}} hinzugefügt",
       "body": "{{profileName}} hat Sie zur Gruppe {{groupName}} in der {{communityName}}-Community hinzugefügt.\n\nMehr über {{groupName}}:",
       "cta": "Klicken Sie hier, um die Gruppe zu besuchen und Ihre Mitgliedschaft zu verwalten"
     },
     "groupMemberJoined": {
       "title": "{{profileName}} ist {{groupName}} in {{communityName}} beigetreten",
-      "subject": "{{profileName}} ist {{groupName}} in {{communityName}} beigetreten",
       "body": "{{profileName}} ist der Gruppe {{groupName}} beigetreten.",
-      "profileCta": "Profil anzeigen",
-      "cta": "Klicken Sie hier, um die Gruppe zu besuchen und Ihre Mitgliedschaft zu verwalten"
+      "profileCta": "Profil anzeigen"
     },
     "groupMemberLeft": {
       "title": "{{profileName}} hat {{groupName}} in {{communityName}} verlassen",
-      "subject": "{{profileName}} hat {{groupName}} in {{communityName}} verlassen",
-      "body": "{{profileName}} hat die Gruppe {{groupName}} verlassen.",
-      "profileCta": "Profil anzeigen",
-      "cta": "Klicken Sie hier, um die Gruppe zu besuchen und Ihre Mitgliedschaft zu verwalten"
+      "body": "{{profileName}} hat die Gruppe {{groupName}} verlassen."
     },
     "jamModerator": {
       "subject": "Sie wurden als Moderator zu {{jamName}} eingeladen!",
       "body": "{{profileName}} hat Sie eingeladen, einen Jam zu moderieren!",
-      "scheduledFor": "Der Jam ist geplant für {{when}}",
-      "cta": "Veranstaltung ansehen"
+      "scheduledFor": "Der Jam ist geplant für {{when}}"
     },
     "jamSpeaker": {
       "subject": "{{profileName}} hat Sie als Sprecher zu einem Jam eingeladen!",
@@ -3497,45 +2923,33 @@
       "cta": "Jam beitreten"
     },
     "jamStarted": {
-      "subject": "{{profileName}} hat einen Jam gestartet!",
-      "body": "{{profileName}} hat einen Jam gestartet!",
-      "cta": "Jam beitreten"
+      "body": "{{profileName}} hat einen Jam gestartet!"
     },
     "newGroupPost": {
       "title": "{{profileName}} hat einen neuen Beitrag in {{groupName}} in {{communityName}} erstellt",
-      "subject": "{{profileName}} hat einen neuen Beitrag in {{groupName}} in {{communityName}} erstellt",
-      "eventTitle": "{{profileName}} hat eine neue Veranstaltung zu {{groupName}} in {{communityName}} hinzugefügt",
       "eventSubject": "{{profileName}} hat eine neue Veranstaltung zu {{groupName}} in {{communityName}} hinzugefügt",
-      "repostTitle": "{{profileName}} hat einen Beitrag in {{groupName}} in {{communityName}} geteilt",
       "repostSubject": "{{profileName}} hat einen Beitrag in {{groupName}} in {{communityName}} geteilt",
       "body": "{{profileName}} hat einen neuen Beitrag in der Gruppe {{groupName}} erstellt.",
       "repostLabel": "Geteilt",
       "originalAuthor": "Von {{profileName}}",
-      "profileCta": "Profil anzeigen",
-      "postCta": "Beitrag anzeigen",
-      "cta": "Klicken Sie hier, um die Gruppe zu besuchen und Ihre Mitgliedschaft zu verwalten"
+      "postCta": "Beitrag anzeigen"
     },
     "newProfile": {
       "title": "Neues Profil auf {{communityName}} erstellt",
-      "subject": "Neues Profil auf {{communityName}} erstellt",
       "body": "{{profileName}} wurde in {{communityName}} aufgenommen!\nHeißen Sie das neue Mitglied willkommen.",
       "cta": "Klicken Sie hier, um das Profil anzuzeigen."
     },
     "pollVote": {
       "title": "Eine neue Abstimmung wurde in {{communityName}} aufgezeichnet",
-      "subject": "Eine neue Abstimmung wurde in {{communityName}} aufgezeichnet",
-      "body": "{{profileName}} hat an Ihrer Umfrage teilgenommen:",
-      "cta": "Klicken Sie hier, um die Umfrage zu besuchen und die Ergebnisse zu sehen."
+      "body": "{{profileName}} hat an Ihrer Umfrage teilgenommen:"
     },
     "pollEnded": {
       "title": "Eine Umfrage ist in {{communityName}} beendet",
-      "subject": "Eine Umfrage ist in {{communityName}} beendet",
       "body": "Eine Umfrage ist beendet. Sehen Sie sich die Ergebnisse an.",
       "cta": "Klicken Sie hier, um die Umfrage zu besuchen und die Ergebnisse zu sehen."
     },
     "rsvp": {
       "title": "Eine neue RSVP-Anmeldung in {{communityName}}",
-      "subject": "Eine neue RSVP-Anmeldung in {{communityName}}",
       "body": "{{profileName}} hat sich für Ihre Veranstaltung angemeldet",
       "cta": "Klicken Sie hier, um die Veranstaltung zu besuchen und die Ergebnisse zu sehen."
     },
@@ -3543,8 +2957,7 @@
       "subject": "{{profileName}} hat sein RSVP zurückgenommen",
       "body": "{{profileName}} hat sein RSVP für {{eventName}} zurückgenommen",
       "series": "Alle Termine der Serie",
-      "eventFallback": "Ihre Veranstaltung",
-      "cta": "Veranstaltung ansehen"
+      "eventFallback": "Ihre Veranstaltung"
     },
     "waitlistOffer": {
       "subject": "Ein Platz ist frei bei {{eventName}}",
@@ -3554,20 +2967,14 @@
       "cta": "Platz beanspruchen"
     },
     "reaction": {
-      "subject": "{{profileName}} hat auf Ihren Beitrag reagiert",
       "body": "{{profileName}} hat auf Ihren Beitrag reagiert",
       "cta": "Jetzt ansehen!"
     },
     "reply": {
-      "subject": "{{profileName}} hat auf Ihren Beitrag geantwortet",
-      "subtitle": "Die Antwort:",
-      "body": "{{profileName}} hat auf Ihren Beitrag geantwortet",
-      "cta": "Jetzt ansehen!"
+      "body": "{{profileName}} hat auf Ihren Beitrag geantwortet"
     },
     "repost": {
-      "subject": "{{profileName}} hat Ihren Beitrag geteilt",
-      "body": "{{profileName}} hat Ihren Beitrag geteilt",
-      "cta": "Jetzt ansehen!"
+      "body": "{{profileName}} hat Ihren Beitrag geteilt"
     },
     "welcome": {
       "content": {
@@ -3582,17 +2989,13 @@
       "header": "Willkommen bei"
     },
     "jams": {
-      "moderator": "Jam-Moderator",
       "speaker": {
         "description": "{{profileName}} hat Sie zum Sprecher in einem Jam ernannt"
-      },
-      "started": "Jam gestartet"
+      }
     },
     "reset": {
       "password": {
-        "title": "Passwort zurücksetzen",
-        "description": "Wir haben eine Anfrage erhalten, Ihr Passwort für Ihr {{communityName}}-Konto zurückzusetzen. Wenn Sie diese Anfrage nicht gestellt haben, können Sie diese E-Mail ignorieren.",
-        "cta": "Passwort zurücksetzen"
+        "description": "Wir haben eine Anfrage erhalten, Ihr Passwort für Ihr {{communityName}}-Konto zurückzusetzen. Wenn Sie diese Anfrage nicht gestellt haben, können Sie diese E-Mail ignorieren."
       }
     },
     "verify": {
@@ -3600,7 +3003,6 @@
       "cta": {
         "description": "E-Mail-Adresse verifizieren"
       },
-      "title": "E-Mail-Adresse verifizieren",
       "description": "Um Ihre Registrierung abzuschließen und Ihr Konto nutzen zu können, verifizieren Sie bitte Ihre E-Mail-Adresse."
     },
     "test": {
@@ -3631,10 +3033,8 @@
     },
     "image": {
       "addAltText": "Alternativtext zu Ihrem Bild hinzufügen",
-      "addAltTextLabel": "Alternativtext",
       "addAltTextDescription": "invalid string do not use",
       "altTextPlaceholder": "Fügen Sie hier Ihren Alternativtext hinzu",
-      "altTextLabel": "Alternativtext",
       "altTextDescription": "Eine gute Beschreibung Ihres Bildes kann sehbeeinträchtigten Menschen helfen, mehr über Ihren Beitrag zu erfahren."
     }
   },
@@ -3642,13 +3042,8 @@
     "enterSearchQuery": "Bitte geben Sie oben einen Suchbegriff ein",
     "selectTab": "Wählen Sie einen Tab, um relevante Ergebnisse zu sehen",
     "SearchButton": "Suchen",
-    "title": "Entdecken",
     "tabs": {
-      "members": "Mitglieder",
-      "posts": "Beiträge",
       "jams": "Jams",
-      "events": "Veranstaltungen",
-      "groups": "Gruppen",
       "label": "Ergebnistypen"
     },
     "noProfilesFound": "Keine Profile gefunden",
@@ -3669,10 +3064,7 @@
     }
   },
   "articles": {
-    "tabs": {
-      "description": "Artikel"
-    },
-    "new": "Neuer Artikel",
+    "tabs": {},
     "edit": "Artikel bearbeiten",
     "notFound": "Artikel nicht gefunden",
     "form": {
@@ -3692,7 +3084,6 @@
     }
   },
   "resources": {
-    "new": "Neue Ressource",
     "edit": "Ressource bearbeiten",
     "notFound": "Ressource nicht gefunden",
     "kinds": {
@@ -3715,9 +3106,6 @@
       "hierarchy": "In der Bibliothek ablegen",
       "uncategorized": "Ohne Kategorie",
       "addLevel": "Ordner hinzufügen",
-      "addLevelAction": "Hinzufügen",
-      "clearPath": "Zurücksetzen",
-      "visibility": "Wer kann das sehen (Erforderlich)",
       "visibilityNotChangeable": "Sobald Sie Ihre Ressource veröffentlicht haben, können Sie die Sichtbarkeit nicht mehr ändern",
       "groupOnly": "Sie können Ressourcen nur mit einer Gruppe teilen."
     },
@@ -3737,17 +3125,13 @@
       "viewCards": "Karten",
       "resourceCount": "{{count}} Ressourcen angezeigt",
       "noResults": "Keine Ressourcen für die aktuellen Filter.",
-      "saved": "Gespeichert",
       "showHiddenTags": "+ {{count}}",
-      "hideTags": "Ausblenden",
-      "saved": "Gespeichert"
+      "hideTags": "Ausblenden"
     },
     "actions": {
       "watch": "Ansehen",
-      "download": "Herunterladen",
       "listen": "Hören",
       "view": "Bilder ansehen",
-      "save": "Speichern",
       "saved": "Gespeichert",
       "openLink": "Link öffnen"
     },
@@ -3767,12 +3151,8 @@
       "inGroup": "in {{groupName}}"
     }
   },
-  "about": {
-    "welcomeTo": "Willkommen bei {{name}}"
-  },
-  "codeOfConduct": {
-    "title": "Verhaltenskodex"
-  },
+  "about": {},
+  "codeOfConduct": {},
   "infos": {
     "emailNotVerified": {
       "verify": "Bestätigungslink senden",
@@ -3781,9 +3161,6 @@
     }
   },
   "plugins": {
-    "pageTitle": "Plugins",
-    "noPlugins": "Keine Plugins geladen.",
-    "error": "Plugins konnten nicht geladen werden",
     "errorBoundary": "Plugin-Fehler: Komponente konnte nicht gerendert werden.",
     "configTitle": "Plugin-Konfiguration (sensible Werte sind maskiert)"
   },
@@ -3794,20 +3171,16 @@
     "defaultIntro": "Willkommen in dieser Community, betrieben mit AllPeep.",
     "firstPost": "Ersten Beitrag verfassen",
     "heading": "Willkommen bei {{name}}",
-    "previewLabel": "Willkommensseite",
     "usefulLinks": "Nützliche Links",
     "validationEmailFailed": "Validierungs-E-Mail konnte nicht gesendet werden",
-    "validationEmailSent": "Validierungs-E-Mail gesendet",
-    "verifyEmail": "E-Mail-Adresse verifizieren"
+    "validationEmailSent": "Validierungs-E-Mail gesendet"
   },
   "members": {
-    "empty": "Keine Profile gefunden",
     "fetchError": "Konten konnten nicht abgerufen werden. Bitte versuchen Sie es später erneut.",
     "searchPlaceholder": "Mitglied nach Name oder Benutzernamen suchen"
   },
   "profiles": {
-    "handleExists": "Dieser Benutzername existiert bereits, bitte wählen Sie einen anderen.",
-    "notFound": "Profil nicht gefunden"
+    "handleExists": "Dieser Benutzername existiert bereits, bitte wählen Sie einen anderen."
   },
   "error": {
     "eventAtCapacity": "Diese Veranstaltung ist voll.",
@@ -3860,16 +3233,12 @@
   },
   "capabilities": {
     "roles": {
-      "capability": "Berechtigung",
       "allowAll": "Alle",
       "saveSuccess": "Rollenberechtigungen aktualisiert",
       "noUpdateCapability": "Ohne core-roles-update können Sie Rollenberechtigungen nur ansehen, aber nicht bearbeiten.",
       "newRole": "Neue Rolle",
       "create": "Erstellen",
-      "creating": "Wird erstellt…",
       "name": "Name",
-      "description": "Beschreibung",
-      "key": "Schlüssel",
       "createSuccess": "Rolle erstellt",
       "defaultRoles": "Standardrollen",
       "customRoles": "Benutzerdefinierte Rollen",
@@ -3894,7 +3263,6 @@
         "description": "Wer Meldungen erstellen und lesen kann, abhängig von der Beziehung zur jeweiligen Meldung."
       },
       "accessToken": {
-        "title": "Zugriffstoken",
         "description": "Wer ein Dienstzugriffstoken verwalten kann, abhängig von der Beziehung zum Besitzer des Tokens."
       }
     }
