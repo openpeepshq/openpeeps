@@ -37,6 +37,10 @@ overrides:
   # ranges (^4.7.9 / ^4.7.7) already allow 4.7.10; the lockfile is stale.
   # Patch-level, dev-only.
   handlebars: "4.7.10"
+  # jsonpath@1.3.0 pulls underscore@1.13.6 which is HIGH-severity vulnerable
+  # (GHSA-qpx9-hpmf-5gmw — unlimited recursion in _.flatten/_.isEqual). Force
+  # 1.13.8 tree-wide to clear the remaining advisory from this jsonpath bump.
+  underscore: "1.13.8"
 
 allowBuilds:
   "@evilmartians/lefthook": true

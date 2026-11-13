@@ -21,6 +21,19 @@ import { createSignedProfileAccessToken } from '@openpeepshq/core/accessTokens';
 
 const log = logger('app:sso');
 
+/**
+ * Safely extract a value via jsonpath — catches "Unsafe key" errors
+ * that jsonpath 1.3.0 throws for __proto__/prototype/constructor keys.
+ * Returns undefined on error, matching the existing missing-path behavior.
+ */
+const safeJpValue = (obj: unknown, path: string): unknown => {
+  try {
+    return jp.value(obj, path);
+  } catch {
+    return undefined;
+  }
+};
+
 const extractProfileDataFromProfile = async (
   config: CoreConfig['sso']['generic'][number],
   params: Record<string, string>,
@@ -29,17 +42,17 @@ const extractProfileDataFromProfile = async (
 ): Promise<ProfileData> => {
   const handleSeed =
     (config.userProfilePaths.handle &&
-      jp.value(profile, interpolate(config.userProfilePaths.handle, params))) ??
+      safeJpValue(profile, interpolate(config.userProfilePaths.handle, params))) ??
     email.split('@')[0];
   const handle = await findNewFreeHandle(handleSeed);
 
   const avatar =
     config.userProfilePaths.avatar &&
-    jp.value(profile, interpolate(config.userProfilePaths.avatar, params));
+    safeJpValue(profile, interpolate(config.userProfilePaths.avatar, params));
 
   const displayName =
     config.userProfilePaths.displayName &&
-    jp.value(profile, interpolate(config.userProfilePaths.displayName, params));
+    safeJpValue(profile, interpolate(config.userProfilePaths.displayName, params));
 
   return {
     handle,
@@ -82,7 +95,7 @@ export const handle = async (
 
       const email =
         genericSSOConfig.userProfilePaths.email &&
-        jp.value(
+        safeJpValue(
           profileJson,
           interpolate(genericSSOConfig.userProfilePaths.email, params),
         );

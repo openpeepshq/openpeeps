@@ -104,6 +104,12 @@ export const getUniqueBy = <T, V = string>(
   return arr.filter((o) => !set.has(predicate(o)) && set.add(predicate(o)));
 };
 
+const UNSAFE_KEYS = new Set([
+  '__proto__',
+  'prototype',
+  'constructor',
+]);
+
 export const interpolate = (
   text: string | undefined,
   params: Record<string, string> = {},
@@ -113,6 +119,20 @@ export const interpolate = (
 
     const names = Object.keys(params);
     const vals = Object.values(params);
+
+    // Sanitize: reject param values that would produce unsafe jsonpath keys.
+    // jsonpath 1.3.0 throws "Unsafe key" for __proto__/prototype/constructor,
+    // which would cause an unhandled 500 in the SSO handler.
+    for (const val of vals) {
+      if (UNSAFE_KEYS.has(val)) {
+        throw new Error(
+          `Interpolated value "${val}" matches an unsafe key (` +
+            [...UNSAFE_KEYS].join(', ') +
+            `) — this would trigger a jsonpath parse error`,
+        );
+      }
+    }
+
     return new Function(...names, `return \`${text}\`;`)(...vals);
   } catch {
     throw new Error(
