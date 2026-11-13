@@ -6,6 +6,8 @@ import { ensureLocalProfile, ensureScope } from '#lib/auth';
 
 export const Output = publicPostSchema.array().array();
 
+// Intentionally uncapped: same contract as the active conversation list
+// (GET /conversations). Returns all left conversations for the profile.
 export const apiEndpoint = endpoint({ Output }).handle(
   async (_, event: RequestEvent) => {
     await ensureLocalProfile(event);
