@@ -15,17 +15,12 @@ overrides:
   # bump path exists.
   faye-websocket>websocket-driver: "0.7.5"
   "@types/react": "19.2.14"
-  "@types/react-dom": "19.2.3"
-  "@tanstack/react-query": "5.90.16"
   react: "19.2.6"
   react-dom: "19.2.6"
   # icon-set-creator pins sharp@0.30.7; its prebuild often times out in CI and
   # then node-gyp fails (no make). Force the same sharp used by core/server.
   # Bump to 0.35.5 clears the libvips/libheif/librsvg advisories.
   sharp: "0.35.5"
-  # mermaid pulls dompurify ^3.3.3 which resolved to vulnerable 3.4.15
-  # (GHSA-cg2g-xh64-v4q7 + others). Force the patched 3.4.17 tree-wide.
-  dompurify: "3.4.17"
   # express 5.x allows proxy-addr ^2.0.7; 2.0.7 has an IP-spoofing
   # bug via IPv4-mapped IPv6 trust subnet (GHSA-jqcg). Force the patched 2.0.8.
   proxy-addr: "2.0.8"
