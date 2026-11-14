@@ -5,6 +5,8 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **skill**: drop the milestone stats table
+- **skill**: split milestone burndown into four pipeline stages
 - **skill**: add forgejo-first-issue skill for label-based issue picking
 - **mcp**: extend community MCP to full member interactions
 - **conversations**: enhance conversation creation with media attachments
@@ -14,6 +16,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **deps**: force websocket-driver 0.7.5 to clear 2 advisories (1 critical, 1 moderate)
 - **deps**: remove unused validator from platform/client to clear 2 advisories
 - **deps**: bump sharp to 0.35.5 in core + server
 - **deps**: force proxy-addr 2.0.8 in pnpm overrides
