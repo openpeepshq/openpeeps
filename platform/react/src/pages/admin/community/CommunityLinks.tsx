@@ -29,7 +29,9 @@ export function AdminConfigurationCommunityLinks() {
   } | null>(null);
 
   useSetPageHeader(
-    t('configuration.community.links.title', { defaultValue: 'Policy Links' }),
+    t('configuration.community.links.title', {
+      defaultValue: 'Policy & Support Links',
+    }),
   );
 
   const form = useForm<CommunityConfig>({
@@ -123,7 +125,7 @@ export function AdminConfigurationCommunityLinks() {
                 <FormDescription>
                   {t('configuration.community.bugReportUrlDescription', {
                     defaultValue:
-                      'Link to an external bug report form. When set, a "Report a bug" link appears in the side menu.',
+                      'Link to an external bug report form. When set, a "Report a bug" link appears at the bottom of the side menu.',
                   })}
                 </FormDescription>
                 <FormMessage />
