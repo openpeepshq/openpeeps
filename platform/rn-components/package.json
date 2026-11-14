@@ -195,7 +195,6 @@
     "react-test-renderer": "19.2.3",
     "release-it": "^17.10.0",
     "ts-jest": "^29.3.4",
-    "turbo": "^1.10.7",
     "typescript": "^6.0.2",
     "@eslint/js": "^9.17.0"
   },
