@@ -94,6 +94,10 @@ overrides:
   # declared range. (fast-jwt@6.3.6 requires node >=20, which matches CI's
   # node:24-alpine base image.)
   fast-jwt: "6.3.6"
+  # jsonpath@1.3.0 pulls underscore@1.13.6 which is HIGH-severity vulnerable
+  # (GHSA-qpx9-hpmf-5gmw — unlimited recursion in _.flatten/_.isEqual). Force
+  # 1.13.8 tree-wide to clear the remaining advisory from this jsonpath bump.
+  underscore: "1.13.8"
 
 allowBuilds:
   "@evilmartians/lefthook": true
