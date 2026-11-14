@@ -43,6 +43,15 @@ overrides:
   # ranges (^4.7.9 / ^4.7.7) already allow 4.7.10; the lockfile is stale.
   # Patch-level, dev-only.
   handlebars: "4.7.10"
+  # node-forge 1.3.1 (transitive via firebase-admin ^1.3.1) carries the
+  # node-forge advisory backlog — 28 advisories (14 high / 8 moderate / 6 low
+  # per pnpm audit, as of 2026-11-14) — all cleared by 1.4.3 (latest 1.x,
+  # published 2026-11-04). GHSA IDs with 1.4.3 as first-patched:
+  # GHSA-6889-vf6x-f3g5, GHSA-w4xr-hqv8-ch44, GHSA-6cv4-p8m7-4r25,
+  # GHSA-j8rw-jp99-435v. 1.4.3 is inside ^1.3.1 — in-range bump.
+  # Note: pinned to exact 1.4.3; node-forge has a sustained advisory stream,
+  # so each new security release requires a follow-up override bump.
+  node-forge: "1.4.3"
 
 allowBuilds:
   "@evilmartians/lefthook": true
