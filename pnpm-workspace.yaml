@@ -73,6 +73,11 @@ overrides:
   # 6 moderate, plus 1 moderate on the @protobufjs/utf8 sub-package) all patched
   # by <=7.6.5; 7.6.6 is the latest 7.x and keeps the same @protobufjs/* ranges.
   protobufjs: "7.6.6"
+  # tar 6.2.1 (via node-pre-gyp > bcrypt) carries 12 advisories
+  # (1 critical decompression DoS GHSA-23hp, 8 high path-traversal/file-creation,
+  # 3 moderate PAX size-override/numeric path/NUL-byte DoS). Force 7.5.22 tree-wide;
+  # tar is install-time tooling only, not production runtime.
+  tar: "7.5.22"
 
 allowBuilds:
   "@evilmartians/lefthook": true
