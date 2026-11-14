@@ -43,6 +43,10 @@ overrides:
   # ranges (^4.7.9 / ^4.7.7) already allow 4.7.10; the lockfile is stale.
   # Patch-level, dev-only.
   handlebars: "4.7.10"
+  # zod@4.4.3 carries GHSA-mrhx-c7xc-m3w5 (high, CVSS 7.5): memory exhaustion
+  # while validating oversized constrained collections. Force 4.6.7 — first
+  # patched version is 4.6.6; using 4.6.7 for an extra safety margin.
+  zod: "4.6.7"
 
 allowBuilds:
   "@evilmartians/lefthook": true
