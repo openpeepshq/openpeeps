@@ -156,6 +156,10 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
   const jamAttendeesQuery = openpeepsApi.useJamAttendance(post.id);
   const jamStateQuery = openpeepsApi.useJamState(post.id, occurrence);
   const jamState = event.jam ? jamStateQuery.data : undefined;
+  // Signed-in attendees (not just the host/moderator) can join a live jam,
+  // mirroring CardEvent. jamState is only populated when the event has a jam.
+  const canJoinLiveJam =
+    !!currentProfile && livekitEnabled && !!jamState?.active;
   const recordingsQuery = openpeepsApi.usePostRecordings(
     post.id,
     !!event.jam && canViewRecordings
@@ -408,6 +412,21 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
             })}
           </ThemedText>
         )
+      ) : null}
+      {!myEvent && !iAmModerator && canJoinLiveJam ? (
+        <Button
+          className="mt-2 w-full"
+          onPress={() =>
+            navigation.navigate('JamSession', {
+              jamId: post.id,
+              occurrence: occurrence,
+            })
+          }
+        >
+          <ThemedText numberOfLines={1}>
+            {t('jam.join.submit', { defaultValue: 'Join Jam' })}
+          </ThemedText>
+        </Button>
       ) : null}
       <Tabs
         onValueChange={setTabValue}
