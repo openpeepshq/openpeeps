@@ -17,6 +17,7 @@ overrides:
   undici: 7.30.2
   handlebars: 4.7.10
   '@types/request>form-data': 2.5.6
+  zod: 4.6.7
 
 importers:
 
@@ -86,7 +87,7 @@ importers:
     dependencies:
       '@hookform/resolvers':
         specifier: ^5.4.2
-        version: 5.7.1(@sinclair/typebox@0.27.8)(@standard-schema/spec@1.1.0)(ajv@8.20.0)(joi@17.13.3)(react-hook-form@7.73.1(react@19.2.6))(zod@4.4.3)
+        version: 5.7.1(@sinclair/typebox@0.27.8)(@standard-schema/spec@1.1.0)(ajv@8.20.0)(joi@17.13.3)(react-hook-form@7.73.1(react@19.2.6))(zod@4.6.7)
       '@openpeepshq/common':
         specifier: workspace:^
         version: link:../../platform/common
@@ -375,7 +376,7 @@ importers:
         version: 0.27.19(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@hookform/resolvers':
         specifier: ^5.4.2
-        version: 5.7.1(@sinclair/typebox@0.27.8)(@standard-schema/spec@1.1.0)(ajv@8.20.0)(joi@17.13.3)(react-hook-form@7.73.1(react@19.2.6))(zod@4.4.3)
+        version: 5.7.1(@sinclair/typebox@0.27.8)(@standard-schema/spec@1.1.0)(ajv@8.20.0)(joi@17.13.3)(react-hook-form@7.73.1(react@19.2.6))(zod@4.6.7)
       '@radix-ui/react-alert-dialog':
         specifier: ^1.1.23
         version: 1.1.23(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -615,7 +616,7 @@ importers:
     dependencies:
       '@asteasolutions/zod-to-openapi':
         specifier: ^8.5.0
-        version: 8.5.0(zod@4.4.3)
+        version: 8.5.0(zod@4.6.7)
       '@date-fns/tz':
         specifier: ^1.5.0
         version: 1.5.0
@@ -641,8 +642,8 @@ importers:
         specifier: ^13.15.35
         version: 13.15.35
       zod:
-        specifier: ^4.4.3
-        version: 4.4.3
+        specifier: 4.6.7
+        version: 4.6.7
     devDependencies:
       '@eslint/js':
         specifier: ^9.19.0
@@ -700,7 +701,7 @@ importers:
     dependencies:
       '@asteasolutions/zod-to-openapi':
         specifier: ^8.5.0
-        version: 8.5.0(zod@4.4.3)
+        version: 8.5.0(zod@4.6.7)
       '@keyv/redis':
         specifier: ^5.1.4
         version: 5.1.4(keyv@5.6.0)
@@ -978,7 +979,7 @@ importers:
     dependencies:
       '@hookform/resolvers':
         specifier: ^5.4.2
-        version: 5.7.1(@sinclair/typebox@0.27.8)(@standard-schema/spec@1.1.0)(ajv@8.20.0)(joi@17.13.3)(react-hook-form@7.73.1(react@19.2.6))(zod@4.4.3)
+        version: 5.7.1(@sinclair/typebox@0.27.8)(@standard-schema/spec@1.1.0)(ajv@8.20.0)(joi@17.13.3)(react-hook-form@7.73.1(react@19.2.6))(zod@4.6.7)
       '@livekit/components-react':
         specifier: ^2.9.21
         version: 2.9.21(livekit-client@2.19.2(@types/dom-mediacapture-record@1.0.22))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(tslib@2.8.1)
@@ -1114,7 +1115,7 @@ importers:
         version: 5.2.10(8fda1e512a196afda9948e8cbe9b54f2)
       '@hookform/resolvers':
         specifier: ^5.4.2
-        version: 5.7.1(@sinclair/typebox@0.27.8)(@standard-schema/spec@1.1.0)(ajv@8.20.0)(joi@17.13.3)(react-hook-form@7.73.1(react@19.2.6))(zod@4.4.3)
+        version: 5.7.1(@sinclair/typebox@0.27.8)(@standard-schema/spec@1.1.0)(ajv@8.20.0)(joi@17.13.3)(react-hook-form@7.73.1(react@19.2.6))(zod@4.6.7)
       '@livekit/react-native':
         specifier: 2.11.0
         version: 2.11.0(@livekit/react-native-webrtc@144.1.0(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6)))(livekit-client@2.19.2(@types/dom-mediacapture-record@1.0.22))(react-dom@19.2.6(react@19.2.6))(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6))(react@19.2.6)(tslib@2.8.1)
@@ -1496,7 +1497,7 @@ importers:
     dependencies:
       '@asteasolutions/zod-to-openapi':
         specifier: ^8.5.0
-        version: 8.5.0(zod@4.4.3)
+        version: 8.5.0(zod@4.6.7)
       '@fedify/express':
         specifier: ^2.3.6
         version: 2.4.5(@fedify/fedify@2.4.5)(express@5.2.1)
@@ -1665,7 +1666,7 @@ importers:
         version: 5.2.8
       '@hookform/resolvers':
         specifier: ^5.4.2
-        version: 5.7.1(@sinclair/typebox@0.27.8)(@standard-schema/spec@1.1.0)(ajv@8.20.0)(joi@17.13.3)(react-hook-form@7.73.1(react@19.2.6))(zod@4.4.3)
+        version: 5.7.1(@sinclair/typebox@0.27.8)(@standard-schema/spec@1.1.0)(ajv@8.20.0)(joi@17.13.3)(react-hook-form@7.73.1(react@19.2.6))(zod@4.6.7)
       '@openpeepshq/client':
         specifier: workspace:^
         version: link:../client
@@ -1845,7 +1846,7 @@ packages:
   '@asteasolutions/zod-to-openapi@8.5.0':
     resolution: {integrity: sha512-SABbKiObg5dLRiTFnqiW1WWwGcg1BJfmHtT2asIBnBHg6Smy/Ms2KHc650+JI4Hw7lSkdiNebEGXpwoxfben8Q==}
     peerDependencies:
-      zod: ^4.0.0
+      zod: 4.6.7
 
   '@babel/code-frame@7.29.7':
     resolution: {integrity: sha512-Aup7aUOfpbAUg2ROOJN6Iw5f9DMBlzu0mIkm/malLQFN/YQgO48wCj0Kxa3sEHJvPVFg7siR+qRInwXd2qhQKw==}
@@ -4452,7 +4453,7 @@ packages:
       valibot: '>=0.31.0 || ^1.0.0-beta.4 || ^1.0.0-rc'
       vest: '>=3.0.0'
       yup: ^1.0.0
-      zod: ^3.25.0 || ^4.0.0
+      zod: 4.6.7
     peerDependenciesMeta:
       '@sinclair/typebox':
         optional: true
@@ -13123,6 +13124,10 @@ packages:
   postcss-value-parser@4.2.0:
     resolution: {integrity: sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==}
 
+  postcss@8.5.26:
+    resolution: {integrity: sha512-u82N74LFzG8ca+dD8puPnplTXoGH4fTPpVGuIbt36G3qvNlkvfD0lEAZSxaly3KX8TS/L1A1gsCEmvKmBcVbkQ==}
+    engines: {node: ^10 || ^12 || >=14}
+
   postcss@8.5.32:
     resolution: {integrity: sha512-LJlKCCAUFKOuZxipUdYw1NzIITEsPcgyOG9LkvRJvuKj/bRzbuRY0ARXvL0pWGpsZvn8jku+LMep2eU0seHp8g==}
     engines: {node: ^10 || ^12 || >=14}
@@ -14230,6 +14235,10 @@ packages:
 
   sonic-boom@4.2.1:
     resolution: {integrity: sha512-w6AxtubXa2wTXAUsZMMWERrsIRAdrK0Sc+FUytWvYAhBJLyuI4llrMIC1DtlNSdI99EI86KZum2MMq3EAZlF9Q==}
+
+  source-map-js@1.2.1:
+    resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
+    engines: {node: '>=0.10.0'}
 
   source-map-js@1.2.2:
     resolution: {integrity: sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw==}
@@ -15705,16 +15714,16 @@ packages:
     resolution: {integrity: sha512-Q6/nZLe6jxuU80qb/4uJ4t5v2VEZ44lzQjPDhYJNztRQ4wyWc6VF3D3Kb/fAuPetZQnhS3hnajCf9CsWesghLQ==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      zod: ^3.25.0 || ^4.0.0
+      zod: 4.6.7
 
   zod-validation-error@5.0.0:
     resolution: {integrity: sha512-hmk+pkyKq7Q71PiWVSDUc3VfpzpvcRHZ3QPw9yEMVvmtCekaMeOHnbr3WbxfrgEnQTv6haGP4cmv0Ojmihzsxw==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
-      zod: ^3.25.0 || ^4.0.0
+      zod: 4.6.7
 
-  zod@4.4.3:
-    resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
+  zod@4.6.7:
+    resolution: {integrity: sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==}
 
   zustand@4.5.7:
     resolution: {integrity: sha512-CHOUy7mu3lbD6o6LJLfllpjkzhHXSBlX8B9+qPddUsIfeF5S/UZ5q0kmCsnRqT1UHFQZchNFDDzMbQsuesHWlw==}
@@ -15781,10 +15790,10 @@ snapshots:
       '@csstools/css-tokenizer': 3.0.3
       lru-cache: 10.4.3
 
-  '@asteasolutions/zod-to-openapi@8.5.0(zod@4.4.3)':
+  '@asteasolutions/zod-to-openapi@8.5.0(zod@4.6.7)':
     dependencies:
       openapi3-ts: 4.2.1
-      zod: 4.4.3
+      zod: 4.6.7
 
   '@babel/code-frame@7.29.7':
     dependencies:
@@ -18430,7 +18439,7 @@ snapshots:
 
   '@gorhom/portal@1.0.14(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6))(react@19.2.6)':
     dependencies:
-      nanoid: 3.3.20
+      nanoid: 3.3.18
       react: 19.2.6
       react-native: 0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6)
 
@@ -18462,7 +18471,7 @@ snapshots:
     dependencies:
       hono: 4.13.1
 
-  '@hookform/resolvers@5.7.1(@sinclair/typebox@0.27.8)(@standard-schema/spec@1.1.0)(ajv@8.20.0)(joi@17.13.3)(react-hook-form@7.73.1(react@19.2.6))(zod@4.4.3)':
+  '@hookform/resolvers@5.7.1(@sinclair/typebox@0.27.8)(@standard-schema/spec@1.1.0)(ajv@8.20.0)(joi@17.13.3)(react-hook-form@7.73.1(react@19.2.6))(zod@4.6.7)':
     dependencies:
       '@standard-schema/utils': 0.3.0
       react-hook-form: 7.73.1(react@19.2.6)
@@ -18471,7 +18480,7 @@ snapshots:
       '@standard-schema/spec': 1.1.0
       ajv: 8.20.0
       joi: 17.13.3
-      zod: 4.4.3
+      zod: 4.6.7
 
   '@humanfs/core@0.19.1': {}
 
@@ -19052,7 +19061,7 @@ snapshots:
 
   '@modelcontextprotocol/core@2.0.0':
     dependencies:
-      zod: 4.4.3
+      zod: 4.6.7
 
   '@modelcontextprotocol/node@2.0.0(@modelcontextprotocol/server@2.0.0)(hono@4.13.1)':
     dependencies:
@@ -19064,7 +19073,7 @@ snapshots:
   '@modelcontextprotocol/server@2.0.0':
     dependencies:
       '@modelcontextprotocol/core': 2.0.0
-      zod: 4.4.3
+      zod: 4.6.7
 
   '@msgpackr-extract/msgpackr-extract-darwin-arm64@3.0.3':
     optional: true
@@ -20935,7 +20944,7 @@ snapshots:
       '@react-navigation/routers': 7.5.3
       escape-string-regexp: 4.0.0
       fast-deep-equal: 3.1.3
-      nanoid: 3.3.20
+      nanoid: 3.3.18
       query-string: 7.1.3
       react: 19.2.6
       react-is: 19.2.5
@@ -20978,7 +20987,7 @@ snapshots:
 
   '@react-navigation/routers@7.5.3':
     dependencies:
-      nanoid: 3.3.20
+      nanoid: 3.3.18
 
   '@redis/bloom@1.2.0(@redis/client@1.6.0)':
     dependencies:
@@ -21024,14 +21033,14 @@ snapshots:
 
   '@riddl/core@0.2.7':
     dependencies:
-      '@asteasolutions/zod-to-openapi': 8.5.0(zod@4.4.3)
+      '@asteasolutions/zod-to-openapi': 8.5.0(zod@4.6.7)
       busboy: 1.6.0
       debug: 4.4.3
       express: 5.2.1
       set-cookie-parser: 3.1.2
       sse.js: 2.8.0
-      zod: 4.4.3
-      zod-validation-error: 5.0.0(zod@4.4.3)
+      zod: 4.6.7
+      zod-validation-error: 5.0.0(zod@4.6.7)
     transitivePeerDependencies:
       - supports-color
 
@@ -22572,7 +22581,7 @@ snapshots:
       '@vue/shared': 3.5.17
       entities: 4.5.0
       estree-walker: 2.0.2
-      source-map-js: 1.2.2
+      source-map-js: 1.2.1
 
   '@vue/compiler-dom@3.5.17':
     dependencies:
@@ -24724,8 +24733,8 @@ snapshots:
       '@babel/parser': 7.29.8
       eslint: 10.13.0(jiti@1.21.6)
       hermes-parser: 0.25.1
-      zod: 4.4.3
-      zod-validation-error: 4.0.2(zod@4.4.3)
+      zod: 4.6.7
+      zod-validation-error: 4.0.2(zod@4.6.7)
     transitivePeerDependencies:
       - supports-color
 
@@ -27108,7 +27117,7 @@ snapshots:
     dependencies:
       '@babel/parser': 7.29.8
       '@babel/types': 7.29.8
-      source-map-js: 1.2.2
+      source-map-js: 1.2.1
 
   make-dir@3.1.0:
     dependencies:
@@ -28312,37 +28321,37 @@ snapshots:
 
   possible-typed-array-names@1.0.0: {}
 
-  postcss-import@15.1.0(postcss@8.5.32):
+  postcss-import@15.1.0(postcss@8.5.26):
     dependencies:
-      postcss: 8.5.32
+      postcss: 8.5.26
       postcss-value-parser: 4.2.0
       read-cache: 1.0.0
       resolve: 1.22.12
 
-  postcss-js@4.0.1(postcss@8.5.32):
+  postcss-js@4.0.1(postcss@8.5.26):
     dependencies:
       camelcase-css: 2.0.1
-      postcss: 8.5.32
+      postcss: 8.5.26
 
-  postcss-load-config@4.0.2(postcss@8.5.32)(ts-node@10.9.2(@types/node@22.19.17)(typescript@6.0.3)):
+  postcss-load-config@4.0.2(postcss@8.5.26)(ts-node@10.9.2(@types/node@22.19.17)(typescript@6.0.3)):
     dependencies:
       lilconfig: 3.1.3
       yaml: 2.8.3
     optionalDependencies:
-      postcss: 8.5.32
+      postcss: 8.5.26
       ts-node: 10.9.2(@types/node@22.19.17)(typescript@6.0.3)
 
-  postcss-load-config@4.0.2(postcss@8.5.32)(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.3)):
+  postcss-load-config@4.0.2(postcss@8.5.26)(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.3)):
     dependencies:
       lilconfig: 3.1.3
       yaml: 2.8.3
     optionalDependencies:
-      postcss: 8.5.32
+      postcss: 8.5.26
       ts-node: 10.9.2(@types/node@24.12.2)(typescript@6.0.3)
 
-  postcss-nested@6.2.0(postcss@8.5.32):
+  postcss-nested@6.2.0(postcss@8.5.26):
     dependencies:
-      postcss: 8.5.32
+      postcss: 8.5.26
       postcss-selector-parser: 6.1.2
 
   postcss-selector-parser@6.0.10:
@@ -28356,6 +28365,12 @@ snapshots:
       util-deprecate: 1.0.2
 
   postcss-value-parser@4.2.0: {}
+
+  postcss@8.5.26:
+    dependencies:
+      nanoid: 3.3.18
+      picocolors: 1.1.1
+      source-map-js: 1.2.1
 
   postcss@8.5.32:
     dependencies:
@@ -29684,6 +29699,8 @@ snapshots:
     dependencies:
       atomic-sleep: 1.0.0
 
+  source-map-js@1.2.1: {}
+
   source-map-js@1.2.2: {}
 
   source-map-support@0.5.13:
@@ -29985,11 +30002,11 @@ snapshots:
       normalize-path: 3.0.0
       object-hash: 3.0.0
       picocolors: 1.1.1
-      postcss: 8.5.32
-      postcss-import: 15.1.0(postcss@8.5.32)
-      postcss-js: 4.0.1(postcss@8.5.32)
-      postcss-load-config: 4.0.2(postcss@8.5.32)(ts-node@10.9.2(@types/node@22.19.17)(typescript@6.0.3))
-      postcss-nested: 6.2.0(postcss@8.5.32)
+      postcss: 8.5.26
+      postcss-import: 15.1.0(postcss@8.5.26)
+      postcss-js: 4.0.1(postcss@8.5.26)
+      postcss-load-config: 4.0.2(postcss@8.5.26)(ts-node@10.9.2(@types/node@22.19.17)(typescript@6.0.3))
+      postcss-nested: 6.2.0(postcss@8.5.26)
       postcss-selector-parser: 6.1.2
       resolve: 1.22.12
       sucrase: 3.35.0
@@ -30012,11 +30029,11 @@ snapshots:
       normalize-path: 3.0.0
       object-hash: 3.0.0
       picocolors: 1.1.1
-      postcss: 8.5.32
-      postcss-import: 15.1.0(postcss@8.5.32)
-      postcss-js: 4.0.1(postcss@8.5.32)
-      postcss-load-config: 4.0.2(postcss@8.5.32)(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.3))
-      postcss-nested: 6.2.0(postcss@8.5.32)
+      postcss: 8.5.26
+      postcss-import: 15.1.0(postcss@8.5.26)
+      postcss-js: 4.0.1(postcss@8.5.26)
+      postcss-load-config: 4.0.2(postcss@8.5.26)(ts-node@10.9.2(@types/node@24.12.2)(typescript@6.0.3))
+      postcss-nested: 6.2.0(postcss@8.5.26)
       postcss-selector-parser: 6.1.2
       resolve: 1.22.12
       sucrase: 3.35.0
@@ -30736,7 +30753,7 @@ snapshots:
   vite@5.4.11(@types/node@22.19.17)(lightningcss@1.27.0)(terser@5.49.1):
     dependencies:
       esbuild: 0.21.5
-      postcss: 8.5.32
+      postcss: 8.5.26
       rollup: 4.24.0
     optionalDependencies:
       '@types/node': 22.19.17
@@ -30747,7 +30764,7 @@ snapshots:
   vite@5.4.21(@types/node@22.13.1)(lightningcss@1.27.0)(terser@5.49.1):
     dependencies:
       esbuild: 0.21.5
-      postcss: 8.5.32
+      postcss: 8.5.26
       rollup: 4.60.4
     optionalDependencies:
       '@types/node': 22.13.1
@@ -30758,7 +30775,7 @@ snapshots:
   vite@5.4.21(@types/node@22.19.17)(lightningcss@1.27.0)(terser@5.49.1):
     dependencies:
       esbuild: 0.21.5
-      postcss: 8.5.32
+      postcss: 8.5.26
       rollup: 4.60.4
     optionalDependencies:
       '@types/node': 22.19.17
@@ -30769,7 +30786,7 @@ snapshots:
   vite@5.4.21(@types/node@24.12.2)(lightningcss@1.27.0)(terser@5.49.1):
     dependencies:
       esbuild: 0.21.5
-      postcss: 8.5.32
+      postcss: 8.5.26
       rollup: 4.60.4
     optionalDependencies:
       '@types/node': 24.12.2
@@ -30780,7 +30797,7 @@ snapshots:
   vite@6.0.6(@types/node@24.12.2)(jiti@1.21.6)(lightningcss@1.27.0)(terser@5.49.1)(tsx@4.22.4)(yaml@2.9.1):
     dependencies:
       esbuild: 0.24.2
-      postcss: 8.5.32
+      postcss: 8.5.26
       rollup: 4.24.0
     optionalDependencies:
       '@types/node': 24.12.2
@@ -30794,7 +30811,7 @@ snapshots:
   vite@6.0.7(@types/node@22.19.17)(jiti@1.21.6)(lightningcss@1.27.0)(terser@5.49.1)(tsx@4.22.4)(yaml@2.9.1):
     dependencies:
       esbuild: 0.24.2
-      postcss: 8.5.32
+      postcss: 8.5.26
       rollup: 4.60.4
     optionalDependencies:
       '@types/node': 22.19.17
@@ -30808,7 +30825,7 @@ snapshots:
   vite@6.0.7(@types/node@24.12.2)(jiti@1.21.6)(lightningcss@1.27.0)(terser@5.49.1)(tsx@4.22.4)(yaml@2.9.1):
     dependencies:
       esbuild: 0.24.2
-      postcss: 8.5.32
+      postcss: 8.5.26
       rollup: 4.60.4
     optionalDependencies:
       '@types/node': 24.12.2
@@ -30824,7 +30841,7 @@ snapshots:
       esbuild: 0.27.7
       fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
-      postcss: 8.5.32
+      postcss: 8.5.26
       rollup: 4.60.4
       tinyglobby: 0.2.15
     optionalDependencies:
@@ -31366,15 +31383,15 @@ snapshots:
       compress-commons: 6.0.2
       readable-stream: 4.5.2
 
-  zod-validation-error@4.0.2(zod@4.4.3):
+  zod-validation-error@4.0.2(zod@4.6.7):
     dependencies:
-      zod: 4.4.3
+      zod: 4.6.7
 
-  zod-validation-error@5.0.0(zod@4.4.3):
+  zod-validation-error@5.0.0(zod@4.6.7):
     dependencies:
-      zod: 4.4.3
+      zod: 4.6.7
 
-  zod@4.4.3: {}
+  zod@4.6.7: {}
 
   zustand@4.5.7(@types/react@19.2.14)(react@19.2.6):
     dependencies:

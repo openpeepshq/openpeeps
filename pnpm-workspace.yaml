@@ -51,6 +51,10 @@ overrides:
   # override via @types/request>form-data keeps it from affecting the jsdom
   # form-data@4.0.0 instance.
   "@types/request>form-data": "2.5.6"
+  # zod@4.4.3 carries GHSA-mrhx-c7xc-m3w5 (high, CVSS 7.5): memory exhaustion
+  # while validating oversized constrained collections. Force 4.6.7 — first
+  # patched version is 4.6.6; using 4.6.7 for an extra safety margin.
+  zod: "4.6.7"
 
 allowBuilds:
   "@evilmartians/lefthook": true
