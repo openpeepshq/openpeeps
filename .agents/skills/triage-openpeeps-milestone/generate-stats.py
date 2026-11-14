@@ -161,6 +161,10 @@ def fetch_timeline(num):
             break
         fresh = 0
         for ev in batch:
+            # Forgejo occasionally returns a bare null entry for event types it
+            # cannot serialize (seen on issue #1539); skip it rather than crash.
+            if ev is None:
+                continue
             eid = ev.get("id")
             if eid is not None and eid not in seen:
                 seen[eid] = ev
