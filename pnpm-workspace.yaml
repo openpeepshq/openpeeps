@@ -63,6 +63,11 @@ overrides:
   # in-range — no cross-major jump. The other resolved instance (5.7.1 via RN CLI)
   # is untouched by this scoped override.
   '@google-cloud/storage>fast-xml-parser': "4.5.7"
+  # @grpc/proto-loader / @google-cloud/firestore / google-gax / proto3-json-serializer
+  # all declare protobufjs ^7.x. 7.5.3 carries 13 advisories (1 critical, 5 high,
+  # 6 moderate, plus 1 moderate on the @protobufjs/utf8 sub-package) all patched
+  # by <=7.6.5; 7.6.6 is the latest 7.x and keeps the same @protobufjs/* ranges.
+  protobufjs: "7.6.6"
 
 allowBuilds:
   "@evilmartians/lefthook": true
