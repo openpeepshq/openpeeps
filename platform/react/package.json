@@ -82,6 +82,8 @@
     "@typescript-eslint/parser": "^8.72.0",
     "concurrently": "^9.1.2",
     "eslint": "^10.14.0",
+    "concurrently": "^9.2.5",
+    "eslint": "^10.1.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "jsdom": "^25.0.1",
     "react-router-dom": "^7.18.5",
