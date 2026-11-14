@@ -43,6 +43,14 @@ overrides:
   # ranges (^4.7.9 / ^4.7.7) already allow 4.7.10; the lockfile is stale.
   # Patch-level, dev-only.
   handlebars: "4.7.10"
+  # form-data 2.5.3 (pulled by @types/request via retry-request /
+  # google-gax / firebase-admin chain in platform/core) carries 2 advisories:
+  # GHSA-fjxv-7rqg-78g4 (critical, unsafe random in boundary selection, >=2.5.4)
+  # and GHSA-hmw2-7cc7-3qxx (high, CRLF injection via unescaped multipart fields,
+  # >=2.5.6). Force 2.5.6 — in-range for @types/request's ^2.5.0 peer. Scoped
+  # override via @types/request>form-data keeps it from affecting the jsdom
+  # form-data@4.0.0 instance.
+  "@types/request>form-data": "2.5.6"
 
 allowBuilds:
   "@evilmartians/lefthook": true
