@@ -3673,6 +3673,10 @@
       "resourceCount_other": "Showing {{count}} resources",
       "noResults": "No resources match your current filters.",
       "saved": "Saved",
+      "showFolderTree": "Show folder tree",
+      "hideFolderTree": "Hide folder tree",
+      "expandFolder": "Expand folder",
+      "collapseFolder": "Collapse folder",
       "showHiddenTags": "+ {{count}}",
       "hideTags": "Hide"
     },

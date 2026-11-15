@@ -28,6 +28,7 @@ const Tree = ({
   counts,
   expanded,
   onToggle,
+  t,
 }: {
   nodes: CategoryNode[];
   selected: string[];
@@ -35,6 +36,7 @@ const Tree = ({
   counts: Map<string, number>;
   expanded: Set<string>;
   onToggle: (nodeKey: string) => void;
+  t: ReturnType<typeof useT>;
 }) => (
   <ul className="space-y-1">
     {nodes.map((node) => {
@@ -52,6 +54,15 @@ const Tree = ({
                 hasChildren ? '' : 'invisible'
               }`}
               onClick={hasChildren ? () => onToggle(nodeKey) : undefined}
+              aria-label={
+                isExpanded
+                  ? t('resources.library.collapseFolder', {
+                      defaultValue: 'Collapse folder',
+                    })
+                  : t('resources.library.expandFolder', {
+                      defaultValue: 'Expand folder',
+                    })
+              }
             >
               <ChevronRight
                 className={`size-3 transition-transform ${
@@ -83,6 +94,7 @@ const Tree = ({
                 counts={counts}
                 expanded={expanded}
                 onToggle={onToggle}
+                t={t}
               />
             </div>
           ) : null}
@@ -153,6 +165,15 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
     ? sortedTags
     : sortedTags.slice(0, COLLECTION_LIMIT);
   const hasMoreTags = sortedTags.length > COLLECTION_LIMIT;
+
+  const folderTreeLabel = t(
+    library.hierarchy
+      ? 'resources.library.hideFolderTree'
+      : 'resources.library.showFolderTree',
+    {
+      defaultValue: library.hierarchy ? 'Hide folder tree' : 'Show folder tree',
+    },
+  );
 
   return (
     <div>
@@ -250,6 +271,8 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
               type="button"
               className="text-muted-foreground hover:text-foreground ml-auto"
               onClick={() => library.setHierarchy(!library.hierarchy)}
+              title={folderTreeLabel}
+              aria-label={folderTreeLabel}
             >
               {library.hierarchy ? (
                 <ChevronDown className="size-4" />
@@ -268,6 +291,7 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
                   counts={collectionCounts}
                   expanded={expanded}
                   onToggle={toggleNode}
+                  t={t}
                 />
               ) : null}
             </div>
