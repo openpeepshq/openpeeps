@@ -16,6 +16,28 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **deps**: force basic-ftp 6.2.6 tree-wide to clear remaining 3 advisories
+- **deps**: bump @livekit/react-native-webrtc to 144.1.1
+- **deps**: bump concurrently to 9.2.5 to clear shell-quote + lodash advisories
+- **deps**: bump nodemailer to 10.5.0 and remove @types/nodemailer
+- **deps**: force form-data 4.0.6 for jsdom instances in pnpm overrides
+- **deps**: bump jsonpath to 1.3.0 in platform/server, force underscore 1.13.8 (#2068)
+- **deps**: bump drizzle-orm to 0.45.4, clean up lockfile (fix #2008)
+- **deps**: force node-forge 1.4.3 (latest 1.x) to clear the node-forge advisory backlog
+- **deps**: force tar 7.5.22 in pnpm overrides to clear 12 advisories
+- **deps**: force basic-ftp 5.3.1 for the get-uri instance in pnpm overrides
+- **deps**: force protobufjs 7.6.6 in pnpm overrides
+- **deps**: bump i18next-http-backend to 3.0.6 in react + rn-components
+- **deps**: bump MCP SDK to server 2.4.0 + node 2.1.2 in platform/mcp
+- **deps**: bump vite to 6.4.6 / 5.4.21 to clear 19 advisories
+- **deps**: bump eslint to 10.14.0 to clear @humanfs/node advisory
+- **deps**: force @google-cloud/storage>fast-xml-parser 4.5.7 to clear 5 advisories (1 critical)
+- **deps**: bump zod to 4.6.7 (tree-wide override) to clear GHSA-mrhx-c7xc-m3w5
+- **deps**: bump postcss to ^8.5.32 to clear 2 high + 2 moderate
+- **deps**: bump vitest to 2.1.9 in six workspaces to clear critical RCE advisory GHSA-9crc-q9x8-hgqq
+- **skill**: skip null timeline entries in milestone generate-stats
+- **deps**: bump deepmerge-ts to 8.0.2 in core, cli, worker
+- **deps**: force @types/request>form-data 2.5.6 to clear 2 advisories
 - **deps**: force websocket-driver 0.7.5 to clear 2 advisories (1 critical, 1 moderate)
 - **deps**: remove unused validator from platform/client to clear 2 advisories
 - **deps**: bump sharp to 0.35.5 in core + server
@@ -35,6 +57,12 @@ Changelog for OpenPeeps
 ### Documentation
 
 - codify org-level and issue-flow label rules in AGENTS.md
+
+### Chores
+
+- **deps**: remove redundant pnpm overrides and pin dompurify (fix #2025)
+- **pnpm**: force fast-jwt 6.3.6 override to clear multiple advisories (3 critical)
+- **deps**: remove unused turbo devDependency from rn-components
 
 ## 2026-11-05
 
