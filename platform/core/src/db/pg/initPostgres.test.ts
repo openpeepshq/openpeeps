@@ -15,14 +15,17 @@ const mockConnect = vi.fn();
 const mockEnd = vi.fn();
 const mockOn = vi.fn();
 
+// Vitest 4 executes module factories through a VM context where arrow-function
+// mocks lose their .prototype, so `new Pool(...)` throws "is not a constructor";
+// a class keeps constructible semantics across the boundary.
 vi.mock('pg', () => ({
   default: {
-    Pool: vi.fn(() => ({
-      query: mockQuery,
-      connect: mockConnect,
-      on: mockOn,
-      end: mockEnd,
-    })),
+    Pool: class {
+      query = mockQuery;
+      connect = mockConnect;
+      on = mockOn;
+      end = mockEnd;
+    },
   },
 }));
 
