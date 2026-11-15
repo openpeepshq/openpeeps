@@ -39,6 +39,14 @@ overrides:
   # GHSA-hmw2-7cc7-3qxx CRLF injection). Force the patched 4.0.6 for the jsdom
   # instances only; both jsdom 24/25 declare ^4.0.0 so this stays in-range.
   "jsdom>form-data": "4.0.6"
+  # shell-quote 1.8.3 (via launch-editor@2.9.1 <- @react-native-community/cli-doctor,
+  # and react-devtools-core@6.1.5 — both dev tooling) carries 2 critical advisories:
+  # quote() newline-injection in object .op values (all <=1.8.3, patched 1.8.4) and
+  # quadratic-complexity parse() DoS (<=1.8.4, patched 1.8.5). The consumers' ranges
+  # are loose, so a tree-wide override to 1.12.0 (latest; already resolved for
+  # concurrently) is safe — shell-quote's API is stable and these consumers are
+  # dev-only.
+  shell-quote: "1.12.0"
   # undici is pulled in by @sentry/cli (6.25.0), @digitalbazaar/http-client
   # (6.29.1), apns2 (7.10.0) and @fedify/vocab-runtime (7.30.1). The 6.x lines
   # are end-of-life; 7.30.1 still carries CVE-2025-7783 (HTTP/2 Rapid Reset,
