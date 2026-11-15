@@ -151,6 +151,64 @@ overrides:
   # (GHSA-qpx9-hpmf-5gmw — unlimited recursion in _.flatten/_.isEqual). Force
   # 1.13.8 tree-wide to clear the remaining advisory from this jsonpath bump.
   underscore: "1.13.8"
+  # --- Wave-3 dev-tooling override batch: vulnerable transitive deps whose
+  # consumers pin majors older than the patched release; all consumers are
+  # dev tooling or server-side, none ship in RN/browser bundles ---
+  # socks ^10.1.1 <- RN CLI doctor (ip-address 9.0.5: 1 high, 5 moderate)
+  "ip-address@<10.7.6": "10.7.6"
+  # @rollup/plugin-terser ^7.0.3 <- vite 7 build (serialize-javascript 6.0.2: RCE-class + DoS)
+  "serialize-javascript@<7.1.3": "7.1.4"
+  # external-editor ^0.0.33 <- inquirer (tmp 0.0.33: path traversal, high)
+  "tmp@0.0.33": "0.2.7"
+  # patch-package ^0.2.4 -> 0.2.5 stays in-range; 0.2.6 needed for the advisory
+  "tmp@0.2.5": "0.2.7"
+  # @react-native-community/cli-tools ^2.9.1 (launch-editor 2.9.1: 3 high, 1 mod)
+  "launch-editor@<2.14.2": "2.14.2"
+  # query-string ^2.0.0 <- client API libs (decode-uri-component 0.2.2: 1 high, 1 mod)
+  "decode-uri-component@<0.5.1": "0.5.1"
+  # express ^2.2.1 (body-parser 2.2.2: DoS high) + RN cli-server-api
+  "body-parser@<2.4.0": "2.4.0"
+  # @react-native-community/cli-server-api ^1.7.1 (compression: DoS high)
+  "compression@<1.8.2": "1.8.2"
+  # metro ^1.2.1 (image-size 1.2.0: 3 high DoS)
+  "image-size@<2.0.3": "2.0.3"
+  # browserslist 4.24.4 (babel preset pins): unbounded memory / prototype write (2 high)
+  "browserslist@<4.28.7": "4.28.7"
+  # markdown-it@10 -> 14.3.3 (5 advisories) + its linkify-it@2.2.0 (2 high quadratic DoS)
+  "linkify-it@<5.0.2": "5.0.2"
+  # glob 7/8/9/10.x (CLI cmd injection high + AbortSignal bypass moderate)
+  "glob@7": "7.2.3"
+  "glob@8": "8.1.0"
+  "glob@>=9 <10": "9.3.5"
+  "glob@>=10 <10.5": "10.5.0"
+  # picomatch 2.3.1 / 4.0.2 (ReDoS high + method injection moderate)
+  "picomatch@>=2 <2.3.2": "2.3.2"
+  "picomatch@>=4 <4.0.4": "4.0.4"
+  # lodash 4.17.21 (code injection via _.template high, proto pollution moderate)
+  "lodash@<4.17.23": "4.17.23"
+  # source-map-js 1.2.1 (event-loop DoS high)
+  "source-map-js@<1.2.2": "1.2.2"
+  # react-native-markdown-display pins markdown-it ^10.0.0 (5 advisories: 1 high
+  # quadratic smartquotes DoS, 3 moderate, 1 low; fixed 14.3.3). PROD consumer —
+  # the RN markdown stack (custom rulers/renderers on the markdown-it public API)
+  # is exercised by platform/rn-components typecheck + component tests.
+  "react-native-markdown-display>markdown-it": "14.3.3"
+  # follow-up within same batch: flagged versions with published fixes
+  # vite 7.3.5/6 (server + vitest peer): 5 advisories patched >=7.3.7
+  "vite@>=7 <7.3.7": "7.3.8"
+  # google-auth-library/gtoken pin jws ^4.0.0 (HMAC verify flaw, no patch in 4.0.0)
+  "jws@4": "4.0.1"
+  # firebase-admin>jsonwebtoken pins jws ^3.2.2 (HMAC verify flaw, patched 3.2.3;
+  # jsonwebtoken 9.0.3 already moved to jws ^4.0.1 but firebase-admin 13 resolves 9.0.2)
+  "jws@<3.2.3": "3.2.3"
+  # firebase-admin>busboy chain (3 advisories: 2 high DoS + CRLF moderate)
+  "@fastify/busboy@<3.2.2": "3.2.5"
+  # firestore/grpc chain (5 high + 1 low; firebase uses ^1.13, RN firebase 0.x)
+  "@grpc/grpc-js@<1.13.6": "1.14.7"
+  # @babel/preset-env pins <7.29.4 (generator crash)
+  "@babel/plugin-transform-modules-systemjs@<7.29.4": "7.29.4"
+  # fast-xml-parser's builder (attr value injection; RN CLI chain)
+  "fast-xml-builder@<1.1.7": "1.3.2"
 
 allowBuilds:
   "@evilmartians/lefthook": true
@@ -166,7 +224,3 @@ allowBuilds:
   protobufjs: true
   sharp: true
   web-audio-api: true
-
-minimumReleaseAgeExclude:
-  - livekit-client@2.19.2
-  - '@riddl/core'
