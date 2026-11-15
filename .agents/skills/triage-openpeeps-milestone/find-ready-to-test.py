@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-For each milestone issue:
+For each milestone ISSUE (pull requests are skipped and never labeled):
   1. Find merged PRs referencing it
   2. Find the issue's last comment date
   3. If a merged PR was merged AFTER the last comment, add flow/ready-to-test label
@@ -132,6 +132,14 @@ skipped_pr_before_comment = []
 
 for num in sorted(milestone_items.keys()):
     issue = milestone_items[num]
+
+    # Only ISSUES are handled — pull requests (which appear in the unified
+    # /issues listing with a non-null `pull_request` field) are skipped and
+    # never labeled.
+    if issue.get('pull_request'):
+        print(f"  #{num}: skipped (item is a pull request, not an issue)")
+        continue
+
     current_labels = [l['name'] for l in issue.get('labels', [])]
 
     # Skip if already has the label

@@ -60,6 +60,10 @@ For each milestone issue without the `flow/ready-to-test` label:
 3. If a merged PR was merged **after** the last comment, adds the
    `flow/ready-to-test` org label.
 
+Only ISSUES are processed — milestone items that are pull requests (non-null
+`pull_request` field in the unified issue listing) are skipped and never
+labeled; labels are only ever set on issues.
+
 Run this before `generate-stats.py` to pick up newly-merged work.
 
 ## Configuration
