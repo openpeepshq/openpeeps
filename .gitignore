@@ -38,3 +38,7 @@ platform/svelte/dist/
 plugins/*/*/dist/
 examples/*/dist/
 scripts/publish-fixtures/*/dist/
+
+# Python
+__pycache__/
+*.pyc
