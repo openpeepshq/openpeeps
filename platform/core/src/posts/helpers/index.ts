@@ -240,6 +240,12 @@ export const transformPost = async (
   ) as EntryWithProfile[];
   const reactions: ReactionProfile[] = currentReactionsFromEntries(allEntries)
     .filter((item) => item.reaction === AP_LIKE_REACTION)
+    // Privacy boundary: hide reactions from blocked pairs (either direction),
+    // mirroring how blocked creators are tombstoned via withBlockTombstone.
+    .filter(
+      (item) =>
+        !currentProfile || !isBlockedPair(currentProfile, item.profile.id),
+    )
     .map((item) => ({
       reaction: AP_LIKE_REACTION,
       profile: item.profile as ProfileWithMeta,

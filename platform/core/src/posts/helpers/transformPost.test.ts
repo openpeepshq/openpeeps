@@ -347,4 +347,66 @@ describe('transformPost deleted authors', () => {
       { reaction: '👍', profile: activeAuthor },
     ]);
   });
+
+  describe('reactions vs the viewer blocked set', () => {
+    const postWithReaction = {
+      ...basePost,
+      entries: [
+        ...basePost.entries!,
+        {
+          id: '55555555-5555-4555-8555-555555555555',
+          type: 'reaction',
+          createdAt: '2024-05-01T01:00:00.000Z',
+          updatedAt: '2024-05-01T01:00:00.000Z',
+          data: { reaction: '👍' },
+          profile: { id: activeAuthor.id },
+        },
+      ],
+    } as unknown as DbPost;
+
+    const viewer = (extra: Record<string, unknown> = {}) =>
+      ({
+        ...deletedAuthor,
+        deletedAt: null,
+        id: '77777777-7777-4777-8777-777777777777',
+        handle: 'viewer',
+        blockingIds: [],
+        blockedByIds: [],
+        ...extra,
+      }) as unknown as ProfileWithMeta;
+
+    it('hides a reaction when the viewer blocked the reactor', async () => {
+      const result = await transformPost(
+        postWithReaction,
+        viewer({
+          blockingIds: [activeAuthor.id],
+        }),
+      );
+      expect(result.reactions).toEqual([]);
+    });
+
+    it('hides a reaction when the reactor blocked the viewer', async () => {
+      const result = await transformPost(
+        postWithReaction,
+        viewer({
+          blockedByIds: [activeAuthor.id],
+        }),
+      );
+      expect(result.reactions).toEqual([]);
+    });
+
+    it('keeps the reaction when neither side has blocked the other', async () => {
+      const result = await transformPost(postWithReaction, viewer({}));
+      expect(result.reactions).toEqual([
+        { reaction: '👍', profile: activeAuthor },
+      ]);
+    });
+
+    it('shows all reactions in a public context with no viewer', async () => {
+      const result = await transformPost(postWithReaction, undefined);
+      expect(result.reactions).toEqual([
+        { reaction: '👍', profile: activeAuthor },
+      ]);
+    });
+  });
 });
