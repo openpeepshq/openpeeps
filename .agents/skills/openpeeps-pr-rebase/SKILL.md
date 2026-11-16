@@ -104,6 +104,27 @@ General conflict rules while rebasing:
 
 ## Step 4 — Verify locally (mirrors CI)
 
+### Verify only what the rebase actually changed
+
+A rebase that keeps the PR's diff against main byte-identical to the one that was
+already reviewed needs no new local verification at all — CI will run it. Skip
+straight to Step 5/6. Otherwise, verify only the packages the PR's files touch.
+
+When a build/typecheck error appears and you suspect it pre-exists on main, check
+with git — it takes seconds and needs no install:
+
+```bash
+git show origin/main:<path>                # read the file at main
+git grep <pattern> origin/main -- <path>   # search at main
+git diff origin/main..HEAD -- <path>       # what the PR actually changed
+```
+
+If the error is in code the PR does not touch and is present at
+`origin/main:<path>`, it is pre-existing: note it in the rebase-outcome comment
+as pre-existing on main and move on.
+
+### Rebuild the dependency chain
+
 Rebuild the workspace dependency chain before type-checking dependents — TS
 resolves types from each package's `dist/`, so `dist` must exist first:
 
@@ -137,6 +158,12 @@ node scripts/check-branch.mjs                  # must print "All checks passed."
 
 ### Tool gotchas in this environment
 
+- **Never `pnpm install` in a second worktree** just to check whether a
+  typecheck/build error pre-exists on main. It is the single most expensive
+  mistake a rebase run can make: it installs the whole workspace again, tends to
+  hang, and its cleanup can wipe a shared clone's `node_modules` (this happened
+  2026-11-16 and cost a full run). Use the git commands from Step 4 instead —
+  `git show origin/main:<path>` / `git grep origin/main` need no install at all.
 - `pnpm --filter <pkg> test` runs `vitest` in **watch** mode and hangs. Use
   `pnpm --filter <pkg> exec vitest run <path>` to run once and exit.
 - `pnpm --filter <pkg> format` (prettier `--write .`) reformats the **whole**
