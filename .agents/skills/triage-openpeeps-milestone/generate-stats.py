@@ -3,18 +3,15 @@
 Stats + burndown for a Gitea/Forgejo milestone.
 
 Produces a milestone description containing:
-  1. A stats table categorizing OPEN issues into:
-     - To be worked on (no flow/* label)
-     - To be reworked (flow/ready-to-rework)
-     - To be tested (flow/ready-to-test)
+  1. A stats table counting OPEN issues per pipeline stage.
   2. A burndown chart for the 7 days before the milestone due date, counting
      currently-scoped issues that were still open at end of each day and
      splitting each day's total across four pipeline stages:
        - pre-planning   (unlabeled / needs-specs / ready-to-schedule)
        - planning       (ready-to-plan / ready-to-review-plan)
-       - implementation (ready-to-implement / ready-to-review / ready-to-rework /
-                         ready-to-replan / ready-to-merge / merge-accepted)
-       - testing        (ready-to-test / on-test-instance / waiting-for-app-build)
+       - implementation (ready-to-implement / ready-to-review / ready-to-merge /
+                         merge-accepted)
+       - testing        (on-test-instance / ready-to-test)
 
      Each issue's stage history is reconstructed from its `/timeline` label
      events. `flow/*` labels are exclusive, so the latest flow event wins.
@@ -80,12 +77,10 @@ STAGE_OF_LABEL = {
     STAGE_IMPL: {
         "flow/ready-to-implement",
         "flow/ready-to-review",
-        "flow/ready-to-rework",
-        "flow/ready-to-replan",
         "flow/ready-to-merge",
         "flow/merge-accepted",
     },
-    STAGE_TEST: {"flow/ready-to-test", "flow/on-test-instance", "flow/waiting-for-app-build"},
+    STAGE_TEST: {"flow/on-test-instance", "flow/ready-to-test"},
 }
 LABEL_TO_STAGE = {lbl: stage for stage, lbls in STAGE_OF_LABEL.items() for lbl in lbls}
 
@@ -292,10 +287,13 @@ for d, counts in zip(days, day_stage_counts):
 chart_lines.append("```")
 
 # Open issues that currently need human intervention (awaiting a human gate).
+# The raw flow/needs-specs backlog is excluded on purpose: it is untriaged
+# intake, not in-pipeline work waiting on a decision.
 NEEDS_HUMAN = [
     ("ready-to-schedule", "flow/ready-to-schedule"),
     ("ready-to-review-plan", "flow/ready-to-review-plan"),
     ("ready-to-merge", "flow/ready-to-merge"),
+    ("on-test-instance", "flow/on-test-instance"),
     ("ready-to-test", "flow/ready-to-test"),
 ]
 human_counts = {}

@@ -10,21 +10,22 @@ Updates a Gitea/Forgejo milestone description with a **burndown chart** for the
 pipeline stages by mapping each issue's `flow/*` label (and its label history)
 to a stage:
 
-- `░` **pre-planning** — no `flow/*` label, `flow/needs-specs`, `flow/ready-to-schedule`
+- `░` **pre-planning** — no `flow/*` label, `flow/needs-specs`,
+  `flow/ready-to-schedule`
 - `▒` **planning** — `flow/ready-to-plan`, `flow/ready-to-review-plan`
 - `▓` **implementation** — `flow/ready-to-implement`, `flow/ready-to-review`,
-  `flow/ready-to-rework`, `flow/ready-to-replan`, `flow/ready-to-merge`,
-  `flow/merge-accepted`
-- `█` **testing** — `flow/ready-to-test`, `flow/on-test-instance`,
-  `flow/waiting-for-app-build`
+  `flow/ready-to-merge`, `flow/merge-accepted`
+- `█` **testing** — `flow/on-test-instance` (pre-merge PR verification),
+  `flow/ready-to-test` (post-merge, awaiting QA close)
 
 Each issue's stage history is reconstructed from its `/timeline` label events
 (`flow/*` labels are exclusive, so the latest flow event wins; the issue's
 current label is the authoritative end-of-timeline state). Below the chart a
 single "🧍 Needs human intervention" line reports how many open issues in the
 milestone are currently waiting on a human gate:
-`flow/ready-to-schedule`, `flow/ready-to-review-plan`, `flow/ready-to-merge`
-and `flow/ready-to-test`. A linear ideal line runs from the first day's count
+`flow/ready-to-schedule`, `flow/ready-to-review-plan`, `flow/ready-to-merge`,
+`flow/on-test-instance` and `flow/ready-to-test`. A linear ideal line runs from
+the first day's count
 to 0 on the due date. Scope changes (issues moved in/out during the window)
 are not reflected.
 

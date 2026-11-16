@@ -106,7 +106,9 @@ steps — follow that skill.
   labels. Use only the labels defined for the openpeeps organization.
 - **Flow labels belong on the issue, not the PR.** `flow/*` labels are always
   set on the issue an MR references — never on the MR itself. When work moves
-  an issue through the flow, update the `flow/*` label on the issue.
+  an issue through the flow, update the `flow/*` label on the issue. The full
+  set of stages, who moves an issue between them, and the rules every
+  automation follows are specified in [Issue Flow](#issue-flow).
 - **Theme colors only.** Components must use semantic theme colors (CSS-variable-
   b based tokens like `border-border`, `text-muted-foreground`) instead of
   direct Tailwind color values (like `gray-300`, `blue-500`). Theme tokens are
@@ -168,6 +170,176 @@ steps — follow that skill.
 - **CHANGELOG.md:** do not touch or regenerate manually. It is generated
   automatically from conventional commits by the nightly build via
   `scripts/generate-changelog.mjs`.
+
+## Issue Flow
+
+Issues move through a fixed pipeline of `flow/*` stage labels. An issue has
+**exactly one** flow stage label at a time (a run that finds an issue with zero
+or two flow labels is dealing with a labeling bug: skip it and name it in the
+run summary). Stages, and what moves an issue into each, are:
+
+| Stage label                 | Meaning                                                                                                                                                                                                            | How the issue arrives here                                                                                                            |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `flow/needs-specs`          | New issue, not yet fully specified. Open questions are being asked in comments.                                                                                                                                    | **Intake** automation (new, unlabelled issues)                                                                                        |
+| `flow/ready-to-schedule`    | Well-defined and prioritized; waiting to be picked for planning.                                                                                                                                                   | **Intake** automation (clear issues), or human (from `flow/needs-specs` once questions are answered)                                  |
+| `flow/ready-to-plan`        | Scheduled; needs an implementation plan.                                                                                                                                                                           | Human (from `flow/ready-to-schedule`)                                                                                                 |
+| `flow/ready-to-review-plan` | A plan exists (or a review returned here for re-planning); the plan needs a human sign-off.                                                                                                                        | **Planning** automation (from `flow/ready-to-plan`), or **Review** automation (from `flow/ready-to-review` when it posts suggestions) |
+| `flow/ready-to-implement`   | Plan approved; the implementation (or re-implementation) should happen.                                                                                                                                            | Human (from `flow/ready-to-review-plan`)                                                                                              |
+| `flow/ready-to-review`      | A PR exists that implements the plan; it needs a code review.                                                                                                                                                      | **Implementation** automation (from `flow/ready-to-implement`)                                                                        |
+| `flow/ready-to-merge`       | Review passed with no open suggestions. A **human fork**: the human decides whether the PR goes straight to the merge (`flow/merge-accepted`) or is first verified on the test instance (`flow/on-test-instance`). | **Review** automation (from `flow/ready-to-review` when there are no suggestions)                                                     |
+| `flow/merge-accepted`       | Human accepted the merge; it just needs to land (rebase if needed, then merge).                                                                                                                                    | Human (from `flow/ready-to-merge`, or from `flow/on-test-instance` once pre-merge testing passes)                                     |
+| `flow/ready-to-test`        | Merged to `main`; the merged result is awaiting QA verification, after which the issue is closed.                                                                                                                  | **Merge** automation (after the PR lands)                                                                                             |
+| `flow/on-test-instance`     | Pre-merge: the PR is being verified on the test instance before the merge is accepted.                                                                                                                             | Human (from `flow/ready-to-merge`)                                                                                                    |
+
+The pipeline, with the **human-only** transitions marked:
+
+```
+[New]
+  │  intake (auto)
+  ▼
+flow/needs-specs ──human──► flow/ready-to-schedule
+                                  │  human (schedule)
+                                  ▼
+                          flow/ready-to-plan
+                                  │  planning (auto)
+                                  ▼
+                     flow/ready-to-review-plan ◄────────────┐
+                                  │  human (approve plan)    │
+                                  ▼                          │
+                          flow/ready-to-implement            │
+                                  │  implementation (auto)   │
+                                  ▼                          │
+                          flow/ready-to-review ──────────────┤
+                                  │  review (auto)           │ (any suggestion →
+                                  ▼                          │  re-plan first)
+                          ┌───────┴────────┐                 │
+                          ▼ (no suggestions) ▼ (suggestions)──┘
+                     flow/ready-to-merge
+                          │
+                          ├────────human (accept)─────────────┐
+                          │                                    │
+                          └──human (test it first)──► flow/on-test-instance
+                                                              │  human (verified)
+                                                              ▼
+                     flow/merge-accepted ◄────────────────────┘
+                          │  rebase (auto, if the PR is behind main)
+                          │  merge  (auto, once it is mergeable)
+                          ▼
+                     flow/ready-to-test
+                          │
+                          └─ human closes the issue once QA on main confirms it
+```
+
+The loops:
+
+- **Re-plan loop:** `flow/ready-to-review` → (review posts a numbered list of
+  suggestions) → `flow/ready-to-review-plan` → human approves →
+  `flow/ready-to-implement` → `flow/ready-to-review`. Implementation must
+  address the latest plan and the numbered review suggestions from that loop.
+- **Pre-merge test loop (one branch of the `flow/ready-to-merge` fork):**
+  `flow/ready-to-merge` → human routes it to `flow/on-test-instance` →
+  verified, the human moves it to `flow/merge-accepted`; or a defect is found
+  and the human sends it back to `flow/ready-to-implement` to fix and
+  re-review. The other branch of the fork is the direct
+  `flow/ready-to-merge` → `flow/merge-accepted` acceptance.
+
+### Who moves an issue where
+
+**Automations** (each works only from its own queue — see
+[Automation principles](#automation-principles)):
+
+| Automation         | Queue (input)                                                            | Work                                                                                                                                                                            | Destination                                                                                   |
+| ------------------ | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| **Intake**         | new issues with no `flow/*` label and no referencing PR                  | Analyze clarity/complexity/impact/security                                                                                                                                      | `flow/needs-specs` (unclear) or `flow/ready-to-schedule` (clear)                              |
+| **Planning**       | `flow/ready-to-plan`                                                     | Write a clear implementation plan (simplest architecture, trade-offs named) in a comment on the issue that starts with `## Implementation plan`                                 | `flow/ready-to-review-plan`                                                                   |
+| **Implementation** | `flow/ready-to-implement`                                                | Implement the latest `## Implementation plan` comment (or address the newest numbered review suggestions / test report posted after it); keep exactly one open PR for the issue | `flow/ready-to-review`                                                                        |
+| **Review**         | `flow/ready-to-review`                                                   | Critically review the PR in the context of the whole repo; if there are suggestions, post them as a **numbered list** (one list, no categories) on the issue                    | `flow/ready-to-review-plan` (any suggestions) **or** `flow/ready-to-merge` (none)             |
+| **Rebase**         | `flow/merge-accepted` (the PR is behind `main`)                          | Rebase the PR onto `main`, resolve conflicts                                                                                                                                    | leave `flow/merge-accepted`; if conflict resolution changed behavior → `flow/ready-to-review` |
+| **Merge**          | `flow/merge-accepted` (the PR is mergeable: not behind `main`, CI green) | Merge the PR fast-forward                                                                                                                                                       | remove `flow/merge-accepted`, add `flow/ready-to-test`; do **not** close the issue            |
+
+**Humans** are the only ones who may move an issue:
+
+- `flow/needs-specs` → `flow/ready-to-schedule` (questions answered)
+- `flow/ready-to-schedule` → `flow/ready-to-plan` (scheduled)
+- `flow/ready-to-review-plan` → `flow/ready-to-implement` (plan approved)
+- `flow/ready-to-merge` → `flow/merge-accepted` (merge accepted) — **one
+  branch of the fork**: the human accepts the merge straight away
+- `flow/ready-to-merge` → `flow/on-test-instance` (verify the PR on the test
+  instance before accepting the merge) — **the other branch of the fork**:
+  the human decides the PR must be verified on the test instance first
+- `flow/on-test-instance` → `flow/merge-accepted` (verified on the test
+  instance)
+- `flow/on-test-instance` → `flow/ready-to-implement` (verification found a
+  defect to fix and re-review)
+
+`flow/ready-to-merge` is a bona fide fork, not two sequential gates: exactly
+one of the two branches is taken, and the choice is the human's call.
+
+**Agent profiles:** Intake runs as **OpenPeeps Triage Assistant** (`fast`
+model), Review runs as **OpenPeeps Reviewer** (`review` model); Planning,
+Implementation, Rebase and Merge all run as **OpenPeeps Coder** (`think`
+model).
+
+An automation must never make a human-only transition, and a human-only
+transition is never automated.
+
+### In-progress protocol (claiming)
+
+To stop two automations working on the same issue, an issue can also carry the
+plain `in-progress` label alongside its one flow stage label.
+
+1. **Select only unclaimed issues.** A candidate must carry its queue's stage
+   label and **not** carry `in-progress`.
+2. **Claim immediately.** As soon as an issue is selected, add `in-progress`
+   (`POST …/issues/{n}/labels`, body `{"labels": ["in-progress"]}`), then
+   `GET` the issue and verify `in-progress` is present **and** the stage label
+   is still there. If a concurrent run took it, drop it and pick the next
+   candidate.
+3. **Release on completion.** After the final stage-label change (or merge),
+   remove `in-progress` (`DELETE …/issues/{n}/labels/in-progress`). Never end a
+   finished run with `in-progress` still on the issue.
+
+`in-progress` is a claim marker only — it is not a flow stage and never counts
+toward "exactly one flow label". A separate **Stale In-Progress Cleanup**
+automation removes `in-progress` from issues that have had no activity for over
+an hour, so an issue abandoned by a crashed run becomes claimable again.
+
+**Forgejo label API gotchas** (apply to every label operation above): the
+label-add endpoint is ADDITIVE (it appends to the label set, it does not
+replace it); remove labels by NAME, not by id (delete by id returns 422); the
+delete call can return 204 or 404 on success — always GET the issue afterwards
+and verify the final label set.
+
+### Automation principles (apply to every flow automation)
+
+1. **Claim before you work.** Follow the [In-progress
+   protocol](#in-progress-protocol-claiming) so two jobs never work the same
+   issue.
+2. **Issues, not PRs.** All flow stage labels and comments are applied to the
+   **issue**, never to the PR. A PR is acted on only as part of handling the
+   issue that references it. (The `in-progress` claim label is on the issue too.)
+3. **Say who you are and why.** When an automation touches an issue it leaves a
+   comment on the issue stating which automation handled it and why that issue
+   was selected. The footer is:
+   `— Handled by the <AUTOMATION NAME> automation: <one short sentence on why
+this issue was selected>.` If the run already posts a substantive comment on
+   the issue, the footer goes in that same comment, not a second one. A run that
+   handled no issue posts no comment.
+4. **Strict queues.** An automation works **only** on issues that carry exactly
+   its own stage label. An issue with a different label, no label, or multiple
+   labels is out of scope — skip it (and name it in the run summary if you
+   skipped any). If no eligible issue exists, the run makes **zero changes**
+   (no comments, no label changes, no PR operations) and ends.
+
+### Retired / not used
+
+These former labels are no longer part of the flow; do not (re)apply them:
+
+- `flow/ready-to-rework` — rework is expressed by the re-plan loop (review →
+  `flow/ready-to-review-plan` → human → `flow/ready-to-implement`).
+- `flow/ready-to-replan` — folded into the re-plan loop (a re-plan is just a
+  pass through `flow/ready-to-review-plan`).
+- `flow/waiting-for-app-build` — app-build waiting is not a tracked stage.
 
 ## Git & PRs
 
