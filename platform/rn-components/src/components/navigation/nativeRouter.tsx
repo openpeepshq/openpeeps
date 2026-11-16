@@ -239,6 +239,8 @@ export const useNativeRouterAdapter = (): RouterAdapter =>
     () => ({
       pathname: '',
       searchParams: new URLSearchParams(),
+      // Native has no URL bar to keep in sync, so there is no query to write.
+      setSearchParams: () => {},
       hrefOf: () => '',
       match: () => null,
       navigate: (target) => {
