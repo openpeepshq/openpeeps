@@ -6,7 +6,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import type { ResourceKind } from '@openpeepshq/common/types';
-import { RESOURCE_KINDS } from '@openpeepshq/common/lib';
+import { RESOURCE_KINDS, categoryPathKey } from '@openpeepshq/common/lib';
 import { Button, Input, LoadingSpinner } from '@openpeepshq/react-ui';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useT } from '../../i18n';
@@ -48,10 +48,10 @@ const Tree = ({
 }) => (
   <ul className="space-y-1">
     {nodes.map((node) => {
-      const nodeKey = node.path.join('/');
+      const nodeKey = categoryPathKey(node.path);
       const nodeCount = counts.get(nodeKey) ?? 0;
       const isExpanded = expanded.has(nodeKey);
-      const isSelected = selected.join('/') === nodeKey;
+      const isSelected = categoryPathKey(selected) === nodeKey;
       const hasChildren = node.children.length > 0;
       return (
         <li key={nodeKey}>
@@ -179,11 +179,11 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
       if (!path?.length) continue;
       rootCount++;
       for (let i = 1; i <= path.length; i++) {
-        const key = path.slice(0, i).join('/');
+        const key = categoryPathKey(path.slice(0, i));
         counts.set(key, (counts.get(key) ?? 0) + 1);
       }
     }
-    counts.set('', rootCount);
+    counts.set(categoryPathKey([]), rootCount);
     return counts;
   }, [library.posts]);
 

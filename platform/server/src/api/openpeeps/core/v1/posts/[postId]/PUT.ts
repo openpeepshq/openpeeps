@@ -1,5 +1,5 @@
 import { endpoint, z } from '#lib/endpoint';
-import { forbidden, notFound } from '#lib/errors';
+import { badRequest, forbidden, notFound } from '#lib/errors';
 import {
   publicPostSchema,
   postDataUnionSchema,
@@ -7,6 +7,7 @@ import {
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import { updatePost, findPost } from '@openpeepshq/core/posts';
+import { validResourceCategoryPath } from '@openpeepshq/common/lib';
 
 export const Input = postDataUnionSchema;
 export const Output = publicPostSchema;
@@ -32,6 +33,12 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
     await ensurePostCapabilities(event, postToUpdate, ['core-posts-update']);
 
     const postData = postDataUnionSchema.parse(input);
+    if (
+      postData.type === 'resource' &&
+      !validResourceCategoryPath(postData.categoryPath)
+    ) {
+      throw badRequest('invalidCategoryPath');
+    }
 
     return await updatePost(postToUpdate, profile, postData);
   },

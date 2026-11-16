@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { ResourceKind } from '@openpeepshq/common/types';
-import { RESOURCE_KINDS } from '@openpeepshq/common/lib';
+import { RESOURCE_KINDS, categoryPathKey } from '@openpeepshq/common/lib';
 import type { CategoryNode } from '@openpeepshq/common/lib';
 import { useResourceLibrary } from '@openpeepshq/react';
 import { MainStackParamList } from '../navigation/types/index';
@@ -45,10 +45,10 @@ const Tree = ({
 }) => (
   <View className="gap-y-1">
     {nodes.map((node) => {
-      const nodeKey = node.path.join('/');
+      const nodeKey = categoryPathKey(node.path);
       const nodeCount = counts.get(nodeKey) ?? 0;
       const isExpanded = expanded.has(nodeKey);
-      const isSelected = selected.join('/') === nodeKey;
+      const isSelected = categoryPathKey(selected) === nodeKey;
       const hasChildren = node.children.length > 0;
       return (
         <View key={nodeKey}>
@@ -133,11 +133,11 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
       if (!path?.length) continue;
       rootCount++;
       for (let i = 1; i <= path.length; i++) {
-        const key = path.slice(0, i).join('/');
+        const key = categoryPathKey(path.slice(0, i));
         counts.set(key, (counts.get(key) ?? 0) + 1);
       }
     }
-    counts.set('', rootCount);
+    counts.set(categoryPathKey([]), rootCount);
     return counts;
   }, [library.posts]);
 
