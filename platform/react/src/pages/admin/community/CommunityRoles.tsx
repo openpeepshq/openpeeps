@@ -82,9 +82,9 @@ function DefaultRoles({ base }: { base: CommunityConfig }) {
           <Button
             variant="default"
             action={handleSubmit}
-            title={t('common.save', { defaultValue: 'Save' })}
+            title={t('common.actions.save', { defaultValue: 'Save' })}
           >
-            {t('common.save', { defaultValue: 'Save' })}
+            {t('common.actions.save', { defaultValue: 'Save' })}
           </Button>
           <Button
             variant="outline"
@@ -168,7 +168,7 @@ function NewRoleForm() {
         <div className="flex flex-col gap-3 rounded-md border p-4">
           <Label
             htmlFor="new-role-name"
-            title={t('capabilities.roles.name', {
+            title={t('common.labels.name', {
               defaultValue: 'Name',
             })}
             required
@@ -177,7 +177,7 @@ function NewRoleForm() {
               id="new-role-name"
               value={name}
               maxLength={32}
-              placeholder={t('capabilities.roles.name', {
+              placeholder={t('common.labels.name', {
                 defaultValue: 'Name',
               })}
               onChange={(e) => {
@@ -194,7 +194,7 @@ function NewRoleForm() {
           ) : null}
           <Label
             htmlFor="new-role-description"
-            title={t('capabilities.roles.description', {
+            title={t('common.labels.description', {
               defaultValue: 'Description',
             })}
           >
@@ -209,7 +209,7 @@ function NewRoleForm() {
               variant="default"
               disabled={!key || creating}
               action={handleCreate}
-              title={t('capabilities.roles.create', { defaultValue: 'Create' })}
+              title={t('common.actions.create', { defaultValue: 'Create' })}
               loadingContent={t('capabilities.roles.creating', {
                 defaultValue: 'Creating…',
               })}
@@ -218,10 +218,10 @@ function NewRoleForm() {
                 ? t('capabilities.roles.creating', {
                     defaultValue: 'Creating…',
                   })
-                : t('capabilities.roles.create', { defaultValue: 'Create' })}
+                : t('common.actions.create', { defaultValue: 'Create' })}
             </Button>
             <Button variant="outline" action={handleCancel}>
-              {t('common.cancel', { defaultValue: 'Cancel' })}
+              {t('common.actions.cancel', { defaultValue: 'Cancel' })}
             </Button>
           </div>
         </div>
@@ -269,7 +269,7 @@ export function AdminConfigurationCommunityRoles() {
   if (loading) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-        {t('common.form.loading', { defaultValue: 'Loading…' })}
+        {t('common.states.loading', { defaultValue: 'Loading…' })}
       </div>
     );
   }

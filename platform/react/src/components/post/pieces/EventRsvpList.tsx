@@ -428,7 +428,7 @@ const EventRsvpRow = ({
             variant="outline"
             action={() => onManage('removed', rsvp.profile.id, recurrenceId)}
           >
-            {t('events.rsvp.removeAttendee', {
+            {t('common.actions.remove', {
               defaultValue: 'Remove',
             })}
           </Button>

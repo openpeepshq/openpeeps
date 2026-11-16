@@ -54,7 +54,7 @@ export const ConfirmGroupExitModal = ({
         ) : null}
         <SheetFooter
           onCancel={onClose}
-          cancelText={t('common.cancel')}
+          cancelText={t('common.actions.cancel')}
           onConfirm={() => void submit()}
           confirmText={t('groups.modals.confirmExit.leave')}
           confirmVariant="destructive"

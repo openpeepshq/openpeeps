@@ -53,7 +53,7 @@ export function AccessTokensSettings() {
         </p>
         <div className="space-y-2">
           <Label htmlFor="token-name">
-            {t('settings.accessTokens.name', { defaultValue: 'Name' })}
+            {t('common.labels.name', { defaultValue: 'Name' })}
           </Label>
           <Input
             id="token-name"
@@ -66,7 +66,7 @@ export function AccessTokensSettings() {
         </div>
         <div className="space-y-2">
           <Label htmlFor="token-description">
-            {t('settings.accessTokens.descriptionLabel', {
+            {t('common.labels.description', {
               defaultValue: 'Description',
             })}
           </Label>
@@ -144,7 +144,7 @@ export function AccessTokensSettings() {
               disabled={(form.scopes?.length ?? 0) === 1}
               action={() => removeScope(index)}
             >
-              {t('common.remove', { defaultValue: 'Remove' })}
+              {t('common.actions.remove', { defaultValue: 'Remove' })}
             </Button>
           </div>
         ))}
@@ -223,7 +223,7 @@ export function AccessTokensSettings() {
                     :{' '}
                     {token.expiresAt
                       ? new Date(token.expiresAt).toLocaleString()
-                      : t('settings.accessTokens.never', {
+                      : t('common.states.never', {
                           defaultValue: 'Never',
                         })}
                   </p>

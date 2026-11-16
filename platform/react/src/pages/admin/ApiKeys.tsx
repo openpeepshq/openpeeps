@@ -168,7 +168,7 @@ export const AdminApiKeys = () => {
 
   const cardLabels = {
     expiresLabel: t('admin.apiKeys.expiresAt', { defaultValue: 'Expires at' }),
-    neverLabel: t('admin.apiKeys.never', { defaultValue: 'Never' }),
+    neverLabel: t('common.states.never', { defaultValue: 'Never' }),
     revokeLabel: t('admin.apiKeys.revoke', { defaultValue: 'Revoke' }),
     revokedLabel: t('admin.apiKeys.revoked', { defaultValue: 'Revoked' }),
     noScopesLabel: t('admin.apiKeys.noScopes', { defaultValue: 'No scopes' }),
@@ -190,7 +190,7 @@ export const AdminApiKeys = () => {
         </p>
         <div className="space-y-2">
           <Label htmlFor="svc-name">
-            {t('admin.apiKeys.name', { defaultValue: 'Name' })}
+            {t('common.labels.name', { defaultValue: 'Name' })}
           </Label>
           <Input
             id="svc-name"
@@ -200,7 +200,7 @@ export const AdminApiKeys = () => {
         </div>
         <div className="space-y-2">
           <Label htmlFor="svc-description">
-            {t('admin.apiKeys.descriptionLabel', {
+            {t('common.labels.description', {
               defaultValue: 'Description',
             })}
           </Label>
@@ -296,7 +296,7 @@ export const AdminApiKeys = () => {
                 }))
               }
             >
-              {t('admin.apiKeys.removeScope', { defaultValue: 'Remove' })}
+              {t('common.actions.remove', { defaultValue: 'Remove' })}
             </Button>
           </div>
         ))}

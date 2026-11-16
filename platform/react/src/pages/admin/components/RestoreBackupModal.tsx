@@ -63,11 +63,11 @@ export function RestoreBackupModal({ onClose }: RestoreBackupModalProps) {
           </p>
         ) : null}
         <DialogActions
-          cancelLabel={t('admin.backups.restore.cancel', {
+          cancelLabel={t('common.actions.cancel', {
             defaultValue: 'Cancel',
           })}
           onCancel={onClose}
-          actionLabel={t('admin.backups.restore.confirm', {
+          actionLabel={t('common.actions.confirm', {
             defaultValue: 'Confirm',
           })}
           onAction={submit}

@@ -42,7 +42,7 @@ export const TimezoneSettings: React.FC<TimezoneSettingsProps> = () => {
   useSetPageHeader(
     t('settings.timezone.title'),
     <HeaderActionButton
-      title={saving ? t('common.form.loading') : t('common.form.save')}
+      title={saving ? t('common.states.loading') : t('common.actions.save')}
       onPress={() => void save()}
       disabled={saving}
       loading={saving}

@@ -54,11 +54,11 @@ export function DeletePostModal({
           </article>
         </div>
         <DialogActions
-          cancelLabel={t('posts.deleteModal.cancel', {
+          cancelLabel={t('common.actions.cancel', {
             defaultValue: 'Cancel',
           })}
           onCancel={onClose}
-          actionLabel={t('posts.deleteModal.delete', {
+          actionLabel={t('common.actions.delete', {
             defaultValue: 'Delete',
           })}
           onAction={handleDelete}

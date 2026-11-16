@@ -37,8 +37,8 @@ export function AdminGroupMembers() {
 
   const group = groupQuery.data;
   const headerTitle = group
-    ? `${groupName(group)} - ${t('admin.members.title', { defaultValue: 'Members' })}`
-    : t('admin.members.title', { defaultValue: 'Members' });
+    ? `${groupName(group)} - ${t('common.entities.members', { defaultValue: 'Members' })}`
+    : t('common.entities.members', { defaultValue: 'Members' });
   useSetPageHeader(headerTitle);
 
   if (groupQuery.isLoading || membersQuery.isLoading) {
@@ -69,7 +69,7 @@ export function AdminGroupMembers() {
                 {t('admin.members.profileColumn', { defaultValue: 'Profile' })}
               </th>
               <th className="p-2 text-left">
-                {t('admin.members.handleColumn', { defaultValue: 'Handle' })}
+                {t('common.labels.handle', { defaultValue: 'Handle' })}
               </th>
               <th className="p-2 text-left">
                 {t('admin.members.rolesColumn', { defaultValue: 'Roles' })}
@@ -156,7 +156,7 @@ function MemberRowActions({
           title={t('groups.removeMember.title', {
             defaultValue: 'Remove Member',
           })}
-          text={t('groups.removeMember.confirm', { defaultValue: 'Remove' })}
+          text={t('common.actions.remove', { defaultValue: 'Remove' })}
           action={() => setActiveModal('remove')}
           danger
         />
@@ -229,9 +229,9 @@ function RemoveMemberModal({
           </p>
         ) : null}
         <DialogActions
-          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          cancelLabel={t('common.actions.cancel', { defaultValue: 'Cancel' })}
           onCancel={onClose}
-          actionLabel={t('groups.removeMember.confirm', {
+          actionLabel={t('common.actions.remove', {
             defaultValue: 'Remove',
           })}
           onAction={submit}

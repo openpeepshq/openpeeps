@@ -89,7 +89,7 @@ export function ConfigurationList({
           )}
           <button
             type="button"
-            title={t('common.listEditor.removeTitle', {
+            title={t('common.actions.remove', {
               defaultValue: 'Remove',
             })}
             onClick={() => setAndNotify(value.toSpliced(index, 1))}
@@ -100,7 +100,7 @@ export function ConfigurationList({
       ))}
       <button
         type="button"
-        title={t('common.listEditor.addTitle', { defaultValue: 'Add' })}
+        title={t('common.actions.add', { defaultValue: 'Add' })}
         onClick={() => setAndNotify([...value, structuredClone(defaults)])}
       >
         <Plus className="h-4 w-4" />

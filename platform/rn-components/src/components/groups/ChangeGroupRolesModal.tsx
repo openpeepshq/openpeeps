@@ -110,7 +110,7 @@ export const ChangeGroupRolesModal = ({
         ) : null}
         <SheetFooter
           onCancel={onClose}
-          cancelText={t('common.cancel')}
+          cancelText={t('common.actions.cancel')}
           onConfirm={() => void submit()}
           confirmText={t('groups.changeRoles.confirm')}
           disabled={submitting}

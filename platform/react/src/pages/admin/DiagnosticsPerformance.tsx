@@ -43,7 +43,7 @@ export const AdminDiagnosticsPerformance = () => {
           </strong>
         </span>
         <Button variant="outline" action={() => void statsQuery.refetch()}>
-          {t('diagnostics.performance.refresh', { defaultValue: 'Refresh' })}
+          {t('common.actions.refresh', { defaultValue: 'Refresh' })}
         </Button>
       </div>
 

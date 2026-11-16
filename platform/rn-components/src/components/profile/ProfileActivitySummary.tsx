@@ -46,7 +46,7 @@ const SummaryBody = ({ summary }: { summary: ProfileActivitySummaryData }) => {
       <CountSection title={t('profile.activity.yourContent')}>
         <CountCard
           value={summary.postsCount}
-          label={t('profile.activity.postsCount')}
+          label={t('common.entities.posts')}
         />
         <CountCard
           value={summary.repliesCount}
@@ -54,7 +54,7 @@ const SummaryBody = ({ summary }: { summary: ProfileActivitySummaryData }) => {
         />
         <CountCard
           value={summary.eventsCount}
-          label={t('profile.activity.eventsCount')}
+          label={t('common.entities.events')}
         />
       </CountSection>
 
@@ -73,11 +73,11 @@ const SummaryBody = ({ summary }: { summary: ProfileActivitySummaryData }) => {
         />
         <CountCard
           value={summary.bookmarksCount}
-          label={t('profile.activity.bookmarksCount')}
+          label={t('common.entities.bookmarks')}
         />
         <CountCard
           value={summary.groupsCount}
-          label={t('profile.activity.groupsCount')}
+          label={t('common.entities.groups')}
         />
       </CountSection>
 

@@ -100,9 +100,9 @@ export const GroupNotificationSettingsModal = ({
         ) : null}
         <SheetFooter
           onCancel={onClose}
-          cancelText={t('common.cancel')}
+          cancelText={t('common.actions.cancel')}
           onConfirm={() => void onSave()}
-          confirmText={saving ? t('common.saving') : t('common.save')}
+          confirmText={saving ? t('common.saving') : t('common.actions.save')}
           disabled={saving || !ready}
           isLoading={saving}
         />

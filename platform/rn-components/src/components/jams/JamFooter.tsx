@@ -48,7 +48,7 @@ export const useFooterControls = () => {
     new Promise<boolean>((resolve) => {
       Alert.alert('', t('jams.recording.stopConfirm'), [
         {
-          text: t('common.cancel'),
+          text: t('common.actions.cancel'),
           style: 'cancel',
           onPress: () => resolve(false),
         },

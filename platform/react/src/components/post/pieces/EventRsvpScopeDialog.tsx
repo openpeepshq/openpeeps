@@ -227,7 +227,7 @@ export const EventRsvpScopeDialog = ({
         ) : null}
         {error ? <p className="text-error text-sm">{error}</p> : null}
         <DialogActions
-          cancelLabel={t('events.rsvp.scope.cancel', {
+          cancelLabel={t('common.actions.cancel', {
             defaultValue: 'Cancel',
           })}
           onCancel={onClose}
@@ -236,7 +236,7 @@ export const EventRsvpScopeDialog = ({
               ? t('events.rsvp.joinWaitlist', {
                   defaultValue: 'Join waitlist',
                 })
-              : t('events.rsvp.scope.confirm', {
+              : t('common.actions.confirm', {
                   defaultValue: 'Confirm',
                 })
           }

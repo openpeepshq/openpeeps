@@ -50,7 +50,7 @@ export const EventWaitlistJoinDialog = forwardRef<
           }}
           onConfirm={onConfirm}
           confirmText={t('events.rsvp.joinWaitlist')}
-          cancelText={t('events.rsvp.scope.cancel')}
+          cancelText={t('common.actions.cancel')}
           disabled={isLoading}
           isLoading={isLoading}
         />

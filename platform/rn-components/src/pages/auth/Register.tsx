@@ -150,7 +150,7 @@ export const Register = ({
           name="handle"
           render={({ field }) => (
             <FormInput
-              label={t('auth.register.handle')}
+              label={t('common.labels.handle')}
               placeholder={t('auth.register.handlePlaceholder')}
               autoCapitalize="none"
               {...field}
@@ -162,7 +162,7 @@ export const Register = ({
           name="displayName"
           render={({ field }) => (
             <FormInput
-              label={t('auth.register.name')}
+              label={t('common.labels.name')}
               placeholder={t('auth.register.namePlaceholder')}
               {...field}
             />
@@ -173,7 +173,7 @@ export const Register = ({
           name="email"
           render={({ field }) => (
             <FormInput
-              label={t('auth.register.email')}
+              label={t('common.labels.email')}
               placeholder={t('auth.register.emailPlaceholder')}
               autoCapitalize="none"
               keyboardType="email-address"

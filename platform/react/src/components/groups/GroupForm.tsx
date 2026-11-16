@@ -85,7 +85,7 @@ export function GroupForm({
           {!isEdit ? (
             <div className="space-y-2 px-1">
               <Label htmlFor="handle">
-                {t('groups.handle.title', { defaultValue: 'Handle' })}
+                {t('common.labels.handle', { defaultValue: 'Handle' })}
               </Label>
               <Input
                 id="handle"
@@ -116,7 +116,7 @@ export function GroupForm({
 
           <div className="space-y-2 px-1">
             <Label htmlFor="description">
-              {t('groups.description.title', { defaultValue: 'Description' })}
+              {t('common.labels.description', { defaultValue: 'Description' })}
             </Label>
             <Textarea
               id="description"

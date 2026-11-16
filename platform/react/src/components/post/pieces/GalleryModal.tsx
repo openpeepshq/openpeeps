@@ -37,7 +37,7 @@ export function GalleryModal({
 
   const prevLabel = t('posts.gallery.previous', { defaultValue: 'Previous' });
   const nextLabel = t('posts.gallery.next', { defaultValue: 'Next' });
-  const closeLabel = t('posts.gallery.close', { defaultValue: 'Close' });
+  const closeLabel = t('common.actions.close', { defaultValue: 'Close' });
 
   const prev = (e: MouseEvent) => {
     stop(e);

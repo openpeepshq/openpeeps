@@ -80,7 +80,7 @@ export const GroupForm = ({
           {!isEdit ? (
             <View className="gap-y-2 px-1">
               <Label nativeID="handle">
-                {t('groups.handle.title', { defaultValue: 'Handle' })}
+                {t('common.labels.handle', { defaultValue: 'Handle' })}
               </Label>
               <Input
                 value={groupData.handle ?? ''}
@@ -101,7 +101,7 @@ export const GroupForm = ({
 
           <View className="gap-y-2 px-1">
             <Label nativeID="description">
-              {t('groups.description.title', { defaultValue: 'Description' })}
+              {t('common.labels.description', { defaultValue: 'Description' })}
             </Label>
             <Textarea
               value={groupData.description ?? ''}

@@ -63,9 +63,9 @@ export function ConfirmMemberRemovalModal({
           </p>
         ) : null}
         <DialogActions
-          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          cancelLabel={t('common.actions.cancel', { defaultValue: 'Cancel' })}
           onCancel={onClose}
-          actionLabel={t('groups.removeMember.confirm', {
+          actionLabel={t('common.actions.remove', {
             defaultValue: 'Remove',
           })}
           onAction={submit}

@@ -68,7 +68,7 @@ export const ProfilePageAction = ({
       t('profile.block.title', { handle: profile.handle }),
       t('profile.block.description', { handle: profile.handle }),
       [
-        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('common.actions.cancel'), style: 'cancel' },
         {
           text: t('profile.block.confirm'),
           style: 'destructive',

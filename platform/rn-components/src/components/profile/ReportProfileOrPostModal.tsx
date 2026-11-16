@@ -217,7 +217,7 @@ export const ReportProfileOrPostModal = forwardRef<
             confirmVariant={'destructive'}
             confirmText={
               isSubmitting
-                ? t('common.form.loading')
+                ? t('common.states.loading')
                 : t('reports.create.sendReport')
             }
           />

@@ -48,7 +48,7 @@ export function AdminGroups() {
   );
 
   useSetPageHeader(
-    t('admin.groups.title', { defaultValue: 'Groups' }),
+    t('common.entities.groups', { defaultValue: 'Groups' }),
     headerActions,
   );
 
@@ -152,7 +152,7 @@ function DeleteGroupModal({
           </p>
         ) : null}
         <DialogActions
-          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          cancelLabel={t('common.actions.cancel', { defaultValue: 'Cancel' })}
           onCancel={onClose}
           actionLabel={t('admin.groups.delete', {
             defaultValue: 'Delete group',

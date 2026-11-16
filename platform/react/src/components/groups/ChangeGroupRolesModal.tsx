@@ -110,7 +110,7 @@ export function ChangeGroupRolesModal({
           </p>
         ) : null}
         <DialogActions
-          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          cancelLabel={t('common.actions.cancel', { defaultValue: 'Cancel' })}
           onCancel={onClose}
           actionLabel={t('groups.changeRoles.confirm', {
             defaultValue: 'Save roles',

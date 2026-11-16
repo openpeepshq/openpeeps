@@ -180,7 +180,7 @@ export function InviteWithEmailModal({ onClose }: { onClose: () => void }) {
                   })}
                 </option>
                 <option value="P100Y">
-                  {t('admin.inviteEmail.expiresNever', {
+                  {t('common.states.never', {
                     defaultValue: 'Never',
                   })}
                 </option>
@@ -201,7 +201,7 @@ export function InviteWithEmailModal({ onClose }: { onClose: () => void }) {
           />
         ) : (
           <DialogActions
-            cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+            cancelLabel={t('common.actions.cancel', { defaultValue: 'Cancel' })}
             onCancel={onClose}
             actionLabel={t('admin.inviteEmail.sendInvite', {
               defaultValue: 'Send Invite',

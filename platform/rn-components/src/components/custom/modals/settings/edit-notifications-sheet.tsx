@@ -174,7 +174,7 @@ export const EditNotificationsSheet = forwardRef<
           onConfirm={save}
           disabled={isLoading}
           confirmText={
-            isLoading ? t('common.form.loading') : t('common.form.save')
+            isLoading ? t('common.states.loading') : t('common.actions.save')
           }
           variant="destructive"
         />

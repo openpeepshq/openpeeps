@@ -11,7 +11,7 @@ export const GroupNameFromId = ({ groupId }: { groupId: string }) => {
     <ThemedText>
       {group
         ? group.displayName || `@${group?.handle}`
-        : t('common.form.loading')}
+        : t('common.states.loading')}
     </ThemedText>
   );
 };

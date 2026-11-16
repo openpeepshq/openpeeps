@@ -205,8 +205,8 @@ export const PostAudienceSelector = ({
           <DialogActions
             cancelLabel={
               view !== 'main'
-                ? t('navigation.back', { defaultValue: 'Back' })
-                : t('common.cancel', { defaultValue: 'Cancel' })
+                ? t('common.actions.back', { defaultValue: 'Back' })
+                : t('common.actions.cancel', { defaultValue: 'Cancel' })
             }
             onCancel={view !== 'main' ? () => setView('main') : onClose}
             actionLabel={t('common.done', { defaultValue: 'Done' })}

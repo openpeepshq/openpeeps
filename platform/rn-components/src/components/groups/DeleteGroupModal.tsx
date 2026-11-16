@@ -52,12 +52,12 @@ export const DeleteGroupModal = ({ group, onClose }: DeleteGroupModalProps) => {
         ) : null}
         <SheetFooter
           onCancel={onClose}
-          cancelText={t('groups.delete.cancel')}
+          cancelText={t('common.actions.cancel')}
           onConfirm={() => void submit()}
           confirmText={
             submitting
               ? t('groups.delete.deleting')
-              : t('groups.delete.deleteButton')
+              : t('common.actions.delete')
           }
           confirmVariant="destructive"
           disabled={submitting}

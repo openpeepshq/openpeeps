@@ -194,7 +194,7 @@ export const ProfileSelector = ({
 
         {mode === 'multiple' ? (
           <DialogActions
-            cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+            cancelLabel={t('common.actions.cancel', { defaultValue: 'Cancel' })}
             onCancel={() => onOpenChange(false)}
             actionLabel={t('profile.selector.confirm', { defaultValue: 'OK' })}
             onAction={confirmMultiple}

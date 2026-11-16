@@ -65,7 +65,7 @@ export const Login = ({
             name="email"
             render={({ field }) => (
               <FormInput
-                label={t('auth.login.email')}
+                label={t('common.labels.email')}
                 placeholder=""
                 {...field}
                 className="rounded-md"

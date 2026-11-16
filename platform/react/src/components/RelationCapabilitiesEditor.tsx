@@ -161,7 +161,7 @@ export function RelationCapabilitiesEditor() {
   if (configQuery.isLoading || !draft) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-        {t('common.form.loading', { defaultValue: 'Loading…' })}
+        {t('common.states.loading', { defaultValue: 'Loading…' })}
       </div>
     );
   }
@@ -198,11 +198,11 @@ export function RelationCapabilitiesEditor() {
           action={handleSave}
           disabled={saving || !canUpdateConfig || !diffPatch}
           loadingContent={t('common.saving', { defaultValue: 'Saving…' })}
-          title={t('common.save', { defaultValue: 'Save' })}
+          title={t('common.actions.save', { defaultValue: 'Save' })}
         >
           {saving
             ? t('common.saving', { defaultValue: 'Saving…' })
-            : t('common.save', { defaultValue: 'Save' })}
+            : t('common.actions.save', { defaultValue: 'Save' })}
         </Button>
         {canUpdateConfig && diffPatch ? (
           <Button

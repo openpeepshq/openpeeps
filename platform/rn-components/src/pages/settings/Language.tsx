@@ -42,7 +42,7 @@ export const LanguageSettings: React.FC<LanguageSettingsProps> = () => {
   useSetPageHeader(
     t('settings.language.title'),
     <HeaderActionButton
-      title={saving ? t('common.form.loading') : t('common.form.save')}
+      title={saving ? t('common.states.loading') : t('common.actions.save')}
       onPress={() => void save()}
       disabled={saving}
       loading={saving}

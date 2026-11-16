@@ -70,9 +70,7 @@ export const JamGuestForm = () => {
         </View>
 
         <View className="gap-2">
-          <Label nativeID="guest-email">
-            {t('jams.lobby.guestEmailLabel')}
-          </Label>
+          <Label nativeID="guest-email">{t('common.labels.email')}</Label>
           <Input
             aria-labelledby="guest-email"
             value={guestData.email}

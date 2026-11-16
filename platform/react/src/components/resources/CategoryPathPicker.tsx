@@ -82,7 +82,7 @@ export const CategoryPathPicker = ({
             setLevel('');
           }}
         >
-          {t('resources.form.addLevelAction', { defaultValue: 'Add' })}
+          {t('common.actions.add', { defaultValue: 'Add' })}
         </Button>
         {path.length ? (
           <Button variant="ghost" action={() => onChange([])}>

@@ -47,7 +47,7 @@ export const GalleryModal = ({
       <View className="flex-1 items-center justify-center bg-black/80">
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={t('posts.gallery.close')}
+          accessibilityLabel={t('common.actions.close')}
           className="absolute right-4 top-12 z-50 rounded-full bg-primary p-2"
           onPress={onClose}
         >

@@ -54,7 +54,7 @@ export function ThemeSettings() {
       >
         {submitting
           ? t('common.saving', { defaultValue: 'Saving…' })
-          : t('common.save', { defaultValue: 'Save' })}
+          : t('common.actions.save', { defaultValue: 'Save' })}
       </Button>
     </div>
   );

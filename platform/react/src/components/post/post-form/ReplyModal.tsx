@@ -330,7 +330,7 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
               </div>
               <div className="flex gap-2">
                 <Button variant="ghost" action={onClose}>
-                  {t('common.cancel', { defaultValue: 'Cancel' })}
+                  {t('common.actions.cancel', { defaultValue: 'Cancel' })}
                 </Button>
                 <Button
                   variant="default"

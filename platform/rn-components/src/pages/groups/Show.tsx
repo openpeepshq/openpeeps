@@ -120,10 +120,10 @@ export const GroupShow = ({ route, navigation }: GroupProps) => {
             >
               <TabsList className="w-full flex-row rounded-none border-b border-muted bg-transparent p-0 px-3">
                 <TabsTrigger value="posts" className={tabClass('posts')}>
-                  <ThemedText>{t('groups.sections.posts')}</ThemedText>
+                  <ThemedText>{t('common.entities.posts')}</ThemedText>
                 </TabsTrigger>
                 <TabsTrigger value="events" className={tabClass('events')}>
-                  <ThemedText>{t('groups.sections.events')}</ThemedText>
+                  <ThemedText>{t('common.entities.events')}</ThemedText>
                 </TabsTrigger>
                 <TabsTrigger
                   value="resources"
@@ -135,7 +135,7 @@ export const GroupShow = ({ route, navigation }: GroupProps) => {
                   value="description"
                   className={tabClass('description')}
                 >
-                  <ThemedText>{t('groups.sections.description')}</ThemedText>
+                  <ThemedText>{t('common.labels.description')}</ThemedText>
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="posts" className="p-0">

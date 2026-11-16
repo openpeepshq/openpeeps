@@ -40,7 +40,7 @@ export const SheetFooter: React.FC<SheetFooterProps> = ({
     <View className="flex-row justify-between px-5 gap-4 mt-auto pt-4 mb-10">
       <Button variant={variant} className="flex-1" onPress={onCancel}>
         <ThemedText className="font-semibold">
-          {cancelText || t('common.form.cancel')}
+          {cancelText || t('common.actions.cancel')}
         </ThemedText>
       </Button>
       <Button

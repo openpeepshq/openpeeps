@@ -350,7 +350,7 @@ export const EventForm = ({
 
         <View className="gap-y-1">
           <Label nativeID="event-visibility">
-            {t('events.form.visibility')}
+            {t('common.labels.visibility')}
           </Label>
           <ThemedText className="text-sm text-muted-foreground">
             {t('events.form.visibilityNotChangeable')}

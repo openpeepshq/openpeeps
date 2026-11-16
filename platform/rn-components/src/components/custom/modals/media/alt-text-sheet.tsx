@@ -56,7 +56,7 @@ export const AltSheet = forwardRef<BottomSheetModal, AltSheetProps>(
               <ThemedText className="text-sm font-medium mb-1">
                 {isDocument
                   ? t('form.uploadEditModal.description.altText')
-                  : t('media.image.altTextLabel')}
+                  : t('common.labels.altText')}
               </ThemedText>
               <TextInput
                 placeholder={

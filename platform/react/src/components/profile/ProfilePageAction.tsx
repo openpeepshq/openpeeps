@@ -181,7 +181,7 @@ export function ProfilePageAction({
             })}
           </p>
           <DialogActions
-            cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+            cancelLabel={t('common.actions.cancel', { defaultValue: 'Cancel' })}
             onCancel={() => setBlockOpen(false)}
             actionLabel={t('profile.block.confirm', { defaultValue: 'Block' })}
             onAction={() => void confirmBlock()}

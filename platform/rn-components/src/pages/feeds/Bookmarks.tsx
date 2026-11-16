@@ -30,7 +30,7 @@ export const FeedsBookmarks: React.FC<HomeScreenProps> = () => {
     setRefreshing(false);
   }, [query]);
 
-  useSetPageHeader(t('navigation.bookmarks'));
+  useSetPageHeader(t('common.entities.bookmarks'));
 
   return (
     <>

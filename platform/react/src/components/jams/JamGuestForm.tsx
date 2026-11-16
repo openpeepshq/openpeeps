@@ -72,7 +72,7 @@ export function JamGuestForm() {
 
         <div className="space-y-2">
           <Label htmlFor="guest-email">
-            {t('jams.lobby.guestEmailLabel', { defaultValue: 'Email' })}
+            {t('common.labels.email', { defaultValue: 'Email' })}
           </Label>
           <Input
             id="guest-email"

@@ -122,10 +122,9 @@ export const PushEnabledDevices: React.FC<PushEnabledDevicesProps> = () => {
                         onPress={() => setConfirmId(null)}
                       >
                         <Text>
-                          {t(
-                            'settings.notifications.pushEnabledDevices.delete.cancel',
-                            { defaultValue: 'Cancel' }
-                          )}
+                          {t('common.actions.cancel', {
+                            defaultValue: 'Cancel',
+                          })}
                         </Text>
                       </Button>
                     </View>

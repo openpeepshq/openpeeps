@@ -119,12 +119,12 @@ export function GroupNotificationSettingsModal({
           </p>
         ) : null}
         <DialogActions
-          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          cancelLabel={t('common.actions.cancel', { defaultValue: 'Cancel' })}
           onCancel={onClose}
           actionLabel={
             saving
               ? t('common.saving', { defaultValue: 'Saving…' })
-              : t('common.save', { defaultValue: 'Save' })
+              : t('common.actions.save', { defaultValue: 'Save' })
           }
           onAction={onSave}
           disabled={saving || !ready}

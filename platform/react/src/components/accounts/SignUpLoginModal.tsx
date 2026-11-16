@@ -36,7 +36,7 @@ export function SignUpLoginModal({ onClose }: SignUpLoginModalProps) {
           </DialogDescription>
         </DialogHeader>
         <DialogActions
-          cancelLabel={t('common.cancel', { defaultValue: 'Cancel' })}
+          cancelLabel={t('common.actions.cancel', { defaultValue: 'Cancel' })}
           onCancel={onClose}
           actionLabel={t('accounts.login.loginButton', {
             defaultValue: 'Log In',

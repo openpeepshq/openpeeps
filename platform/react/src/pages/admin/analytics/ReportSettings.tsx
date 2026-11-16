@@ -106,7 +106,7 @@ export const AnalyticsReportSettingsPage = () => {
             disabled={busy}
             onClick={() => void onSave()}
           >
-            {t('admin.analytics.reports.save', { defaultValue: 'Save' })}
+            {t('common.actions.save', { defaultValue: 'Save' })}
           </Button>
           {message ? (
             <p className="text-muted-foreground text-xs">{message}</p>

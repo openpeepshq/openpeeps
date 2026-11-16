@@ -145,7 +145,7 @@ export const VisibilitySheet = forwardRef<
                 });
                 setIsShowSelectGroup(false);
               }}
-              confirmText={t('common.form.save')}
+              confirmText={t('common.actions.save')}
             />
           </>
         ) : (

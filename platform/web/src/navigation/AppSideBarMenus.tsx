@@ -72,8 +72,8 @@ const adminSectionIcons: Record<AdminSectionKey, LucideIcon> = {
 };
 
 const adminSectionLabelKeys: Record<AdminSectionKey, string> = {
-  members: 'navigation.members',
-  groups: 'navigation.groups',
+  members: 'common.entities.members',
+  groups: 'common.entities.groups',
   invites: 'navigation.invites',
   moderation: 'navigation.moderation',
   backups: 'navigation.backups',
@@ -248,14 +248,14 @@ export function AppSideBarMainMenu() {
           pill={unreadGroupPosts}
           tooltip={t('navigation.tooltips.groups')}
         >
-          {t('navigation.groups')}
+          {t('common.entities.groups')}
         </NavItem>
         <NavItem
           to={href({ type: 'events' })}
           icon={CalendarDays}
           tooltip={t('navigation.tooltips.events')}
         >
-          {t('navigation.events')}
+          {t('common.entities.events')}
         </NavItem>
         <NavItem
           to={href({ type: 'articles' })}
@@ -284,14 +284,14 @@ export function AppSideBarMainMenu() {
           icon={BookUser}
           tooltip={t('navigation.tooltips.members')}
         >
-          {t('navigation.members')}
+          {t('common.entities.members')}
         </NavItem>
         <NavItem
           to={href({ type: 'feed', feed: 'bookmarks' })}
           icon={Bookmark}
           tooltip={t('navigation.tooltips.bookmarks')}
         >
-          {t('navigation.bookmarks')}
+          {t('common.entities.bookmarks')}
         </NavItem>
         <NavItem
           to={href({ type: 'settings' })}

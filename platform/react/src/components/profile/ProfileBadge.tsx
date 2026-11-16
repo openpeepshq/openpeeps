@@ -29,7 +29,7 @@ export const ProfileBadge = ({
         <button
           type="button"
           className="hover:bg-secondary ml-0.5 rounded-full p-0.5 transition-colors"
-          title={t('profile.selector.remove', { defaultValue: 'Remove' })}
+          title={t('common.actions.remove', { defaultValue: 'Remove' })}
           onClick={(e) => {
             e.stopPropagation();
             onRemove();

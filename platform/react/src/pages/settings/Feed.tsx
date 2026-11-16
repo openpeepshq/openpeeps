@@ -71,7 +71,7 @@ export function FeedSettings() {
       <Button variant="default" action={onSave} disabled={submitting}>
         {submitting
           ? t('common.saving', { defaultValue: 'Saving…' })
-          : t('common.save', { defaultValue: 'Save' })}
+          : t('common.actions.save', { defaultValue: 'Save' })}
       </Button>
     </div>
   );

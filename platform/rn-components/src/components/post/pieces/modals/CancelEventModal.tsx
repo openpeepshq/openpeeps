@@ -44,7 +44,7 @@ export const CancelEventModal = forwardRef<
 
         <SheetFooter
           onCancel={() => bottomSheetClose(ref)}
-          cancelText={t('posts.deleteEvent.cancel')}
+          cancelText={t('common.actions.cancel')}
           onConfirm={handleDelete}
           disabled={isLoading}
           confirmText={

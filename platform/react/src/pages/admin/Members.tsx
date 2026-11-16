@@ -61,7 +61,7 @@ export function AdminMembers() {
   );
 
   useSetPageHeader(
-    t('admin.members.title', { defaultValue: 'Members' }),
+    t('common.entities.members', { defaultValue: 'Members' }),
     headerActions,
   );
 
@@ -124,7 +124,7 @@ export function AdminMembers() {
                   className="cursor-pointer select-none p-2 text-left"
                   onClick={() => toggleSort('handle')}
                 >
-                  {t('admin.members.handleColumn', {
+                  {t('common.labels.handle', {
                     defaultValue: 'Handle',
                   })}
                   {sort.column === 'handle' &&

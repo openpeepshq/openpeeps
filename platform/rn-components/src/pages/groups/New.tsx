@@ -75,7 +75,7 @@ export const NewGroup: React.FC<NewGroupProps> = ({ navigation }) => {
           />
           <View className="gap-y-2 px-1">
             <Label nativeID="group-members">
-              {t('groups.form.members', { defaultValue: 'Members' })}
+              {t('common.entities.members', { defaultValue: 'Members' })}
             </Label>
             <ProfilesInput
               value={members}

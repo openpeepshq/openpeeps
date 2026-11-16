@@ -61,7 +61,7 @@ export const MarkdownOverlay = ({
             <View className="mt-4 flex justify-end">
               <Button onPress={() => setOpen(false)}>
                 <ThemedText>
-                  {t('posts.truncatedMarkdown.close', {
+                  {t('common.actions.close', {
                     defaultValue: 'Close',
                   })}
                 </ThemedText>

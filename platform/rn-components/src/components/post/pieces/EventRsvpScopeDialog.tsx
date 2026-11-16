@@ -234,9 +234,9 @@ export const EventRsvpScopeDialog = forwardRef<
             confirmText={
               joiningWaitlist
                 ? t('events.rsvp.joinWaitlist')
-                : t('events.rsvp.scope.confirm')
+                : t('common.actions.confirm')
             }
-            cancelText={t('events.rsvp.scope.cancel')}
+            cancelText={t('common.actions.cancel')}
             disabled={confirmDisabled}
             isLoading={isLoading}
           />

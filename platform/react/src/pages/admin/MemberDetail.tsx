@@ -26,14 +26,14 @@ export function AdminMemberDetail() {
 
   useSetPageHeader(
     summaryQuery.data?.profile
-      ? `${summaryQuery.data!.profile.displayName || summaryQuery.data!.profile.handle} — ${t('admin.members.title', { defaultValue: 'Members' })}`
-      : t('admin.members.title', { defaultValue: 'Members' }),
+      ? `${summaryQuery.data!.profile.displayName || summaryQuery.data!.profile.handle} — ${t('common.entities.members', { defaultValue: 'Members' })}`
+      : t('common.entities.members', { defaultValue: 'Members' }),
   );
 
   if (summaryQuery.isLoading) {
     return (
       <div className="text-muted-foreground flex h-32 items-center justify-center text-sm">
-        {t('common.form.loading', { defaultValue: 'Loading…' })}
+        {t('common.states.loading', { defaultValue: 'Loading…' })}
       </div>
     );
   }
@@ -119,7 +119,7 @@ export function AdminMemberDetail() {
               value={data.followingCount}
             />
             <StatRow
-              label={t('admin.members.posts', {
+              label={t('common.entities.posts', {
                 defaultValue: 'Posts',
               })}
               value={data.activity.postsCount}
@@ -131,13 +131,13 @@ export function AdminMemberDetail() {
               value={data.activity.repliesCount}
             />
             <StatRow
-              label={t('admin.members.events', {
+              label={t('common.entities.events', {
                 defaultValue: 'Events',
               })}
               value={data.activity.eventsCount}
             />
             <StatRow
-              label={t('admin.members.groups', {
+              label={t('common.entities.groups', {
                 defaultValue: 'Groups',
               })}
               value={data.activity.groupsCount}
@@ -161,7 +161,7 @@ export function AdminMemberDetail() {
               value={data.activity.rsvpsCount}
             />
             <StatRow
-              label={t('admin.members.bookmarks', {
+              label={t('common.entities.bookmarks', {
                 defaultValue: 'Bookmarks',
               })}
               value={data.activity.bookmarksCount}

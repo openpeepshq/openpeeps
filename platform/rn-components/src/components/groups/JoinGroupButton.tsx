@@ -35,7 +35,7 @@ export const JoinGroupButton = ({ group, onJoined }: JoinGroupButtonProps) => {
   return (
     <Button variant="outline" disabled={submitting} onPress={onPress}>
       <ThemedText>
-        {submitting ? t('common.form.loading') : t('groups.join.submit')}
+        {submitting ? t('common.states.loading') : t('groups.join.submit')}
       </ThemedText>
     </Button>
   );
