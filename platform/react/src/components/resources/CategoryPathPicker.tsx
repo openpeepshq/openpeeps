@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { CategoryNode } from '@openpeepshq/common/lib';
 import { Button, Input } from '@openpeepshq/react-ui';
+import { categoryPathKey } from '@openpeepshq/common/lib';
 import { useT } from '../../i18n';
 
 export interface CategoryPathPickerProps {
@@ -24,7 +25,7 @@ const NodeList = ({
         selected.length === node.path.length &&
         node.path.every((segment, index) => selected[index] === segment);
       return (
-        <li key={node.path.join('/')} className="py-0.5">
+        <li key={categoryPathKey(node.path)} className="py-0.5">
           <button
             type="button"
             className={`text-sm ${active ? 'text-foreground font-semibold' : 'text-muted-foreground hover:text-foreground'}`}

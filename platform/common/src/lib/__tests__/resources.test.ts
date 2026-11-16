@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   attachmentMediaKind,
+  categoryPathKey,
   categoryTreeFromPaths,
   isValidResourceUrl,
   normalizeResourceTags,
@@ -8,6 +9,7 @@ import {
   resourceFormIssues,
   resourceHasRequiredMedia,
   resourceVisibilityForCapabilities,
+  validResourceCategoryPath,
 } from '../resources';
 
 describe('resources helpers', () => {
@@ -177,5 +179,71 @@ describe('resources helpers', () => {
       'hello',
       'world',
     ]);
+  });
+
+  describe('categoryPathKey', () => {
+    it('produces distinct keys for slash-containing folder vs nested folders', () => {
+      // The reported collision: single folder "A/B" vs folder "A" with subfolder "B"
+      expect(categoryPathKey(['[TEST] A/B'])).not.toBe(
+        categoryPathKey(['[TEST] A', 'B']),
+      );
+      expect(categoryPathKey(['[TEST] A/B'])).toBe('["[TEST] A/B"]');
+      expect(categoryPathKey(['[TEST] A', 'B'])).toBe('["[TEST] A","B"]');
+    });
+
+    it('is stable for identical paths', () => {
+      expect(categoryPathKey(['A', 'B', 'C'])).toBe(
+        categoryPathKey(['A', 'B', 'C']),
+      );
+    });
+
+    it('returns "[]" for empty path (root)', () => {
+      expect(categoryPathKey([])).toBe('[]');
+    });
+
+    it('handles special characters via JSON escaping', () => {
+      expect(categoryPathKey(['path\\with\\backslash'])).toBe(
+        '["path\\\\with\\\\backslash"]',
+      );
+      expect(categoryPathKey(['has"quote'])).toBe('["has\\"quote"]');
+      expect(categoryPathKey(['HR/Benefits'])).toBe('["HR/Benefits"]');
+    });
+  });
+
+  describe('validResourceCategoryPath', () => {
+    it('accepts undefined', () => {
+      expect(validResourceCategoryPath(undefined)).toBe(true);
+    });
+
+    it('accepts valid paths', () => {
+      expect(validResourceCategoryPath(['HR', 'Benefits'])).toBe(true);
+      expect(validResourceCategoryPath([])).toBe(true);
+      expect(validResourceCategoryPath(['normal'])).toBe(true);
+    });
+
+    it('rejects blank or whitespace-only segments', () => {
+      expect(validResourceCategoryPath([''])).toBe(false);
+      expect(validResourceCategoryPath(['   '])).toBe(false);
+      expect(validResourceCategoryPath(['HR', ''])).toBe(false);
+      expect(validResourceCategoryPath([' A'])).toBe(false);
+      expect(validResourceCategoryPath(['A '])).toBe(false);
+    });
+  });
+
+  describe('categoryTreeFromPaths collision guard', () => {
+    it('produces two distinct roots for slash-folder vs nested folders', () => {
+      const tree = categoryTreeFromPaths([
+        ['[TEST] A/B'],
+        ['[TEST] A', 'B'],
+      ]);
+      expect(tree).toHaveLength(2);
+      expect(tree[0].name).toBe('[TEST] A/B');
+      expect(tree[0].path).toEqual(['[TEST] A/B']);
+      expect(tree[1].name).toBe('[TEST] A');
+      expect(tree[1].path).toEqual(['[TEST] A']);
+      expect(tree[1].children).toHaveLength(1);
+      expect(tree[1].children[0].name).toBe('B');
+      expect(tree[1].children[0].path).toEqual(['[TEST] A', 'B']);
+    });
   });
 });

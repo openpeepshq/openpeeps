@@ -14,7 +14,7 @@ import {
   normalizeResourceTags,
   resourceFormIssues,
 } from '@openpeepshq/common/lib';
-import { applyAudienceSetting, useCurrentProfile } from '@openpeepshq/react';
+import { applyAudienceSetting, useCurrentProfile, useResourceLibrary } from '@openpeepshq/react';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
   AudioPickerSheet,
@@ -28,6 +28,7 @@ import { ThemedText } from '../../ui/themed-text';
 import { ComposeAttachments } from './ComposeAttachments';
 import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
 import { VisibilitySelector } from './VisibilitySelector';
+import { CategoryPathPicker } from '../../resources/CategoryPathPicker';
 
 export interface ResourceFormProps {
   postData: PostCreationData;
@@ -47,6 +48,10 @@ export const ResourceForm = ({
   const me = useCurrentProfile();
   const resource = postData.data as ResourcePost;
   const [tagDraft, setTagDraft] = useState('');
+  const library = useResourceLibrary(
+    postData.groupId ?? undefined,
+    !postData.groupId,
+  );
   const imageRef = useRef<BottomSheetModal>(null);
   const videoRef = useRef<BottomSheetModal>(null);
   const audioRef = useRef<BottomSheetModal>(null);
@@ -297,19 +302,10 @@ export const ResourceForm = ({
             defaultValue: 'Place in the library',
           })}
         </ThemedText>
-        <Input
-          value={(resource.categoryPath ?? []).join(' / ')}
-          onChangeText={(value) =>
-            patchResource({
-              categoryPath: value
-                .split('/')
-                .map((segment) => segment.trim())
-                .filter(Boolean),
-            })
-          }
-          placeholder={t('resources.form.addLevel', {
-            defaultValue: 'Add a folder',
-          })}
+        <CategoryPathPicker
+          path={resource.categoryPath ?? []}
+          tree={library.tree}
+          onChange={(categoryPath: string[]) => patchResource({ categoryPath })}
         />
 
         <ThemedText className="text-sm font-medium">
