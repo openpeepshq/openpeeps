@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **theme**: preview light and dark mode colors with contrast check
 - **skill**: drop the milestone stats table
 - **skill**: split milestone burndown into four pipeline stages
 - **skill**: add forgejo-first-issue skill for label-based issue picking
@@ -16,6 +17,13 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **resources**: make file downloads work cross-origin via Content-Disposition
+- **resources**: persist library filters in the URL without breaking the tab hash
+- **resources**: label the folder tree controls for assistive tech
+- **dates**: tick UpdatingDate at minute boundaries instead of polling
+- **i18n**: make the resource library count plural-aware
+- **deps**: vitest 2.1.9 -> 4.1.12 to clear critical UI file-read and both tinypool criticals
+- **deps**: in-range patch sweep to clear brace-expansion, js-yaml, minimatch, fast-uri, hono, joi, ws, qs advisories
 - **deps**: force basic-ftp 6.2.6 tree-wide to clear remaining 3 advisories
 - **deps**: bump @livekit/react-native-webrtc to 144.1.1
 - **deps**: bump concurrently to 9.2.5 to clear shell-quote + lodash advisories
@@ -60,6 +68,8 @@ Changelog for OpenPeeps
 
 ### Chores
 
+- **deps**: wave-3 transitive security override batch
+- **pnpm**: force shell-quote 1.12.0 tree-wide to clear 2 critical advisories
 - **deps**: remove redundant pnpm overrides and pin dompurify (fix #2025)
 - **pnpm**: force fast-jwt 6.3.6 override to clear multiple advisories (3 critical)
 - **deps**: remove unused turbo devDependency from rn-components
