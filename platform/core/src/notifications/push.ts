@@ -267,6 +267,30 @@ const sendAppFCMPushNotifications = async (
         `FCM push to ${describeFcmTarget(account, subscription)} failed`,
         response.error,
       );
+      // Delete dead subscriptions so stale FCM tokens don't keep receiving pushes
+      // after an uninstall, crash or missed logout cleanup.
+      const errMsg = response.error?.code ?? response.error ?? '';
+      const isUnregistered =
+        /messaging\/registration-token-not-registered/.test(errMsg) ||
+        /messaging\/invalid-argument/.test(errMsg);
+      if (isUnregistered) {
+        await deletePushSubscription(subscription.id)
+          .then(() =>
+            logStep(
+              jobLog,
+              log,
+              `Removed dead FCM subscription ${subscription.id} (token not registered)`,
+            ),
+          )
+          .catch((deleteError) =>
+            logFailure(
+              jobLog,
+              log,
+              `failed to remove FCM subscription ${subscription.id}`,
+              deleteError,
+            ),
+          );
+      }
     }
   }
 

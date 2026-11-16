@@ -8,6 +8,7 @@ import {
 import type { ProfileWithMeta, PublicAccount } from '@openpeepshq/common';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCredentialsStore } from '../../credentialsStore';
+import { unsubscribePushNotifications } from '../push/webPush';
 
 export const authHooks = (
   client: OpenpeepsClient,
@@ -22,15 +23,14 @@ export const authHooks = (
     retrieveAccount(client),
     setCurrentAccount,
   ),
-  logoutAction: () => {
+  logoutAction: async () => {
     const { credentialsStore } = useCredentialsStore();
     const queryClient = useQueryClient();
-    return async () => {
-      await credentialsStore.clear();
-      queryClient?.clear();
-      setCurrentProfile(undefined);
-      setCurrentAccount(undefined);
-    };
+    await credentialsStore.clear();
+    await unsubscribePushNotifications();
+    queryClient?.clear();
+    setCurrentProfile(undefined);
+    setCurrentAccount(undefined);
   },
   registerAction: updateCredentialsWrapper(
     client.auth.register,

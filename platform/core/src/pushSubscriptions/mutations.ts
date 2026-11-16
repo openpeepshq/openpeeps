@@ -28,6 +28,9 @@ export const createPushSubscription = async (
     .first(db);
 
   if (existingPushSubscription) {
+    // Relink the existing subscription to the new account so that
+    // logins on this device register the new account as well.
+    await pushSubscriptionAccountConnector(db, account, existingPushSubscription);
     return existingPushSubscription;
   }
 

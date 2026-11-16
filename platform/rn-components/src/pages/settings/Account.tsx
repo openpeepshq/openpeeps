@@ -9,9 +9,10 @@ import { Form, FormField, FormInput } from '../../components/ui/form';
 import Toast from 'react-native-toast-message';
 import { Button } from '../../components/ui/button';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { Account } from '@openpeepshq/common';
+import { Account, PushSubscriptionData } from '@openpeepshq/common';
 import { ActivityIndicator, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { unregisterPushForLogout } from '../../lib/push-notifications';
 
 type AccountSettingsProps = MainScreenProps<'AccountSettings'>;
 
@@ -25,6 +26,7 @@ type AccountFormValues = {
 export const AccountSettings: React.FC<AccountSettingsProps> = () => {
   const { openpeepsApi, queryClient } = useOpenpeeps();
   const { data: currentAccount } = openpeepsApi.useCurrentAccount();
+  const { data: pushSubscriptions } = openpeepsApi.useListPushSubscriptions();
   const logout = openpeepsApi.logoutAction();
   const [isOldPasswordVisible, setIsOldPasswordVisible] = React.useState(false);
   const [isNewPasswordVisible, setIsNewPasswordVisible] = React.useState(false);
@@ -101,6 +103,14 @@ export const AccountSettings: React.FC<AccountSettingsProps> = () => {
           text1: t('settings.account.updateSuccess'),
           text2: t('settings.account.updateSuccessMessage'),
         });
+        // Clean up this device's push subscription before clearing credentials,
+        // so the logged-out device stops receiving notifications for old accounts.
+        const allSubscriptions = await openpeepsApi.accounts.current
+          .listPushSubscriptions()
+          .then((r: { data: PushSubscription[] } | { error: unknown }) =>
+            'data' in r ? r.data : []
+          );
+        await unregisterPushForLogout(allSubscriptions, openpeepsApi);
         await queryClient.invalidateQueries({
           queryKey: ['profile'],
         });

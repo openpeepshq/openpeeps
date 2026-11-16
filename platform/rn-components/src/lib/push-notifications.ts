@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import type { PushMessage, PushSubscriptionData } from '@openpeepshq/common';
+import type { PushMessage, PushSubscriptionData, PushSubscription } from '@openpeepshq/common';
+import type { OpenpeepsClient } from '@openpeepshq/client';
 import { getApp } from '@react-native-firebase/app';
 import {
   FirebaseMessagingTypes,
@@ -245,3 +246,50 @@ export const initializePushNotifications = async (
   }
   return fcmRegistration;
 };
+
+/** Find the current device's FCM token, delete its server subscription,
+ * and drop the local FCM registration so the next login registers fresh.
+ * Called during logout before credentials are cleared. */
+export const unregisterPushForLogout = async (
+  pushSubscriptions: PushSubscription[],
+  client: OpenpeepsClient
+): Promise<void> => {
+  let token: string | undefined;
+  try {
+    const app = getApp();
+    token = await getToken(app.messaging());
+  } catch {
+    // No FCM token available; nothing to clean up locally.
+  }
+  if (!token) return;
+
+  const sub = pushSubscriptions.find(
+    (subscription) =>
+      subscription.type === 'fcm' && subscription.fcmToken === token
+  );
+  if (!sub) return;
+
+  // Delete the server-side subscription row for this device.
+  const handleResult = <T>(r: { data: T } | { error: unknown }): T => {
+    if ('data' in r) return r.data;
+    throw r.error;
+  };
+  try {
+    await client.accounts.current.deletePushSubcription({
+      pushSubscriptionId: sub.id,
+    }).then(handleResult);
+  } catch {
+    // Best-effort logging; callers handle errors gracefully.
+  }
+
+  // Drop the local FCM registration so the next login registers fresh.
+  try {
+    const app = getApp();
+    await app.messaging().deleteToken();
+  } catch {
+    // Token may already be gone; ignore.
+  }
+};
+
+const shorten = (value: string) =>
+  value.length > 14 ? `${value.slice(0, 8)}…${value.slice(-4)}` : value;
