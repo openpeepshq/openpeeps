@@ -15,6 +15,9 @@ Produces a milestone description containing:
 
      Each issue's stage history is reconstructed from its `/timeline` label
      events. `flow/*` labels are exclusive, so the latest flow event wins.
+     Each day's bar is scaled to the busiest day; a `|` marker shows that
+     day's ideal count (linear from the window's first day to 0 on the due
+     date).
 
 Closed issues are ignored in the stats table; the burndown uses the open/closed
 timeline of the current milestone scope.
@@ -247,43 +250,66 @@ for d, c in zip(days, day_stage_counts):
     )
 
 # --- Render the burndown as an ASCII chart ---
+# Each day's bar is scaled to the maximum daily count (the busiest day fills
+# the full width). The `|` marks that day's ideal count, placed at its position
+# on the same scale (inside the bar when actual >= ideal, in the empty space
+# beyond it when actual < ideal).
 max_count = max(open_counts) if open_counts else 1
-bar_width = 28
+bar_width = 56
 
 
-def bar(counts):
-    widths = [round(counts[s] / max_count * bar_width) if max_count else 0 for s in STAGES]
-    widths[0] += bar_width - sum(widths)  # absorb rounding into the first segment
-    widths = [max(0, w) for w in widths]
-    return "".join(STAGE_GLYPH[s] * widths[i] for i, s in enumerate(STAGES))
-
-
-# Ideal: linear from first_count on `start` to 0 on `end`.
 def ideal_on(d):
+    """Ideal open count at end of `d`: linear from first_count to 0."""
     if end == start:
         return 0
     frac = (d - start).days / (end - start).days
     return round(first_count * (1 - frac))
 
 
+def render_bar(counts, ideal):
+    """Stage-segmented bar scaled to max_count, with a `|` at the ideal count.
+
+    The bar's length is the day's total open count on the max_count scale; the
+    grey-scale segments show the composition across pipeline stages. The `|`
+    sits where the ideal count would be on the same scale.
+    """
+    if max_count == 0:
+        return ""
+    total = sum(counts.values())
+    length = max(0, min(round(total / max_count * bar_width), bar_width))
+    if total > 0 and length > 0:
+        # Largest-remainder split so the segments sum to exactly `length`.
+        raw = [counts[s] / total * length for s in STAGES]
+        widths = [int(w) for w in raw]
+        leftover = length - sum(widths)
+        order = sorted(range(len(STAGES)), key=lambda i: raw[i] - int(raw[i]), reverse=True)
+        for k in range(leftover):
+            widths[order[k % len(STAGES)]] += 1
+        bar = "".join(STAGE_GLYPH[s] * widths[i] for i, s in enumerate(STAGES))
+    else:
+        bar = ""
+    bar = bar.ljust(bar_width)
+    pipe = max(0, min(round(ideal / max_count * bar_width), bar_width - 1))
+    return bar[:pipe] + "|" + bar[pipe + 1:]
+
+
 chart_lines = ["```"]
 chart_lines.append(
     f"Open issues  (max={max_count})"
-    "  ░ pre-planning  ▒ planning  ▓ implementation  █ testing"
+    "   | = ideal   ░ pre-planning  ▒ planning  ▓ implementation  █ testing"
 )
 chart_lines.append("")
 today = date.today()
 for d, counts in zip(days, day_stage_counts):
     ideal = ideal_on(d)
-    ib = "·" * round(ideal / max_count * bar_width) if max_count else ""
     if d > today:
-        # Future date: only show the ideal line, no actual bar.
-        chart_lines.append(
-            f"{d.isoformat()}   —  {' ' * bar_width}  ideal {ideal:>3} {ib}"
-        )
+        # Future date: no actual bar, only the ideal marker.
+        label = f"{'—':>3}"
+        bar = render_bar({s: 0 for s in STAGES}, ideal)
     else:
-        b = bar(counts)
-        chart_lines.append(f"{d.isoformat()}  {sum(counts.values()):>3} {b}  ideal {ideal:>3} {ib}")
+        label = f"{sum(counts.values()):>3}"
+        bar = render_bar(counts, ideal)
+    chart_lines.append(f"{d.isoformat()}  {label}  {bar}")
 chart_lines.append("```")
 
 # Open issues that currently need human intervention (awaiting a human gate).
@@ -322,8 +348,10 @@ burndown_section = [
     f"░ pre-planning (unlabeled / `needs-specs` / `ready-to-schedule`), "
     f"▒ planning (`ready-to-plan` / `ready-to-review-plan`), "
     f"▓ implementation (`ready-to-implement` through `merge-accepted`), "
-    f"█ testing (`ready-to-test` / `on-test-instance` / `waiting-for-app-build`). "
-    f"Ideal line: linear from {first_count} on {start.isoformat()} to 0 on {end.isoformat()}. "
+    f"█ testing (`on-test-instance` / `ready-to-test`). "
+    f"Bars are scaled to the busiest day ({max_count}); the `|` marks the ideal "
+    f"count for that day, linear from {first_count} on {start.isoformat()} to 0 "
+    f"on {end.isoformat()}. "
     f"Scope changes (issues moved in/out of the milestone during the window) are not reflected.",
 ]
 

@@ -6,9 +6,9 @@ description: Update an OpenPeeps milestone description with a burndown chart for
 # Triage OpenPeeps Milestone
 
 Updates a Gitea/Forgejo milestone description with a **burndown chart** for the
-7 days before the milestone due date. Each day's bar is split into four
-pipeline stages by mapping each issue's `flow/*` label (and its label history)
-to a stage:
+7 days before the milestone due date. Each day's bar shows the open-issue
+count scaled to the busiest day, split into four pipeline stages by mapping
+each issue's `flow/*` label (and its label history) to a stage:
 
 - `░` **pre-planning** — no `flow/*` label, `flow/needs-specs`,
   `flow/ready-to-schedule`
@@ -20,14 +20,14 @@ to a stage:
 
 Each issue's stage history is reconstructed from its `/timeline` label events
 (`flow/*` labels are exclusive, so the latest flow event wins; the issue's
-current label is the authoritative end-of-timeline state). Below the chart a
-single "🧍 Needs human intervention" line reports how many open issues in the
+current label is the authoritative end-of-timeline state). The `|` marker in
+each bar shows that day's ideal count (linear from the window's first day to 0
+on the due date). Below the chart a single "🧍 Needs human intervention" line
+reports how many open issues in the
 milestone are currently waiting on a human gate:
 `flow/ready-to-schedule`, `flow/ready-to-review-plan`, `flow/ready-to-merge`,
-`flow/on-test-instance` and `flow/ready-to-test`. A linear ideal line runs from
-the first day's count
-to 0 on the due date. Scope changes (issues moved in/out during the window)
-are not reflected.
+`flow/on-test-instance` and `flow/ready-to-test`. Scope changes (issues moved
+in/out during the window) are not reflected.
 
 ## Scripts
 
@@ -41,9 +41,9 @@ python3 .agents/skills/triage-openpeeps-milestone/generate-stats.py --milestone-
 
 Scans all repository issues (the `milestone=N` API filter returns incomplete
 results due to a Gitea pagination bug, so it scans all issues and filters
-client-side) and renders a 7-day burndown chart (open-issue count per day,
-split across the four pipeline stages, + ideal line) and a "needs human
-intervention" line. Each issue's stage history comes from its `/timeline`
+client-side) and renders a 7-day burndown chart (bars scaled to the busiest
+day, split across the four pipeline stages, with a `|` marking each day's
+ideal count) and a "needs human intervention" line. Each issue's stage history comes from its `/timeline`
 label events. Writes the description via `PATCH /milestones/{id}`. Pass
 `--dry-run` to print the description without updating the milestone.
 
