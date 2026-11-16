@@ -3242,7 +3242,8 @@
       "jam": "Jam-Veranstaltung",
       "online": "Online",
       "external": "Externe Veranstaltung",
-      "physical": "Physischer Ort"
+      "physical": "Physischer Ort",
+      "openJam": "Jam dieser Veranstaltung öffnen"
     },
     "community": "Community-Veranstaltung",
     "noRsvps": "Noch keine Zusagen",

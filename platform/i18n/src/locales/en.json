@@ -3156,7 +3156,8 @@
       "jam": "Jam Event",
       "online": "Online",
       "external": "External Event",
-      "physical": "Physical Location"
+      "physical": "Physical Location",
+      "openJam": "Open this event's jam"
     },
     "hostedBy": "Organizer {{profileName}}",
     "group": "Group Event In:",

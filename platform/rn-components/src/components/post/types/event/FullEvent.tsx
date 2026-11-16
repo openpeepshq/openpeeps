@@ -138,6 +138,11 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
     ? `${BASE_URL}/events/${post?.id}/jam?occurrence=${encodeURIComponent(occurrence)}`
     : `${BASE_URL}/events/${post?.id}/jam`;
 
+  const copyJamLink = () => {
+    Clipboard.setString(jamLink);
+    Toast.show({ type: 'success', text1: 'Link copied to clipboard' });
+  };
+
   const onRepostToFeed = () =>
     openNewPost({
       initialContent: `Join our event happening at ${BASE_URL}/post/${post?.id}`,
@@ -251,13 +256,7 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="flex-row gap-x-2 items-center"
-                  onPress={() => {
-                    Clipboard.setString(jamLink);
-                    Toast.show({
-                      type: 'success',
-                      text1: 'Link copied to clipboard',
-                    });
-                  }}
+                  onPress={copyJamLink}
                 >
                   <Link2Icon className="text-muted-foreground" size={18} />
                   <ThemedText>Copy link</ThemedText>
@@ -345,9 +344,25 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
               <ThemedText className="text-xl">
                 {t('events.location.jam', { defaultValue: 'Jam Event' })}
               </ThemedText>
-              <ThemedText className="text-muted-foreground mt-2">
-                {truncateText(jamLink, 30)}
-              </ThemedText>
+              <TouchableOpacity
+                accessibilityRole="link"
+                accessibilityLabel={t('events.location.openJam', {
+                  defaultValue: "Open this event's jam",
+                })}
+                activeOpacity={0.7}
+                className="mt-2 -my-1 px-2 py-1"
+                onPress={() =>
+                  navigation.navigate('JamSession', {
+                    jamId: post.id,
+                    occurrence,
+                  })
+                }
+                onLongPress={copyJamLink}
+              >
+                <ThemedText className="text-muted-foreground underline">
+                  {truncateText(jamLink, 30)}
+                </ThemedText>
+              </TouchableOpacity>
             </>
           ) : event?.url ? (
             <>

@@ -31,10 +31,13 @@ jest.mock('react-native', () => {
   const React = require('react');
   const make = (tag: string) => (props: { children?: ReactNode }) =>
     React.createElement(tag, null, props.children);
+  // forwards props so the tappable Jam URL's a11y/press handlers are testable
+  const makeTouchable = (tag: string) => (props: { children?: ReactNode }) =>
+    React.createElement(tag, props, props.children);
   return {
     View: make('View'),
     Pressable: make('Pressable'),
-    TouchableOpacity: make('TouchableOpacity'),
+    TouchableOpacity: makeTouchable('TouchableOpacity'),
     Image: make('Image'),
     Share: { share: jest.fn() },
   };
@@ -93,9 +96,11 @@ jest.mock('@react-navigation/native-stack', () => ({}));
 // --- native third-party modules (no native impl in node) ------------------
 jest.mock('react-native-fs', () => ({ default: { CachesDirectoryPath: '' } }));
 jest.mock('@react-native-clipboard/clipboard', () => ({
+  __esModule: true,
   default: { setString: jest.fn(), getString: jest.fn() },
 }));
 jest.mock('react-native-toast-message', () => ({
+  __esModule: true,
   default: { show: jest.fn() },
 }));
 jest.mock('@gorhom/bottom-sheet', () => ({
@@ -229,6 +234,8 @@ jest.mock('../../index', () => ({
   useNewPostModal: () => ({ openNewPost: jest.fn() }),
 }));
 
+import Clipboard from '@react-native-clipboard/clipboard';
+import Toast from 'react-native-toast-message';
 import { FullEvent } from './FullEvent';
 
 type TreeNode = {
@@ -253,6 +260,20 @@ function joinButton(node: TreeNode): TreeNode | undefined {
   return JSON.stringify(node.children || []).includes('Join Jam')
     ? node
     : undefined;
+}
+
+// The tappable Jam URL: the only TouchableOpacity exposed as a link.
+function jamUrlLink(node: TreeNode): TreeNode | undefined {
+  if (
+    node.type === 'TouchableOpacity' &&
+    node.props?.accessibilityRole === 'link'
+  )
+    return node;
+  for (const c of node.children || []) {
+    const found = typeof c === 'string' ? undefined : jamUrlLink(c);
+    if (found) return found;
+  }
+  return undefined;
 }
 
 const BASE_POST = {
@@ -380,4 +401,67 @@ test('7. button is a pure navigation trigger — capacity gated in JamSession, n
     occurrence: undefined,
   });
   tree.unmount();
+});
+
+// Tappable Jam URL (issue #2063): the URL text on a jam event opens the
+// in-app JamSession instead of being inert text.
+describe('tappable Jam URL', () => {
+  const link = (tree: ReactTestRenderer.ReactTestRenderer) =>
+    jamUrlLink(tree.toJSON() as unknown as TreeNode);
+
+  test('8. jam event -> URL renders as an accessible link with a tap target', () => {
+    const tree = render(BASE_POST);
+    const row = link(tree);
+    expect(row).toBeDefined();
+    expect(row!.props?.accessibilityLabel).toBe("Open this event's jam");
+    expect(row!.props?.activeOpacity).toBe(0.7);
+    expect(JSON.stringify(row!.children)).toContain('openpeeps.org/events');
+    tree.unmount();
+  });
+
+  test('9. press forwards the occurrence, and omits it at the base view', () => {
+    const occTree = render(BASE_POST, 'occ-1');
+    ReactTestRenderer.act(() => {
+      (link(occTree)!.props?.onPress as () => void)();
+    });
+    expect(mockNavigate).toHaveBeenCalledWith('JamSession', {
+      jamId: 'post-1',
+      occurrence: 'occ-1',
+    });
+    occTree.unmount();
+
+    const baseTree = render(BASE_POST);
+    ReactTestRenderer.act(() => {
+      (link(baseTree)!.props?.onPress as () => void)();
+    });
+    expect(mockNavigate).toHaveBeenCalledWith('JamSession', {
+      jamId: 'post-1',
+      occurrence: undefined,
+    });
+    baseTree.unmount();
+  });
+
+  test('10. long-press copies the full web URL and confirms with a toast', () => {
+    const tree = render(BASE_POST, 'occ-1');
+    ReactTestRenderer.act(() => {
+      (link(tree)!.props?.onLongPress as () => void)();
+    });
+    expect(Clipboard.setString).toHaveBeenCalledWith(
+      'https://openpeeps.org/events/post-1/jam?occurrence=occ-1'
+    );
+    expect(Toast.show).toHaveBeenCalledWith({
+      type: 'success',
+      text1: 'Link copied to clipboard',
+    });
+    tree.unmount();
+  });
+
+  test('11. non-jam event -> no tappable Jam URL', () => {
+    const tree = render({
+      ...BASE_POST,
+      data: { ...BASE_POST.data, jam: false },
+    });
+    expect(link(tree)).toBeUndefined();
+    tree.unmount();
+  });
 });
