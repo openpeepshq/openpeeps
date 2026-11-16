@@ -16,7 +16,9 @@ each issue's `flow/*` label (and its label history) to a stage:
 - `▓` **implementation** — `flow/ready-to-implement`, `flow/ready-to-review`,
   `flow/ready-to-merge`, `flow/merge-accepted`
 - `█` **testing** — `flow/on-test-instance` (pre-merge PR verification),
-  `flow/ready-to-test` (post-merge, awaiting QA close)
+  `flow/ready-to-test` (post-merge, awaiting QA close),
+  `flow/waiting-for-app-build` (post-merge RN-only change, not testable until
+  the native app build ships)
 
 Each issue's stage history is reconstructed from its `/timeline` label events
 (`flow/*` labels are exclusive, so the latest flow event wins; the issue's
@@ -26,7 +28,7 @@ on the due date). Below the chart a single "🧍 Needs human intervention" line
 reports how many open issues in the
 milestone are currently waiting on a human gate:
 `flow/ready-to-schedule`, `flow/ready-to-review-plan`, `flow/ready-to-merge`,
-`flow/on-test-instance` and `flow/ready-to-test`. Scope changes (issues moved
+`flow/on-test-instance`, `flow/waiting-for-app-build` and `flow/ready-to-test`. Scope changes (issues moved
 in/out during the window) are not reflected.
 
 ## Scripts
@@ -53,13 +55,16 @@ label events. Writes the description via `PATCH /milestones/{id}`. Pass
 python3 .agents/skills/triage-openpeeps-milestone/find-ready-to-test.py --milestone-id <ID>
 ```
 
-For each milestone issue without the `flow/ready-to-test` label:
+For each milestone issue without a post-merge label (`flow/ready-to-test` or
+`flow/waiting-for-app-build`):
 
 1. Finds merged PRs referencing it (via `#NNNN` text refs and `/issues/N` URLs in
    PR body/title).
 2. Finds the issue's last comment date.
-3. If a merged PR was merged **after** the last comment, adds the
-   `flow/ready-to-test` org label.
+3. If a merged PR was merged **after** the last comment, adds the post-merge
+   label for the newest such PR: `flow/waiting-for-app-build` when it changed
+   **only** `platform/rn-components` files (the change is not testable until the
+   native app is rebuilt with it), otherwise `flow/ready-to-test`.
 
 Run this before `generate-stats.py` to pick up newly-merged work.
 

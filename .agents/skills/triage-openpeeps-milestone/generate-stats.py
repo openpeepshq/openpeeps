@@ -11,7 +11,7 @@ Produces a milestone description containing:
        - planning       (ready-to-plan / ready-to-review-plan)
        - implementation (ready-to-implement / ready-to-review / ready-to-merge /
                          merge-accepted)
-       - testing        (on-test-instance / ready-to-test)
+       - testing        (on-test-instance / ready-to-test / waiting-for-app-build)
 
      Each issue's stage history is reconstructed from its `/timeline` label
      events. `flow/*` labels are exclusive, so the latest flow event wins.
@@ -83,7 +83,7 @@ STAGE_OF_LABEL = {
         "flow/ready-to-merge",
         "flow/merge-accepted",
     },
-    STAGE_TEST: {"flow/on-test-instance", "flow/ready-to-test"},
+    STAGE_TEST: {"flow/on-test-instance", "flow/ready-to-test", "flow/waiting-for-app-build"},
 }
 LABEL_TO_STAGE = {lbl: stage for stage, lbls in STAGE_OF_LABEL.items() for lbl in lbls}
 
@@ -320,6 +320,7 @@ NEEDS_HUMAN = [
     ("ready-to-review-plan", "flow/ready-to-review-plan"),
     ("ready-to-merge", "flow/ready-to-merge"),
     ("on-test-instance", "flow/on-test-instance"),
+    ("waiting-for-app-build", "flow/waiting-for-app-build"),
     ("ready-to-test", "flow/ready-to-test"),
 ]
 human_counts = {}
@@ -348,7 +349,7 @@ burndown_section = [
     f"░ pre-planning (unlabeled / `needs-specs` / `ready-to-schedule`), "
     f"▒ planning (`ready-to-plan` / `ready-to-review-plan`), "
     f"▓ implementation (`ready-to-implement` through `merge-accepted`), "
-    f"█ testing (`on-test-instance` / `ready-to-test`). "
+    f"█ testing (`on-test-instance` / `ready-to-test` / `waiting-for-app-build`). "
     f"Bars are scaled to the busiest day ({max_count}); the `|` marks the ideal "
     f"count for that day, linear from {first_count} on {start.isoformat()} to 0 "
     f"on {end.isoformat()}. "

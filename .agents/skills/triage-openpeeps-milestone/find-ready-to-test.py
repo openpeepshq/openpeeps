@@ -3,7 +3,10 @@
 For each milestone issue:
   1. Find merged PRs referencing it
   2. Find the issue's last comment date
-  3. If a merged PR was merged AFTER the last comment, add flow/ready-to-test label
+  3. If a merged PR was merged AFTER the last comment, add the post-merge
+     stage label: flow/ready-to-test, or flow/waiting-for-app-build when the
+     newest qualifying PR changed only platform/rn-components files (its
+     change is not verifiable until the native app is rebuilt with it)
 Then re-run the triage stats.
 
 Usage:
@@ -44,6 +47,8 @@ _args = parse_args()
 TOKEN = _args.token
 MILESTONE_ID = _args.milestone_id
 LABEL_READY = "flow/ready-to-test"
+LABEL_WAITING = "flow/waiting-for-app-build"
+RN_PREFIX = "platform/rn-components/"
 
 def api_get(url):
     headers = {'Authorization': f'token {TOKEN}'}
@@ -69,6 +74,20 @@ def api_patch(url, data):
     req = urllib.request.Request(url, data=body, headers=headers, method='PATCH')
     with urllib.request.urlopen(req) as resp:
         return json.loads(resp.read().decode())
+
+def pr_is_rn_only(pr_number):
+    """True if every file the PR changed is inside platform/rn-components/."""
+    all_files = []
+    for page in range(1, 20):
+        files = api_get(f"{BASE}/pulls/{pr_number}/files?limit=100&page={page}") or []
+        if not files:
+            break
+        all_files.extend(files)
+        if len(files) < 100:
+            break
+    if not all_files:
+        return False
+    return all((f.get('filename') or '').startswith(RN_PREFIX) for f in all_files)
 
 # --- Step 1: Fetch all milestone items (all states) ---
 print(f"=== Fetching milestone {MILESTONE_ID} items ===")
@@ -134,8 +153,8 @@ for num in sorted(milestone_items.keys()):
     issue = milestone_items[num]
     current_labels = [l['name'] for l in issue.get('labels', [])]
 
-    # Skip if already has the label
-    if LABEL_READY in current_labels:
+    # Skip if already has a post-merge stage label
+    if LABEL_READY in current_labels or LABEL_WAITING in current_labels:
         already_labeled.append(num)
         continue
 
@@ -160,12 +179,16 @@ for num in sorted(milestone_items.keys()):
     merged_after_comment = [p for p in prs if p['merged_at'] and p['merged_at'] > last_comment_date]
 
     if merged_after_comment:
-        # Add the label
+        # RN-only changes are not testable until the native app ships with
+        # them, so they wait for the app build instead of going straight to
+        # QA.
+        newest = max(merged_after_comment, key=lambda p: p['merged_at'])
+        label = LABEL_WAITING if pr_is_rn_only(newest['pr_number']) else LABEL_READY
         try:
-            api_post(f"{BASE}/issues/{num}/labels", {"labels": [LABEL_READY]})
+            api_post(f"{BASE}/issues/{num}/labels", {"labels": [label]})
             newly_labeled.append(num)
             pr_info = ', '.join(f"#{p['pr_number']} (merged {p['merged_at'][:10]})" for p in merged_after_comment)
-            print(f"  #{num}: labeled ready-to-test (PR {pr_info} merged after last comment {last_comment_date[:10]})")
+            print(f"  #{num}: labeled {label} (PR {pr_info} merged after last comment {last_comment_date[:10]})")
         except Exception as e:
             print(f"  #{num}: FAILED to label - {e}")
     else:
