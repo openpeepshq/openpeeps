@@ -27,8 +27,9 @@ each bar shows that day's ideal count (linear from the window's first day to 0
 on the due date). Below the chart a single "🧍 Needs human intervention" line
 reports how many open issues in the
 milestone are currently waiting on a human gate:
-`flow/ready-to-schedule`, `flow/ready-to-review-plan`, `flow/ready-to-merge`,
-`flow/on-test-instance`, `flow/waiting-for-app-build` and `flow/ready-to-test`. Scope changes (issues moved
+`flow/needs-specs`, `flow/ready-to-schedule`, `flow/ready-to-review-plan`,
+`flow/ready-to-merge`, `flow/on-test-instance`, `flow/waiting-for-app-build`
+and `flow/ready-to-test`. Scope changes (issues moved
 in/out during the window) are not reflected.
 
 ## Scripts

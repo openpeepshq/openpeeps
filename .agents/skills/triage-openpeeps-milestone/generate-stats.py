@@ -312,10 +312,10 @@ for d, counts in zip(days, day_stage_counts):
     chart_lines.append(f"{d.isoformat()}  {label}  {bar}")
 chart_lines.append("```")
 
-# Open issues that currently need human intervention (awaiting a human gate).
-# The raw flow/needs-specs backlog is excluded on purpose: it is untriaged
-# intake, not in-pipeline work waiting on a decision.
+# Open issues that currently need human intervention (awaiting a human gate),
+# in workflow order.
 NEEDS_HUMAN = [
+    ("needs-specs", "flow/needs-specs"),
     ("ready-to-schedule", "flow/ready-to-schedule"),
     ("ready-to-review-plan", "flow/ready-to-review-plan"),
     ("ready-to-merge", "flow/ready-to-merge"),
