@@ -15,7 +15,9 @@ import type {
   PostType,
   PublicPost,
   UnseenPostCounts,
+  EventRangeQueryParams,
 } from '@openpeepshq/common';
+import { useQuery, type QueryKey } from '@tanstack/react-query';
 
 type EventFeedHook = ReturnType<
   typeof infiniteOffsetQueryApiHook<
@@ -76,6 +78,31 @@ const eventFeeds = (
     infiniteOffsetQueryApiHook(client.posts.feeds.events.group.past, {
       pathParams: { groupId },
       pageSize: 15,
+    }),
+  /** Calendar range query — single shot, not paging. */
+  useEventsCalendarRange: ({
+    from,
+    to,
+  }: { from: string; to: string }) =>
+    apiHook(client.posts.feeds.events.range, {
+      queryParams: { from, to, limit: 500 },
+    }),
+  /** Calendar my-range query — single shot, not paging. */
+  useEventsCalendarMyRange: ({
+    from,
+    to,
+  }: { from: string; to: string }) =>
+    apiHook(client.posts.feeds.events.my.range, {
+      queryParams: { from, to, limit: 500 },
+    }),
+  /** Calendar group-range query — single shot, not paging. */
+  useEventsCalendarGroupRange: (
+    groupId: string,
+    { from, to }: { from: string; to: string },
+  ) =>
+    apiHook(client.posts.feeds.events.group.range, {
+      pathParams: { groupId },
+      queryParams: { from, to, limit: 500 },
     }),
 });
 

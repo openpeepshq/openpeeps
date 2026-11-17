@@ -161,7 +161,7 @@ export function GroupShow() {
             </TabButton>
           </nav>
           <EventsView
-            query={eventsTab === 'upcoming' ? upcomingEvents : pastEvents}
+            calendar={{ groupId: group.id }}
             agenda={eventsTab}
             list={
               <Feed

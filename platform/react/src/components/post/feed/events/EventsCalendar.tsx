@@ -7,11 +7,9 @@ import {
   eventName,
   useEventsCalendar,
 } from '../../../../hooks/events/useEventsCalendar';
-import type { EventsFeedQuery } from './EventsFeed';
 import {
   eventEndIso,
   eventStartIso,
-  type EventsAgendaWindow,
 } from './eventCalendar';
 
 const eventHref = (post: PublicPost): string =>
@@ -19,12 +17,22 @@ const eventHref = (post: PublicPost): string =>
     ? `/posts/${post.id}?occurrence=${encodeURIComponent(post.occurrenceRecurrenceId)}`
     : `/posts/${post.id}`;
 
-export interface EventsCalendarProps {
-  query: EventsFeedQuery;
-  agenda: EventsAgendaWindow;
+/** Derived scope shape for calendar consumption. */
+export interface CalendarScopeProps {
+  /** Show only events owned by or RSVPe'd by local profile. */
+  mine?: boolean;
+  /** Group ID — fetch group-scoped calendar. */
+  groupId?: string;
 }
 
-export const EventsCalendar = ({ query, agenda }: EventsCalendarProps) => {
+export interface EventsCalendarProps extends CalendarScopeProps {}
+
+/**
+ * Date-centered events calendar component — no longer consumes list feeds.
+ * The react hook itself computes the date-range window from the month grid
+ * and calls `listEventsInRange`.
+ */
+export const EventsCalendar = (props: EventsCalendarProps) => {
   const t = useT();
   const {
     cells,
@@ -37,10 +45,9 @@ export const EventsCalendar = ({ query, agenda }: EventsCalendarProps) => {
     monthLabel,
     weekdayLabels,
     isLoading,
-    isFetchingNextPage,
     shiftMonth,
     goToday,
-  } = useEventsCalendar(query, agenda);
+  } = useEventsCalendar(props);
 
   if (isLoading) {
     return (
@@ -55,7 +62,6 @@ export const EventsCalendar = ({ query, agenda }: EventsCalendarProps) => {
       <div className="mb-3 flex items-center justify-between gap-2">
         <h2 className="text-lg font-semibold">{monthLabel}</h2>
         <div className="flex items-center gap-1">
-          {isFetchingNextPage ? <LoadingSpinner /> : null}
           <button
             type="button"
             className="text-muted-foreground hover:text-foreground px-2 py-1 text-sm"

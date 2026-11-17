@@ -89,7 +89,6 @@ export const EventsIndex = ({
         ]}
       />
       <EventsView
-        query={activeQuery}
         agenda={tab}
         list={<EventsFeed query={activeQuery} />}
       />

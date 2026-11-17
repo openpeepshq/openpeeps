@@ -12,6 +12,7 @@ import {
   type OffsetInfiniteQueryParams,
   type PublicPost,
   type UnseenPostCounts,
+  type EventRangeQueryParams,
 } from '@openpeepshq/common';
 import { allpeepNoPayloadEndpoint, allpeepPayloadEndpoint } from './helpers';
 import type {
@@ -173,6 +174,12 @@ const eventFeeds = (rawClient: FetchClient): EventFeeds => ({
         undefined,
         OffsetInfiniteQueryParams
       >(rawClient, '/posts/feeds/events/my/past'),
+      /** Date-range feed for calendar views. */
+      range: allpeepNoPayloadEndpoint<
+        PublicPost[],
+        { from: string; to: string },
+        EventRangeQueryParams
+      >(rawClient, '/posts/feeds/events/my/range'),
     },
     upcoming: allpeepNoPayloadEndpoint<
       PublicPost[],
@@ -189,6 +196,12 @@ const eventFeeds = (rawClient: FetchClient): EventFeeds => ({
       undefined,
       OffsetInfiniteQueryParams
     >(rawClient, '/posts/feeds/events/past'),
+    /** Date-range feed for calendar views. */
+    range: allpeepNoPayloadEndpoint<
+      PublicPost[],
+      { from: string; to: string },
+      EventRangeQueryParams
+    >(rawClient, '/posts/feeds/events/range'),
     group: {
       upcoming: allpeepNoPayloadEndpoint<
         PublicPost[],
@@ -200,6 +213,12 @@ const eventFeeds = (rawClient: FetchClient): EventFeeds => ({
         { groupId: string },
         OffsetInfiniteQueryParams
       >(rawClient, '/posts/feeds/events/by-group/:groupId/past'),
+      /** Date-range feed for calendar views. */
+      range: allpeepNoPayloadEndpoint<
+        PublicPost[],
+        { groupId: string; from: string; to: string },
+        EventRangeQueryParams
+      >(rawClient, '/posts/feeds/events/by-group/:groupId/range'),
     },
   },
 });

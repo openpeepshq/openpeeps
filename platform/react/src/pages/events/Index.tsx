@@ -69,7 +69,6 @@ export function EventsIndex() {
         </TabButton>
       </nav>
       <EventsView
-        query={activeQuery}
         agenda={tab}
         list={<EventsFeed query={activeQuery} />}
       />
