@@ -8,6 +8,15 @@ packages:
 linkWorkspacePackages: deep
 
 overrides:
+  # eslint and vite declare jiti only as an optional peer. With release-it@19's
+  # c12@3 (whose config loader hard-depends on jiti ^2 — it calls createJiti,
+  # which jiti 1 does not export) in the tree, pnpm's shared peer resolution
+  # jumped every eslint/vite instance from main's jiti 1.21.7 to jiti 2.7.0.
+  # Scope those peers back to the version main ships so the re-key stays
+  # confined to the dev-only release-it -> c12 release tooling subtree, which
+  # keeps its own jiti@2.
+  "eslint>jiti": "1.21.7"
+  "vite>jiti": "1.21.7"
   # faye-websocket@0.11.4 (pulled by @firebase/database via firebase-admin /
   # @react-native-firebase) declares websocket-driver >=0.5.1, which resolved
   # to 0.7.4 (GHSA-xv26-6w52-cph6 critical, GHSA-mp7j-qc5w-4988 moderate,
