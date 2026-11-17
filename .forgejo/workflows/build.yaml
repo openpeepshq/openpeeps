@@ -884,6 +884,7 @@ jobs:
         run: |
           git branch main origin/main
           node scripts/check-branch.mjs
+          node scripts/check-pr-references.mjs
 
   publish-packages:
     runs-on: docker

@@ -2,10 +2,12 @@
 name: openpeeps-pr-rebase
 description: >-
   Re-open an existing OpenPeeps pull request, rebase it onto main, resolve merge
-  conflicts (keeping platform/react and platform/rn-components in sync), verify
-  the build/tests/i18n parity, and force-push to update the PR on
-  code.openpeeps.org. Use when PR HEAD has fallen behind main, when CI reports
-  merge conflicts, or when main changed in a way that affects the PR's files.
+  conflicts (keeping platform/react and platform/rn-components in sync),
+  recompute and apply the version bumps for the packages the rebased diff
+  changes, verify the build/tests/i18n parity, and force-push to update the PR
+  on code.openpeeps.org. Use when PR HEAD has fallen behind main, when CI
+  reports merge conflicts, or when main changed in a way that affects the PR's
+  files.
 ---
 
 # Rebase and update an existing OpenPeeps PR
@@ -101,6 +103,64 @@ General conflict rules while rebasing:
   git add <resolved-files>
   GIT_EDITOR=true git rebase --continue
   ```
+
+## Step 3b — Recompute and apply version bumps (after rebase)
+
+A rebase can change *which packages the PR's diff actually touches*: conflict
+resolution may pull a previously-untouched `platform/*` file into the diff, or
+main may have already bumped a package past the version this PR set. So the
+bumps that were correct at review time can be wrong after the rebase. The
+Rebase automation is responsible for the resulting bumps — recompute them
+against the **post-rebase** diff and apply any that are missing.
+
+1. List the published packages the rebased diff changes (same set the
+   `publish-gate` job uses — `common`, `client`, `react`, `rn-components`,
+   `fetch-client`, `greenscreen`, `react-ui`; plus `core`, `i18n`, `worker`
+   which are published but not smoke-tested):
+
+   ```bash
+   git diff --name-only origin/main..HEAD \
+     | grep -E '^(platform/[a-z-]+|libraries/[a-z-]+|plugins/[a-z-]+/[a-z-]+)/' \
+     | cut -d/ -f1-2 | sort -u
+   ```
+
+2. Read the squashed commit's type: `git log -1 --pretty=format:%s`.
+
+3. For each *published* package in that list (skip `"private": true` packages
+   like `platform/server` and `platform/web`), check whether its
+   `package.json` `version` in the diff differs from `origin/main`'s:
+
+   ```bash
+   git diff origin/main..HEAD -- platform/react/package.json \
+     | grep -E '^[+-]\s*"version"'
+   ```
+
+4. Apply the decision table (`check-openpeeps-pr-readiness` §4):
+   - `feat:` → every touched published package must be **minor-bumped**. If one
+     is missing its bump (version line unchanged vs `origin/main`), set it to
+     `origin/main`'s version + one minor (e.g. main `0.11.1` → `0.12.0`).
+   - Bump `i18n` **only** if the diff changes `platform/i18n/src/locales/*.json`.
+   - `fix:` with no new API surface → no bump required. Do **not** add a bump
+     that isn't there; if the PR already carries one and it is now stale
+     (matches or is below main's version), leave it — the published version is
+     already at least that high.
+5. If you changed any `package.json`, amend the single squashed commit so the
+   bump ships inside it, then re-verify the gate before Step 5:
+
+   ```bash
+   git add -A
+   git commit --amend --no-edit          # keep the conventional subject + sign-off
+   git --no-pager rev-list --count main..HEAD   # still expect 1
+   node scripts/check-branch.mjs                 # must print "All checks passed."
+   ```
+
+   Note this is an *amend of the rebase's own single commit* (the branch is
+   being rebuilt this run), not an amend of a reviewed commit — the rebase
+   already force-pushes, so it is safe here.
+
+Record the recompute in the rebase-outcome comment: the touched-package list,
+which (if any) bump you added, and the before/after version — so a later run
+can see the bump was deliberate, not an accidental `package.json` drift.
 
 ## Step 4 — Verify locally (mirrors CI)
 
