@@ -229,3 +229,100 @@ value (`Cancel`, `Email`, `Save`, …) are listed by
 
 Pass 2 is a later PR. Do not delete from this tree until the preconditions
 are met.
+
+## Pass 3 alias table (issue #2150 delete candidates)
+
+Consolidation of same-feature duplicate keys with divergent hierarchies.
+No key is deleted from `en.json` / `de.json` in pass 3: this pass retargets
+the platform call sites to the surviving key and records the retired keys
+here so the 2027Q1 cull issue can be filed mechanically. Values below are
+identical in EN and DE unless a note says otherwise.
+
+Last known consumers are `@openpeepshq/react` **0.11.0** and
+`@openpeepshq/rn-components` **0.12.1** (the currently released versions
+still carrying the old call sites; this PR bumps to 0.11.1 / 0.12.2 /
+common 0.6.2). Web-only rows note that rn-components never consumed them.
+
+| Old key                                      | Canonical key                                        | Last known consumer                                          |
+| -------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------ |
+| `admin.apiKeys.copy`                         | `settings.accessTokens.copy`                         | `react 0.11.0`                                               |
+| `admin.apiKeys.copyWarning`                  | `settings.accessTokens.copyWarning`                  | `react 0.11.0`                                               |
+| `admin.apiKeys.creating`                     | `settings.accessTokens.creating`                     | `react 0.11.0`                                               |
+| `admin.apiKeys.expiration`                   | `settings.accessTokens.expiration`                   | `react 0.11.0`                                               |
+| `admin.apiKeys.expirationOptions.sevenDays`  | `settings.accessTokens.expirationOptions.sevenDays`  | `react 0.11.0`                                               |
+| `admin.apiKeys.expirationOptions.thirtyDays` | `settings.accessTokens.expirationOptions.thirtyDays` | `react 0.11.0`                                               |
+| `admin.apiKeys.expirationOptions.ninetyDays` | `settings.accessTokens.expirationOptions.ninetyDays` | `react 0.11.0`                                               |
+| `admin.apiKeys.expirationOptions.oneYear`    | `settings.accessTokens.expirationOptions.oneYear`    | `react 0.11.0`                                               |
+| `admin.apiKeys.revoke`                       | `settings.accessTokens.revoke`                       | `react 0.11.0`                                               |
+| `admin.apiKeys.revoked`                      | `settings.accessTokens.revoked`                      | `react 0.11.0`                                               |
+| `configuration.sso.kind.entra`               | `configuration.sso.types.entra.title`                | `react 0.11.0`                                               |
+| `configuration.sso.kind.generic`             | `configuration.sso.types.generic.title`              | `react 0.11.0`                                               |
+| `configuration.sso.kind.gitlab-selfhosted`   | `configuration.sso.types.gitlab-selfhosted.title`    | `react 0.11.0`                                               |
+| `configuration.sso.kind.google`              | `configuration.sso.types.google.title`               | `react 0.11.0`                                               |
+| `configuration.sso.kind.oidc`                | `configuration.sso.types.oidc.title`                 | `react 0.11.0`                                               |
+| `configuration.sso.kind.github`              | `configuration.sso.types.github.title`               | `react 0.11.0`                                               |
+| `configuration.sso.kind.auth0`               | `configuration.sso.types.auth0.title`                | `react 0.11.0`                                               |
+| `configuration.sso.kind.authentik`           | `configuration.sso.types.authentik.title`            | `react 0.11.0`                                               |
+| `configuration.sso.kind.discord`             | `configuration.sso.types.discord.title`              | `react 0.11.0`                                               |
+| `configuration.sso.kind.gitlab`              | `configuration.sso.types.gitlab.title`               | `react 0.11.0`                                               |
+| `configuration.sso.kind.keycloak`            | `configuration.sso.types.keycloak.title`             | `react 0.11.0`                                               |
+| `configuration.sso.kind.okta`                | `configuration.sso.types.okta.title`                 | `react 0.11.0`                                               |
+| `configuration.sso.kind.pocketid`            | `configuration.sso.types.pocketid.title`             | `react 0.11.0`                                               |
+| `auth.requestResetPassword.title`            | `auth.requestResetPassword.heading`                  | `react 0.11.0`                                               |
+| `configuration.email.sendTest`               | `configuration.email.testTitle`                      | `react 0.11.0`                                               |
+| `events.form.startDate`                      | `events.startDate`                                   | `react 0.11.0` / `rn 0.12.1`                                 |
+| `events.form.endDate`                        | `events.endDate`                                     | `react 0.11.0` / `rn 0.12.1`                                 |
+| `events.repeat.daily`                        | `events.form.repeat.daily`                           | `react 0.11.0` / `rn 0.12.1` (bundled via `platform/common`) |
+| `events.repeat.weekly`                       | `events.form.repeat.weekly`                          | `react 0.11.0` / `rn 0.12.1` (bundled via `platform/common`) |
+| `events.repeat.monthly`                      | `events.form.repeat.monthly`                         | `react 0.11.0` / `rn 0.12.1` (bundled via `platform/common`) |
+
+Notes on the SSO kind rows:
+
+- Retargeting the list rows to `configuration.sso.types.<kind>.title`
+  changes the list-row copy for the three divergent kinds
+  (`entra`: 'Microsoft' to 'Microsoft Entra ID', `oidc`: 'OIDC' to
+  'OIDC Generic' / DE 'OIDC (generisch)', `gitlab-selfhosted`: 'GitLab' to
+  'GitLab (self-hosted)'), toward the more precise picker names.
+  `SSO_OIDC_KINDS` union `'generic'` (`platform/common/src/lib/ssoProviders.ts`)
+  exactly covers the 13 `types.*` entries, so one dynamic key shape serves
+  both the picker and the list. The other kind values map 1:1; the table
+  lists all 13 of them so the cull issue can drop the whole
+  `configuration.sso.kind` subtree mechanically.
+- `admin.apiKeys.scopes` / `admin.apiKeys.noScopes` stay live and local:
+  EN matches `settings.accessTokens.scopes` / `.noScopes`, but DE diverges
+  ('Berechtigungen' vs 'Bereiche'), and `admin.apiKeys.scopes` doubles as
+  the configuration-editor label for the schema path, so it must remain.
+  The 'Bereiche' to 'Berechtigungen' wording fix is its own issue.
+
+## Pass 3 pairs that stay (recorded for the cull issue)
+
+Merging any of these would push one wording onto two render sites - a copy
+change, not a dedup - so both keys remain live. The cull issue should pick
+one wording per pair and delete the other after the app rollout:
+
+- `articles.new` ('New article') vs `articles.form.title` ('New Article')
+  - EN values diverge (DE identical); both live (`ArticleForm.tsx`
+    heading, react and rn-components).
+- `events.repeat.label` ('Repeats') vs `events.form.repeat.title`
+  ('Repeat') - EN values diverge.
+
+(The plan's earlier stay-pair `auth.login.title` vs `auth.login.heading` is
+withdrawn: `auth.login.heading` is unreferenced at HEAD and belongs to the
+dead-key table below, leaving `auth.login.title` as the only live login
+header.)
+
+## Pass 3 dead keys (unreferenced at HEAD; cull candidates)
+
+No platform code reads these at `origin/main` HEAD (`git grep` across
+react / rn-components / web / core / server), so they need no alias - the
+cull issue deletes them:
+
+| Dead key(s)                                                                      | Note                                                                                                                                                                                                |
+| -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `configuration.sso.types.<kind>.description` (13 kinds x 2 locales = 26 strings) | Zero references at HEAD and across all history; the SSO picker uses only the `title` keys.                                                                                                          |
+| `auth.login.heading`                                                             | Svelte-era; never referenced by react-era code (no consumer bound).                                                                                                                                 |
+| `auth.login.submit`                                                              | Svelte-era; never referenced by react-era code (no consumer bound).                                                                                                                                 |
+| `auth.resetPassword.title`                                                       | Svelte-era; never referenced by react-era code (no consumer bound).                                                                                                                                 |
+| `posts.deleteModal.delete` / `posts.deleteModal.cancel`                          | Last shipped in `@openpeepshq/react` 0.10.0 / rn 0.11.0; pass 1 moved the buttons to `common.actions.*`.                                                                                            |
+| `conversations.message.delete.*` (whole subtree)                                 | `deleteDescription`/`deleteSuccess`/`deleteError` were never referenced anywhere; the rest was orphaned when the rn delete sheet was removed in `fc1dd34e`. Last consumer react 0.10.0 / rn 0.11.0. |
+| `events.repeat.badge`                                                            | No counterpart in `events.form.repeat.*`; the remaining `events.repeat.*` display keys (`everyN*`, `weeklyOn`, `everyNWeeksOn`, `until`, `times`, `label`) stay live via `formatEventRecurrence`.   |

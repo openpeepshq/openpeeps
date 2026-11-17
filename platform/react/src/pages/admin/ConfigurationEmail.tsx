@@ -328,14 +328,14 @@ export function AdminConfigurationEmail() {
           </label>
           <Button
             variant="secondary"
-            title={t('configuration.email.sendTest')}
+            title={t('configuration.email.testTitle')}
             action={handleSendTest}
             disabled={sending}
             data-testid="admin-email-send-test"
           >
             {sending
               ? t('common.states.loading')
-              : t('configuration.email.sendTest')}
+              : t('configuration.email.testTitle')}
           </Button>
         </div>
         <p className="mt-3 text-xs opacity-70">

@@ -171,7 +171,8 @@ export function AdminConfigurationSso() {
                   <div>
                     <p className="font-medium">{item.name}</p>
                     <p className="text-muted-foreground text-xs">
-                      {t(`configuration.sso.kind.${item.kind}`)} · {item.id}
+                      {t(`configuration.sso.types.${item.kind}.title`)} ·{' '}
+                      {item.id}
                     </p>
                   </div>
                   <div className="flex gap-2">

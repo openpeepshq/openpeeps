@@ -97,7 +97,7 @@ export function RequestResetPassword() {
         )}
 
         <Button
-          title={t('auth.requestResetPassword.title', {
+          title={t('auth.requestResetPassword.heading', {
             defaultValue: 'Request Password Reset',
           })}
           action={handleSubmit}

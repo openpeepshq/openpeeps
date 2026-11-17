@@ -175,9 +175,9 @@ export const EventForm = ({
         <SectionTitle>{t('events.form.dateAndTimeTitle')}</SectionTitle>
 
         <PickerField
-          label={t('events.form.startDate')}
+          label={t('events.startDate')}
           value={formatDate(event.start, eventTimeZone)}
-          placeholder={t('events.form.startDate')}
+          placeholder={t('events.startDate')}
           icon={<CalendarIcon className="text-muted-foreground" size={18} />}
           onPress={() => bottomSheetPresent(startSheetRef)}
         />
@@ -193,9 +193,9 @@ export const EventForm = ({
         {showEndDate ? (
           <>
             <PickerField
-              label={t('events.form.endDate')}
+              label={t('events.endDate')}
               value={formatDate(event.end, eventTimeZone)}
-              placeholder={t('events.form.endDate')}
+              placeholder={t('events.endDate')}
               icon={
                 <CalendarIcon className="text-muted-foreground" size={18} />
               }

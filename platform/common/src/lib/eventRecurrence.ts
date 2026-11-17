@@ -437,7 +437,7 @@ const formatRecurrencePattern = (
 
   if (recurrence.freq === 'DAILY') {
     return interval === 1
-      ? t('events.repeat.daily', { defaultValue: 'Daily' })
+      ? t('events.form.repeat.daily', { defaultValue: 'Daily' })
       : t('events.repeat.everyNDays', {
           defaultValue: 'Every {{count}} days',
           count: interval,
@@ -446,7 +446,7 @@ const formatRecurrencePattern = (
 
   if (recurrence.freq === 'MONTHLY') {
     return interval === 1
-      ? t('events.repeat.monthly', { defaultValue: 'Monthly' })
+      ? t('events.form.repeat.monthly', { defaultValue: 'Monthly' })
       : t('events.repeat.everyNMonths', {
           defaultValue: 'Every {{count}} months',
           count: interval,
@@ -475,7 +475,7 @@ const formatRecurrencePattern = (
   }
 
   return interval === 1
-    ? t('events.repeat.weekly', { defaultValue: 'Weekly' })
+    ? t('events.form.repeat.weekly', { defaultValue: 'Weekly' })
     : t('events.repeat.everyNWeeks', {
         defaultValue: 'Every {{count}} weeks',
         count: interval,

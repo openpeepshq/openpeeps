@@ -139,7 +139,7 @@ export const EventForm = ({
         </h2>
 
         <Label
-          title={t('events.form.startDate', { defaultValue: 'Start Date' })}
+          title={t('events.startDate', { defaultValue: 'Start Date' })}
           htmlFor="event-start"
         >
           <Input
@@ -168,7 +168,7 @@ export const EventForm = ({
         {showEndDate ? (
           <>
             <Label
-              title={t('events.form.endDate', { defaultValue: 'End Date' })}
+              title={t('events.endDate', { defaultValue: 'End Date' })}
               htmlFor="event-end"
             >
               <Input

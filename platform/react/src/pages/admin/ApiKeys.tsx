@@ -169,8 +169,10 @@ export const AdminApiKeys = () => {
   const cardLabels = {
     expiresLabel: t('admin.apiKeys.expiresAt', { defaultValue: 'Expires at' }),
     neverLabel: t('common.states.never', { defaultValue: 'Never' }),
-    revokeLabel: t('admin.apiKeys.revoke', { defaultValue: 'Revoke' }),
-    revokedLabel: t('admin.apiKeys.revoked', { defaultValue: 'Revoked' }),
+    revokeLabel: t('settings.accessTokens.revoke', { defaultValue: 'Revoke' }),
+    revokedLabel: t('settings.accessTokens.revoked', {
+      defaultValue: 'Revoked',
+    }),
     noScopesLabel: t('admin.apiKeys.noScopes', { defaultValue: 'No scopes' }),
   };
 
@@ -214,7 +216,9 @@ export const AdminApiKeys = () => {
         </div>
         <div className="space-y-2">
           <Label htmlFor="svc-expiration">
-            {t('admin.apiKeys.expiration', { defaultValue: 'Expiration' })}
+            {t('settings.accessTokens.expiration', {
+              defaultValue: 'Expiration',
+            })}
           </Label>
           <select
             id="svc-expiration"
@@ -226,9 +230,12 @@ export const AdminApiKeys = () => {
           >
             {EXPIRATION_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
-                {t(`admin.apiKeys.expirationOptions.${option.labelKey}`, {
-                  defaultValue: EXPIRATION_OPTION_DEFAULTS[option.labelKey],
-                })}
+                {t(
+                  `settings.accessTokens.expirationOptions.${option.labelKey}`,
+                  {
+                    defaultValue: EXPIRATION_OPTION_DEFAULTS[option.labelKey],
+                  },
+                )}
               </option>
             ))}
           </select>
@@ -324,7 +331,9 @@ export const AdminApiKeys = () => {
 
         <Button variant="default" disabled={creating} action={create}>
           {creating
-            ? t('admin.apiKeys.creating', { defaultValue: 'Creating...' })
+            ? t('settings.accessTokens.creating', {
+                defaultValue: 'Creating...',
+              })
             : t('admin.apiKeys.create', {
                 defaultValue: 'Create Service Token',
               })}
@@ -333,7 +342,7 @@ export const AdminApiKeys = () => {
         {createdToken ? (
           <div className="rounded-md border p-3">
             <p className="text-sm font-semibold">
-              {t('admin.apiKeys.copyWarning', {
+              {t('settings.accessTokens.copyWarning', {
                 defaultValue:
                   'Copy this token now. It will not be shown again.',
               })}
@@ -342,7 +351,9 @@ export const AdminApiKeys = () => {
               <code className="break-all text-sm">{createdToken}</code>
               <button
                 type="button"
-                title={t('admin.apiKeys.copy', { defaultValue: 'Copy' })}
+                title={t('settings.accessTokens.copy', {
+                  defaultValue: 'Copy',
+                })}
                 onClick={() => void navigator.clipboard.writeText(createdToken)}
               >
                 <Copy className="size-4" />
