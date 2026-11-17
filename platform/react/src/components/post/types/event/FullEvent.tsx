@@ -46,6 +46,7 @@ import { OpenpeepsMarkdown } from '../../../markdown/OpenpeepsMarkdown';
 import { ThreadedFeed } from '../../feed/threaded/ThreadedFeed';
 import { ReplyBox } from '../../ReplyBox';
 import { useServerInfo } from '../../../server-data';
+import { useEventDisplayTimeZone } from '../../../../hooks/events/useEventDisplayTimeZone';
 import { EventLocation } from '../../pieces/EventLocation';
 import { EventMenu } from '../../pieces/EventMenu';
 import { EventOccurrenceList } from '../../pieces/EventOccurrenceList';
@@ -93,6 +94,7 @@ export function FullEvent({ post, occurrence }: FullEventProps) {
   const [tab, setTab] = useState<EventTab>(
     event.content ? 'description' : 'replies',
   );
+  const displayTz = useEventDisplayTimeZone(event.timeZone);
 
   const group = post.group;
   const myEvent = post.profile?.id === profile?.id;
@@ -235,7 +237,8 @@ export function FullEvent({ post, occurrence }: FullEventProps) {
         <EventWhenBlock
           iso={times.start}
           label={t('events.startDate', { defaultValue: 'Starts' })}
-          timeZone={event.timeZone}
+          timeZone={displayTz}
+          inYourTimeZone={!!displayTz && displayTz !== event.timeZone}
         />
       ) : null}
 
@@ -243,7 +246,8 @@ export function FullEvent({ post, occurrence }: FullEventProps) {
         <EventWhenBlock
           iso={times.end}
           label={t('events.endDate', { defaultValue: 'Ends' })}
-          timeZone={event.timeZone}
+          timeZone={displayTz}
+          inYourTimeZone={!!displayTz && displayTz !== event.timeZone}
         />
       ) : null}
 
@@ -255,6 +259,7 @@ export function FullEvent({ post, occurrence }: FullEventProps) {
           occurrences={upcomingOccurrences}
           currentOccurrenceId={occurrenceId}
           recurrenceLabel={recurrenceLabel}
+          timeZone={displayTz}
         />
       ) : null}
       <EventRsvpButton post={post} recurrenceId={occurrenceId} />
@@ -594,11 +599,14 @@ function EventWhenBlock({
   iso,
   label,
   timeZone,
+  inYourTimeZone,
 }: {
   iso: string;
   label: string;
   timeZone?: string;
+  inYourTimeZone?: boolean;
 }) {
+  const t = useT();
   const date = new Date(iso);
   const tz = eventTimeZoneOptions(timeZone);
   return (
@@ -625,6 +633,11 @@ function EventWhenBlock({
         <p className="text-muted-foreground mt-2 text-sm">
           {formatEventClockTime(iso, { timeZone })}
           {tz.timeZone ? ` (${tz.timeZone})` : ''}
+          {inYourTimeZone
+            ? ` — ${t('events.inYourTimeZone', {
+                defaultValue: 'in your time zone',
+              })}`
+            : ''}
         </p>
       </div>
     </div>

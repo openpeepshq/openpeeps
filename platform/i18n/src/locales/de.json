@@ -3267,6 +3267,7 @@
     "group": "Gruppenveranstaltung in:",
     "startDate": "Startdatum",
     "endDate": "Enddatum",
+    "inYourTimeZone": "in deiner Zeitzone",
     "location": {
       "jam": "Jam-Veranstaltung",
       "online": "Online",

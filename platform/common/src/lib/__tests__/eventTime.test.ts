@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  eventDisplayTimeZone,
   eventTimeZoneOptions,
   formatEventClockTime,
   formatEventWhen,
@@ -106,5 +107,27 @@ describe('formatEventClockTime', () => {
     });
     expect(label).toMatch(/5:00\sPM/);
     expect(label).toMatch(/EDT/);
+  });
+});
+
+describe('eventDisplayTimeZone', () => {
+  it('prefers the viewer zone over the event zone', () => {
+    expect(eventDisplayTimeZone('America/Chicago', 'America/New_York')).toBe(
+      'America/New_York',
+    );
+  });
+
+  it('falls back to the event zone when no viewer zone is set', () => {
+    expect(eventDisplayTimeZone('America/Chicago', undefined)).toBe(
+      'America/Chicago',
+    );
+    expect(eventDisplayTimeZone('America/Chicago', null)).toBe(
+      'America/Chicago',
+    );
+  });
+
+  it('returns undefined when both zones are unset', () => {
+    expect(eventDisplayTimeZone(undefined, undefined)).toBeUndefined();
+    expect(eventDisplayTimeZone(null, null)).toBeUndefined();
   });
 });

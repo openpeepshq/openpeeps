@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import type { ExpandedOccurrence } from '@openpeepshq/common/lib';
 import {
   countYesRsvps,
+  eventTimeZoneOptions,
   isCapacityEvent,
   sameRecurrenceId,
 } from '@openpeepshq/common/lib';
@@ -20,9 +21,11 @@ export interface EventOccurrenceListProps {
   occurrences: ExpandedOccurrence[];
   currentOccurrenceId?: string;
   recurrenceLabel: string;
+  /** IANA zone the occurrence timestamps render in. */
+  timeZone?: string;
 }
 
-const formatOccurrenceStart = (start: string) =>
+const formatOccurrenceStart = (start: string, timeZone?: string) =>
   new Date(start).toLocaleString(undefined, {
     weekday: 'short',
     month: 'short',
@@ -30,6 +33,7 @@ const formatOccurrenceStart = (start: string) =>
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    ...eventTimeZoneOptions(timeZone),
   });
 
 export const EventOccurrenceList: React.FC<EventOccurrenceListProps> = ({
@@ -38,6 +42,7 @@ export const EventOccurrenceList: React.FC<EventOccurrenceListProps> = ({
   occurrences,
   currentOccurrenceId,
   recurrenceLabel,
+  timeZone,
 }) => {
   const { t } = useTranslation();
   const event = post.data?.type === 'event' ? post.data : undefined;
@@ -100,7 +105,7 @@ export const EventOccurrenceList: React.FC<EventOccurrenceListProps> = ({
               occurrence.recurrenceId,
               currentOccurrenceId
             );
-            const label = formatOccurrenceStart(occurrence.start);
+            const label = formatOccurrenceStart(occurrence.start, timeZone);
             const capacity =
               showCapacity && event?.maxAttendees !== undefined
                 ? ` ${t('events.occurrence.capacity', {

@@ -68,6 +68,7 @@ import {
 import { ThemedView } from '../../../ui/themed-view';
 import { EventOccurrenceList } from '../../pieces/EventOccurrenceList';
 import { EventRsvpList } from '../../pieces/EventRsvpList';
+import { useEventDisplayTimeZone } from '@openpeepshq/react';
 
 import {
   EventMenu,
@@ -128,7 +129,8 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
     }
   };
   const times = effectiveEventTimes(event, occurrence);
-  const tz = eventTimeZoneOptions(event?.timeZone);
+  const displayTz = useEventDisplayTimeZone(event?.timeZone);
+  const tz = eventTimeZoneOptions(displayTz);
   const recurrenceLabel = event?.recurrence
     ? formatEventRecurrence(event.recurrence, t, event.start)
     : '';
@@ -310,16 +312,21 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
             </ThemedText>
             <ThemedText className="text-muted-foreground mt-2">
               {formatEventClockTime(times.start, {
-                timeZone: event?.timeZone,
+                timeZone: displayTz,
                 locale: 'en-US',
               })}
               {times.end
                 ? ` - ${formatEventClockTime(times.end, {
-                    timeZone: event?.timeZone,
+                    timeZone: displayTz,
                     locale: 'en-US',
                   })}`
                 : ''}
               {tz.timeZone ? ` (${tz.timeZone})` : ''}
+              {displayTz && displayTz !== event?.timeZone
+                ? ` — ${t('events.inYourTimeZone', {
+                    defaultValue: 'in your time zone',
+                  })}`
+                : ''}
             </ThemedText>
           </View>
         </View>
@@ -393,6 +400,7 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
           occurrences={upcomingOccurrences}
           currentOccurrenceId={occurrence}
           recurrenceLabel={recurrenceLabel}
+          timeZone={displayTz}
         />
       ) : null}
       <EventRsvpButton post={post as PublicPost} recurrenceId={occurrence} />

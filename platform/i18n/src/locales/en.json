@@ -3192,6 +3192,7 @@
     "group": "Group Event In:",
     "startDate": "Start Date",
     "endDate": "End Date",
+    "inYourTimeZone": "in your time zone",
     "community": "Community Event",
     "noRsvps": "No RSVPs yet",
     "noAttendees": "No attendees yet",

@@ -136,6 +136,21 @@ export const wallClockDateToUtcIso = (date: Date, timeZone: string): string => {
   return zonedDateTimeToUtcIso(local, timeZone) ?? date.toISOString();
 };
 
+/**
+ * Zone to display an event in: the viewer's zone wins, the event zone is the
+ * last resort. `undefined` means no resolvable zone — formatters fall through
+ * to the ambient device zone.
+ */
+export const eventDisplayTimeZone = (
+  eventTimeZone?: string | null,
+  viewerTimeZone?: string | null,
+): string | undefined =>
+  isIanaTimeZone(viewerTimeZone)
+    ? viewerTimeZone
+    : isIanaTimeZone(eventTimeZone)
+      ? eventTimeZone
+      : undefined;
+
 /** Intl `timeZone` option when `timeZone` is a valid IANA identifier. */
 export const eventTimeZoneOptions = (
   timeZone?: string | null,

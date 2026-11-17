@@ -52,20 +52,56 @@ jest.mock('react-i18next', () => ({
 }));
 
 // --- openpeeps context + server info --------------------------------------
-jest.mock('@openpeepshq/react', () => ({
-  useOpenpeeps: () => ({
-    currentProfile: mockProfile,
-    openpeepsApi: {
-      rsvpManageAction: () => ({}),
-      useJamAttendance: () => ({ isSuccess: false, data: [] }),
-      useJamState: () => ({ data: mockJamState }),
-      usePostRecordings: () => ({ data: [] }),
-      usePostContext: () => ({ data: undefined }),
+// `useEventDisplayTimeZone` is stubbed as a thin pass-through over these two
+// mocked values, so the RN suite exercises the same contract as the real hook:
+// profile settings -> community default -> event zone; no device-zone tier.
+let mockProfileSettingsTimeZone: string | undefined = undefined;
+const setProfileSettingsTimeZone = (timeZone?: string) => {
+  mockProfileSettingsTimeZone = timeZone;
+};
+let mockCommunityDefaultTimeZone: string | undefined = undefined;
+const setCommunityDefaultTimeZone = (timeZone?: string) => {
+  mockCommunityDefaultTimeZone = timeZone;
+};
+jest.mock('@openpeepshq/react', () => {
+  return {
+    useOpenpeeps: () => ({
+      currentProfile: mockProfile,
+      openpeepsApi: {
+        rsvpManageAction: () => ({}),
+        useJamAttendance: () => ({ isSuccess: false, data: [] }),
+        useJamState: () => ({ data: mockJamState }),
+        usePostRecordings: () => ({ data: [] }),
+        usePostContext: () => ({ data: undefined }),
+      },
+      client: mockClient,
+    }),
+    useServerInfo: mockUseServerInfo,
+    // Pass-through over the mocked tiers, gated by Intl's own IANA check —
+    // the ESM @openpeepshq/common dist cannot be required under the jest node
+    // env, so this mirrors eventDisplayTimeZone's isIanaTimeZone gate only.
+    useEventDisplayTimeZone: (eventTimeZone?: string | null) => {
+      const isIana = (tz?: string | null): tz is string => {
+        if (!tz) return false;
+        try {
+          new Intl.DateTimeFormat('en-US', { timeZone: tz });
+          return true;
+        } catch {
+          return false;
+        }
+      };
+      return (
+        (isIana(mockProfileSettingsTimeZone)
+          ? mockProfileSettingsTimeZone
+          : undefined) ??
+        (isIana(mockCommunityDefaultTimeZone)
+          ? mockCommunityDefaultTimeZone
+          : undefined) ??
+        (isIana(eventTimeZone) ? eventTimeZone : undefined)
+      );
     },
-    client: mockClient,
-  }),
-  useServerInfo: mockUseServerInfo,
-}));
+  };
+});
 
 // --- shared (pure) helpers -------------------------------------------------
 jest.mock('@openpeepshq/common', () => ({
@@ -76,8 +112,17 @@ jest.mock('@openpeepshq/common/lib', () => ({
   canAccessJamRecordings: () => false,
   canModerateJam: () => false,
   canViewJamAttendees: () => false,
-  effectiveEventTimes: () => ({}),
-  eventTimeZoneOptions: () => ({ label: 'UTC' }),
+  effectiveEventTimes: (event?: { start?: string }) =>
+    event?.start ? { start: event.start } : {},
+  eventTimeZoneOptions: (timeZone?: string | null) => {
+    if (typeof timeZone !== 'string') return {};
+    try {
+      new Intl.DateTimeFormat('en-US', { timeZone });
+      return { timeZone };
+    } catch {
+      return {};
+    }
+  },
   formatEventClockTime: () => '',
   formatEventRecurrence: () => '',
   listRsvpOccurrences: () => [],
@@ -308,6 +353,8 @@ function render(
 beforeEach(() => {
   mockJamState = undefined;
   mockProfile = { id: 'u-1', displayName: 'Att', handle: 'att' };
+  mockProfileSettingsTimeZone = undefined;
+  mockCommunityDefaultTimeZone = undefined;
   mockUseServerInfo.mockReset();
   mockUseServerInfo.mockReturnValue({ jams: { livekit: { enabled: true } } });
 });
@@ -463,6 +510,79 @@ describe('tappable Jam URL', () => {
       data: { ...BASE_POST.data, jam: false },
     });
     expect(link(tree)).toBeUndefined();
+    tree.unmount();
+  });
+});
+
+// Display time zone (issue #2129): FullEvent resolves the viewer's zone via
+// useEventDisplayTimeZone (profile settings -> community default -> event
+// zone) and appends the "in your time zone" suffix whenever the resolved zone
+// is a resolvable zone that differs from the event's own zone.
+describe('event display time zone', () => {
+  const timedPost = {
+    ...BASE_POST,
+    data: {
+      ...BASE_POST.data,
+      timeZone: 'America/New_York',
+      start: '2026-06-15T14:30:00Z',
+    },
+  };
+
+  test('12. profile settings time zone differing from the event zone -> suffix renders', () => {
+    setProfileSettingsTimeZone('Europe/Berlin');
+    const tree = render(timedPost);
+    const json = JSON.stringify(tree.toJSON());
+    expect(json).toContain('in your time zone');
+    expect(json).toContain('(Europe/Berlin)');
+    tree.unmount();
+  });
+
+  test('13. display zone matching the event zone -> no suffix', () => {
+    setProfileSettingsTimeZone('America/New_York');
+    const tree = render(timedPost);
+    const json = JSON.stringify(tree.toJSON());
+    expect(json).not.toContain('in your time zone');
+    tree.unmount();
+  });
+
+  test('14. no profile settings time zone -> falls back to event zone, no suffix', () => {
+    setProfileSettingsTimeZone(undefined);
+    const tree = render(timedPost);
+    const json = JSON.stringify(tree.toJSON());
+    expect(json).not.toContain('in your time zone');
+    tree.unmount();
+  });
+
+  test('15. community default time zone used when the profile has none -> suffix renders', () => {
+    setProfileSettingsTimeZone(undefined);
+    setCommunityDefaultTimeZone('Europe/Berlin');
+    const tree = render(timedPost);
+    const json = JSON.stringify(tree.toJSON());
+    expect(json).toContain('in your time zone');
+    expect(json).toContain('(Europe/Berlin)');
+    tree.unmount();
+  });
+
+  test('16. unresolvable zones -> no suffix and no zone label', () => {
+    setProfileSettingsTimeZone('Not/AZone');
+    const tree = render({
+      ...timedPost,
+      data: { ...timedPost.data, timeZone: undefined },
+    });
+    const json = JSON.stringify(tree.toJSON());
+    expect(json).not.toContain('in your time zone');
+    expect(json).not.toContain('Not/AZone');
+    tree.unmount();
+  });
+
+  test('17. invalid profile zone ignored, community default wins -> suffix renders', () => {
+    setProfileSettingsTimeZone('Not/AZone');
+    setCommunityDefaultTimeZone('Europe/Berlin');
+    const tree = render(timedPost);
+    const json = JSON.stringify(tree.toJSON());
+    expect(json).toContain('in your time zone');
+    expect(json).toContain('(Europe/Berlin)');
+    expect(json).not.toContain('Not/AZone');
     tree.unmount();
   });
 });
