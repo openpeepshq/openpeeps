@@ -109,6 +109,13 @@ overrides:
   # override via @types/request>form-data keeps it from affecting the jsdom
   # form-data@4.0.0 instance.
   "@types/request>form-data": "2.5.6"
+  # ical-generator (platform/common) declares moment as an optional peer
+  # (>= 2.29.0), and react-native-calendars (platform/rn-components) depends on
+  # moment ^2.29.4; the tree-wide hoisted 2.30.1 fills both and carries
+  # GHSA-4p3w-j4w9-5jqw (moderate, path traversal via a crafted non-string
+  # locale name). Force the patched 2.31.0 tree-wide — in-range for both
+  # consumers, no direct-dep bump path exists for the optional-peer leg.
+  moment: "2.31.0"
   # zod@4.4.3 carries GHSA-mrhx-c7xc-m3w5 (high, CVSS 7.5): memory exhaustion
   # while validating oversized constrained collections. Force 4.6.7 — first
   # patched version is 4.6.6; using 4.6.7 for an extra safety margin.
