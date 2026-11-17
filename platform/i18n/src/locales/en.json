@@ -2293,6 +2293,7 @@
         "color": "Light Theme Highlight Color",
         "mode": "Light",
         "uploadAuthBackground": "Click to upload a new signup page image for Light Theme",
+        "uploadJamLobbyBackground": "Click to upload a new Jam Lobby image for Light Theme",
         "uploadBackground": "Click to upload a new community background image for Light Theme",
         "uploadLogo": "Click to upload a logo to use for Light Theme and Email notifications"
       },
@@ -2300,10 +2301,14 @@
         "color": "Dark Theme Highlight Color",
         "mode": "Dark",
         "uploadAuthBackground": "Click to upload a new signup page image for Dark Theme",
+        "uploadJamLobbyBackground": "Click to upload a new Jam Lobby image for Dark Theme",
         "uploadLogo": "Click to upload a logo to use for Dark Theme",
         "uploadBackground": "Click to upload a new community background image for Dark Theme"
       },
       "authBackgroundRequirements": "This image fits vertically on these pages, so use a vertical aspect ratio for best results.  Images less than 2MB are encouraged.",
+      "jamLobbyBackground": "Jam Lobby Image",
+      "jamLobbyBackgroundDescription": "This shows up behind the Jam Lobby (the pre-join screen where people check their camera and microphone)",
+      "jamLobbyBackgroundRequirements": "This image fills the Jam Lobby screen, so a full-screen landscape image works best.  Images less than 2MB are encouraged.",
       "backgroundRequirements": "This image will appear behind the community content when using a wider screen to view the community.  It is not visible to users on mobile.",
       "access": {
         "title": "Access",

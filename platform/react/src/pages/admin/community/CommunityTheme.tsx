@@ -232,6 +232,35 @@ export function AdminConfigurationCommunityTheme() {
         </p>
       </div>
 
+      {/* jam lobby background */}
+      <div className="border p-4">
+        <h4 className="my-4 text-lg font-semibold">
+          {t('configuration.community.jamLobbyBackground')}
+        </h4>
+        <span>
+          {t('configuration.community.jamLobbyBackgroundDescription')}
+        </span>
+        <div className="flex flex-wrap gap-x-4">
+          {(['light', 'dark'] as Mode[]).map((mode) =>
+            fileInput(
+              (file) =>
+                uploadInto(
+                  file,
+                  (c, url) => (c.theme[mode].jamLobbyBackground = url),
+                  'configuration.community.jamLobbyBackground',
+                ),
+              t(
+                `configuration.community.${mode}Theme.uploadJamLobbyBackground`,
+              ),
+              cfg.theme[mode].jamLobbyBackground,
+            ),
+          )}
+        </div>
+        <p className="py-3 text-sm">
+          {t('configuration.community.jamLobbyBackgroundRequirements')}
+        </p>
+      </div>
+
       {/* background */}
       <div className="border p-4">
         <h4 className="my-4 text-lg font-semibold">

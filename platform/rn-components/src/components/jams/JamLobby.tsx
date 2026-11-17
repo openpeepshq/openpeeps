@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, useColorScheme, View } from 'react-native';
 import { VideoView, useRoomContext } from '@livekit/react-native';
 import { createLocalVideoTrack, type LocalVideoTrack } from 'livekit-client';
 import { useTranslation } from 'react-i18next';
@@ -7,8 +7,10 @@ import {
   type JamJoinParams,
   useJamLobby,
   useJamLocalSettings,
+  useOpenpeeps,
   useRouter,
 } from '@openpeepshq/react';
+import { getTheme } from '@openpeepshq/common';
 import {
   MicIcon,
   MicOffIcon,
@@ -19,7 +21,9 @@ import {
   XIcon,
 } from '../icons/index';
 import { Button } from '../ui/button';
+import { SvgImage } from '../ui/svg-image';
 import { ThemedText } from '../ui/themed-text';
+import { toAbsoluteMediaUrl } from '../../lib/media-url';
 import {
   DeviceSelectorPill,
   useAudioOutputs,
@@ -86,6 +90,19 @@ export const JamLobby = ({ onJoin }: JamLobbyProps) => {
 
   const [settings, updateSettings] = useJamLocalSettings();
 
+  const { openpeepsApi } = useOpenpeeps();
+  const { data: serverInfo } = openpeepsApi.useServerInfo();
+  const { data: profileSettings } = openpeepsApi.useCurrentProfileSettings();
+  // getTheme's default reads window.matchMedia, which RN lacks; pass the
+  // scheme from useColorScheme like side-menu.tsx does.
+  const systemScheme = useColorScheme() === 'dark' ? 'dark' : 'light';
+  const lobbyBackgroundUri = toAbsoluteMediaUrl(
+    serverInfo
+      ? getTheme(serverInfo.communityConfig, profileSettings, systemScheme)
+          .jamLobbyBackground
+      : undefined
+  );
+
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [videoEnabled, setVideoEnabled] = useState(false);
   const [videoDeviceId, setVideoDeviceId] = useState('');
@@ -108,7 +125,14 @@ export const JamLobby = ({ onJoin }: JamLobbyProps) => {
     });
 
   return (
-    <View className="w-full flex-1 items-center justify-center p-4">
+    <View className="relative w-full flex-1 items-center justify-center p-4">
+      {lobbyBackgroundUri ? (
+        <SvgImage
+          uri={lobbyBackgroundUri}
+          className="absolute inset-0"
+          resizeMode="cover"
+        />
+      ) : null}
       <View className="w-full max-w-lg rounded-md border border-border bg-background p-4">
         <View className="flex-row items-center justify-between border-b border-border p-2">
           <ThemedText className="text-lg">
