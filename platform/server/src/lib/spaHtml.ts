@@ -6,6 +6,7 @@ import { communityConfig } from '@openpeepshq/core/config';
 import { logger } from '@openpeepshq/core/log';
 import { serverRootUrl } from '@openpeepshq/core/server';
 import type { CrawlableMeta } from '@openpeepshq/core/seo';
+import { seoRoute } from '@openpeepshq/core/seo';
 import { jsonLdForPage } from './seo';
 
 const log = logger('server:spaHtml');
@@ -21,6 +22,11 @@ export type SpaHtmlContext = {
   path: string;
   /** Pre-stringified, script-safe JSON-LD; '' renders nothing. */
   jsonLd: string;
+  /**
+   * True only for a content route whose meta resolved to null — signal "don't
+   * index". Derived from the route kind so a caller cannot miscompute it.
+   */
+  noindex: boolean;
 };
 
 const absoluteUrl = (origin: string, url: string): string => {
@@ -34,7 +40,7 @@ export const spaHtmlContextFromConfig = (
   origin: string,
   pageUrl: string,
   /** Set for content routes so a shared post is not described as the homepage. */
-  meta?: CrawlableMeta | null,
+  meta: CrawlableMeta | null,
 ): SpaHtmlContext => {
   const community = config.info.name?.trim() || 'OpenPeeps';
   const name = meta?.title ? `${meta.title} · ${community}` : community;
@@ -55,6 +61,16 @@ export const spaHtmlContextFromConfig = (
   } catch {
     path = '/';
   }
+  // `noindex` is a property of the route kind, not of the meta: a null meta on
+  // a content route means "unreadable — don't index", while app routes (which
+  // never have meta) stay indexable. Deriving it here keeps a caller from
+  // tagging the homepage or dropping the tag on an unreadable post.
+  // `indexProfiles` pinned true: this re-parse decides "is this a content
+  // route", and a profile path must stay one even where the community disables
+  // profile indexing — a null meta there tags noindex instead of indexing a
+  // bare shell.
+  const noindex =
+    meta === null && seoRoute(path, { indexProfiles: true }) !== null;
   return {
     name,
     description,
@@ -62,7 +78,8 @@ export const spaHtmlContextFromConfig = (
     pageUrl,
     themeColor: config.theme.light?.primaryHex || '#0f172a',
     path,
-    jsonLd: jsonLdForPage(origin, pageUrl, path, meta ?? null, community),
+    jsonLd: jsonLdForPage(origin, pageUrl, path, meta, community),
+    noindex,
   };
 };
 
@@ -87,7 +104,7 @@ export const renderSpaHtml = async (
   indexHtmlPath: string,
   origin: string,
   pageUrl: string,
-  meta?: CrawlableMeta | null,
+  meta: CrawlableMeta | null,
 ): Promise<string> => {
   const [template, config] = await Promise.all([
     loadIndexHtml(indexHtmlPath),
@@ -137,7 +154,7 @@ export const sendSpaHtml = async (
   indexHtmlPath: string,
   req: Request,
   res: Response,
-  meta?: CrawlableMeta | null,
+  meta: CrawlableMeta | null,
 ) => {
   try {
     const origin = await serverRootUrl();

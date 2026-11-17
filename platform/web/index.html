@@ -41,7 +41,9 @@
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="{{name}}" />
     <meta name="twitter:description" content="{{description}}" />
-    {{#imageUrl}}
+    {{#noindex}}
+    <meta name="robots" content="noindex" />
+    {{/noindex}} {{#imageUrl}}
     <meta name="twitter:image" content="{{imageUrl}}" />
     {{/imageUrl}} {{#jsonLd}}
     <script type="application/ld+json">

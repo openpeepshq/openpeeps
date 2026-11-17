@@ -360,13 +360,14 @@ const startServer = async () => {
       if (isDbBrowserRequest(req.originalUrl)) return next();
       if (req.method !== 'GET') return next();
       // Render Mustache placeholders in index.html (community name, OG tags).
-      // Per-page metadata is resolved outside the renderer, which stays free of
-      // any data-layer dependency.
-      const { meta, notFound } = await spaMetaForRequest(req);
-      // A content route that can never render for an anonymous visitor answers
-      // 404, but the shell still goes out so the client can show its own
-      // "not found" instead of a bare error page.
-      if (notFound) res.status(404);
+      // Per-page metadata is resolved outside the renderer, which stays free
+      // of any data-layer dependency; the renderer derives `noindex` from the
+      // route kind.
+      const { meta } = await spaMetaForRequest(req);
+      // Content routes always render: missing or unreadable pages go out as a
+      // 200 shell tagged `noindex` so link previews and members keep working
+      // while crawlers are told not to index (a private community 404s the
+      // page a signed-in member is about to render is the bug this removed).
       void sendSpaHtml(indexHtml, req, res, meta);
     });
   } else {

@@ -24,12 +24,15 @@ const context = spaHtmlContextFromConfig(
   baseConfig,
   'https://echo.example',
   'https://echo.example/feeds/local',
+  null,
 );
 assert.equal(context.name, 'Echo Community');
 assert.equal(context.description, 'A place for echoes');
 assert.equal(context.imageUrl, 'https://echo.example/img/logo-small.png');
 assert.equal(context.themeColor, '#112233');
 assert.equal(context.path, '/feeds/local');
+// App routes never noindex, even though their meta is always null.
+assert.equal(context.noindex, false);
 
 const preferenceLogo = spaHtmlContextFromConfig(
   {
@@ -44,6 +47,7 @@ const preferenceLogo = spaHtmlContextFromConfig(
   } as CommunityConfig,
   'https://echo.example',
   'https://echo.example/posts/abc',
+  null,
 );
 assert.equal(
   preferenceLogo.imageUrl,
@@ -70,6 +74,27 @@ const withoutMeta = spaHtmlContextFromConfig(
 assert.equal(withoutMeta.name, 'Echo Community');
 assert.equal(withoutMeta.description, 'A place for echoes');
 assert.match(withoutMeta.jsonLd, /"WebSite"/);
+
+// Unreadable content route: community name still describes the page and the
+// renderer gets the `noindex` signal for its robots meta.
+const unreadable = spaHtmlContextFromConfig(
+  baseConfig,
+  'https://echo.example',
+  'https://echo.example/posts/abc',
+  null,
+);
+assert.equal(unreadable.name, 'Echo Community');
+assert.equal(unreadable.noindex, true);
+
+// A profile path stays a content route for the noindex verdict even where the
+// community disables profile indexing — the pinned `indexProfiles: true`.
+const disabledProfile = spaHtmlContextFromConfig(
+  baseConfig,
+  'https://echo.example',
+  'https://echo.example/@alice',
+  null,
+);
+assert.equal(disabledProfile.noindex, true);
 
 // App routes without content metadata carry no structured data at all.
 assert.equal(context.jsonLd, '');
@@ -101,6 +126,9 @@ const template = `<!doctype html><html><head>
 <meta property="og:image" content="{{imageUrl}}" />
 {{/imageUrl}}
 <meta name="twitter:title" content="{{name}}" />
+{{#noindex}}
+<meta name="robots" content="noindex" />
+{{/noindex}}
 {{#imageUrl}}
 <meta name="twitter:image" content="{{imageUrl}}" />
 {{/imageUrl}}
@@ -140,6 +168,7 @@ const escaped = renderSpaHtmlTemplate(
     themeColor: '#000',
     path: '/',
     jsonLd: '',
+    noindex: false,
   },
 );
 assert.match(escaped, /content="x &lt; y"/);
@@ -150,5 +179,11 @@ const noImage = renderSpaHtmlTemplate(template, {
   imageUrl: '',
 });
 assert.doesNotMatch(noImage, /og:image/);
+
+// The noindex meta only renders for an unreadable content route; the app
+// route never gets one even on the shared template.
+assert.doesNotMatch(out, /name="robots"/);
+const noindexOut = renderSpaHtmlTemplate(template, unreadable);
+assert.match(noindexOut, /<meta name="robots" content="noindex" \/>/);
 
 console.log('spaHtml.test.ts: ok');

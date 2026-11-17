@@ -28,6 +28,7 @@ const TEMPLATE =
   '<link rel="canonical" href="{{pageUrl}}" />' +
   '<meta property="og:url" content="{{pageUrl}}" />' +
   '<meta property="og:image" content="{{imageUrl}}" />' +
+  '{{#noindex}}<meta name="robots" content="noindex" />{{/noindex}}' +
   '</head><body></body></html>';
 
 const writeTemplate = async (): Promise<string> => {
@@ -65,7 +66,7 @@ describe('sendSpaHtml crawler origin pinning', () => {
   it('pins canonical and og:url to the configured origin, not the Host header', async () => {
     serverRootUrl.mockImplementation(async () => 'https://peeps.example');
     const { res, body } = captureResponse();
-    await sendSpaHtml(await writeTemplate(), hostileRequest(), res);
+    await sendSpaHtml(await writeTemplate(), hostileRequest(), res, null);
     expect(body()).toContain('https://peeps.example/posts/abc');
     expect(body()).not.toContain('evil.example');
   });
@@ -77,6 +78,7 @@ describe('sendSpaHtml crawler origin pinning', () => {
       await writeTemplate(),
       hostileRequest('/groups/@jam'),
       res,
+      null,
     );
     expect(body()).toContain('http://localhost:5174/groups/@jam');
     expect(body()).not.toContain('https://');
@@ -85,9 +87,47 @@ describe('sendSpaHtml crawler origin pinning', () => {
   it('absolutizes the community image on the pinned origin', async () => {
     serverRootUrl.mockImplementation(async () => 'https://peeps.example');
     const { res, body } = captureResponse();
-    await sendSpaHtml(await writeTemplate(), hostileRequest(), res);
+    await sendSpaHtml(await writeTemplate(), hostileRequest(), res, null);
     expect(body()).toContain(
       'content="https://peeps.example/img/logo-small.png"',
     );
+  });
+
+  it('emits a noindex meta tag when a content route resolves to null meta', async () => {
+    serverRootUrl.mockImplementation(async () => 'https://peeps.example');
+    const { res, body } = captureResponse();
+    await sendSpaHtml(await writeTemplate(), hostileRequest(), res, null);
+    expect(body()).toContain('<meta name="robots" content="noindex" />');
+  });
+
+  it('emits no noindex tag for app routes even when meta is null', async () => {
+    for (const path of ['/', '/events', '/notifications']) {
+      serverRootUrl.mockImplementation(async () => 'https://peeps.example');
+      const { res, body } = captureResponse();
+      await sendSpaHtml(await writeTemplate(), hostileRequest(path), res, null);
+      expect(body()).not.toContain('name="robots"');
+    }
+  });
+
+  it('omits the noindex tag when the content route resolved metadata', async () => {
+    serverRootUrl.mockImplementation(async () => 'https://peeps.example');
+    const { res, body } = captureResponse();
+    await sendSpaHtml(await writeTemplate(), hostileRequest(), res, {
+      title: 'Test',
+      description: 'Desc',
+    });
+    expect(body()).not.toContain('noindex');
+  });
+
+  it('never renders a robots meta for a null meta on an app route', async () => {
+    serverRootUrl.mockImplementation(async () => 'https://peeps.example');
+    const { res, body } = captureResponse();
+    await sendSpaHtml(
+      await writeTemplate(),
+      hostileRequest('/feeds/local'),
+      res,
+      null,
+    );
+    expect(body()).not.toContain('name="robots"');
   });
 });

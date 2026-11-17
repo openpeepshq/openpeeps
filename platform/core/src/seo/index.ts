@@ -25,11 +25,13 @@ export type CrawlableMeta = {
 };
 
 /**
- * Metadata plus whether the route could render at all, so the server can answer
- * 404 for a content path that will never show anything to a crawler instead of
- * a 200 community shell.
+ * Metadata for a content page when resolvable and anonymously readable; `null`
+ * when the entity is missing or unreadable (an anonymous fetch must not be
+ * able to tell those two apart — that would leak which ids exist). Renderers
+ * answer every content route with a 200 shell and let `noindex` carry the
+ * "not for crawlers" signal instead of a status code.
  */
-export type SpaMeta = { meta: CrawlableMeta | null; notFound: boolean };
+export type SpaMeta = { meta: CrawlableMeta | null };
 
 export { seoRoute, type SeoRoute, type SeoRouteKind } from './route';
 
@@ -40,10 +42,10 @@ export { seoRoute, type SeoRoute, type SeoRouteKind } from './route';
  */
 const PER_KIND_LIMIT = 1_000;
 
-// Versioned because the cached shape gained `notFound` and later the
-// JSON-LD fields: an old entry must never be read as the new one during a
-// rolling restart.
-const META_CACHE_PREFIX = 'seo:meta:v3:';
+// Versioned because the semantics changed: `null` no longer implies a route
+// that cannot render, so an old entry must never be read as the new one during
+// a rolling restart.
+const META_CACHE_PREFIX = 'seo:meta:v5:';
 const META_TTL_SECONDS = 5 * 60;
 
 /**
@@ -109,7 +111,7 @@ const resolveMeta = async (
   indexProfiles: boolean,
 ): Promise<SpaMeta> => {
   const route = seoRoute(pathname, { indexProfiles });
-  if (!route) return { meta: null, notFound: false };
+  if (!route) return { meta: null };
 
   if (route.kind === 'post') {
     const post = await findPost(route.handle);
@@ -119,7 +121,7 @@ const resolveMeta = async (
       !post ||
       !(await canReadPost(await capabilitiesConfig(), ANONYMOUS)(post))
     )
-      return { meta: null, notFound: true };
+      return { meta: null };
     const body =
       'content' in post.data
         ? post.data.content
@@ -141,7 +143,6 @@ const resolveMeta = async (
           post.profile?.displayName ||
           (post.profile?.handle ? `@${post.profile.handle}` : undefined),
       },
-      notFound: false,
     };
   }
 
@@ -150,33 +151,32 @@ const resolveMeta = async (
     // Groups have no visibility column; this mirrors
     // `groupFilters.publiclyReadable()`, which reads the same capability.
     if (!group?.capabilities?.none?.add?.includes('core-groups-read'))
-      return { meta: null, notFound: true };
+      return { meta: null };
     const groupTitle = group.displayName || `@${group.handle}`;
     return {
       meta: {
         title: groupTitle,
         description: excerpt(group.description, groupTitle),
       },
-      notFound: false,
     };
   }
 
   const profile = await findProfileByHandle(route.handle);
-  if (!profile) return { meta: null, notFound: true };
+  if (!profile) return { meta: null };
   return {
     meta: {
       title: profile.displayName || `@${profile.handle}`,
       description: excerpt(profile.bio, `@${profile.handle}`),
     },
-    notFound: false,
   };
 };
 
 /**
- * Metadata for a content route, plus whether it can render at all, so a shared
- * post is not described to every crawler as the community homepage and an
- * unknown id is not served as a 200. Negatives are cached as well: a bot
- * probing unknown ids should not turn each request into a query. Profile
+ * Metadata for a content route, or null when the entity is missing or not
+ * anonymously readable, so a shared post is not described to every crawler as
+ * the community homepage. Missing and unreadable resolve to the same null so an
+ * anonymous fetcher cannot distinguish them. Negatives are cached as well: a
+ * bot probing unknown ids should not turn each request into a query. Profile
  * metadata additionally requires the `indexProfiles` flag.
  */
 export const spaMetaForPath = async (

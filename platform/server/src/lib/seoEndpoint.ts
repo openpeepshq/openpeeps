@@ -76,19 +76,20 @@ export const installSeoEndpoint = (app: Express) => {
 };
 
 /**
- * Title, description and not-found verdict for a content route, resolved here
- * rather than inside the renderer so the SPA shell keeps no dependency on the
- * data layer. A lookup failure reports "serve": the page must still render with
- * community-wide metadata, and a Redis hiccup must not turn real pages into 404s.
+ * Title, description for a content route, resolved here rather than inside the
+ * renderer so the SPA shell keeps no dependency on the data layer. A lookup
+ * failure degrades to `{ meta: null }`: the page still renders with community
+ * metadata and the renderer tags the content route `noindex`.
  */
 export const spaMetaForRequest = async (req: Request): Promise<SpaMeta> => {
   try {
     const community = await communityConfig();
-    return await spaMetaForPath(req.originalUrl.split('?')[0] || '/', {
+    const pathname = req.originalUrl.split('?')[0] || '/';
+    return await spaMetaForPath(pathname, {
       indexProfiles: !!community.settings?.indexProfiles,
     });
   } catch (err) {
     log.warn('seo: page metadata lookup failed', err);
-    return { meta: null, notFound: false };
+    return { meta: null };
   }
 };
