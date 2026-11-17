@@ -33,7 +33,10 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
     await ensurePostCapabilities(event, postToUpdate, ['core-posts-update']);
 
     const postData = postDataUnionSchema.parse(input);
-    if (postData.type === 'resource' && !validResourceCategoryPath(postData.categoryPath)) {
+    if (
+      postData.type === 'resource' &&
+      !validResourceCategoryPath(postData.categoryPath)
+    ) {
       throw badRequest('invalidCategoryPath');
     }
 

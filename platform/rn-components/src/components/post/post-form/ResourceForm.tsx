@@ -14,7 +14,11 @@ import {
   normalizeResourceTags,
   resourceFormIssues,
 } from '@openpeepshq/common/lib';
-import { applyAudienceSetting, useCurrentProfile, useResourceLibrary } from '@openpeepshq/react';
+import {
+  applyAudienceSetting,
+  useCurrentProfile,
+  useResourceLibrary,
+} from '@openpeepshq/react';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
   AudioPickerSheet,
@@ -50,7 +54,7 @@ export const ResourceForm = ({
   const [tagDraft, setTagDraft] = useState('');
   const library = useResourceLibrary(
     postData.groupId ?? undefined,
-    !postData.groupId,
+    !postData.groupId
   );
   const imageRef = useRef<BottomSheetModal>(null);
   const videoRef = useRef<BottomSheetModal>(null);

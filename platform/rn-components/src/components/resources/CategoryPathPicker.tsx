@@ -25,14 +25,10 @@ const NodeList = ({
     {nodes.map((node) => {
       const active =
         selected.length === node.path.length &&
-        node.path.every(
-          (segment, index) => selected[index] === segment,
-        );
+        node.path.every((segment, index) => selected[index] === segment);
       return (
         <View key={categoryPathKey(node.path)} className="py-0.5">
-          <Pressable
-            onPress={() => onSelect(node.path)}
-          >
+          <Pressable onPress={() => onSelect(node.path)}>
             <ThemedText
               className={`text-sm ${
                 active

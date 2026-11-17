@@ -1,5 +1,10 @@
 import { endpoint, z } from '#lib/endpoint';
-import { badRequest, forbidden, notFound, rethrowIfOpenpeepsError } from '#lib/errors';
+import {
+  badRequest,
+  forbidden,
+  notFound,
+  rethrowIfOpenpeepsError,
+} from '#lib/errors';
 import {
   publicPostSchema,
   postDataUnionSchema,
@@ -90,7 +95,10 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
         : baseAudience;
 
     const postData = postDataUnionSchema.parse(input.data);
-    if (postData.type === 'resource' && !validResourceCategoryPath(postData.categoryPath)) {
+    if (
+      postData.type === 'resource' &&
+      !validResourceCategoryPath(postData.categoryPath)
+    ) {
       throw badRequest('invalidCategoryPath');
     }
     const object: PostData = postDataSchema.parse({

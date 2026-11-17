@@ -180,9 +180,8 @@ export const pathStartsWith = (
  * a folder named `A/B` (single segment `["A/B"]`) never collides with
  * folder `A` containing subfolder `B` (`["A","B"]`).
  */
-export const categoryPathKey = (
-  path: readonly string[],
-): string => JSON.stringify(path);
+export const categoryPathKey = (path: readonly string[]): string =>
+  JSON.stringify(path);
 
 /** Validates that no segment of a category path is blank or whitespace-only.
  * Returns `true` for `undefined` (absent — not a validation error).
@@ -191,7 +190,9 @@ export const validResourceCategoryPath = (
   path: readonly string[] | undefined,
 ): boolean => {
   if (!path) return true;
-  return path.every((segment) => segment.trim().length > 0 && segment === segment.trim());
+  return path.every(
+    (segment) => segment.trim().length > 0 && segment === segment.trim(),
+  );
 };
 
 export const normalizeResourceTags = (
