@@ -1,11 +1,74 @@
 import { describe, expect, it } from 'vitest';
+import { PgDialect } from 'drizzle-orm/pg-core';
 import { getTableName, type Table } from 'drizzle-orm';
 import type { PgDb } from '../client';
 import { documentKeyBefore } from '../filters';
+import { edgeFilters } from '../filters/edges';
 import { fetchRowsByIds, hydrateMapData, relationsFrom } from './relations';
 import type { MapData, Relation } from './queryTypes';
 
 type Row = Record<string, unknown>;
+
+// Compiled-SQL marker for the entryType('create') edge filter; the fake db
+// below simulates the DB by checking the query actually received this
+// condition before filtering rows.
+const EDGE_FILTER_FRAGMENT = `"entries"."body"->>'type' = $`;
+
+// Fake db that resolves drizzle queries from the condition actually passed to
+// .where(): it compiles it with PgDialect and keeps a row only when the row's
+// driver value (edge fromId, entity id) is one of the compiled params —
+// simulating eq/inArray parent scoping — and, for entries, additionally
+// applies entryType('create') only when the compiled SQL really carries the
+// edge-filter fragment. A query without the fragment (the pre-fix
+// relationsFrom) therefore sees every edge type, so edgeFilter regressions
+// fail these tests instead of passing vacuously.
+const compilingEdgeDb = (rowsByTable: Record<string, Row[]>): PgDb => {
+  const dialect = new PgDialect();
+  return {
+    select: () => ({
+      from: (t: unknown) => {
+        const name = getTableName(t as Table);
+        let compiled: { sql: string; params: unknown[] } | undefined;
+        const resolve = () => {
+          const rows = rowsByTable[name] ?? [];
+          if (!compiled) return rows;
+          const scoped = rows.filter((row) =>
+            compiled?.params.includes(
+              row[name === 'entries' ? 'fromId' : 'id'],
+            ),
+          );
+          if (
+            name !== 'entries' ||
+            !compiled.sql.includes(EDGE_FILTER_FRAGMENT)
+          ) {
+            return scoped;
+          }
+          return scoped.filter(
+            (row) => (row.body as { type: string }).type === 'create',
+          );
+        };
+        const result = Promise.resolve().then(resolve);
+        const api: Record<string, unknown> = {
+          where: (cond: unknown) => {
+            compiled = dialect.sqlToQuery(cond as never) as {
+              sql: string;
+              params: unknown[];
+            };
+            return api;
+          },
+          limit: () => api,
+          orderBy: () => api,
+          offset: () => api,
+          $dynamic: () => api,
+          then: result.then.bind(result),
+          catch: result.catch.bind(result),
+          finally: result.finally.bind(result),
+        };
+        return api;
+      },
+    }),
+  } as unknown as PgDb;
+};
 
 const createFakeDb = (rowsByTable: Record<string, Row[]>): PgDb => {
   const rowsFor = (table: unknown): Row[] => {
@@ -598,5 +661,129 @@ describe('map relations', () => {
     );
     expect(batchCalls).toBe(1);
     expect(docs.map((d) => d.seen)).toEqual([true, true]);
+  });
+
+  it('relationsFrom edgeFilter drops edges that fail the filter', async () => {
+    // Regression test for the dropped edgeFilter: relationsFrom must push the
+    // edgeFilter condition into the edge query, so a profile page renders
+    // only edges matching it (e.g. entryType('create')) — not likes, RSVPs,
+    // or other foreign edge types leaking into the feed.
+    //
+    // The fake db inspects the condition actually passed to .where() by
+    // compiling the received drizzle SQL with PgDialect, so the simulation
+    // fires only when the edge filter is genuinely part of the query. With
+    // the pre-fix code (bare `eq(parentCol, start.id)`), the entries query
+    // lacks the fragment and all edge types survive — the test fails on
+    // main and passes with the fix.
+    const entries = [
+      {
+        id: 'e-create',
+        fromId: 'p1',
+        toId: 'post-authored',
+        body: { type: 'create' },
+        ...stamp,
+      },
+      {
+        id: 'e-reaction',
+        fromId: 'p1',
+        toId: 'post-liked',
+        body: { type: 'reaction' },
+        ...stamp,
+      },
+      {
+        id: 'e-rsvp',
+        fromId: 'p1',
+        toId: 'event-rsvped',
+        body: { type: 'rsvp' },
+        ...stamp,
+      },
+      // A second profile's create edge: proves the parent scoping (eq on the
+      // parent column) stays part of the query too.
+      {
+        id: 'e-other',
+        fromId: 'p2',
+        toId: 'post-other',
+        body: { type: 'create' },
+        ...stamp,
+      },
+    ];
+    const posts = [
+      { id: 'post-authored', type: 'note', body: { text: 'mine' }, ...stamp },
+      { id: 'post-liked', type: 'note', body: { text: 'liked' }, ...stamp },
+      {
+        id: 'event-rsvped',
+        type: 'event',
+        body: { title: 'meetup' },
+        ...stamp,
+      },
+    ];
+    const db = compilingEdgeDb({ entries, posts });
+
+    const postsMapping: MapData<object, object> = { collection: 'posts' };
+    const replies = await relationsFrom(db, { id: 'p1' }, 'profiles', {
+      alias: 'posts',
+      edgeCollection: 'entries',
+      direction: 'OUTBOUND',
+      cardinality: 'many',
+      skipEdge: true,
+      edgeFilter: edgeFilters.entryType('create'),
+      mapping: postsMapping,
+    });
+
+    // Only the authored post survives; the liked post and RSVPed event are
+    // dropped by the edge filter, and p2's edge is dropped by parent scoping.
+    expect(replies.map((r) => r.id)).toEqual(['post-authored']);
+  });
+
+  it('traverseRelation edgeFilter drops edges that fail the filter before the next frontier', async () => {
+    // forward-looking path: an edge failing the filter must never seed the
+    // next BFS level — its vertex (and everything behind it) stays out.
+    const entries = [
+      // p1 --create--> root-post (passes) and p1 --reaction--> liked (dropped)
+      {
+        id: 'e1',
+        fromId: 'p1',
+        toId: 'root-post',
+        body: { type: 'create' },
+        ...stamp,
+      },
+      {
+        id: 'e2',
+        fromId: 'p1',
+        toId: 'liked-post',
+        body: { type: 'reaction' },
+        ...stamp,
+      },
+      // like sits BEHIND the liked post: only reachable if e2 leaked through
+      // and seeded the next frontier
+      {
+        id: 'e3',
+        fromId: 'liked-post',
+        toId: 'reply-to-like',
+        body: { type: 'create' },
+        ...stamp,
+      },
+    ];
+    const posts = [
+      { id: 'root-post', type: 'note', body: { text: 'root' }, ...stamp },
+      { id: 'liked-post', type: 'note', body: { text: 'liked' }, ...stamp },
+      { id: 'reply-to-like', type: 'note', body: { text: 'reply' }, ...stamp },
+    ];
+    const db = compilingEdgeDb({ entries, posts });
+
+    const replies = await relationsFrom(db, { id: 'p1' }, 'profiles', {
+      alias: 'context',
+      edgeCollection: 'entries',
+      direction: 'OUTBOUND',
+      cardinality: 'many',
+      skipEdge: true,
+      maxDepth: 9999,
+      edgeFilter: edgeFilters.entryType('create'),
+      mapping: { collection: 'posts' },
+    });
+
+    // Only the create edge from p1 may pass; the liked post and the reply
+    // behind it must never appear.
+    expect(replies.map((r) => r.id)).toEqual(['root-post']);
   });
 });

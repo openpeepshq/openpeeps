@@ -4,6 +4,7 @@ import {
   getTableColumns,
   inArray,
   sql,
+  type SQL,
   type Table,
 } from 'drizzle-orm';
 import type {
@@ -88,6 +89,24 @@ const parentEdgeColumn = (relation: Relation): 'fromId' | 'toId' =>
 
 const vertexEdgeColumn = (relation: Relation): 'fromId' | 'toId' =>
   relation.direction === 'INBOUND' ? 'fromId' : 'toId';
+
+/**
+ * Build the edge-condition SQL fragment from a relation's edgeFilter so every
+ * edge query applies the same filter.
+ *
+ * Returns `undefined` when there is no edgeFilter to apply, and the caller
+ * must handle that case (usually by pushing the fragment into the edge
+ * conditions passed to `and(...)`).
+ */
+const edgeFilterCondition = (
+  relation: Relation,
+  edgeTableRef: ReturnType<typeof getEdgeTable>,
+): SQL | undefined =>
+  typeof relation.edgeFilter === 'string'
+    ? applyDateRangeToEdgeSql(edgeTableRef, relation.edgeFilter)
+    : isSqlFilter(relation.edgeFilter)
+      ? relation.edgeFilter.where
+      : undefined;
 
 export const fetchRowsByIds = async (
   db: PgDb,
@@ -293,12 +312,7 @@ const attachRelation = async (
 
   const parentCol = edgeTable[parentEdgeColumn(relation)] as never;
   const edgeConditions = [inArray(parentCol, parentIds)];
-  const edgeExtraFilter =
-    typeof relation.edgeFilter === 'string'
-      ? applyDateRangeToEdgeSql(edgeTableRef, relation.edgeFilter)
-      : isSqlFilter(relation.edgeFilter)
-        ? relation.edgeFilter.where
-        : undefined;
+  const edgeExtraFilter = edgeFilterCondition(relation, edgeTableRef);
   if (edgeExtraFilter) edgeConditions.push(edgeExtraFilter);
 
   const edgeRows = await db
@@ -518,10 +532,13 @@ const traverseRelation = async (
 
     const parentCol = edgeTable[parentEdgeColumn(relation)] as never;
     const vertexCol = vertexEdgeColumn(relation);
+    const edgeConditions = [inArray(parentCol, frontier)];
+    const edgeExtraFilter = edgeFilterCondition(relation, edgeTableRef);
+    if (edgeExtraFilter) edgeConditions.push(edgeExtraFilter);
     const edgeRows = await db
       .select()
       .from(edgeTableRef as never)
-      .where(inArray(parentCol, frontier));
+      .where(and(...edgeConditions));
 
     if (!edgeRows.length) break;
 
@@ -695,10 +712,13 @@ export const relationsFrom = async (
   );
   const edgeTable = asTable(edgeTableRef);
   const parentCol = edgeTable[parentEdgeColumn(relation)] as never;
+  const edgeConditions = [eq(parentCol, start.id)];
+  const edgeExtraFilter = edgeFilterCondition(relation, edgeTableRef);
+  if (edgeExtraFilter) edgeConditions.push(edgeExtraFilter);
   const edgeRows = await db
     .select()
     .from(edgeTableRef as never)
-    .where(eq(parentCol, start.id));
+    .where(and(...edgeConditions));
 
   if (relation.count) {
     return [{ count: edgeRows.length } as unknown as Doc];
@@ -745,6 +765,9 @@ export const deleteRelationsFor = async (
   startId: string,
   relation: Relation & { mapping: MapData<object, object> },
 ) => {
+  // Deliberately filterless: callers rely on removing every edge of this
+  // relation (e.g. deleting all reposts of a post), so Relation.edgeFilter
+  // must not narrow the enumeration here.
   const edgeTableRef = getEdgeTable(
     edgeCollectionName(relation.edgeCollection),
   );
