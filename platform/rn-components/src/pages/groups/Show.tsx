@@ -24,6 +24,7 @@ import {
 } from '../../components/navigation/types/index';
 import {
   EventsFeed,
+  EventsView,
   NewEventButton,
   NewNoteButton,
   NewResourceButton,
@@ -172,8 +173,15 @@ export const GroupShow = ({ route, navigation }: GroupProps) => {
                     </ThemedText>
                   </Pressable>
                 </View>
-                <EventsFeed
-                  query={eventsTab === 'upcoming' ? upcomingEvents : pastEvents}
+                <EventsView
+                  calendar={{ groupId: group.id }}
+                  list={
+                    <EventsFeed
+                      query={
+                        eventsTab === 'upcoming' ? upcomingEvents : pastEvents
+                      }
+                    />
+                  }
                 />
               </TabsContent>
               <TabsContent value="resources" className="p-0">

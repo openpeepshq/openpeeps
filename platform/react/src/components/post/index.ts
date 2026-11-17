@@ -51,6 +51,9 @@ export type {
 } from './feed/events/EventsFeed';
 export { EventsView } from './feed/events/EventsView';
 export type { EventsViewProps } from './feed/events/EventsView';
+export { EventsCalendar } from './feed/events/EventsCalendar';
+export type { EventsCalendarProps } from './feed/events/EventsCalendar';
+export type { CalendarScopeProps } from './feed/events/eventCalendar';
 export { ThreadedFeed } from './feed/threaded/ThreadedFeed';
 export type { ThreadedFeedProps } from './feed/threaded/ThreadedFeed';
 export { ThreadPost } from './feed/threaded/ThreadPost';

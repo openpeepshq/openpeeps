@@ -115,7 +115,7 @@ export const updateCredentialsWrapper =
 export const apiHook = <
   Output,
   PathParams extends Record<string, string> | undefined = undefined,
-  QueryParams extends Record<string, string> | undefined = undefined,
+  QueryParams extends Record<string, string | number> | undefined = undefined,
 >(
   endpoint: OpenpeepsNoPayloadEndpoint<Output, PathParams, QueryParams>,
   options?: {

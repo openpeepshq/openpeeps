@@ -12,6 +12,7 @@ import {
   type OffsetInfiniteQueryParams,
   type PublicPost,
   type UnseenPostCounts,
+  type EventRangeQueryParams,
 } from '@openpeepshq/common';
 import { allpeepNoPayloadEndpoint, allpeepPayloadEndpoint } from './helpers';
 import type {
@@ -33,6 +34,18 @@ type OffsetPosts = OpenpeepsNoPayloadEndpoint<
   PublicPost[],
   undefined,
   OffsetInfiniteQueryParams
+>;
+
+type RangePosts = OpenpeepsNoPayloadEndpoint<
+  PublicPost[],
+  undefined,
+  EventRangeQueryParams
+>;
+
+type GroupRangePosts = OpenpeepsNoPayloadEndpoint<
+  PublicPost[],
+  { groupId: string },
+  EventRangeQueryParams
 >;
 
 type GroupOffsetPosts = OpenpeepsNoPayloadEndpoint<
@@ -173,6 +186,12 @@ const eventFeeds = (rawClient: FetchClient): EventFeeds => ({
         undefined,
         OffsetInfiniteQueryParams
       >(rawClient, '/posts/feeds/events/my/past'),
+      /** Date-range feed for calendar views. */
+      range: allpeepNoPayloadEndpoint<
+        PublicPost[],
+        undefined,
+        EventRangeQueryParams
+      >(rawClient, '/posts/feeds/events/my/range'),
     },
     upcoming: allpeepNoPayloadEndpoint<
       PublicPost[],
@@ -189,6 +208,12 @@ const eventFeeds = (rawClient: FetchClient): EventFeeds => ({
       undefined,
       OffsetInfiniteQueryParams
     >(rawClient, '/posts/feeds/events/past'),
+    /** Date-range feed for calendar views. */
+    range: allpeepNoPayloadEndpoint<
+      PublicPost[],
+      undefined,
+      EventRangeQueryParams
+    >(rawClient, '/posts/feeds/events/range'),
     group: {
       upcoming: allpeepNoPayloadEndpoint<
         PublicPost[],
@@ -200,6 +225,12 @@ const eventFeeds = (rawClient: FetchClient): EventFeeds => ({
         { groupId: string },
         OffsetInfiniteQueryParams
       >(rawClient, '/posts/feeds/events/by-group/:groupId/past'),
+      /** Date-range feed for calendar views. */
+      range: allpeepNoPayloadEndpoint<
+        PublicPost[],
+        { groupId: string },
+        EventRangeQueryParams
+      >(rawClient, '/posts/feeds/events/by-group/:groupId/range'),
     },
   },
 });
@@ -210,13 +241,16 @@ type EventFeeds = {
       upcoming: OffsetPosts;
       current: OffsetPosts;
       past: OffsetPosts;
+      range: RangePosts;
     };
     upcoming: OffsetPosts;
     current: OffsetPosts;
     past: OffsetPosts;
+    range: RangePosts;
     group: {
       upcoming: GroupOffsetPosts;
       past: GroupOffsetPosts;
+      range: GroupRangePosts;
     };
   };
 };

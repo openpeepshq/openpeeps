@@ -30,7 +30,15 @@ export {
   backfillMissingEventOccurrences,
   rebuildRecurringEventOccurrences,
 } from './eventOccurrences';
-export { listEventAgenda } from './eventAgenda';
+export {
+  eventRangeQueryParamsSchema,
+  type EventRangeQueryParams,
+} from '@openpeepshq/common/types';
+export {
+  eventRangeOccurrenceQuery,
+  listEventsInRange,
+  listEventAgenda,
+} from './eventAgenda';
 export {
   eventOccurrenceQueue,
   eventOccurrenceWorker,

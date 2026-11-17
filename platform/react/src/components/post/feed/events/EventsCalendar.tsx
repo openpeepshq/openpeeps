@@ -7,11 +7,10 @@ import {
   eventName,
   useEventsCalendar,
 } from '../../../../hooks/events/useEventsCalendar';
-import type { EventsFeedQuery } from './EventsFeed';
 import {
   eventEndIso,
   eventStartIso,
-  type EventsAgendaWindow,
+  type CalendarScopeProps,
 } from './eventCalendar';
 
 const eventHref = (post: PublicPost): string =>
@@ -19,12 +18,14 @@ const eventHref = (post: PublicPost): string =>
     ? `/posts/${post.id}?occurrence=${encodeURIComponent(post.occurrenceRecurrenceId)}`
     : `/posts/${post.id}`;
 
-export interface EventsCalendarProps {
-  query: EventsFeedQuery;
-  agenda: EventsAgendaWindow;
-}
+export type EventsCalendarProps = CalendarScopeProps;
 
-export const EventsCalendar = ({ query, agenda }: EventsCalendarProps) => {
+/**
+ * Date-centered events calendar component — no longer consumes list feeds.
+ * The react hook itself computes the date-range window from the month grid
+ * and calls `listEventsInRange`.
+ */
+export const EventsCalendar = (props: EventsCalendarProps) => {
   const t = useT();
   const {
     cells,
@@ -40,7 +41,7 @@ export const EventsCalendar = ({ query, agenda }: EventsCalendarProps) => {
     isFetchingNextPage,
     shiftMonth,
     goToday,
-  } = useEventsCalendar(query, agenda);
+  } = useEventsCalendar(props);
 
   if (isLoading) {
     return (

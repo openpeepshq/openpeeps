@@ -10,8 +10,7 @@ import {
   eventEndIso,
   eventStartIso,
   useEventsCalendar,
-  type EventsAgendaWindow,
-  type EventsCalendarQuery,
+  type CalendarScopeProps,
 } from '@openpeepshq/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '../../../icons/index';
 import { useThemeOpacity } from '../../../../theme/useThemeOpacity';
@@ -19,15 +18,12 @@ import { MainStackParamList } from '../../../navigation/types/index';
 import { ThemedText } from '../../../ui/themed-text';
 import { cn } from '../../../../lib/utils';
 
-export interface EventsCalendarProps {
-  query: EventsCalendarQuery;
-  agenda: EventsAgendaWindow;
-}
+export type EventsCalendarProps = CalendarScopeProps;
 
 const postKey = (post: PublicPost) =>
   `${post.id}:${post.occurrenceRecurrenceId ?? ''}`;
 
-export const EventsCalendar = ({ query, agenda }: EventsCalendarProps) => {
+export const EventsCalendar = (props: EventsCalendarProps) => {
   const { t } = useTranslation();
   const { background } = useThemeOpacity();
   const navigation =
@@ -46,7 +42,7 @@ export const EventsCalendar = ({ query, agenda }: EventsCalendarProps) => {
     isFetchingNextPage,
     shiftMonth,
     goToday,
-  } = useEventsCalendar(query, agenda);
+  } = useEventsCalendar(props);
 
   const openEvent = (post: PublicPost) =>
     navigation.navigate('Post', {

@@ -274,6 +274,18 @@ Disable with `OPENPEEPS_MCP=0`. See [Connect an AI assistant
 - `GET /api/openpeeps/core/v1/posts/feeds/events/upcoming` - Upcoming events
 - `GET /api/openpeeps/core/v1/posts/feeds/events/current` - Current events
 - `GET /api/openpeeps/core/v1/posts/feeds/events/past` - Past events
+- `GET /api/openpeeps/core/v1/posts/feeds/events/range?from=&to=` - Event
+  occurrences overlapping a `[from, to)` window (one row per occurrence; the
+  events calendar). `from`/`to` are ISO datetimes, span ≤ 62 days. Rows are
+  ordered by `start` and offset-paged (`limit`/`offset`, default and max
+  sensible page size 500); a dense month (daily series) can exceed one page,
+  so clients must keep paging while a page comes back full and half-filled
+  early pages mean data volume, not missing days.
+- `GET /api/openpeeps/core/v1/posts/feeds/events/my/range?from=&to=` - The same
+  range feed scoped to the local profile's events (creator, jam moderator, or
+  yes/maybe RSVP)
+- `GET /api/openpeeps/core/v1/posts/feeds/events/by-group/[groupId]/range?from=&to=`
+  - The same range feed scoped to a group
 - `GET /api/openpeeps/core/v1/posts/feeds/jams/upcoming` - Upcoming jams
 - `GET /api/openpeeps/core/v1/posts/feeds/jams/past` - Past jams
 - `GET /api/openpeeps/core/v1/jams/[eventId]/token` - Get jam access token

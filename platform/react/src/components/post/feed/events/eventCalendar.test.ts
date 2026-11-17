@@ -10,6 +10,7 @@ import {
   applyAgendaWindowFilter,
   groupPostsByDay,
   monthCells,
+  monthWindow,
   shouldFetchMoreAgenda,
   uniquePosts,
 } from './eventCalendar';
@@ -423,5 +424,85 @@ describe('agenda paging', () => {
         pagesLoaded: 1,
       }),
     ).toBe(false);
+  });
+});
+
+describe('monthWindow', () => {
+  it('covers the padded grid from the first cell midnight to the day after the last', () => {
+    // The local window must match the local day keys of the padded grid so a
+    // UTC-shifted browser still fetches every local day the grid shows.
+    const cells = monthCells(2026, 8);
+    const { from, to } = monthWindow(2026, 8);
+    expect(new Date(from).toISOString()).toBe(
+      new Date(2026, 7, Number(cells[0]!.key.slice(8, 10))).toISOString(),
+    );
+    expect(new Date(to).toISOString()).toBe(
+      new Date(
+        2026,
+        9,
+        Number(cells.at(-1)!.key.slice(8, 10)) + 1,
+      ).toISOString(),
+    );
+  });
+});
+
+describe('uniquePosts', () => {
+  it('drops duplicate occurrence rows across range pages', () => {
+    const a = eventPost('2026-09-08T16:00:00.000Z');
+    const recurring = { ...a, occurrenceRecurrenceId: a.occurrenceStart };
+    expect(uniquePosts([[a, recurring], [recurring]])).toHaveLength(2);
+  });
+});
+
+describe('groupPostsByDay', () => {
+  const dayKeys = (posts: PublicPost[]): string[] => [
+    ...groupPostsByDay(posts).keys(),
+  ];
+
+  it('places each occurrence row on its own local date', () => {
+    expect(
+      dayKeys([
+        eventPost('2026-09-08T16:00:00.000Z', '2026-09-08T17:00:00.000Z'),
+        eventPost('2026-09-15T16:00:00.000Z', '2026-09-15T17:00:00.000Z'),
+        eventPost('2026-09-22T16:00:00.000Z', '2026-09-22T17:00:00.000Z'),
+      ]),
+    ).toEqual(['2026-09-08', '2026-09-15', '2026-09-22']);
+  });
+
+  it('lists every occurrence of a series on its date', () => {
+    const first = eventPost('2026-09-08T16:00:00.000Z');
+    const second = eventPost('2026-09-15T16:00:00.000Z');
+    const rows = [
+      { ...second, occurrenceRecurrenceId: second.occurrenceStart },
+      { ...first, occurrenceRecurrenceId: first.occurrenceStart },
+    ] as PublicPost[];
+    expect([...dayKeys(rows)].sort()).toEqual(['2026-09-08', '2026-09-15']);
+  });
+
+  it('spans a multi-day event across each local day it touches', () => {
+    const start = new Date(2026, 8, 23, 22, 0);
+    const end = new Date(2026, 8, 25, 10, 0);
+    expect(
+      dayKeys([eventPost(start.toISOString(), end.toISOString())]),
+    ).toEqual(['2026-09-23', '2026-09-24', '2026-09-25']);
+  });
+
+  it('sorts a day bucket by start time', () => {
+    const late = eventPost('2026-09-08T18:00:00.000Z');
+    const early = eventPost('2026-09-08T09:00:00.000Z');
+    const bucket = groupPostsByDay([late, early]).get('2026-09-08') ?? [];
+    expect(bucket.map((post) => post.id)).toEqual([
+      '2026-09-08T09:00:00.000Z',
+      '2026-09-08T18:00:00.000Z',
+    ]);
+  });
+
+  it('drops day buckets outside the rendered window', () => {
+    const window = monthWindow(2026, 8);
+    const inWindow = eventPost('2026-09-08T16:00:00.000Z');
+    const overflow = eventPost('2026-07-04T16:00:00.000Z');
+    expect([...groupPostsByDay([inWindow, overflow], window).keys()]).toEqual([
+      '2026-09-08',
+    ]);
   });
 });

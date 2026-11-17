@@ -1,5 +1,6 @@
 import type { InfiniteData } from '@tanstack/react-query';
 import type { OpenpeepsClient } from '@openpeepshq/client';
+import type { ParametersType } from '@openpeepshq/fetch-client/types';
 import {
   applyAgendaWindowFilter,
   uniquePosts,
@@ -16,12 +17,14 @@ import {
 } from '../helpers';
 import type {
   ChronologicalInfiniteQueryParams,
+  EventRangeQueryParams,
   JamRecording,
   PostContext,
   PostType,
   PublicPost,
   UnseenPostCounts,
 } from '@openpeepshq/common';
+import { EVENT_RANGE_DEFAULT_LIMIT } from '@openpeepshq/common/types';
 
 type EventFeedHook = ReturnType<
   typeof infiniteOffsetQueryApiHook<
@@ -30,6 +33,20 @@ type EventFeedHook = ReturnType<
     { offset?: number; limit: number }
   >
 >;
+
+type CalendarRangeHook<P extends ParametersType> = (
+  params: { from: string; to: string },
+  enabled?: boolean,
+) => ReturnType<
+  typeof apiHook<
+    PublicPost[],
+    P & Record<string, string>,
+    EventRangeQueryParams
+  >
+>;
+
+/** Page size for the calendar date-range queries; the shared server/page constant. */
+export const CALENDAR_RANGE_LIMIT = EVENT_RANGE_DEFAULT_LIMIT;
 
 /**
  * Jam feeds (server-side) run the same event-agenda SQL with `jamOnly: true`
@@ -106,6 +123,15 @@ const eventFeeds = (
     pageSize?: number,
   ) => EventFeedHook;
   useGroupPastEventsFeed: (groupId: string, pageSize?: number) => EventFeedHook;
+  useEventsCalendarRange: CalendarRangeHook<undefined>;
+  useEventsCalendarMyRange: CalendarRangeHook<undefined>;
+  useEventsCalendarGroupRange: (
+    groupId: string,
+    params: { from: string; to: string },
+    enabled?: boolean,
+  ) => ReturnType<
+    typeof apiHook<PublicPost[], { groupId: string }, EventRangeQueryParams>
+  >;
 } => ({
   useUpcomingEventsFeed: (pageSize: number | undefined = 15) =>
     infiniteOffsetQueryApiHook(client.posts.feeds.events.upcoming, {
@@ -155,6 +181,56 @@ const eventFeeds = (
       pageSize: pageSize ?? DEFAULT_FEED_LIMIT,
       ...agendaOptions('past'),
     }),
+  /** Calendar range query — one-shot, not paging. */
+  useEventsCalendarRange: (
+    params: { from: string; to: string },
+    enabled = true,
+  ) =>
+    apiHook<PublicPost[], undefined, EventRangeQueryParams>(
+      client.posts.feeds.events.range,
+      {
+        queryParams: {
+          from: params.from,
+          to: params.to,
+          limit: CALENDAR_RANGE_LIMIT,
+        },
+        enabled,
+      },
+    ),
+  /** Calendar my-range query — one-shot, not paging. */
+  useEventsCalendarMyRange: (
+    params: { from: string; to: string },
+    enabled = true,
+  ) =>
+    apiHook<PublicPost[], undefined, EventRangeQueryParams>(
+      client.posts.feeds.events.my.range,
+      {
+        queryParams: {
+          from: params.from,
+          to: params.to,
+          limit: CALENDAR_RANGE_LIMIT,
+        },
+        enabled,
+      },
+    ),
+  /** Calendar group-range query — one-shot, not paging. */
+  useEventsCalendarGroupRange: (
+    groupId: string,
+    params: { from: string; to: string },
+    enabled = true,
+  ) =>
+    apiHook<PublicPost[], { groupId: string }, EventRangeQueryParams>(
+      client.posts.feeds.events.group.range,
+      {
+        pathParams: { groupId },
+        queryParams: {
+          from: params.from,
+          to: params.to,
+          limit: CALENDAR_RANGE_LIMIT,
+        },
+        enabled,
+      },
+    ),
 });
 
 type EventFeeds = ReturnType<typeof eventFeeds>;

@@ -1,41 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
-import type {
-  InfiniteData,
-  UseInfiniteQueryResult,
-} from '@tanstack/react-query';
-import type {
-  PublicPost,
-  SuccessFailureResponse,
-} from '@openpeepshq/common/types';
+import type { PublicPost } from '@openpeepshq/common';
 import {
-  endOfMonth,
-  eventStartIso,
-  expandRecurringAgendaPosts,
+  dateFromDayKey,
   groupPostsByDay,
   localDateKey,
   monthCells,
-  shouldFetchMoreAgenda,
-  startOfMonth,
+  monthWindow,
   uniquePosts,
-  type EventsAgendaWindow,
+  type CalendarScopeProps,
 } from '../../components/post/feed/events/eventCalendar';
-
-export type EventsCalendarQuery = UseInfiniteQueryResult<
-  InfiniteData<PublicPost[], unknown>,
-  SuccessFailureResponse
->;
-
-const WEEKDAY_START = new Date(2026, 0, 4);
-
-/**
- * The window guard inside the hook compares against a `now` captured at
- * render time. Re-ticking it every minute keeps the calendar aligned with
- * the agenda lists' refetch cadence (`AGENDA_REFETCH_INTERVAL_MS` in
- * `hooks/posts.ts`): an event that ends in the next minute leaves both the
- * list and the calendar within a minute of it happening, not only when the
- * next refetch or tab switch re-renders.
- */
-const NOW_TICK_MS = 60_000;
+import { useOpenpeeps } from '../../contexts/openpeeps';
+import { useCurrentProfile } from '../../components/layout/IdentityContext';
+import { CALENDAR_RANGE_LIMIT } from '../../contexts/openpeeps/hooks/posts';
 
 export const eventName = (post: PublicPost): string =>
   post.data.type === 'event' ? post.data.name?.trim() || '-' : '-';
@@ -43,50 +19,138 @@ export const eventName = (post: PublicPost): string =>
 export const dayNumber = (key: string): string =>
   String(Number(key.slice(8, 10)));
 
-export const dateFromDayKey = (key: string): Date =>
-  new Date(
-    Number(key.slice(0, 4)),
-    Number(key.slice(5, 7)) - 1,
-    Number(key.slice(8, 10)),
+/**
+ * Date-centered events calendar hook. Computes a `[from, to)` window directly
+ * from the rendered month grid, fetches one row per occurrence from the
+ * date-range feed, then buckets the rows by browser-local day keys
+ * (`YYYY-MM-DD`). The Upcoming/Current/Past lists keep the windowed feeds.
+ */
+export const useEventsCalendar = (scope: CalendarScopeProps = {}) => {
+  const initial = new Date();
+  const [cursor, setCursor] = useState({
+    year: initial.getFullYear(),
+    month: initial.getMonth(),
+  });
+  const [selectedKey, setSelectedKey] = useState(localDateKey(initial));
+
+  const { openpeepsApi, client } = useOpenpeeps();
+  const currentProfile = useCurrentProfile();
+  const mineEnabled = scope.mine === true && currentProfile?.type === 'local';
+
+  const rangeWindow = useMemo(
+    () => monthWindow(cursor.year, cursor.month),
+    [cursor.year, cursor.month],
   );
 
-/**
- * Month cursor, selected day and agenda paging for the events calendar. Pulls
- * further pages while the visible month is not yet covered by loaded events.
- */
-export const useEventsCalendar = (
-  query: EventsCalendarQuery,
-  agenda: EventsAgendaWindow,
-) => {
-  const [now, setNow] = useState(() => new Date());
-  const [cursor, setCursor] = useState({
-    year: now.getFullYear(),
-    month: now.getMonth(),
-  });
-  const [selectedKey, setSelectedKey] = useState(localDateKey(now));
+  // All three reads stay mounted so hook order never changes with scope; the
+  // enabled flags pick the one the scope asks for.
+  const groupQuery = openpeepsApi.useEventsCalendarGroupRange(
+    scope.groupId ?? '',
+    rangeWindow,
+    !mineEnabled && scope.groupId != null,
+  );
+  const myQuery = openpeepsApi.useEventsCalendarMyRange(
+    rangeWindow,
+    mineEnabled,
+  );
+  const feedQuery = openpeepsApi.useEventsCalendarRange(
+    rangeWindow,
+    !mineEnabled && scope.groupId == null,
+  );
+  const activeQuery = mineEnabled
+    ? myQuery
+    : scope.groupId != null
+      ? groupQuery
+      : feedQuery;
+
+  // The range feed pages by offset once a page comes back full.
+  const [overflowRows, setOverflowRows] = useState<PublicPost[]>([]);
+  const [pagingMore, setPagingMore] = useState(false);
+
+  // Reset paging state on window or scope change; without the scope keys a
+  // same-month scope switch would keep the previous scope's overflow rows.
+  useEffect(() => {
+    setOverflowRows([]);
+    setPagingMore(false);
+  }, [rangeWindow.from, rangeWindow.to, mineEnabled, scope.groupId]);
+
+  // The endpoint object is stable per client (built inside openpeepsClient);
+  // select it on stable scope inputs so the paging effect below does not
+  // re-trigger on every render.
+  const rangeEndpoint = useMemo(
+    () =>
+      mineEnabled
+        ? client.posts.feeds.events.my.range
+        : scope.groupId != null
+          ? client.posts.feeds.events.group.range
+          : client.posts.feeds.events.range,
+    [client, mineEnabled, scope.groupId],
+  );
+  const pageFull = (activeQuery.data?.length ?? 0) >= CALENDAR_RANGE_LIMIT;
 
   useEffect(() => {
-    const tick = setInterval(() => setNow(new Date()), NOW_TICK_MS);
-    return () => clearInterval(tick);
-  }, []);
+    // Walk only when the first page filled and no overflow was fetched yet.
+    // `overflowRows.length` is the wake-up dep: the reset effect above clears
+    // it on window/scope changes, so a scope switch with a full new page
+    // re-runs this effect after the reset, while unrelated re-renders (stable
+    // endpoint, unchanged window, same length) never restart a finished walk.
+    if (!pageFull) return;
+    if (overflowRows.length > 0) return;
+    let cancelled = false;
+    setPagingMore(true);
+    void (async () => {
+      const rows: PublicPost[] = [];
+      for (
+        let offset = CALENDAR_RANGE_LIMIT;
+        ;
+        offset += CALENDAR_RANGE_LIMIT
+      ) {
+        const result = await rangeEndpoint({
+          queryParameters: {
+            from: rangeWindow.from,
+            to: rangeWindow.to,
+            limit: CALENDAR_RANGE_LIMIT,
+            offset,
+          },
+        });
+        if (cancelled) return;
+        if ('error' in result) break;
+        const page = result.data as PublicPost[];
+        rows.push(...page);
+        if (page.length < CALENDAR_RANGE_LIMIT) break;
+      }
+      if (!cancelled) {
+        setOverflowRows(rows);
+        setPagingMore(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    pageFull,
+    rangeEndpoint,
+    rangeWindow.from,
+    rangeWindow.to,
+    overflowRows.length,
+  ]);
 
-  const posts = useMemo(
-    () => uniquePosts(query.data?.pages),
-    [query.data?.pages],
+  const rows = useMemo(
+    () => uniquePosts([activeQuery.data ?? [], overflowRows]),
+    [activeQuery.data, overflowRows],
   );
-  const calendarPosts = useMemo(
-    () => expandRecurringAgendaPosts(posts, agenda, now),
-    [agenda, posts, now],
+  const byDay = useMemo(
+    () => groupPostsByDay(rows, rangeWindow),
+    [rows, rangeWindow],
   );
-  const byDay = useMemo(() => groupPostsByDay(calendarPosts), [calendarPosts]);
   const cells = useMemo(
     () => monthCells(cursor.year, cursor.month),
     [cursor.year, cursor.month],
   );
+  const todayKey = localDateKey(new Date());
   const inMonthKeys = cells
     .filter((cell) => cell.inMonth)
     .map((cell) => cell.key);
-  const todayKey = localDateKey(now);
   const visible = cells.some((cell) => cell.key === selectedKey);
   const selected = visible
     ? selectedKey
@@ -98,51 +162,20 @@ export const useEventsCalendar = (
     undefined,
     { month: 'long', year: 'numeric' },
   );
-  const weekdayLabels = Array.from({ length: 7 }, (_, index) =>
-    new Date(
-      WEEKDAY_START.getFullYear(),
-      WEEKDAY_START.getMonth(),
-      WEEKDAY_START.getDate() + index,
-    ).toLocaleDateString(undefined, { weekday: 'short' }),
+  const weekdayLabels = useMemo(
+    () =>
+      Array.from({ length: 7 }, (_, index) =>
+        new Date(2026, 0, 4 + index).toLocaleDateString(undefined, {
+          weekday: 'short',
+        }),
+      ),
+    [],
   );
   const selectedLabel = dateFromDayKey(selected).toLocaleDateString(undefined, {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
   });
-
-  const {
-    hasNextPage,
-    isLoading,
-    isFetchingNextPage,
-    isError,
-    fetchNextPage,
-    data,
-  } = query;
-
-  useEffect(() => {
-    if (isLoading || isFetchingNextPage || isError) return;
-    const fetchMore = shouldFetchMoreAgenda({
-      window: agenda,
-      starts: posts.map(eventStartIso),
-      rangeStart: startOfMonth(cursor.year, cursor.month),
-      rangeEnd: endOfMonth(cursor.year, cursor.month),
-      hasNextPage: !!hasNextPage,
-      pagesLoaded: data?.pages.length ?? 0,
-    });
-    if (fetchMore) void fetchNextPage();
-  }, [
-    cursor.month,
-    cursor.year,
-    data?.pages.length,
-    fetchNextPage,
-    hasNextPage,
-    isError,
-    isFetchingNextPage,
-    isLoading,
-    agenda,
-    posts,
-  ]);
 
   const shiftMonth = (delta: number) => {
     const next = new Date(cursor.year, cursor.month + delta, 1);
@@ -165,8 +198,8 @@ export const useEventsCalendar = (
     setSelectedKey,
     monthLabel,
     weekdayLabels,
-    isLoading,
-    isFetchingNextPage,
+    isLoading: activeQuery.isLoading,
+    isFetchingNextPage: pagingMore || activeQuery.isFetching,
     shiftMonth,
     goToday,
   };

@@ -98,7 +98,6 @@ export {
   eventName as calendarEventName,
   dayNumber as calendarDayNumber,
 } from './events/useEventsCalendar';
-export type { EventsCalendarQuery } from './events/useEventsCalendar';
 export * from '../components/post/feed/events/eventCalendar';
 export { useCommunityInfoPages } from './community/useCommunityInfoPages';
 export { usePostThreads } from './posts/usePostThreads';

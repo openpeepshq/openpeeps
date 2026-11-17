@@ -14,7 +14,12 @@ import {
 import type {
   AuthorizationData,
   DbPost,
+  EventRangeQueryParams,
   PostWithMeta,
+} from '@openpeepshq/common/types';
+import {
+  EVENT_RANGE_DEFAULT_LIMIT,
+  EVENT_RANGE_MAX_SPAN_MS,
 } from '@openpeepshq/common/types';
 import { canReadPost } from './helpers/filters';
 import { transformPost } from './helpers';
@@ -51,6 +56,25 @@ export type EventAgendaQueryArgs = {
   excludeCreatorIds?: string[];
 };
 
+/** Query params of the date-range event feeds (calendar). */
+export type EventRangeOptions = {
+  jamOnly?: boolean;
+  mine?: boolean;
+  groupId?: string;
+};
+
+export type EventRangeQueryArgs = {
+  from: string;
+  to: string;
+  offset: number;
+  limit: number;
+  jamOnly?: boolean;
+  mine?: boolean;
+  groupId?: string;
+  profileId?: string;
+  excludeCreatorIds?: string[];
+};
+
 const occurrenceTimeFilter = (window: EventAgendaWindow, now: string): SQL => {
   const start = eventOccurrences.start;
   const end = eventOccurrences.end;
@@ -68,6 +92,12 @@ const occurrenceTimeFilter = (window: EventAgendaWindow, now: string): SQL => {
   }
   return sql`COALESCE(${end}, ${start} + interval '1 hour') < ${now}`;
 };
+
+const eventRangeTimeFilter = (from: string, to: string): SQL =>
+  and(
+    sql`${eventOccurrences.start} < ${to}`,
+    sql`COALESCE(${eventOccurrences.end}, ${eventOccurrences.start} + interval '1 hour') >= ${from}`,
+  )!;
 
 const eventAgendaConditions = ({
   window,
@@ -106,6 +136,64 @@ const eventAgendaConditions = ({
   }
   return conditions;
 };
+
+const rangeAgendaConditions = ({
+  from,
+  to,
+  jamOnly,
+  mine,
+  groupId,
+  profileId,
+  excludeCreatorIds,
+}: EventRangeQueryArgs): SQL[] => [
+  isNull(posts.deletedAt),
+  eq(posts.type, 'event'),
+  eq(eventOccurrences.cancelled, false),
+  eventRangeTimeFilter(from, to),
+  ...(jamOnly ? [isNotNull(sql`${posts.body}->'jam'`)] : []),
+  ...(mine && profileId
+    ? [
+        or(
+          eq(posts.creatorId, profileId),
+          postFilters.isJamModerator(profileId).where,
+          postHasYesOrMaybeRsvpExpr(posts, profileId),
+        )!,
+      ]
+    : []),
+  ...(groupId
+    ? [
+        sql`EXISTS (SELECT 1 FROM ${postGroups} WHERE ${postGroups.fromId} = ${posts.id}::text AND ${postGroups.toId} = ${groupId})`,
+      ]
+    : []),
+  ...(excludeCreatorIds?.length
+    ? [notInArray(posts.creatorId, excludeCreatorIds)]
+    : []),
+];
+
+/** One row per occurrence overlapping [from, to), ordered by start. */
+export const eventRangeOccurrenceQuery = (
+  db: Pick<PgDb, 'select'>,
+  args: EventRangeQueryArgs,
+) =>
+  db
+    .select({
+      postId: eventOccurrences.postId,
+      recurrenceId: eventOccurrences.recurrenceId,
+      start: eventOccurrences.start,
+      end: eventOccurrences.end,
+    })
+    .from(eventOccurrences)
+    .innerJoin(posts, eq(posts.id, eventOccurrences.postId))
+    .where(and(...rangeAgendaConditions(args)))
+    // Ties on start (two series at the same instant) need a stable
+    // tiebreaker or LIMIT/OFFSET pages would shuffle between requests.
+    .orderBy(
+      asc(eventOccurrences.start),
+      asc(eventOccurrences.postId),
+      asc(eventOccurrences.recurrenceId),
+    )
+    .limit(args.limit)
+    .offset(args.offset);
 
 // One row per event: a daily series would otherwise fill the first page.
 export const eventAgendaOccurrenceQuery = (
@@ -177,6 +265,60 @@ const loadPostsByIds = async (
       .filter((post): post is PostWithMeta => !!post)
       .map((post) => [post.id, post]),
   );
+};
+
+export const listEventsInRange = async (
+  authData: AuthorizationData,
+  params: EventRangeQueryParams,
+  { jamOnly = false, mine = false, groupId }: EventRangeOptions = {},
+): Promise<PostWithMeta[]> => {
+  const fromMs = new Date(params.from).getTime();
+  const toMs = new Date(params.to).getTime();
+  if (
+    Number.isNaN(fromMs) ||
+    Number.isNaN(toMs) ||
+    fromMs >= toMs ||
+    toMs - fromMs > EVENT_RANGE_MAX_SPAN_MS
+  ) {
+    throw new Error(
+      'listEventsInRange requires from < to with a span of at most 62 days',
+    );
+  }
+  const offset = params.offset ?? 0;
+  const limit = params.limit ?? EVENT_RANGE_DEFAULT_LIMIT;
+  const { db } = await allpeepDb();
+  const rows = await eventRangeOccurrenceQuery(db, {
+    from: params.from,
+    to: params.to,
+    offset,
+    limit,
+    jamOnly,
+    mine,
+    groupId,
+    profileId: authData.profile?.id,
+    excludeCreatorIds: blockedPairIds(authData.profile),
+  });
+  const postsById = await loadPostsByIds(
+    [...new Set(rows.map((row) => row.postId))],
+    authData,
+  );
+
+  return rows.flatMap((row) => {
+    const post = postsById.get(row.postId);
+    if (!post) return [];
+    const occurrenceRecurrenceId = normalizeComputedDatetime(row.recurrenceId);
+    const occurrenceStart = normalizeComputedDatetime(row.start);
+    const occurrenceEnd = normalizeComputedDatetime(row.end);
+    if (!occurrenceRecurrenceId || !occurrenceStart) return [];
+    return [
+      {
+        ...post,
+        occurrenceRecurrenceId,
+        occurrenceStart,
+        ...(occurrenceEnd ? { occurrenceEnd } : {}),
+      },
+    ];
+  });
 };
 
 export const listEventAgenda = async (

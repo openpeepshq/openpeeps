@@ -34,6 +34,38 @@ export const addDays = (date: Date, days: number): Date => {
   return next;
 };
 
+export const dateFromDayKey = (key: string): Date =>
+  new Date(
+    Number(key.slice(0, 4)),
+    Number(key.slice(5, 7)) - 1,
+    Number(key.slice(8, 10)),
+  );
+
+/** Scope the calendar reads: own events, a group's events, or the community feed. */
+export type CalendarScopeProps = {
+  /** Show only events owned by or RSVPe'd by local profile. */
+  mine?: boolean;
+  /** Group ID — fetch the group-scoped calendar. */
+  groupId?: string;
+};
+
+/**
+ * Local-midnight bounds of the padded month grid. The instants are built from
+ * local day bounds so the [from, to) window covers every local day the grid
+ * shows, whatever UTC offset the browser sits in.
+ */
+export const monthWindow = (
+  year: number,
+  month: number,
+): { from: string; to: string } => {
+  const cells = monthCells(year, month);
+  const first = dateFromDayKey(cells[0]!.key);
+  const last = dateFromDayKey(cells[cells.length - 1]!.key);
+  const from = new Date(first.getFullYear(), first.getMonth(), first.getDate());
+  const to = new Date(last.getFullYear(), last.getMonth(), last.getDate() + 1);
+  return { from: from.toISOString(), to: to.toISOString() };
+};
+
 export const startOfMonth = (year: number, month: number): Date =>
   new Date(year, month, 1);
 
@@ -346,8 +378,24 @@ export const applyAgendaWindowFilter = (
   now = new Date(),
 ): PublicPost[] => posts.filter((post) => rowMatchesAgenda(post, window, now));
 
+/** Drop day buckets outside the rendered window — overflow rows may extend past it. */
+const filterBucketsToWindow = (
+  map: Map<string, PublicPost[]>,
+  window: { from: string; to: string },
+): Map<string, PublicPost[]> => {
+  const from = new Date(window.from).getTime();
+  const to = new Date(window.to).getTime();
+  const filtered = new Map<string, PublicPost[]>();
+  for (const [key, bucket] of map) {
+    const day = dateFromDayKey(key).getTime();
+    if (day >= from && day < to) filtered.set(key, bucket);
+  }
+  return filtered;
+};
+
 export const groupPostsByDay = (
   posts: PublicPost[],
+  window?: { from: string; to: string },
 ): Map<string, PublicPost[]> => {
   const map = new Map<string, PublicPost[]>();
   for (const post of posts) {
@@ -362,7 +410,7 @@ export const groupPostsByDay = (
       (eventStartIso(a) ?? '').localeCompare(eventStartIso(b) ?? ''),
     );
   }
-  return map;
+  return window ? filterBucketsToWindow(map, window) : map;
 };
 
 const validStarts = (starts: Array<string | undefined>): Date[] =>
