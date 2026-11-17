@@ -122,6 +122,10 @@ export const createOpenPeepsFederation = async () => {
         assertionMethods: keys.map((key) => key.multikey),
         endpoints: new Endpoints({ sharedInbox: ctx.getInboxUri() }),
         icon: iconUrl ? new Image({ url: iconUrl }) : undefined,
+        // Publish discoverability only when explicitly opted-out; omit for
+        // default/opted-in members so remote directories that honour the
+        // flag don't get a listing of people who never made that choice.
+        discoverable: actor.discoverable,
       });
     })
     .setKeyPairsDispatcher(async (_ctx, identifier) => {

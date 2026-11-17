@@ -94,6 +94,41 @@ else
   echo "   Response: $(echo "$RESP" | head -c 300)"
 fi
 
+# ── 1b. Directory opt-out (discoverable flag) ────────────────────────────────
+echo "── Directory opt-out checks ──────────────────────────────"
+
+# Alice on Alpha opts out of the member directory; the actor JSON-LD must
+# publish "discoverable": false. Bob on Beta keeps the default and must not
+# carry the flag at all (an explicit true/absent both normalize to omission).
+info "Opting alice out of the member directory (SQL body update)..."
+if docker compose -f "$COMPOSE_FILE" exec -T postgres psql -U openpeeps -d openpeeps_alpha -c \
+  "UPDATE profiles SET body = jsonb_set(COALESCE(body, '{}'::jsonb), '{discoverable}', 'false'::jsonb, true) WHERE handle = 'alice' AND type = 'local';" \
+  >/dev/null 2>&1; then
+  pass "Alice's profile body updated with discoverable: false"
+else
+  fail "Could not update alice's profile body via SQL"
+fi
+
+info "Checking Alpha actor publishes discoverable: false for alice..."
+RESP=$(curl "${CURL_OPTS[@]}" -H "Accept: application/activity+json" \
+  "$ALPHA/ap/users/alice" || true)
+if echo "$RESP" | grep -q '"discoverable":false\|"discoverable": false'; then
+  pass "Opted-out actor publishes discoverable: false"
+else
+  fail "Opted-out actor does not publish discoverable: false"
+  echo "   Response: $(echo "$RESP" | head -c 300)"
+fi
+
+info "Checking Beta actor omits the flag for default member bob..."
+RESP=$(curl "${CURL_OPTS[@]}" -H "Accept: application/activity+json" \
+  "$BETA/ap/users/bob" || true)
+if echo "$RESP" | grep -q '"discoverable"'; then
+  fail "Default member actor unexpectedly carries a discoverable flag"
+  echo "   Response: $(echo "$RESP" | grep -o '"discoverable":[^,]*' | head -1)"
+else
+  pass "Default member actor omits the discoverable flag"
+fi
+
 echo ""
 
 # ── 2. Verify nodeInfo / instance metadata ───────────────────────────────────

@@ -14,6 +14,7 @@ export type LocalActor = {
   displayName?: string;
   bio?: string;
   avatar?: string | null;
+  discoverable?: boolean;
   createdAt: string;
   deleted: boolean;
 };
@@ -41,6 +42,7 @@ type ProfileBody = {
   displayName?: string;
   bio?: string;
   avatar?: string | null;
+  discoverable?: boolean;
 };
 
 export const federatedHandleFrom = (
@@ -90,6 +92,8 @@ export const loadLocalActor = async (
     displayName: body.displayName,
     bio: body.bio,
     avatar: body.avatar,
+    // Only an explicit false survives; absent and true normalize to undefined.
+    discoverable: body.discoverable === false ? false : undefined,
     createdAt: row.createdAt,
     deleted: row.deletedAt != null,
   };

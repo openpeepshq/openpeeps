@@ -6,13 +6,14 @@ Mastodon instance. All domains share a configurable suffix (default
 
 ## What this tests
 
-| Check           | Description                                                      |
-| --------------- | ---------------------------------------------------------------- |
-| Actor URLs      | OpenPeeps and Mastodon serve valid ActivityPub `Person` objects  |
-| WebFinger       | Mastodon actor resolves via OpenPeeps' WebFinger endpoint        |
-| Note federation | A public note on OpenPeeps appears in Mastodon's search          |
-| Cross-follow    | Mastodon follows an OpenPeeps actor; the follow edge is recorded |
-| Shared inbox    | Activities are delivered via shared inbox (`POST /ap/inbox`)     |
+| Check             | Description                                                                                 |
+| ----------------- | ------------------------------------------------------------------------------------------- |
+| Actor URLs        | OpenPeeps and Mastodon serve valid ActivityPub `Person` objects                             |
+| WebFinger         | Mastodon actor resolves via OpenPeeps' WebFinger endpoint                                   |
+| Note federation   | A public note on OpenPeeps appears in Mastodon's search                                     |
+| Cross-follow      | Mastodon follows an OpenPeeps actor; the follow edge is recorded                            |
+| Shared inbox      | Activities are delivered via shared inbox (`POST /ap/inbox`)                                |
+| Directory opt-out | An opted-out OpenPeeps actor publishes `discoverable: false`; default members omit the flag |
 
 ## Architecture
 
