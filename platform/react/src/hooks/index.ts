@@ -97,8 +97,10 @@ export {
   useEventsCalendar,
   eventName as calendarEventName,
   dayNumber as calendarDayNumber,
+  monthRangeWindow,
 } from './events/useEventsCalendar';
-export type { EventsCalendarQuery } from './events/useEventsCalendar';
+export type { CalendarScope } from './events/useEventsCalendar';
+export type { CalendarScopeProps } from '../components/post/feed/events/EventsCalendar';
 export * from '../components/post/feed/events/eventCalendar';
 export { useCommunityInfoPages } from './community/useCommunityInfoPages';
 export { usePostThreads } from './posts/usePostThreads';

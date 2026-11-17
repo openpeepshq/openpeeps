@@ -244,10 +244,7 @@ export const infiniteChronologicalQueryApiHook = <
 export const infiniteOffsetQueryApiHook = <
   Output,
   PathParams extends ParametersType = undefined,
-  QueryParams extends ParametersType & { offset?: number; limit: number } = {
-    offset?: number;
-    limit: number;
-  },
+  QueryParams extends ParametersType = undefined,
 >(
   endpoint: OpenpeepsNoPayloadEndpoint<Output, PathParams, QueryParams>,
   options?: {
@@ -277,10 +274,12 @@ export const infiniteOffsetQueryApiHook = <
       queryParameters: options?.queryParams,
     }),
     queryFn: async ({ pageParam }) => {
-      const baseParams: QueryParams = {
+      // Cast via unknown: QueryParams is an open-ended record by design and
+      // the merge always carries the caller's own keys through.
+      const baseParams = {
         ...options?.queryParams,
         limit: options?.pageSize,
-      } as QueryParams;
+      } as unknown as QueryParams;
       const queryParams = pageParam
         ? { ...baseParams, offset: pageParam }
         : baseParams;

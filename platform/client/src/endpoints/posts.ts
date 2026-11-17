@@ -36,6 +36,18 @@ type OffsetPosts = OpenpeepsNoPayloadEndpoint<
   OffsetInfiniteQueryParams
 >;
 
+type RangePosts = OpenpeepsNoPayloadEndpoint<
+  PublicPost[],
+  undefined,
+  EventRangeQueryParams
+>;
+
+type GroupRangePosts = OpenpeepsNoPayloadEndpoint<
+  PublicPost[],
+  { groupId: string },
+  EventRangeQueryParams
+>;
+
 type GroupOffsetPosts = OpenpeepsNoPayloadEndpoint<
   PublicPost[],
   { groupId: string },
@@ -177,7 +189,7 @@ const eventFeeds = (rawClient: FetchClient): EventFeeds => ({
       /** Date-range feed for calendar views. */
       range: allpeepNoPayloadEndpoint<
         PublicPost[],
-        { from: string; to: string },
+        undefined,
         EventRangeQueryParams
       >(rawClient, '/posts/feeds/events/my/range'),
     },
@@ -199,7 +211,7 @@ const eventFeeds = (rawClient: FetchClient): EventFeeds => ({
     /** Date-range feed for calendar views. */
     range: allpeepNoPayloadEndpoint<
       PublicPost[],
-      { from: string; to: string },
+      undefined,
       EventRangeQueryParams
     >(rawClient, '/posts/feeds/events/range'),
     group: {
@@ -216,7 +228,7 @@ const eventFeeds = (rawClient: FetchClient): EventFeeds => ({
       /** Date-range feed for calendar views. */
       range: allpeepNoPayloadEndpoint<
         PublicPost[],
-        { groupId: string; from: string; to: string },
+        { groupId: string },
         EventRangeQueryParams
       >(rawClient, '/posts/feeds/events/by-group/:groupId/range'),
     },
@@ -229,13 +241,16 @@ type EventFeeds = {
       upcoming: OffsetPosts;
       current: OffsetPosts;
       past: OffsetPosts;
+      range: RangePosts;
     };
     upcoming: OffsetPosts;
     current: OffsetPosts;
     past: OffsetPosts;
+    range: RangePosts;
     group: {
       upcoming: GroupOffsetPosts;
       past: GroupOffsetPosts;
+      range: GroupRangePosts;
     };
   };
 };

@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { QueryBuilder } from 'drizzle-orm/pg-core';
-import { eventAgendaOccurrenceQuery } from './eventAgenda';
+import {
+  eventAgendaOccurrenceQuery,
+  eventRangeOccurrenceQuery,
+} from './eventAgenda';
 
 const queryBuilder = new QueryBuilder();
 
@@ -58,5 +61,46 @@ describe('eventAgendaOccurrenceQuery', () => {
       'exists (select 1 from "post_groups"',
     );
     expect(query.params).toContain('group-1');
+  });
+});
+
+describe('eventRangeOccurrenceQuery', () => {
+  const toRangeSql = (from = '2026-09-01T00:00:00.000Z') =>
+    eventRangeOccurrenceQuery(queryBuilder, {
+      from,
+      to: '2026-10-05T00:00:00.000Z',
+      offset: 15,
+      limit: 15,
+    }).toSQL();
+
+  it('overlaps the window without a distinct on and orders by start', () => {
+    const query = toRangeSql();
+
+    expect(query.sql).not.toContain('distinct on');
+    expect(query.sql).toMatch(/"event_occurrences"\."start" < \$\d+/i);
+    expect(query.sql).toMatch(
+      /coalesce\("event_occurrences"\."end", "event_occurrences"\."start" \+ interval '1 hour'\) >= \$\d+/i,
+    );
+    expect(query.sql).toMatch(/order by "event_occurrences"\."start"/i);
+    expect(query.sql).not.toMatch(
+      /order by "event_occurrences"\."start" desc/i,
+    );
+    expect(query.sql).toContain('limit $');
+    expect(query.sql).toContain('offset $');
+  });
+
+  it('scopes mine with creator, moderator, and rsvp branches', () => {
+    const query = eventRangeOccurrenceQuery(queryBuilder, {
+      from: '2026-09-01T00:00:00.000Z',
+      to: '2026-10-05T00:00:00.000Z',
+      offset: 0,
+      limit: 15,
+      mine: true,
+      profileId: 'profile-1',
+    }).toSQL();
+
+    expect(query.sql).toContain('creator_id');
+    expect(query.sql.toLowerCase()).toContain("'rsvp'");
+    expect(query.sql.toLowerCase()).toContain('jam');
   });
 });

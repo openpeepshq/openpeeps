@@ -17,12 +17,8 @@ export const apiEndpoint = endpoint({ Output, Query, Param }).handle(
   async (params, event: RequestEvent) => {
     await ensureProfileOrPublicCommunity(event);
     const parsed = Query.parse(params);
-    const result = await listEventsInRange(
-      event.context.authData,
-      parsed.from,
-      parsed.to,
-      { groupId: params.groupId, offset: parsed.offset, limit: parsed.limit },
-    );
-    return result;
+    return listEventsInRange(event.context.authData, parsed, {
+      groupId: params.groupId,
+    });
   },
 );

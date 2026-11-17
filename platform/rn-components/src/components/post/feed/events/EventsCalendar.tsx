@@ -10,23 +10,19 @@ import {
   eventEndIso,
   eventStartIso,
   useEventsCalendar,
-  type EventsAgendaWindow,
-  type EventsCalendarQuery,
+  type CalendarScopeProps,
 } from '@openpeepshq/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '../../../icons/index';
 import { MainStackParamList } from '../../../navigation/types/index';
 import { ThemedText } from '../../../ui/themed-text';
 import { cn } from '../../../../lib/utils';
 
-export interface EventsCalendarProps {
-  query: EventsCalendarQuery;
-  agenda: EventsAgendaWindow;
-}
+export type EventsCalendarProps = CalendarScopeProps;
 
 const postKey = (post: PublicPost) =>
   `${post.id}:${post.occurrenceRecurrenceId ?? ''}`;
 
-export const EventsCalendar = ({ query, agenda }: EventsCalendarProps) => {
+export const EventsCalendar = (props: EventsCalendarProps) => {
   const { t } = useTranslation();
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
@@ -41,10 +37,10 @@ export const EventsCalendar = ({ query, agenda }: EventsCalendarProps) => {
     monthLabel,
     weekdayLabels,
     isLoading,
-    isFetchingNextPage,
+    isFetching,
     shiftMonth,
     goToday,
-  } = useEventsCalendar(query, agenda);
+  } = useEventsCalendar(props);
 
   const openEvent = (post: PublicPost) =>
     navigation.navigate('Post', {
@@ -65,7 +61,7 @@ export const EventsCalendar = ({ query, agenda }: EventsCalendarProps) => {
       <View className="mb-3 flex-row items-center justify-between gap-x-2">
         <ThemedText className="text-lg font-semibold">{monthLabel}</ThemedText>
         <View className="flex-row items-center gap-x-1">
-          {isFetchingNextPage ? <ActivityIndicator size="small" /> : null}
+          {isFetching ? <ActivityIndicator size="small" /> : null}
           <Pressable className="px-2 py-1" onPress={goToday}>
             <ThemedText className="text-muted-foreground text-sm">
               {t('events.calendar.today', { defaultValue: 'Today' })}

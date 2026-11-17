@@ -88,10 +88,7 @@ export const EventsIndex = ({
           },
         ]}
       />
-      <EventsView
-        agenda={tab}
-        list={<EventsFeed query={activeQuery} />}
-      />
+      <EventsView list={<EventsFeed query={activeQuery} />} />
       <NewEventButton visibility={visibility} currentProfile={currentProfile} />
     </ThemedView>
   );

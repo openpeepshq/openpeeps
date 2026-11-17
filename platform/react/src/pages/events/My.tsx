@@ -43,7 +43,6 @@ export function EventsMy() {
       </nav>
       <EventsView
         calendar={{ mine: true }}
-        agenda={tab}
         list={<Feed query={activeQuery} formatSwitch={false} />}
       />
     </div>

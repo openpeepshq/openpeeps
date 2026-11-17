@@ -9,15 +9,21 @@ import {
   infiniteChronologicalQueryApiHook,
 } from '../helpers';
 import type {
+  InfiniteData,
+  UseInfiniteQueryResult,
+} from '@tanstack/react-query';
+import type {
   ChronologicalInfiniteQueryParams,
   JamRecording,
   PostContext,
   PostType,
   PublicPost,
+  SuccessFailureResponse,
   UnseenPostCounts,
-  EventRangeQueryParams,
 } from '@openpeepshq/common';
-import { useQuery, type QueryKey } from '@tanstack/react-query';
+
+/** Calendar ranges fetch in pages; one month of days fits in a few pages. */
+const EVENT_RANGE_PAGE_SIZE = 100;
 
 type EventFeedHook = ReturnType<
   typeof infiniteOffsetQueryApiHook<
@@ -26,6 +32,25 @@ type EventFeedHook = ReturnType<
     { offset?: number; limit: number }
   >
 >;
+
+/**
+ * Range pages flow through the standard offset-paging hook; the calendar
+ * consumes the flattened union of pages.
+ */
+type EventRangeFeedHook = UseInfiniteQueryResult<
+  InfiniteData<PublicPost[], unknown>,
+  SuccessFailureResponse
+> & { flatData: PublicPost[] };
+
+const withFlatData = (
+  query: UseInfiniteQueryResult<
+    InfiniteData<PublicPost[], unknown>,
+    SuccessFailureResponse
+  >,
+): EventRangeFeedHook => ({
+  ...query,
+  flatData: query.data?.pages.flat() ?? [],
+});
 
 const eventFeeds = (
   client: OpenpeepsClient,
@@ -38,6 +63,13 @@ const eventFeeds = (
   useMyPastEventsFeed: () => EventFeedHook;
   useGroupUpcomingEventsFeed: (groupId: string) => EventFeedHook;
   useGroupPastEventsFeed: (groupId: string) => EventFeedHook;
+  useEventsCalendarRange: (from: string, to: string) => EventRangeFeedHook;
+  useEventsCalendarMyRange: (from: string, to: string) => EventRangeFeedHook;
+  useEventsCalendarGroupRange: (
+    groupId: string,
+    from: string,
+    to: string,
+  ) => EventRangeFeedHook;
 } => ({
   useUpcomingEventsFeed: (pageSize: number | undefined = 15) =>
     infiniteOffsetQueryApiHook(client.posts.feeds.events.upcoming, {
@@ -79,31 +111,30 @@ const eventFeeds = (
       pathParams: { groupId },
       pageSize: 15,
     }),
-  /** Calendar range query — single shot, not paging. */
-  useEventsCalendarRange: ({
-    from,
-    to,
-  }: { from: string; to: string }) =>
-    apiHook(client.posts.feeds.events.range, {
-      queryParams: { from, to, limit: 500 },
-    }),
-  /** Calendar my-range query — single shot, not paging. */
-  useEventsCalendarMyRange: ({
-    from,
-    to,
-  }: { from: string; to: string }) =>
-    apiHook(client.posts.feeds.events.my.range, {
-      queryParams: { from, to, limit: 500 },
-    }),
-  /** Calendar group-range query — single shot, not paging. */
-  useEventsCalendarGroupRange: (
-    groupId: string,
-    { from, to }: { from: string; to: string },
-  ) =>
-    apiHook(client.posts.feeds.events.group.range, {
-      pathParams: { groupId },
-      queryParams: { from, to, limit: 500 },
-    }),
+  /** Calendar range queries. The hook caller supplies from/to; the window is
+   * one wider than the calendar month so leading/trailing cells resolve. */
+  useEventsCalendarRange: (from: string, to: string) =>
+    withFlatData(
+      infiniteOffsetQueryApiHook(client.posts.feeds.events.range, {
+        pageSize: EVENT_RANGE_PAGE_SIZE,
+        queryParams: { from, to },
+      }),
+    ),
+  useEventsCalendarMyRange: (from: string, to: string) =>
+    withFlatData(
+      infiniteOffsetQueryApiHook(client.posts.feeds.events.my.range, {
+        pageSize: EVENT_RANGE_PAGE_SIZE,
+        queryParams: { from, to },
+      }),
+    ),
+  useEventsCalendarGroupRange: (groupId: string, from: string, to: string) =>
+    withFlatData(
+      infiniteOffsetQueryApiHook(client.posts.feeds.events.group.range, {
+        pathParams: { groupId },
+        pageSize: EVENT_RANGE_PAGE_SIZE,
+        queryParams: { from, to },
+      }),
+    ),
 });
 
 type EventFeeds = ReturnType<typeof eventFeeds>;

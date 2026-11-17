@@ -16,11 +16,7 @@ export const EventsView = ({ calendar, list }: EventsViewProps) => {
   return (
     <div>
       <EventViewSwitch />
-      {view === 'calendar' ? (
-        <EventsCalendar {...(calendar ?? {})} />
-      ) : (
-        list
-      )}
+      {view === 'calendar' ? <EventsCalendar {...(calendar ?? {})} /> : list}
     </div>
   );
 };

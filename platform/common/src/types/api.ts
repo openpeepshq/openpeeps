@@ -762,6 +762,25 @@ export type OffsetInfiniteQueryParams =
   | z.infer<typeof offsetInfiniteQueryParamsSchema>
   | undefined;
 
+const MAX_EVENT_RANGE_SPAN_MS = 62 * 24 * 60 * 60 * 1000;
+
+/** Query params of the date-range event feeds (events calendar). */
+export const eventRangeQueryParamsSchema = z
+  .object({
+    from: z.string().datetime({ offset: true }),
+    to: z.string().datetime({ offset: true }),
+    offset: z.coerce.number().optional(),
+    limit: z.coerce.number().optional(),
+  })
+  .refine(
+    (value) =>
+      new Date(value.from).getTime() < new Date(value.to).getTime() &&
+      new Date(value.to).getTime() - new Date(value.from).getTime() <=
+        MAX_EVENT_RANGE_SPAN_MS,
+    { message: 'from < to with a span of at most 62 days' },
+  );
+export type EventRangeQueryParams = z.infer<typeof eventRangeQueryParamsSchema>;
+
 export const searchResultItemSchema = (baseSchema: z.ZodType) =>
   z.object({
     score: z.number(),
