@@ -64,18 +64,26 @@ export const ProfileCard = ({
       }`}
     >
       <TouchableWithoutFeedback onPress={onPress}>
-        <View className="flex flex-row items-center gap-x-2">
+        <View className="flex flex-row items-center gap-x-2 min-w-0 flex-1">
           <ProfileAvatar
             profile={profile}
             className={actionType === 'select' ? 'size-10' : 'size-16'}
           />
-          <View className="">
-            <ThemedText className="text-lg font-semibold">
+          <View className="min-w-0 flex-1">
+            <ThemedText
+              className="text-lg font-semibold truncate"
+              numberOfLines={1}
+            >
               {truncateText(profile.displayName, 18) || profile.handle}
             </ThemedText>
-            <ThemedText className="">@{profile.handle}</ThemedText>
+            <ThemedText className="truncate" numberOfLines={1}>
+              @{profile.handle}
+            </ThemedText>
             {bio ? (
-              <ThemedText className="text-muted-foreground mt-1 text-sm">
+              <ThemedText
+                className="text-muted-foreground mt-1 text-sm"
+                numberOfLines={2}
+              >
                 {truncateText(bio, 100)}
               </ThemedText>
             ) : null}
