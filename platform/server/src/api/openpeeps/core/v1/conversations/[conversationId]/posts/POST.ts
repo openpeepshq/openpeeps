@@ -1,5 +1,10 @@
 import { endpoint, z } from '#lib/endpoint';
-import { forbidden, notFound, rethrowIfOpenpeepsError } from '#lib/errors';
+import {
+  badRequest,
+  forbidden,
+  notFound,
+  rethrowIfOpenpeepsError,
+} from '#lib/errors';
 import {
   publicPostSchema,
   postDataUnionSchema,
@@ -24,6 +29,7 @@ import {
   isOneToOneDm,
   isBlockedPair,
   isConversationLeavePost,
+  validResourceCategoryPath,
 } from '@openpeepshq/common/lib';
 
 export const Input = postCreationDataSchema;
@@ -33,6 +39,7 @@ export const Param = z.object({
 });
 
 export const Error = {
+  400: badRequest(),
   403: forbidden(),
   404: notFound(),
 };
@@ -89,6 +96,12 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
         : baseAudience;
 
     const postData = postDataUnionSchema.parse(input.data);
+    if (
+      postData.type === 'resource' &&
+      !validResourceCategoryPath(postData.categoryPath)
+    ) {
+      throw badRequest('invalidCategoryPath');
+    }
     const object: PostData = postDataSchema.parse({
       ...input,
       creatorId: profile.id,
