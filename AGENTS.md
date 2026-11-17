@@ -328,18 +328,26 @@ and verify the final label set.
 2. **Issues, not PRs.** All flow stage labels and comments are applied to the
    **issue**, never to the PR. A PR is acted on only as part of handling the
    issue that references it. (The `in-progress` claim label is on the issue too.)
-3. **Say who you are and why.** When an automation touches an issue it leaves a
-   comment on the issue stating which automation handled it and why that issue
-   was selected. The footer is:
+3. **Say what you did and why.** Every run that handles an issue must leave at
+   least a terse comment on the issue stating what it was doing in that run
+   (e.g. "wrote the implementation plan", "reviewed the PR and posted 4
+   suggestions", "merged the PR") — not just why the issue was selected. The
+   comment also states which automation handled it, via the footer:
    `— Handled by the <AUTOMATION NAME> automation: <one short sentence on why
 this issue was selected>.` If the run already posts a substantive comment on
-   the issue, the footer goes in that same comment, not a second one. A run that
-   handled no issue posts no comment.
+   the issue, that note and the footer go in the same comment, not a second
+   one. A run that handled no issue posts no comment.
 4. **Strict queues.** An automation works **only** on issues that carry exactly
    its own stage label. An issue with a different label, no label, or multiple
    labels is out of scope — skip it (and name it in the run summary if you
    skipped any). If no eligible issue exists, the run makes **zero changes**
    (no comments, no label changes, no PR operations) and ends.
+5. **Explain every label change.** Whenever a run adds or removes a label on
+   the issue — a flow stage move, or the `in-progress` claim and its release —
+   it says so in the comment it leaves: which label it added or removed, and
+   why (e.g. "moved `flow/ready-to-plan` → `flow/ready-to-review-plan` — plan
+   written"). A run that makes a label change without a comment explaining it
+   has not finished its work on that issue.
 
 ### Retired / not used
 
