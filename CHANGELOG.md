@@ -5,6 +5,8 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **i18n**: share 4+ strings under common keys without deleting aliases
+- **rn-components**: make the Jam URL on the single event page tappable
 - **theme**: preview light and dark mode colors with contrast check
 - **skill**: drop the milestone stats table
 - **skill**: split milestone burndown into four pipeline stages
@@ -17,6 +19,11 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **rn-components**: gate resource download action on stable kind, not translated label
+- **events**: reject end times before the start time in event forms
+- **stats**: count needs-specs in the needs-human-intervention line
+- **rn-components**: let attendees join a live jam from the event page
+- **rn-components**: add setSearchParams to the native router adapter
 - **resources**: make file downloads work cross-origin via Content-Disposition
 - **resources**: persist library filters in the URL without breaking the tab hash
 - **resources**: label the folder tree controls for assistive tech
@@ -62,12 +69,21 @@ Changelog for OpenPeeps
 - **roles**: prevent duplicate role assignments for a profile
 - **posts**: reject replies to deleted posts
 
+### Refactoring
+
+- **participant**: replace parseParticipantMetadata with participantTileProfile for improved profile handling
+
 ### Documentation
 
+- **skill**: add pre-existing-error verification guidance to openpeeps-pr-rebase
+- **flow**: route RN-only merges to flow/waiting-for-app-build
+- define the simplified issue flow in AGENTS.md
 - codify org-level and issue-flow label rules in AGENTS.md
 
 ### Chores
 
+- remove __pycache__ .pyc files and ignore them
+- **skill**: scale burndown bars to max count, mark ideal in-bar
 - **deps**: wave-3 transitive security override batch
 - **pnpm**: force shell-quote 1.12.0 tree-wide to clear 2 critical advisories
 - **deps**: remove redundant pnpm overrides and pin dompurify (fix #2025)
