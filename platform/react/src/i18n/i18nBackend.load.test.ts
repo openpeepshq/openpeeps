@@ -15,7 +15,7 @@ const de = JSON.parse(readFileSync(resolve(localesDir, 'de.json'), 'utf8')) as {
   auth: { register: { welcome: string } };
 };
 
-describe('i18next-http-backend 3.x runtime load (smoke)', () => {
+describe('i18next-http-backend runtime load (smoke)', () => {
   const baseUrl = 'http://localhost:4173';
   const originalFetch = globalThis.fetch;
 
@@ -39,7 +39,7 @@ describe('i18next-http-backend 3.x runtime load (smoke)', () => {
     );
 
     // initI18N resolves only after the http backend has loaded the initial
-    // bundle, so awaiting it proves the 3.0.6 backend fetch path ran.
+    // bundle, so awaiting it proves the http backend fetch path ran.
     const i18n = await initI18N('de', baseUrl);
 
     expect(requested).toContain(`${baseUrl}/api/openpeeps/core/v1/i18n/de`);

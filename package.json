@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Monorepo for OpenPeeps",
   "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "repository": {
     "type": "git",
     "url": "https://code.openpeeps.org/openpeeps/openpeeps"
