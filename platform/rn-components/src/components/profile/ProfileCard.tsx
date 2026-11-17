@@ -22,6 +22,12 @@ export interface ProfileCardProps {
   actionType?: 'follow' | 'message' | 'unfollow' | 'link' | 'select';
   handleSelectProfile?: () => void;
   rightComponent?: React.ReactNode;
+  /**
+   * Drop the default bottom margin and horizontal padding for placements
+   * that manage their own spacing (e.g. a bordered strip), mirroring web's
+   * tight card-to-border spacing.
+   */
+  unspaced?: boolean;
 }
 
 export const ProfileCard = ({
@@ -32,6 +38,7 @@ export const ProfileCard = ({
   actionType = 'link',
   handleSelectProfile,
   rightComponent,
+  unspaced = false,
 }: ProfileCardProps) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
@@ -59,9 +66,13 @@ export const ProfileCard = ({
 
   return (
     <View
-      className={`w-full flex-row items-center justify-between px-4 ${
-        actionType === 'select' ? 'mb-1 py-1' : 'mb-8'
-      }`}
+      className={
+        unspaced
+          ? 'w-full flex-row items-center justify-between'
+          : `w-full flex-row items-center justify-between px-4 ${
+              actionType === 'select' ? 'mb-1 py-1' : 'mb-8'
+            }`
+      }
     >
       <TouchableWithoutFeedback onPress={onPress}>
         <View className="flex flex-row items-center gap-x-2 min-w-0 flex-1">

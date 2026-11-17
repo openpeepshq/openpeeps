@@ -83,13 +83,14 @@ const profile = {
   bio: longBio,
 } as unknown as ProfileCardProps['profile'];
 
-const renderCard = () => {
+const renderCard = (props: Partial<ProfileCardProps> = {}) => {
   let tree: ReturnType<typeof ReactTestRenderer.create>;
   ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
       React.createElement(ProfileCard, {
         profile,
         actionType: 'link' as const,
+        ...props,
       })
     );
   });
@@ -139,5 +140,19 @@ describe('ProfileCard layout guards (issue #2111)', () => {
     expect(textColumn).toBeDefined();
     // Follow/Unfollow action is rendered and not clipped away.
     expect(tree.root.findByType('FollowUnfollowButton')).toBeDefined();
+  });
+
+  it('drops the default spacing with unspaced (issue #1971)', () => {
+    const spaced = renderCard();
+    const spacedRow = spaced.root.findByProps({
+      className: 'w-full flex-row items-center justify-between px-4 mb-8',
+    });
+    expect(spacedRow).toBeDefined();
+
+    const unspaced = renderCard({ unspaced: true });
+    const unspacedRow = unspaced.root.findByProps({
+      className: 'w-full flex-row items-center justify-between',
+    });
+    expect(unspacedRow).toBeDefined();
   });
 });

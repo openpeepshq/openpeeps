@@ -43,31 +43,7 @@ import {
   DirectMessageSearch,
   MessageInThread,
 } from '../../components/conversations/index';
-
-/**
- * Shows handle + bio for a 1:1 conversation participant, without a
- * duplicate avatar (the header already renders it).
- */
-const ConversationParticipantDetail = ({
-  profile,
-}: {
-  profile: import('@openpeepshq/common').Profile;
-}) => {
-  const truncate = (text: string | null | undefined, max: number) =>
-    !text ? '' : text.length > max ? text.slice(0, max) + '…' : text;
-  return (
-    <View className="gap-y-1 p-3">
-      <ThemedText className="text-muted-foreground text-xs">
-        @{profile.handle}
-      </ThemedText>
-      {profile.bio ? (
-        <ThemedText className="text-sm">
-          {truncate(profile.bio, 100)}
-        </ThemedText>
-      ) : null}
-    </View>
-  );
-};
+import { ProfileCard } from '../../components/profile/index';
 
 const isMessageId = (value: string | undefined): value is string =>
   !!value &&
@@ -122,6 +98,9 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
     participants.length > 0
       ? participants.map((p) => p.displayName || `@${p.handle}`).join(', ')
       : t('conversations.title', { defaultValue: 'Conversation' });
+  const openParticipantsLabel = t('conversations.participants.openList', {
+    defaultValue: 'View participants',
+  });
 
   const resetForm = useCallback(() => {
     setContent('');
@@ -210,6 +189,9 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
     : t('conversations.search.toggle', {
         defaultValue: 'Search this conversation',
       });
+  const infoLabel = t('conversations.info.title', {
+    defaultValue: 'Conversation info',
+  });
 
   useSetPageHeader(
     isLoading ? undefined : (
@@ -237,6 +219,8 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => navigation.navigate('ConversationInfo', { id })}
+          accessibilityRole="button"
+          accessibilityLabel={infoLabel}
           className="rounded-md p-1.5"
         >
           <InfoIcon size={18} className="text-foreground" />
@@ -257,13 +241,19 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
     <ThemedView className="flex-1">
       <View className="flex-1">
         {/* Section under the page header showing the participants,
-            mirroring the web conversation Show page. */}
-        <View className="border-b border-border">
+            mirroring the web conversation Show page (ProfileCard for 1:1). */}
+        <View className="border-b border-border p-4">
           {participants.length === 1 && participants[0] ? (
-            <ConversationParticipantDetail profile={participants[0]} />
+            <ProfileCard
+              profile={participants[0]}
+              showAction={false}
+              unspaced
+            />
           ) : multipleParticipants ? (
             <TouchableOpacity
               onPress={() => setParticipantsOpen(true)}
+              accessibilityRole="button"
+              accessibilityLabel={openParticipantsLabel}
               className="w-full flex-row items-center gap-2 p-3"
             >
               <View className="flex-row -space-x-2 shrink-0">
@@ -289,7 +279,9 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
           <KeyboardAvoidingView
             className="flex-1"
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+            // iOS: total chrome above the composer (app bar row + h-16
+            // content header); re-measure when the shell chrome changes.
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 74 : 0}
           >
             {searchOpen ? (
               <View nativeID="conversation-message-search">

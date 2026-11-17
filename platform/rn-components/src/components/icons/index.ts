@@ -81,6 +81,7 @@ import {
   Ban,
   Mail,
   Lock,
+  Menu,
   UserCheck,
   SendHorizonal,
   MailCheck,
@@ -232,6 +233,7 @@ export const AudioLinesIcon = iconWithClassName(AudioLines);
 export const BanIcon = iconWithClassName(Ban);
 export const MailIcon = iconWithClassName(Mail);
 export const LockIcon = iconWithClassName(Lock);
+export const MenuIcon = iconWithClassName(Menu);
 export const UserCheckIcon = iconWithClassName(UserCheck);
 export const SendHorizonalIcon = iconWithClassName(SendHorizonal);
 export const MailCheckIcon = iconWithClassName(MailCheck);

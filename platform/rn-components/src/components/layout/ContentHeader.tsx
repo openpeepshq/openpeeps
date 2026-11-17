@@ -5,12 +5,14 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCurrentProfile } from '@openpeepshq/react';
 import { goToParentOrBack } from '../navigation/parent-back';
 import type { MainStackParamList } from '../navigation/types';
+import { useTranslation } from 'react-i18next';
 import { ChevronLeftIcon } from '../icons/index';
 import { ThemedText } from '../ui/themed-text';
 import { usePageChrome } from './pageChrome';
 
 export const ContentHeader = () => {
   const { header } = usePageChrome();
+  const { t } = useTranslation();
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const route = useRoute();
@@ -20,11 +22,13 @@ export const ContentHeader = () => {
   const titleIsString = typeof title === 'string';
 
   return (
-    <View className="border-border flex-row items-center justify-between border-b px-4 py-2">
+    <View className="bg-background border-border h-16 flex-row items-center justify-between border-b px-4">
       <View className="min-w-0 flex-1 flex-row items-center gap-2">
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Back"
+          accessibilityLabel={t('common.actions.back', {
+            defaultValue: 'Back',
+          })}
           onPress={() => {
             if (header?.onBack) {
               header.onBack();

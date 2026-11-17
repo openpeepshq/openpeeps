@@ -10,6 +10,7 @@ Changelog for OpenPeeps
 - **federation**: publish discoverable flag for opted-out profiles (Option 1)
 - **theme**: add configurable Jam Lobby background image
 - **resources**: single image per pick so the crop dialog always shows
+- **rn-components**: consolidate the mobile layout onto the web layout
 - **i18n**: share 4+ strings under common keys without deleting aliases
 - **rn-components**: make the Jam URL on the single event page tappable
 - **theme**: preview light and dark mode colors with contrast check
