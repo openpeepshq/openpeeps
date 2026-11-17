@@ -116,6 +116,18 @@ jest.mock('../icons', () => ({
   AudioLinesIcon: () => React.createElement('AudioLinesIcon'),
 }));
 
+// The provider's import chain reaches @openpeepshq/common, whose node
+// build is ESM (`dist/index.js`) and unparseable by the node jest env.
+// Only getTheme is needed; its real return shape (config.theme.light
+// with `dark: false`) is mirrored here.
+jest.mock('@openpeepshq/common', () => ({
+  getTheme: () => ({
+    dark: false,
+    primaryHex: '#16161a',
+    buttonRadius: '9999px',
+  }),
+}));
+
 import type { ResourceCardProps } from './ResourceCard';
 import { ResourceCard } from './ResourceCard';
 

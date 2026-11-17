@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { MediaAttachmentData } from '@openpeepshq/common';
 import { isImageAttachment } from '../../../lib/attachmentHelpers';
 import { AttachmentCard, attachmentId } from './AttachmentCard';
+import { useThemeOpacity } from '../../../theme/useThemeOpacity';
 
 interface MediaPreviewProps {
   attachments: MediaAttachmentData[];
@@ -22,6 +23,7 @@ export const ComposeAttachments: React.FC<MediaPreviewProps> = ({
   updateAttachment,
 }) => {
   const { t } = useTranslation();
+  const { background } = useThemeOpacity();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const altModalRef = useRef<BottomSheetModal>(null);
@@ -88,7 +90,8 @@ export const ComposeAttachments: React.FC<MediaPreviewProps> = ({
             accessibilityLabel={t('common.labels.altText', {
               defaultValue: 'Alt text',
             })}
-            className="min-h-10 px-3 rounded-full bg-background/90 border border-border items-center justify-center"
+            className="min-h-10 px-3 rounded-full border border-border items-center justify-center"
+            style={background('background', 0.9)}
           >
             <ThemedText className="text-xs font-semibold">ALT</ThemedText>
           </TouchableOpacity>
@@ -99,7 +102,8 @@ export const ComposeAttachments: React.FC<MediaPreviewProps> = ({
           accessibilityLabel={t('posts.attachments.deleteTitle', {
             defaultValue: 'Delete attachment',
           })}
-          className="w-10 h-10 rounded-full bg-background/90 border border-border items-center justify-center"
+          className="w-10 h-10 rounded-full border border-border items-center justify-center"
+          style={background('background', 0.9)}
         >
           <XIcon size={18} className="text-foreground" />
         </TouchableOpacity>

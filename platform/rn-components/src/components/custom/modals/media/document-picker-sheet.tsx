@@ -15,6 +15,7 @@ import {
 } from '@react-native-documents/picker';
 import { viewDocument } from '@react-native-documents/viewer';
 import { formatSize, MediaAttachment } from '@openpeepshq/common';
+import { useThemeOpacity } from '../../../../theme/useThemeOpacity';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { Button } from '../../../ui/button';
 import {
@@ -102,6 +103,7 @@ export const DocumentPickerSheet = forwardRef<
   const [editingDocUri, setEditingDocUri] = useState<string | null>(null);
   const [isConfirmLoading, setIsConfirmLoading] = useState(false);
   const { t } = useTranslation();
+  const { background, text } = useThemeOpacity();
   const { openpeepsApi } = useOpenpeeps();
   const createAttachment = openpeepsApi.createMediaAttachmentAction();
 
@@ -289,7 +291,10 @@ export const DocumentPickerSheet = forwardRef<
                   <Text className="text-muted-foreground text-xs">
                     {formatSize(doc.size || 0)}
                   </Text>
-                  <Text className="text-muted-foreground/50 text-[10px] ml-2">
+                  <Text
+                    style={text('muted-foreground', 0.5)}
+                    className="text-[10px] ml-2"
+                  >
                     {descriptions[doc.uri]?.trim()
                       ? t('form.uploadEditModal.description.altText')
                       : t('form.uploadEditModal.description.placeholder')}
@@ -303,7 +308,8 @@ export const DocumentPickerSheet = forwardRef<
                 onPress={() => handlePreview(doc)}
                 accessibilityRole="button"
                 accessibilityLabel={t('form.preview')}
-                className="p-2 bg-surface/50 rounded-full"
+                style={background('muted', 0.5)}
+                className="p-2 rounded-full"
               >
                 <EyeOnIcon size={16} className="text-muted-foreground" />
               </TouchableOpacity>
@@ -313,7 +319,8 @@ export const DocumentPickerSheet = forwardRef<
                 accessibilityLabel={t('posts.attachments.deleteTitle', {
                   defaultValue: 'Delete attachment',
                 })}
-                className="p-2 bg-surface/50 rounded-full"
+                style={background('muted', 0.5)}
+                className="p-2 rounded-full"
               >
                 <XIcon size={16} className="text-muted-foreground" />
               </TouchableOpacity>

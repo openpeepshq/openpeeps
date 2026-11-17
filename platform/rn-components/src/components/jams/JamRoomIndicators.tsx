@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useLocalParticipant } from '@livekit/react-native';
 import { ConnectionQuality } from 'livekit-client';
 import { useTranslation } from 'react-i18next';
@@ -9,14 +9,13 @@ import {
 } from '@openpeepshq/react';
 import { CircleIcon, XIcon } from '../icons/index';
 import { ThemedText } from '../ui/themed-text';
-import { useOpenPeepsTheme } from '../../theme/OpenPeepsThemeProvider';
-import { hexWithOpacity } from '../../theme/utils';
+import { useThemeOpacity } from '../../theme/useThemeOpacity';
 import { useConnectionQuality } from './useParticipantConnection';
 
 /** Red "recording" pill shown to every participant while egress is active. */
 export const JamRecordingIndicator = () => {
   const { t } = useTranslation();
-  const { colors } = useOpenPeepsTheme();
+  const { background } = useThemeOpacity();
   const { isRecording } = useJamRecordingState();
   const elapsed = useJamRecordingElapsed();
 
@@ -27,7 +26,7 @@ export const JamRecordingIndicator = () => {
   return (
     <View
       pointerEvents="none"
-      style={{ backgroundColor: hexWithOpacity(colors.destructive, 0.9) }}
+      style={background('destructive', 0.9)}
       className="absolute left-4 top-4 z-50 flex-row items-center gap-2 rounded-full px-3 py-1"
     >
       <CircleIcon
@@ -45,6 +44,7 @@ export const JamRecordingIndicator = () => {
 /** Dismissable banner shown when the local connection quality degrades. */
 export const JamNetworkQuality = () => {
   const { t } = useTranslation();
+  const { background } = useThemeOpacity();
   const { localParticipant } = useLocalParticipant();
   const quality = useConnectionQuality(localParticipant);
   const [dismissed, setDismissed] = useState(false);
@@ -55,11 +55,18 @@ export const JamNetworkQuality = () => {
   if (!poor || dismissed) return null;
 
   return (
-    <View className="absolute left-4 right-4 top-4 z-50 flex-row items-center gap-3 rounded-lg bg-accent/90 px-4 py-2">
+    // NativeWind v4 can't apply `/N` opacity to CSS-variable colors (e.g.
+    // `bg-accent/90`), so the banner background uses an inline rgba style.
+    <View
+      style={background('accent', 0.9)}
+      className="absolute left-4 right-4 top-4 z-50 flex-row items-center gap-3 rounded-lg px-4 py-2"
+    >
       <ThemedText className="flex-1 text-sm text-accent-foreground">
-        <ThemedText className="text-sm font-medium text-accent-foreground">
+        {/* Raw `Text` (not `ThemedText`) for the bold status label: nesting
+            two themed texts would re-apply the base `text-base` defaults. */}
+        <Text className="font-medium">
           {t('jams.network.connectionStatus')}
-        </ThemedText>{' '}
+        </Text>{' '}
         {t('jams.network.connectionDetail', { quality })}
       </ThemedText>
       <Pressable

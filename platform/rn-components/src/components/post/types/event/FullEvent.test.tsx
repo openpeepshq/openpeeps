@@ -224,6 +224,7 @@ jest.mock('../../../icons/index', () => ({
   PencilIcon: () => null,
   FlagIcon: () => null,
 }));
+
 // The components barrel (EventRsvpButton, ReplyBox, ShareMenu, useNewPostModal, ...)
 jest.mock('../../index', () => ({
   EventMenu: () => null,

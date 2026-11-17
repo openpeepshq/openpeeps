@@ -14,6 +14,7 @@ import {
   type EventsCalendarQuery,
 } from '@openpeepshq/react';
 import { ChevronLeftIcon, ChevronRightIcon } from '../../../icons/index';
+import { useThemeOpacity } from '../../../../theme/useThemeOpacity';
 import { MainStackParamList } from '../../../navigation/types/index';
 import { ThemedText } from '../../../ui/themed-text';
 import { cn } from '../../../../lib/utils';
@@ -28,6 +29,7 @@ const postKey = (post: PublicPost) =>
 
 export const EventsCalendar = ({ query, agenda }: EventsCalendarProps) => {
   const { t } = useTranslation();
+  const { background } = useThemeOpacity();
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const {
@@ -113,10 +115,12 @@ export const EventsCalendar = ({ query, agenda }: EventsCalendarProps) => {
                 key={cell.key}
                 accessibilityState={{ selected: isSelected }}
                 onPress={() => setSelectedKey(cell.key)}
-                style={{ width: `${100 / 7}%` }}
+                style={{
+                  width: `${100 / 7}%`,
+                  ...(isSelected ? background('primary', 0.1) : {}),
+                }}
                 className={cn(
                   'bg-background min-h-14 p-1 border-[0.5px] border-border items-center',
-                  isSelected && 'bg-primary/10',
                   !cell.inMonth && 'opacity-60'
                 )}
               >

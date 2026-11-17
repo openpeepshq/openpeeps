@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { MessageSquareIcon } from '../icons/index';
 import { cn } from '../../lib/utils';
 import { JamChatDrawer } from './JamChatDrawer';
+import { useThemeOpacity } from '../../theme/useThemeOpacity';
 
 export interface JamObserverShellProps {
   children: ReactNode;
@@ -12,6 +13,7 @@ export interface JamObserverShellProps {
 /** Observer layout wrapper with read-only persisted chat drawer. */
 export const JamObserverShell = ({ children }: JamObserverShellProps) => {
   const { t } = useTranslation();
+  const { background } = useThemeOpacity();
   const [chatOpen, setChatOpen] = useState(false);
 
   return (
@@ -22,9 +24,10 @@ export const JamObserverShell = ({ children }: JamObserverShellProps) => {
           accessibilityLabel={t('jams.drawer.chatTitle')}
           accessibilityRole="button"
           onPress={() => setChatOpen((open) => !open)}
+          style={chatOpen ? background('primary', 0.15) : undefined}
           className={cn(
             'size-10 items-center justify-center rounded-full',
-            chatOpen ? 'bg-primary/15' : 'bg-card'
+            !chatOpen && 'bg-card'
           )}
         >
           <MessageSquareIcon

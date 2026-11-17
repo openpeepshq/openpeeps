@@ -29,6 +29,7 @@ import {
   ImageOffIcon,
   AudioLinesIcon,
 } from '../icons';
+import { useThemeOpacity } from '../../theme/useThemeOpacity';
 
 export interface ResourceCardProps {
   post: PublicPost;
@@ -73,6 +74,7 @@ export const ResourceCard = ({
   inGroup = false,
 }: ResourceCardProps) => {
   const { t } = useTranslation();
+  const { text } = useThemeOpacity();
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const goto = buildGoto(navigation);
@@ -301,7 +303,7 @@ export const ResourceCard = ({
                     <View className="bg-muted flex h-full w-full items-center justify-center">
                       <ImageOffIcon
                         size={24}
-                        className="text-muted-foreground/50"
+                        color={text('muted-foreground', 0.5).color}
                       />
                     </View>
                   )}
@@ -311,11 +313,14 @@ export const ResourceCard = ({
           </View>
         ) : resource.resourceKind === 'audio' ? (
           <View className="h-48 w-full items-center justify-center rounded-md bg-muted">
-            <AudioLinesIcon size={32} className="text-muted-foreground/50" />
+            <AudioLinesIcon
+              size={32}
+              color={text('muted-foreground', 0.5).color}
+            />
           </View>
         ) : resource.resourceKind === 'link' && resource.url ? (
           <View className="h-48 w-full items-center justify-center rounded-md bg-muted">
-            <LinkIcon size={32} className="text-muted-foreground/50" />
+            <LinkIcon size={32} color={text('muted-foreground', 0.5).color} />
           </View>
         ) : null}
         <View className="absolute top-2 right-2">{renderBookmarkButton()}</View>

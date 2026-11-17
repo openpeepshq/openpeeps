@@ -14,6 +14,7 @@ import { Button } from '../../../ui/button';
 import { CameraIcon, ImageIcon } from '../../../icons/index';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { ThemedText } from '../../../ui/themed-text';
+import { useThemeOpacity } from '../../../../theme/useThemeOpacity';
 import { useNewConversationStore } from '../../../../stores/useNewConversationStore';
 import { useOpenpeeps } from '@openpeepshq/react';
 import type { MediaAttachment, PostCreationData } from '@openpeepshq/common';
@@ -58,6 +59,7 @@ export const SendMediaSheet = forwardRef<BottomSheetModal, SendMediaSheetProps>(
     });
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const { t } = useTranslation();
+    const { background } = useThemeOpacity();
 
     const addImages = (uris: string[]) =>
       setSelectedImages((prev) => [
@@ -161,7 +163,8 @@ export const SendMediaSheet = forwardRef<BottomSheetModal, SendMediaSheetProps>(
                       prev.filter((img) => img !== uri)
                     )
                   }
-                  className="absolute top-4 right-8 w-8 h-8 rounded-full bg-background/50 items-center justify-center"
+                  style={background('background', 0.5)}
+                  className="absolute top-4 right-8 w-8 h-8 rounded-full items-center justify-center"
                 >
                   <ThemedText className="text-lg">×</ThemedText>
                 </TouchableOpacity>

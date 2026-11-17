@@ -24,6 +24,7 @@ import {
 import { JamReactionMenu } from './JamReactionMenu';
 import { JamToolbarButton, toneIconClass } from './JamToolbarButton';
 import { LeaveCloseButton } from './LeaveCloseButton';
+import { useThemeOpacity } from '../../theme/useThemeOpacity';
 
 export interface JamFooterProps {
   chatOpen: boolean;
@@ -171,6 +172,7 @@ export const JamFooter = ({
   onToggleSpeaker,
 }: JamFooterProps) => {
   const { t } = useTranslation();
+  const { background } = useThemeOpacity();
   const {
     isModerator,
     isRecording,
@@ -187,7 +189,10 @@ export const JamFooter = ({
   const reactionTone = reactionMenuOpen ? 'active' : 'default';
 
   return (
-    <View className="relative w-full flex-row items-center justify-between gap-x-2 bg-background/75 px-2 py-3">
+    <View
+      style={background('background', 0.75)}
+      className="relative w-full flex-row items-center justify-between gap-x-2 px-2 py-3"
+    >
       {reactionMenuOpen ? (
         <View className="absolute bottom-20 left-[5%] right-[5%] z-50 rounded-md p-2">
           <JamReactionMenu

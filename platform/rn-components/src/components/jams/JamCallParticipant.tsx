@@ -40,6 +40,7 @@ import { cn } from '../../lib/utils';
 import { ProfileAvatar } from '../profile/Avatar';
 import { JamAnimatedEmoji } from './JamAnimatedEmoji';
 import { useConnectionLost } from './useParticipantConnection';
+import { useThemeOpacity } from '../../theme/useThemeOpacity';
 
 export interface JamCallParticipantProps {
   /** Camera track reference (or placeholder when the camera is off). */
@@ -166,6 +167,7 @@ const JamParticipantOverlay = ({
   onToggleSpotlight?: () => void;
 }) => {
   const { t } = useTranslation();
+  const { background } = useThemeOpacity();
   const participant = trackRef.participant;
   const room = useRoomContext();
   const me = useCurrentProfile();
@@ -217,7 +219,10 @@ const JamParticipantOverlay = ({
       <View className="w-full flex-row items-start justify-between">
         <View className="flex-row items-center gap-1">
           {handUp ? (
-            <View className="rounded-full bg-background/70 p-2">
+            <View
+              style={background('background', 0.7)}
+              className="rounded-full p-2"
+            >
               <HandIcon size={iconSize} className="text-foreground" />
             </View>
           ) : null}

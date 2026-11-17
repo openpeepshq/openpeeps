@@ -26,6 +26,7 @@ import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
 
 import { OpenpeepsMarkdown } from '../components/markdown/index';
+import { useThemeOpacity } from '../theme/useThemeOpacity';
 type AccountSetupChecklistItem = {
   Icon: LucideIcon;
   key: string;
@@ -158,6 +159,7 @@ export const ChecklistItem = ({
 }: AccountSetupChecklistItem) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
+  const { background } = useThemeOpacity();
 
   /* eslint-disable @typescript-eslint/no-shadow */
   const { currentProfile } = useOpenpeeps();
@@ -188,7 +190,8 @@ export const ChecklistItem = ({
           });
         }
       }}
-      className="flex px-1 bg-secondary/10 flex-row justify-between items-center w-full py-4 rounded-md mb-2"
+      style={background('secondary', 0.1)}
+      className="flex px-1 flex-row justify-between items-center w-full py-4 rounded-md mb-2"
     >
       <ThemedView className=" flex p-4 items-center justify-center rounded-full bg-background">
         <Icon size={20} className="text-foreground p-3" />

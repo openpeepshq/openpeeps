@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Slot from '@rn-primitives/slot';
 import { cn } from '../../../lib/utils';
 import { Button, buttonVariants } from '../../ui/button';
+import { useThemeOpacity } from '../../../theme/useThemeOpacity';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -150,6 +151,7 @@ const PopoverContent = React.forwardRef<
     ref
   ) => {
     const insets = useSafeAreaInsets();
+    const { background } = useThemeOpacity();
     const {
       triggerPosition,
       setTriggerPosition,
@@ -177,7 +179,8 @@ const PopoverContent = React.forwardRef<
             setTriggerPosition(null);
             setContentLayout(null);
           }}
-          className={cn('flex-1 bg-background/30', overlayClass)}
+          style={background('background', 0.3)}
+          className={cn('flex-1', overlayClass)}
         >
           {!!triggerPosition && (
             <Pressable

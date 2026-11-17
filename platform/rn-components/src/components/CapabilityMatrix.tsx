@@ -11,6 +11,8 @@ import {
 } from '@openpeepshq/react';
 import { ThemedText } from './ui/themed-text';
 import { cn } from '../lib/utils';
+import { useThemeOpacity } from '../theme/useThemeOpacity';
+import type { ColorName } from '../theme/types';
 
 export interface CapabilityMatrixColumn {
   key: string;
@@ -29,13 +31,34 @@ export interface CapabilityMatrixProps {
   defaultCapabilities?: MatrixCapabilities;
 }
 
+// Border color classes use solid tokens; the implicit (wildcard) states need
+// a 40% border and a faint tint, which NativeWind can't express on
+// CSS-variable colors, so those are built as inline styles (see
+// useThemeOpacity) via `cellBorder` / `cellBackground`.
 const cellClass: Record<CapabilityCellState, string> = {
-  'none': 'border-border bg-background',
-  'implicit-remove': 'border-destructive/40 bg-destructive/15',
-  'implicit-add': 'border-primary/40 bg-primary/10',
-  'specific-add': 'border-primary bg-primary/25',
-  'specific-remove': 'border-destructive bg-destructive/25',
+  'none': 'border-border',
+  'implicit-remove': '',
+  'implicit-add': '',
+  'specific-add': 'border-primary',
+  'specific-remove': 'border-destructive',
 };
+
+const cellBorder: Record<CapabilityCellState, [ColorName, number] | null> = {
+  'none': null,
+  'implicit-remove': ['destructive', 0.4],
+  'implicit-add': ['primary', 0.4],
+  'specific-add': null,
+  'specific-remove': null,
+};
+
+const cellBackground: Record<CapabilityCellState, [ColorName, number] | null> =
+  {
+    'none': null,
+    'implicit-remove': ['destructive', 0.15],
+    'implicit-add': ['primary', 0.1],
+    'specific-add': ['primary', 0.25],
+    'specific-remove': ['destructive', 0.25],
+  };
 
 const cellTextClass: Record<CapabilityCellState, string> = {
   'none': 'text-foreground',
@@ -70,6 +93,7 @@ export const CapabilityMatrix = ({
   defaultCapabilities,
 }: CapabilityMatrixProps) => {
   const { t } = useTranslation();
+  const { background, border } = useThemeOpacity();
   const options: CapabilityMatrixOptions = {
     editorKeys,
     columns: columns.map((column) => column.key),
@@ -93,6 +117,16 @@ export const CapabilityMatrix = ({
         column,
         cap
       ) !== state;
+    const borderStyle = cellBorder[state]
+      ? border(cellBorder[state][0], cellBorder[state][1])
+      : undefined;
+    const backgroundStyle = cellBackground[state]
+      ? background(cellBackground[state][0], cellBackground[state][1])
+      : undefined;
+    const cellStyle =
+      borderStyle || backgroundStyle
+        ? { ...borderStyle, ...backgroundStyle }
+        : undefined;
     return (
       <View key={column} style={styles.cell} className="items-center p-1">
         <Pressable
@@ -101,6 +135,7 @@ export const CapabilityMatrix = ({
           onPress={() =>
             onChange(cycleCapabilityCell(options, value, column, cap))
           }
+          style={cellStyle}
           className={cn(
             'h-7 w-7 items-center justify-center rounded border',
             cellClass[state],
@@ -170,7 +205,10 @@ export const CapabilityMatrix = ({
             const groupLabel = group.prefix.replace(/-$/, '');
             return (
               <React.Fragment key={group.wildcard}>
-                <View className="flex-row items-center border-t border-border bg-muted/60">
+                <View
+                  style={background('muted', 0.6)}
+                  className="flex-row items-center border-t border-border"
+                >
                   <View style={styles.label} className="p-2">
                     <ThemedText
                       className="text-xs font-medium"

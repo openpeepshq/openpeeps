@@ -32,6 +32,7 @@ import { Input } from '../ui/input';
 import { ThemedText } from '../ui/themed-text';
 import { ChangeGroupRolesModal } from './ChangeGroupRolesModal';
 import { ConfirmMemberRemovalModal } from './ConfirmMemberRemovalModal';
+import { useThemeOpacity } from '../../theme/useThemeOpacity';
 
 export interface GroupMembersListProps {
   group: GroupWithMeta;
@@ -44,6 +45,7 @@ type ActiveModal =
 
 export const GroupMembersList = ({ group }: GroupMembersListProps) => {
   const { t } = useTranslation();
+  const { background } = useThemeOpacity();
   const me = useCurrentProfile();
   const { openpeepsApi } = useOpenpeeps();
   const navigation =
@@ -100,7 +102,8 @@ export const GroupMembersList = ({ group }: GroupMembersListProps) => {
                   {member.roles.map((role) => (
                     <View
                       key={role}
-                      className="rounded bg-primary/10 px-1.5 py-0.5"
+                      style={background('primary', 0.1)}
+                      className="rounded px-1.5 py-0.5"
                     >
                       <ThemedText className="text-xs uppercase text-primary">
                         {t(`groups.roles.${role}`, { defaultValue: role })}

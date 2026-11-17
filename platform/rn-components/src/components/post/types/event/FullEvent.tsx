@@ -38,6 +38,7 @@ import { Button } from '../../../ui/button';
 import { UpdatingDate } from '../../../custom/date/updating-date';
 import { VideoPlayer } from '../../pieces/VideoPlayer';
 import { profileName, truncateText } from '../../../../lib/utils';
+import { useThemeOpacity } from '../../../../theme/useThemeOpacity';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../../navigation/types/index';
@@ -88,6 +89,7 @@ export interface FullEventProps {
 
 export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
   const { t } = useTranslation();
+  const { border } = useThemeOpacity();
   const { currentProfile, openpeepsApi, client } = useOpenpeeps();
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
@@ -280,7 +282,10 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
       </View>
       {times.start && (
         <View className="mt-8 flex-row gap-x-4">
-          <View className="border-foreground/20 border-[0.5px] rounded-md px-3 py-1">
+          <View
+            style={border('foreground', 0.2)}
+            className="border-[0.5px] rounded-md px-3 py-1"
+          >
             <ThemedText className="text-center">
               {new Date(times.start).toLocaleString('en-US', {
                 month: 'short',
@@ -320,7 +325,10 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
         </View>
       )}
       <View className="mt-8 flex-row gap-x-4">
-        <View className="border-foreground/20 border-[0.5px] flex items-center justify-center rounded-md px-4 py-1">
+        <View
+          style={border('foreground', 0.2)}
+          className="border-[0.5px] flex items-center justify-center rounded-md px-4 py-1"
+        >
           {event?.physicalLocation ? (
             <MapPinIcon className="text-muted-foreground my-3" size={18} />
           ) : event?.jam ? (

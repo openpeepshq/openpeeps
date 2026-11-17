@@ -7,12 +7,15 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import { cn } from '../../lib/utils';
+import { useThemeOpacity } from '../../theme/useThemeOpacity';
 
 export type JamToolbarTone = 'default' | 'active' | 'danger';
 
 const toneClasses: Record<JamToolbarTone, string> = {
   default: 'bg-card',
-  active: 'bg-primary/15',
+  // `active` uses an inline primary tint (see `toneStyle`); NativeWind can't
+  // apply `/N` opacity to CSS-variable colors.
+  active: '',
   danger: 'bg-destructive',
 };
 
@@ -46,12 +49,15 @@ export const JamToolbarButton = ({
   menuChildren,
   menuTitle,
 }: JamToolbarButtonProps) => {
+  const { background } = useThemeOpacity();
+  const toneStyle = tone === 'active' ? background('primary', 0.15) : undefined;
   const button = (
     <Pressable
       accessibilityLabel={title}
       accessibilityRole="button"
       disabled={disabled}
       onPress={action}
+      style={toneStyle}
       className={cn(
         'relative size-10 shrink-0 items-center justify-center rounded-full p-2',
         toneClasses[tone],

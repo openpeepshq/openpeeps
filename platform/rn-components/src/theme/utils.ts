@@ -1,34 +1,23 @@
-import { vars } from 'nativewind';
+import { hexToRgbChannels, hexWithOpacity } from './color';
 import { mapColors } from './defaults';
 import type { OpenPeepsTheme } from './types';
 
-/** Convert a hex color (#rrggbb) to "R G B" channel string for use in
- * `rgb()` expressions in inline styles (NativeWind doesn't support `/N`
- * opacity modifiers on CSS-variable colors). */
-export const hexToRgbChannels = (hex: string): string => {
-  const sanitized = hex.replaceAll('##', '#');
-  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(sanitized);
-  if (!m) return hex;
-  const [, r, g, b] = m;
-  if (r === undefined || g === undefined || b === undefined) return hex;
-  return `${parseInt(r, 16)} ${parseInt(g, 16)} ${parseInt(b, 16)}`;
-};
+// The pure color math lives in `./color` (nativewind-free) so tests can
+// import the real implementation. Re-exported here for existing importers.
+export { hexToRgbChannels, hexWithOpacity };
 
-/** Convert a hex color to an `rgba(r, g, b, a)` string for inline styles. */
-export const hexWithOpacity = (hex: string, opacity: number): string => {
-  const sanitized = hex.replaceAll('##', '#');
-  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(sanitized);
-  if (!m) return hex;
-  const [, r, g, b] = m;
-  if (r === undefined || g === undefined || b === undefined) return hex;
-  return `rgba(${parseInt(r, 16)}, ${parseInt(g, 16)}, ${parseInt(b, 16)}, ${opacity})`;
-};
+// `vars` is required lazily: nativewind's import chain crashes at import
+// time in a plain node jest env (no Appearance module), and this module is
+// reached through the provider's import graph. getThemeVars only runs in a
+// real runtime where the provider renders.
+const getVars = (): (typeof import('nativewind'))['vars'] =>
+  require('nativewind').vars;
 
 export const getThemeVars = (
   colors: OpenPeepsTheme['colors'],
   radii?: { buttonRadius?: string; radius?: string }
 ) =>
-  vars({
+  getVars()({
     ...Object.fromEntries(
       Object.entries(colors).map(([key, value]) => [`--${key}`, value])
     ),

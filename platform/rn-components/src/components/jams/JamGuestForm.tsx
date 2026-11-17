@@ -9,9 +9,11 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { ThemedText } from '../ui/themed-text';
 import { BASE_URL } from '../../lib/constants';
+import { useThemeOpacity } from '../../theme/useThemeOpacity';
 
 export const JamGuestForm = () => {
   const { t } = useTranslation();
+  const { border } = useThemeOpacity();
   const serverInfo = useServerInfo();
   const { jamPost, jamEvent } = useJamContext();
   const { openpeepsApi } = useOpenpeeps();
@@ -94,7 +96,10 @@ export const JamGuestForm = () => {
         </ThemedText>
 
         {error ? (
-          <ThemedText className="rounded-md border border-destructive/40 p-2 text-sm text-destructive">
+          <ThemedText
+            style={border('destructive', 0.4)}
+            className="rounded-md border p-2 text-sm text-destructive"
+          >
             {error}
           </ThemedText>
         ) : null}

@@ -286,6 +286,12 @@ jobs:
           --filter @openpeepshq/core
           --filter @openpeepshq/react
           exec vitest run
+      - name: Run rn-components tests
+        # jest (ts-jest) needs no build step; keeps the rn-components suite
+        # from regressing outside CI visibility again.
+        run: >
+          pnpm --filter @openpeepshq/rn-components
+          test
 
   test-integration:
     if: needs.set-variables.outputs.is_release_branch == 'false'

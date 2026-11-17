@@ -23,6 +23,7 @@ import { LeaveCloseButton } from './LeaveCloseButton';
 import { type JamFooterProps } from './JamFooter';
 import { useFooterControls } from './JamFooter';
 import { ThemedText } from '../ui/themed-text';
+import { useThemeOpacity } from '../../theme/useThemeOpacity';
 
 export type JamDesktopFooterProps = JamFooterProps;
 
@@ -46,6 +47,7 @@ export const JamDesktopFooter = ({
   onToggleSpeaker,
 }: JamDesktopFooterProps) => {
   const { t } = useTranslation();
+  const { background } = useThemeOpacity();
   const { jamEvent } = useJamContext();
   const {
     isModerator,
@@ -63,7 +65,10 @@ export const JamDesktopFooter = ({
   const [reactionMenuOpen, setReactionMenuOpen] = useState(false);
 
   return (
-    <View className="w-full flex-none flex-row items-center justify-between bg-background/75 px-4 py-3">
+    <View
+      style={background('background', 0.75)}
+      className="w-full flex-none flex-row items-center justify-between px-4 py-3"
+    >
       <ThemedText className="truncate pr-2">
         {truncateText(jamEvent.name, 40)}
       </ThemedText>

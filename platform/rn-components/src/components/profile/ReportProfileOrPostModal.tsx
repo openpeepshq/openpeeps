@@ -21,6 +21,7 @@ import { TextInput } from 'react-native';
 import { cn } from '../../lib/utils';
 import { Label } from '../ui/label';
 import { bottomSheetClose } from '../../lib/bottom-sheet-ref';
+import { useThemeOpacity } from '../../theme/useThemeOpacity';
 
 interface ReportProfileOrPostSheetProps {
   reportCallback?: () => void | undefined;
@@ -34,6 +35,7 @@ export const ReportProfileOrPostModal = forwardRef<
   ReportProfileOrPostSheetProps
 >(({ reportType, profile, post, reportCallback }, ref) => {
   const { t } = useTranslation();
+  const { border } = useThemeOpacity();
   const { openpeepsApi } = useOpenpeeps();
   const { data: server } = openpeepsApi.useServerInfo();
   const reportMutation = openpeepsApi.createReportAction();
@@ -162,8 +164,9 @@ export const ReportProfileOrPostModal = forwardRef<
                       {t(`reports.create.${reportType}.anythingElse`)}
                     </Label>
                     <TextInput
+                      style={border('muted-foreground', 0.25)}
                       className={cn(
-                        'p-4 text-lg text-foreground border-muted-foreground/25 border-[1px] rounded-md w-full h-36'
+                        'p-4 text-lg text-foreground border-[1px] rounded-md w-full h-36'
                       )}
                       placeholder={t(
                         `reports.create.${reportType}.anythingElse`
