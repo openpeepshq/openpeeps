@@ -170,6 +170,13 @@ export const infiniteChronologicalQueryApiHook = <
     queryParams?: QueryParams & ChronologicalInfiniteQueryParams;
     refetchInterval?: number;
     enabled?: boolean;
+    /**
+     * Client-side transform of accumulated pages (same contract as `select`
+     * on the offset hook). When a `select` is present, TanStack Query
+     * bypasses structural sharing on the *transformed* result, so consumers
+     * cannot rely on referential `data` stability between renders.
+     */
+    select?: (data: InfiniteData<Output>) => InfiniteData<Output>;
     onSuccess?: (output: Output) => void | Promise<void>;
     onError?: (error: SuccessFailureResponse) => void | Promise<void>;
     preQueryCheck?: (options: {
@@ -239,6 +246,7 @@ export const infiniteChronologicalQueryApiHook = <
     retry: false,
     refetchInterval: options?.refetchInterval,
     enabled: options?.enabled ?? true,
+    select: options?.select,
   });
 
 export const infiniteOffsetQueryApiHook = <
@@ -255,6 +263,15 @@ export const infiniteOffsetQueryApiHook = <
     pathParams?: PathParams;
     queryParams?: QueryParams;
     refetchInterval?: number;
+    /**
+     * Window-select agenda pages client-side (see
+     * `eventCalendar.applyAgendaWindowFilter`). When a `select` is present,
+     * TanStack Query bypasses structural sharing on the *transformed* result
+     * (the sharing pass runs on the untransformed cached pages), so consumers
+     * comparing `query.data` between renders get a fresh object each time —
+     * do not rely on referential `data` stability with a select.
+     */
+    select?: (data: InfiniteData<Output>) => InfiniteData<Output>;
     onSuccess?: (output: Output) => void | Promise<void>;
     onError?: (error: SuccessFailureResponse) => void | Promise<void>;
     preQueryCheck?: (options: {
@@ -311,6 +328,7 @@ export const infiniteOffsetQueryApiHook = <
     },
     retry: false,
     refetchInterval: options?.refetchInterval,
+    select: options?.select,
   });
 
 export const payloadMutation =

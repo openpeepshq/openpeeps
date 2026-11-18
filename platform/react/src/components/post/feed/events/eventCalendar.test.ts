@@ -7,9 +7,11 @@ import {
   agendaCoversRange,
   eventDayKeys,
   expandRecurringAgendaPosts,
+  applyAgendaWindowFilter,
   groupPostsByDay,
   monthCells,
   shouldFetchMoreAgenda,
+  uniquePosts,
 } from './eventCalendar';
 
 const eventPost = (start: string, end?: string, wholeDay = false): PublicPost =>
@@ -172,6 +174,179 @@ describe('expandRecurringAgendaPosts', () => {
       beforeSeries,
     );
     expect(dayKeys(posts)).toEqual(['2026-09-08', '2026-09-16', '2026-09-22']);
+  });
+
+  it('excludes a one-off past event from the upcoming calendar', () => {
+    const start = new Date(2026, 7, 15, 10, 0, 0, 0);
+    const end = new Date(2026, 7, 15, 11, 0, 0, 0);
+    const post = eventPost(start.toISOString(), end.toISOString());
+    const posts = expandRecurringAgendaPosts(
+      [post],
+      'upcoming',
+      new Date(2026, 8, 1, 12, 0, 0, 0),
+    );
+    expect(posts).toEqual([]);
+  });
+
+  it('drops a recurring series whose occurrences are all past', () => {
+    const posts = expandRecurringAgendaPosts(
+      [weeklySeries()],
+      'upcoming',
+      new Date(2026, 9, 1, 12, 0, 0, 0),
+    );
+    expect(posts).toEqual([]);
+  });
+
+  it('keeps an event that started in the past but has not ended on upcoming', () => {
+    const start = new Date(2026, 7, 1, 10, 0, 0, 0);
+    const end = new Date(2026, 9, 30, 22, 0, 0, 0);
+    const post = eventPost(start.toISOString(), end.toISOString());
+    const posts = expandRecurringAgendaPosts(
+      [post],
+      'upcoming',
+      new Date(2026, 8, 15, 12, 0, 0, 0),
+    );
+    expect(posts).toEqual([post]);
+  });
+
+  it('keeps a started event without an explicit end on upcoming until the implied hour passes', () => {
+    const start = new Date(2026, 8, 15, 11, 40, 0, 0);
+    const post = eventPost(start.toISOString());
+    const posts = expandRecurringAgendaPosts(
+      [post],
+      'upcoming',
+      new Date(2026, 8, 15, 12, 0, 0, 0),
+    );
+    expect(posts).toEqual([post]);
+  });
+
+  it('excludes a future one-off event from the past calendar', () => {
+    const start = new Date(2026, 9, 10, 10, 0, 0, 0);
+    const end = new Date(2026, 9, 10, 11, 0, 0, 0);
+    const post = eventPost(start.toISOString(), end.toISOString());
+    const posts = expandRecurringAgendaPosts(
+      [post],
+      'past',
+      new Date(2026, 8, 1, 12, 0, 0, 0),
+    );
+    expect(posts).toEqual([]);
+  });
+
+  it('keeps an in-progress one-off event on the current calendar', () => {
+    const start = new Date(2026, 8, 1, 11, 0, 0, 0);
+    const end = new Date(2026, 8, 1, 13, 0, 0, 0);
+    const post = eventPost(start.toISOString(), end.toISOString());
+    const posts = expandRecurringAgendaPosts(
+      [post],
+      'current',
+      new Date(2026, 8, 1, 12, 0, 0, 0),
+    );
+    expect(posts).toEqual([post]);
+  });
+});
+
+describe('applyAgendaWindowFilter', () => {
+  const pastOneOff = eventPost(
+    new Date(2026, 7, 15, 10, 0, 0, 0).toISOString(),
+    new Date(2026, 7, 15, 11, 0, 0, 0).toISOString(),
+  );
+
+  it('drops a past one-off event from the upcoming list', () => {
+    expect(
+      applyAgendaWindowFilter(
+        [pastOneOff],
+        'upcoming',
+        new Date(2026, 8, 1, 12, 0),
+      ),
+    ).toEqual([]);
+  });
+
+  it('keeps a one-off event row intact on the upcoming list', () => {
+    const future = eventPost(
+      new Date(2026, 8, 20, 10, 0, 0, 0).toISOString(),
+      new Date(2026, 8, 20, 11, 0, 0, 0).toISOString(),
+    );
+    expect(
+      applyAgendaWindowFilter(
+        [future],
+        'upcoming',
+        new Date(2026, 8, 1, 12, 0),
+      ),
+    ).toEqual([future]);
+  });
+
+  it('drops a recurring series whose occurrences are all past', () => {
+    expect(
+      applyAgendaWindowFilter(
+        [weeklySeries()],
+        'upcoming',
+        new Date(2026, 9, 1, 12, 0),
+      ),
+    ).toEqual([]);
+  });
+
+  it('keeps a recurring series with an in-window occurrence as one row', () => {
+    const filtered = applyAgendaWindowFilter(
+      [weeklySeries()],
+      'upcoming',
+      new Date(2026, 8, 1, 12, 0),
+    );
+    expect(filtered).toHaveLength(1);
+    expect(filtered[0]).toEqual(weeklySeries());
+  });
+
+  it('keeps a series straddling now (past and future occurrences) as one row', () => {
+    // Series runs Sep 8, 15, 22; now sits between the second and third
+    // occurrence — the row must be kept (future occurrence) and stay a
+    // single row.
+    const filtered = applyAgendaWindowFilter(
+      [weeklySeries()],
+      'upcoming',
+      new Date(2026, 8, 18, 12, 0),
+    );
+    expect(filtered).toHaveLength(1);
+    expect(filtered[0]).toEqual(weeklySeries());
+  });
+
+  it('keeps a series with an in-progress occurrence on the current list', () => {
+    // Occurrence of Sep 15 runs 16:00–17:00; now is mid-occurrence.
+    const filtered = applyAgendaWindowFilter(
+      [weeklySeries()],
+      'current',
+      new Date(2026, 8, 15, 16, 30, 0),
+    );
+    expect(filtered).toHaveLength(1);
+    expect(filtered[0]).toEqual(weeklySeries());
+  });
+
+  it('drops a recurring series that is cancelled for its remaining occurrences', () => {
+    const third = new Date(2026, 8, 22, 16, 0, 0, 0);
+    expect(
+      applyAgendaWindowFilter(
+        [
+          weeklySeries([
+            { recurrenceId: third.toISOString(), cancelled: true },
+          ]),
+        ],
+        'upcoming',
+        new Date(2026, 8, 16, 12, 0),
+      ),
+    ).toEqual([]);
+  });
+
+  it('keeps a series whose rows straddle two pages in-window exactly once', () => {
+    // Regression: the agenda selector runs the filter over the accumulated,
+    // deduplicated rows (the whole InfiniteData — uniquePosts first, then
+    // the window filter), so a series spanning pages is evaluated as a
+    // whole and never yields two rows.
+    const series = weeklySeries();
+    const rows = applyAgendaWindowFilter(
+      uniquePosts([[series], [series]]),
+      'upcoming',
+      new Date(2026, 8, 18, 12, 0),
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toEqual(series);
   });
 });
 

@@ -1,4 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('bcrypt', () => ({ compare: vi.fn(), hash: vi.fn() }));
 import { QueryBuilder } from 'drizzle-orm/pg-core';
 import { eventAgendaOccurrenceQuery } from './eventAgenda';
 
@@ -31,6 +33,16 @@ describe('eventAgendaOccurrenceQuery', () => {
     expect(query.sql).toContain('limit $');
     expect(query.sql).toContain('offset $');
     expect(query.params).toContain(15);
+  });
+
+  it('filters upcoming occurrences to exclude ended ones', () => {
+    const query = toSql('upcoming');
+
+    // Semantic check rather than exact SQL formatting: the predicate is
+    // COALESCE(end, start + interval '1 hour') >= now.
+    expect(query.sql).toContain('COALESCE');
+    expect(query.sql).toContain("interval '1 hour'");
+    expect(query.sql).toMatch(/coalesce\(.+\) >= /i);
   });
 
   it('treats a missing end as one hour after start for current events', () => {

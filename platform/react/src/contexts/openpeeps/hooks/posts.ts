@@ -1,4 +1,10 @@
+import type { InfiniteData } from '@tanstack/react-query';
 import type { OpenpeepsClient } from '@openpeepshq/client';
+import {
+  applyAgendaWindowFilter,
+  uniquePosts,
+  type EventsAgendaWindow,
+} from '../../../components/post/feed/events/eventCalendar';
 import {
   apiHook,
   payloadMutation,
@@ -25,57 +31,129 @@ type EventFeedHook = ReturnType<
   >
 >;
 
+/**
+ * Jam feeds (server-side) run the same event-agenda SQL with `jamOnly: true`
+ * (`platform/core/src/posts/finders.ts` → `listUpcomingEventsFeed`), so the
+ * event window predicate is correct for jams too — no separate selector is
+ * needed.
+ *
+ * Event/jam agenda feeds carry their window in the endpoint path (events vs
+ * jams, upcoming/current/past, mine, group). The selector receives the whole
+ * `InfiniteData` — not one page at a time — because deduplication
+ * (`uniquePosts`) and paging coverage are properties of the accumulated
+ * series set, and a series spanning pages must be evaluated as a whole.
+ * The filter is dedupe-safe: rows of the same series collapse to one before
+ * the predicate runs, so a series whose rows straddle two pages keeps its
+ * in-window rows exactly once and no page boundary can split it.
+ *
+ * The filter compares against the time the selector runs; the refetch
+ * interval in `agendaOptions` is what re-runs the selector while the
+ * user sits on the tab.
+ */
+const agendaSelect =
+  (window: EventsAgendaWindow) =>
+  (data: InfiniteData<PublicPost[]>): InfiniteData<PublicPost[]> => ({
+    ...data,
+    pages: [applyAgendaWindowFilter(uniquePosts(data.pages), window)],
+  });
+
+/**
+ * Stable module-scope selectors. A fresh closure per render would defeat
+ * TanStack Query's select memoization and re-run the window filter on every
+ * render of every consumer; stable references keep it memoized until `data`
+ * changes. The select re-runs on every refetch (tab switch, pull to
+ * refresh, focus) and on the periodic interval below, so it then compares
+ * against a fresh `now`.
+ */
+const AGENDA_SELECTS = {
+  upcoming: agendaSelect('upcoming'),
+  current: agendaSelect('current'),
+  past: agendaSelect('past'),
+} as const;
+
+/**
+ * TanStack Query re-runs `select` only when `data` changes — it never
+ * refetches when time passes. Without a periodic refetch, a user sitting on
+ * the Upcoming tab would keep seeing rows that have since ended until the
+ * next tab switch or pull to refresh, while the calendar (which re-runs its
+ * guard on every render) drops them immediately. The interval keeps the
+ * list's window guard fresh at the same cadence across web and native.
+ */
+const AGENDA_REFETCH_INTERVAL_MS = 60_000;
+
+/**
+ * Shared option block for every agenda feed hook: the stable window
+ * selector plus the periodic refetch that re-runs it (see
+ * `AGENDA_REFETCH_INTERVAL_MS`). Callers can spread `{ ...extra }` for
+ * hook-specific options (path params, page size, query params).
+ */
+const agendaOptions = (window: EventsAgendaWindow) => ({
+  refetchInterval: AGENDA_REFETCH_INTERVAL_MS,
+  select: AGENDA_SELECTS[window],
+});
+
 const eventFeeds = (
   client: OpenpeepsClient,
 ): {
-  useUpcomingEventsFeed: () => EventFeedHook;
-  useCurrentEventsFeed: () => EventFeedHook;
-  usePastEventsFeed: () => EventFeedHook;
-  useMyUpcomingEventsFeed: () => EventFeedHook;
-  useMyCurrentEventsFeed: () => EventFeedHook;
-  useMyPastEventsFeed: () => EventFeedHook;
-  useGroupUpcomingEventsFeed: (groupId: string) => EventFeedHook;
-  useGroupPastEventsFeed: (groupId: string) => EventFeedHook;
+  useUpcomingEventsFeed: (pageSize?: number) => EventFeedHook;
+  useCurrentEventsFeed: (pageSize?: number) => EventFeedHook;
+  usePastEventsFeed: (pageSize?: number) => EventFeedHook;
+  useMyUpcomingEventsFeed: (pageSize?: number) => EventFeedHook;
+  useMyCurrentEventsFeed: (pageSize?: number) => EventFeedHook;
+  useMyPastEventsFeed: (pageSize?: number) => EventFeedHook;
+  useGroupUpcomingEventsFeed: (
+    groupId: string,
+    pageSize?: number,
+  ) => EventFeedHook;
+  useGroupPastEventsFeed: (groupId: string, pageSize?: number) => EventFeedHook;
 } => ({
   useUpcomingEventsFeed: (pageSize: number | undefined = 15) =>
     infiniteOffsetQueryApiHook(client.posts.feeds.events.upcoming, {
       pageSize,
       queryParams: { limit: pageSize },
+      ...agendaOptions('upcoming'),
     }),
   useCurrentEventsFeed: (pageSize: number | undefined = 15) =>
     infiniteOffsetQueryApiHook(client.posts.feeds.events.current, {
       pageSize,
       queryParams: { limit: pageSize },
+      ...agendaOptions('current'),
     }),
   usePastEventsFeed: (pageSize: number | undefined = 15) =>
     infiniteOffsetQueryApiHook(client.posts.feeds.events.past, {
       pageSize,
       queryParams: { limit: pageSize },
+      ...agendaOptions('past'),
     }),
   useMyUpcomingEventsFeed: (pageSize: number | undefined = 15) =>
     infiniteOffsetQueryApiHook(client.posts.feeds.events.my.upcoming, {
       pageSize,
       queryParams: { limit: pageSize },
+      ...agendaOptions('upcoming'),
     }),
   useMyCurrentEventsFeed: (pageSize: number | undefined = 15) =>
     infiniteOffsetQueryApiHook(client.posts.feeds.events.my.current, {
       pageSize,
       queryParams: { limit: pageSize },
+      ...agendaOptions('current'),
     }),
   useMyPastEventsFeed: (pageSize: number | undefined = 15) =>
     infiniteOffsetQueryApiHook(client.posts.feeds.events.my.past, {
       pageSize,
       queryParams: { limit: pageSize },
+      ...agendaOptions('past'),
     }),
-  useGroupUpcomingEventsFeed: (groupId: string) =>
+  useGroupUpcomingEventsFeed: (groupId: string, pageSize?: number) =>
     infiniteOffsetQueryApiHook(client.posts.feeds.events.group.upcoming, {
       pathParams: { groupId },
-      pageSize: 15,
+      pageSize: pageSize ?? DEFAULT_FEED_LIMIT,
+      ...agendaOptions('upcoming'),
     }),
-  useGroupPastEventsFeed: (groupId: string) =>
+  useGroupPastEventsFeed: (groupId: string, pageSize?: number) =>
     infiniteOffsetQueryApiHook(client.posts.feeds.events.group.past, {
       pathParams: { groupId },
-      pageSize: 15,
+      pageSize: pageSize ?? DEFAULT_FEED_LIMIT,
+      ...agendaOptions('past'),
     }),
 });
 
@@ -97,15 +175,25 @@ const jamFeeds = (
   useMyPastJamsFeed: (pageSize?: number) => EventFeedHook;
 } => ({
   useUpcomingJamsFeed: (pageSize: number | undefined = DEFAULT_FEED_LIMIT) =>
-    infiniteOffsetQueryApiHook(client.posts.feeds.jams.upcoming, { pageSize }),
+    infiniteOffsetQueryApiHook(client.posts.feeds.jams.upcoming, {
+      pageSize,
+      ...agendaOptions('upcoming'),
+    }),
   usePastJamsFeed: (pageSize: number | undefined = DEFAULT_FEED_LIMIT) =>
-    infiniteOffsetQueryApiHook(client.posts.feeds.jams.past, { pageSize }),
+    infiniteOffsetQueryApiHook(client.posts.feeds.jams.past, {
+      pageSize,
+      ...agendaOptions('past'),
+    }),
   useMyUpcomingJamsFeed: (pageSize: number | undefined = DEFAULT_FEED_LIMIT) =>
     infiniteOffsetQueryApiHook(client.posts.feeds.jams.my.upcoming, {
       pageSize,
+      ...agendaOptions('upcoming'),
     }),
   useMyPastJamsFeed: (pageSize: number | undefined = DEFAULT_FEED_LIMIT) =>
-    infiniteOffsetQueryApiHook(client.posts.feeds.jams.my.past, { pageSize }),
+    infiniteOffsetQueryApiHook(client.posts.feeds.jams.my.past, {
+      pageSize,
+      ...agendaOptions('past'),
+    }),
 });
 
 type JamFeeds = ReturnType<typeof jamFeeds>;

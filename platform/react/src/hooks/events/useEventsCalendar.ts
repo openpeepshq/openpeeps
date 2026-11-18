@@ -27,6 +27,16 @@ export type EventsCalendarQuery = UseInfiniteQueryResult<
 
 const WEEKDAY_START = new Date(2026, 0, 4);
 
+/**
+ * The window guard inside the hook compares against a `now` captured at
+ * render time. Re-ticking it every minute keeps the calendar aligned with
+ * the agenda lists' refetch cadence (`AGENDA_REFETCH_INTERVAL_MS` in
+ * `hooks/posts.ts`): an event that ends in the next minute leaves both the
+ * list and the calendar within a minute of it happening, not only when the
+ * next refetch or tab switch re-renders.
+ */
+const NOW_TICK_MS = 60_000;
+
 export const eventName = (post: PublicPost): string =>
   post.data.type === 'event' ? post.data.name?.trim() || '-' : '-';
 
@@ -48,20 +58,25 @@ export const useEventsCalendar = (
   query: EventsCalendarQuery,
   agenda: EventsAgendaWindow,
 ) => {
-  const initial = new Date();
+  const [now, setNow] = useState(() => new Date());
   const [cursor, setCursor] = useState({
-    year: initial.getFullYear(),
-    month: initial.getMonth(),
+    year: now.getFullYear(),
+    month: now.getMonth(),
   });
-  const [selectedKey, setSelectedKey] = useState(localDateKey(initial));
+  const [selectedKey, setSelectedKey] = useState(localDateKey(now));
+
+  useEffect(() => {
+    const tick = setInterval(() => setNow(new Date()), NOW_TICK_MS);
+    return () => clearInterval(tick);
+  }, []);
 
   const posts = useMemo(
     () => uniquePosts(query.data?.pages),
     [query.data?.pages],
   );
   const calendarPosts = useMemo(
-    () => expandRecurringAgendaPosts(posts, agenda),
-    [agenda, posts],
+    () => expandRecurringAgendaPosts(posts, agenda, now),
+    [agenda, posts, now],
   );
   const byDay = useMemo(() => groupPostsByDay(calendarPosts), [calendarPosts]);
   const cells = useMemo(
@@ -71,7 +86,7 @@ export const useEventsCalendar = (
   const inMonthKeys = cells
     .filter((cell) => cell.inMonth)
     .map((cell) => cell.key);
-  const todayKey = localDateKey(new Date());
+  const todayKey = localDateKey(now);
   const visible = cells.some((cell) => cell.key === selectedKey);
   const selected = visible
     ? selectedKey

@@ -6,13 +6,20 @@ import type { PublicPost } from '@openpeepshq/common/types';
 
 export type EventsAgendaWindow = 'upcoming' | 'past' | 'current';
 
+/** Minimal occurrence shape the window predicate needs. */
+export type AgendaWindowOccurrence = { start: string; end?: string };
+
 export type MonthCell = {
   key: string;
   inMonth: boolean;
 };
 
 const MAX_SPAN_DAYS = 370;
-/** Matches the agenda: a missing end is one hour after start. */
+/**
+ * Mirrors the server predicate in `platform/core/src/posts/eventAgenda.ts`
+ * (`occurrenceTimeFilter`: `COALESCE(end, start + interval '1 hour')`). If the
+ * server duration changes, update both sides together.
+ */
 const IMPLIED_EVENT_DURATION_MS = 60 * 60 * 1000;
 
 export const localDateKey = (date: Date): string => {
@@ -133,25 +140,91 @@ export const uniquePosts = (
   return out;
 };
 
+/**
+ * The window predicate compares instants, but the calendar grid buckets
+ * whole-day events by their local calendar day (`eventDayKeys` →
+ * `ymdToLocal`). Comparing a whole-day row's UTC-midnight stored instant
+ * against `now` can disagree with the local day the grid actually shows for
+ * communities far from UTC (a whole-day event that has not begun locally yet
+ * would look started-and-ended, or vice versa). Normalizing whole-day
+ * occurrences to their local-day midnight for the window comparison keeps
+ * the predicate aligned with what the grid displays.
+ *
+ * Known limitation: `ymdToLocal` uses the community timezone (server config),
+ * not the viewer's — the whole-day path inherits the same timezone
+ * assumption as the grid and the server-side calendar-day calculation, so a
+ * viewer far outside the community timezone can still see the window and the
+ * grid disagree.
+ */
+const wholeDayWindowInstant = (
+  ymd: string,
+  dayOffset = 0,
+): number | undefined => {
+  const local = ymdToLocal(ymd);
+  if (!local) return undefined;
+  const day = addDays(local, dayOffset);
+  return new Date(day.getFullYear(), day.getMonth(), day.getDate()).getTime();
+};
+
 const occurrenceMatchesAgenda = (
-  occurrence: Pick<ExpandedOccurrence, 'start' | 'end'>,
+  occurrence: AgendaWindowOccurrence,
   window: EventsAgendaWindow,
   now: Date,
+  wholeDay = false,
 ): boolean => {
-  const startMs = new Date(occurrence.start).getTime();
-  if (!Number.isFinite(startMs)) return false;
+  const startMs = wholeDay
+    ? wholeDayWindowInstant(occurrence.start)
+    : new Date(occurrence.start).getTime();
+  if (startMs === undefined || !Number.isFinite(startMs)) return false;
+  // A whole-day event occupies each local day it covers (the same day range
+  // `eventDayKeys` renders), so its window end is the midnight that starts
+  // the day after its last day — not the timed events' one-hour implied end.
   const explicitEndMs = occurrence.end
-    ? new Date(occurrence.end).getTime()
+    ? wholeDay
+      ? wholeDayWindowInstant(occurrence.end, 1)
+      : new Date(occurrence.end).getTime()
     : Number.NaN;
-  const endMs = Number.isFinite(explicitEndMs)
-    ? explicitEndMs
+  const impliedEndMs = wholeDay
+    ? startMs + 24 * 60 * 60 * 1000
     : startMs + IMPLIED_EVENT_DURATION_MS;
+  const endMs =
+    Number.isFinite(explicitEndMs) && explicitEndMs !== undefined
+      ? explicitEndMs
+      : impliedEndMs;
   const nowMs = now.getTime();
   if (window === 'past') return endMs < nowMs;
   if (window === 'current') return startMs <= nowMs && endMs >= nowMs;
-  return (
-    startMs > nowMs || (Number.isFinite(explicitEndMs) && explicitEndMs > nowMs)
-  );
+  // Upcoming mirrors the server predicate COALESCE(end, start + 1h) >= now,
+  // so a started event without an explicit end stays until its implied
+  // one-hour mark passes.
+  return startMs > nowMs || endMs >= nowMs;
+};
+
+/**
+ * Memoized occurrence expansion for the window guard. It runs inside a
+ * TanStack `select` on every data change or periodic refetch, and a series
+ * row's occurrences do not depend on which row they come from — but they do
+ * depend on `now`, so the cache is keyed per post and validated per tick.
+ */
+const occurrenceCache = new WeakMap<
+  PublicPost,
+  { now: number; occurrences: ExpandedOccurrence[] }
+>();
+
+const cachedOccurrences = (
+  post: PublicPost,
+  now: Date,
+): ExpandedOccurrence[] => {
+  const nowMs = now.getTime();
+  const cached = occurrenceCache.get(post);
+  if (cached && cached.now === nowMs) return cached.occurrences;
+  const data = post.data;
+  const occurrences =
+    data.type === 'event' && data.recurrence
+      ? occurrencesForIndex(data, now)
+      : [];
+  occurrenceCache.set(post, { now: nowMs, occurrences });
+  return occurrences;
 };
 
 const postForOccurrence = (
@@ -170,6 +243,16 @@ const postForOccurrence = (
 /**
  * Agenda feeds return one row per series. Place every occurrence that belongs
  * in this window on its own date. Paging still uses the original rows.
+ *
+ * Callers pass agenda feeds, whose SQL filters `posts.type = 'event'`;
+ * non-event rows are dropped here so a future mixed-feed caller is not
+ * silently exposed to unfiltered rows.
+ *
+ * Non-recurring events are filtered against the agenda window so that the
+ * Upcoming tab never displays events that have already ended (client-side
+ * guard against server-side staleness).  A recurring series whose
+ * in-window occurrences are all past is dropped entirely instead of falling
+ * back to the original past-dated row.
  */
 export const expandRecurringAgendaPosts = (
   posts: PublicPost[],
@@ -177,17 +260,91 @@ export const expandRecurringAgendaPosts = (
   now = new Date(),
 ): PublicPost[] => {
   const rows = posts.flatMap((post) => {
-    if (post.data.type !== 'event' || !post.data.recurrence) return [post];
-    const occurrences = occurrencesForIndex(post.data, now).filter(
-      (occurrence) =>
-        !occurrence.cancelled &&
-        occurrenceMatchesAgenda(occurrence, window, now),
-    );
-    if (occurrences.length === 0) return [post];
-    return occurrences.map((occurrence) => postForOccurrence(post, occurrence));
+    if (post.data.type !== 'event') return [];
+
+    if (post.data.recurrence) {
+      const occurrences = occurrencesForIndex(post.data, now).filter(
+        (occurrence) =>
+          !occurrence.cancelled &&
+          occurrenceMatchesAgenda(
+            occurrence,
+            window,
+            now,
+            post.data.type === 'event' && post.data.wholeDay,
+          ),
+      );
+      return occurrences.map((occurrence) =>
+        postForOccurrence(post, occurrence),
+      );
+    }
+
+    // Non-recurring one-off event: keep only if it matches the window.
+    const startIso = eventStartIso(post);
+    const endIso = eventEndIso(post);
+    if (!startIso) return [];
+    const occurrence: AgendaWindowOccurrence = {
+      start: startIso,
+      ...(endIso ? { end: endIso } : {}),
+    };
+    return occurrenceMatchesAgenda(occurrence, window, now, post.data.wholeDay)
+      ? [post]
+      : [];
   });
   return uniquePosts([rows]);
 };
+
+const rowMatchesAgenda = (
+  post: PublicPost,
+  window: EventsAgendaWindow,
+  now: Date,
+): boolean => {
+  if (post.data.type !== 'event') return false;
+  if (post.data.recurrence) {
+    return cachedOccurrences(post, now).some(
+      (occurrence) =>
+        !occurrence.cancelled &&
+        occurrenceMatchesAgenda(
+          occurrence,
+          window,
+          now,
+          post.data.type === 'event' && post.data.wholeDay,
+        ),
+    );
+  }
+  const startIso = eventStartIso(post);
+  if (!startIso) return false;
+  const endIso = eventEndIso(post);
+  return occurrenceMatchesAgenda(
+    { start: startIso, ...(endIso ? { end: endIso } : {}) },
+    window,
+    now,
+    post.data.type === 'event' && post.data.wholeDay,
+  );
+};
+
+/**
+ * Series-level window guard for the agenda *list* (as opposed to
+ * `expandRecurringAgendaPosts`, which expands occurrences for the calendar).
+ * The list shows one card per series exactly as the server returns them, so
+ * a recurring series is kept when any non-cancelled occurrence matches the
+ * window and its row keeps the series' own stored times. Same predicate as
+ * the calendar guard, so server-side staleness (stale occurrence index,
+ * older deployed server) cannot surface a past event on the Upcoming list
+ * either.
+ *
+ * Cost: O(occurrences × rows) per run. The server already filters by
+ * window, so this guard is a safety net against staleness; its callers
+ * (the TanStack `select` in `AGENDA_SELECTS`, memoized on `data`) do not
+ * run it per render, only on a data change or the periodic refetch. A
+ * series' occurrence expansion is computed once per predicate run for that
+ * series — its result drives every occurrence check — so the worst case is
+ * one expansion per series row, not one per candidate occurrence.
+ */
+export const applyAgendaWindowFilter = (
+  posts: PublicPost[],
+  window: EventsAgendaWindow,
+  now = new Date(),
+): PublicPost[] => posts.filter((post) => rowMatchesAgenda(post, window, now));
 
 export const groupPostsByDay = (
   posts: PublicPost[],
