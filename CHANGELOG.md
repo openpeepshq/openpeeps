@@ -19,6 +19,12 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **resources**: injective keys for slash folder names; RN picker parity; blank path validation
+- **rn-components**: give the poor-connection banner an opaque background
+- **rn-components**: constrain ProfileCard bio layout to prevent button clipping
+- **posts**: hide reactions from blocked/muted pairs in transformPost
+- **core**: apply edgeFilter in relationsFrom and traverseRelation
+- **settings**: indicate unsaved notification settings with a sticky save bar
 - **rn-components**: gate resource download action on stable kind, not translated label
 - **events**: reject end times before the start time in event forms
 - **stats**: count needs-specs in the needs-human-intervention line
@@ -71,10 +77,12 @@ Changelog for OpenPeeps
 
 ### Refactoring
 
+- **i18n**: consolidate same-feature duplicate keys with divergent hierarchies (pass 3)
 - **participant**: replace parseParticipantMetadata with participantTileProfile for improved profile handling
 
 ### Documentation
 
+- **agents**: require terse action comments and label-change explanations
 - **skill**: add pre-existing-error verification guidance to openpeeps-pr-rebase
 - **flow**: route RN-only merges to flow/waiting-for-app-build
 - define the simplified issue flow in AGENTS.md
@@ -82,6 +90,13 @@ Changelog for OpenPeeps
 
 ### Chores
 
+- **deps**: update @release-it/conventional-changelog to 12.0.2 in rn-components
+- **deps**: add override for @hono/node-server to 1.19.19
+- **deps**: update drizzle-kit to 0.31.11 in core
+- **agents**: catch recurring review findings in the implementation round
+- **deps**: update i18next-http-backend to 4.0.10 in react and rn-components
+- **deps**: update ical-generator to ^11.1.3 and force moment 2.31.0 tree-wide
+- **skill**: stats-only milestone skill; drop find-ready-to-test + rename
 - remove __pycache__ .pyc files and ignore them
 - **skill**: scale burndown bars to max count, mark ideal in-bar
 - **deps**: wave-3 transitive security override batch
