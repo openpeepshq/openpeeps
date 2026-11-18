@@ -368,8 +368,8 @@ for key, lbl in NEEDS_HUMAN:
     text = f"{key} ({human_counts.get(key, 0)})"
     lid = label_ids.get(lbl)
     if lid is not None:
-        url = f"{MILESTONE_URL}?labels={lid}&state=open"
-        human_items.append(f"[{text}]({url})")
+        filter_url = f"{MILESTONE_URL}?labels={lid}&state=open"
+        human_items.append(f"[{text}]({filter_url})")
     else:
         print(f"  warning: no label id found for {lbl!r}; linking to plain milestone")
         human_items.append(f"[{text}]({MILESTONE_URL})")
