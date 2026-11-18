@@ -33,7 +33,7 @@ export const ProfileSelector = forwardRef<
     {
       onSelect,
       asynOnSelect,
-      title = 'Add members',
+      title,
       profilesToExclude,
       selectType = 'sync',
       initialProfiles,
@@ -131,7 +131,7 @@ export const ProfileSelector = forwardRef<
 
           <View className="w-full">
             <ThemedText className="text-center text-xl font-semibold mb-6">
-              {title}
+              {title ?? t('profile.selector.title')}
             </ThemedText>
             <View className="flex-row items-center mb-4 w-full">
               <View className="rounded-l-md bg-surface p-3">

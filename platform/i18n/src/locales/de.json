@@ -445,6 +445,7 @@
         "expiresAt": "Läuft ab am"
       },
       "changeAudience": "Zielgruppe ändern",
+      "audienceTitle": "Wer kann das sehen?",
       "chooseAudience": "Wählen Sie, wer das sehen kann",
       "remainingCharacters": "Verbleibende Zeichen",
       "addImage": "Medien hinzufügen",

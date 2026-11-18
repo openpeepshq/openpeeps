@@ -230,7 +230,9 @@ export const VisibilitySheet = forwardRef<
       <ProfileSelector
         ref={audiencePickerModalRef}
         onSelect={setSelectedProfiles}
-        title="Select Audience"
+        title={t('posts.form.audienceTitle', {
+          defaultValue: 'Who can see this?',
+        })}
         initialProfiles={selectedAudience.audience ?? []}
         editMode
       />
