@@ -110,6 +110,10 @@ const adminPeopleContent = (client: OpenpeepsClientInstance) => ({
     ['admin', 'profiles'],
     ['profiles'],
   ]),
+  deactivateProfileAction: noPayloadMutation(client.admin.profiles.deactivate, [
+    ['admin', 'profiles'],
+    ['profiles'],
+  ]),
   useProfileRoles: (id: string) =>
     apiHook(client.admin.profiles.listRoles, { pathParams: { id } }),
   updateProfileRolesAction: payloadMutation(client.admin.profiles.updateRoles, [

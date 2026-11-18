@@ -1,5 +1,5 @@
 import { endpoint, z } from '#lib/endpoint';
-import { deleteProfile, findProfile } from '@openpeepshq/core/profiles';
+import { deleteProfile, getProfile } from '@openpeepshq/core/profiles';
 import type { RequestEvent } from '@riddl/core';
 import { ensureRoleCapabilities } from '#lib/auth';
 import { forbidden, notFound } from '#lib/errors';
@@ -19,7 +19,9 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
   async (param, event: RequestEvent) => {
     await ensureRoleCapabilities(event, ['core-profiles-delete']);
 
-    const requestedProfile = await findProfile(param.profileId);
+    // Resolve ignoring the soft-delete filter: a deactivated (soft-deleted)
+    // member must still be hard-deletable; a hard-deleted member has no row.
+    const requestedProfile = await getProfile(param.profileId, true);
 
     if (!requestedProfile) {
       throw notFound(`Profile with id ${param.profileId}`);

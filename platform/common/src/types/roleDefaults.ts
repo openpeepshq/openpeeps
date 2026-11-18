@@ -57,7 +57,7 @@ const builtinRoles: RoleData[] = [
         'core-posts-delete',
         'core-posts-pin-globally',
         'core-posts-announce',
-        'core-profiles-suspend',
+        'core-profiles-deactivate',
         'core-accounts-read',
         'core-profiles-read',
         'core-groups-read',

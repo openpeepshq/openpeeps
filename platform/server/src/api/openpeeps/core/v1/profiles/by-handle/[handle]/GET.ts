@@ -1,5 +1,8 @@
 import { endpoint, z } from '#lib/endpoint';
-import { findProfileByHandle } from '@openpeepshq/core/profiles';
+import {
+  findProfileByHandle,
+  getProfileByHandle,
+} from '@openpeepshq/core/profiles';
 import type { RequestEvent } from '@riddl/core';
 import { publicProfileSchema } from '@openpeepshq/common/types';
 import { ensureAccess } from '#lib/auth';
@@ -19,7 +22,11 @@ export const apiEndpoint = endpoint({ Output, Param }).handle(
   async (param, event: RequestEvent) => {
     await ensureAccess(event);
 
-    const requestedProfile = await findProfileByHandle(param.handle);
+    // Deactivated members are soft-deleted; ignore the soft-delete filter so
+    // the handle route renders the tombstone instead of 404ing.
+    const requestedProfile =
+      (await findProfileByHandle(param.handle)) ??
+      (await getProfileByHandle(param.handle, true));
 
     if (!requestedProfile) {
       throw notFound(`Profile with id ${param.handle}`);

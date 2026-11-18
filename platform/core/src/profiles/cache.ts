@@ -20,7 +20,11 @@ export const clearProfileCache = async (
 ): Promise<void> => {
   await Promise.all([
     profilesCache.del(profile.id),
+    // `all:` keys back the ignore-soft-delete view (deactivated rows still
+    // fetchable by id/handle after soft-delete).
+    profilesCache.del(`all:${profile.id}`),
     profilesCache.del(profile.handle),
+    profilesCache.del(`all:${profile.handle}`),
     publicProfilesCache.del(profile.id),
     publicProfilesCache.del(`all:${profile.id}`),
   ]);
@@ -54,7 +58,9 @@ export const getProfile = async (
   id: string,
   ignoreSoftDelete = false,
 ): Promise<ProfileWithMeta | undefined> =>
-  profilesCache.wrap(id, () =>
+  // The ignore-soft-delete view is cached under a separate `all:` key so it
+  // can never shadow the default (soft-delete-filtered) entry for the same id.
+  profilesCache.wrap(`${ignoreSoftDelete ? 'all:' : ''}${id}`, () =>
     allpeepDb()
       .then(({ db }) =>
         ignoreSoftDelete
@@ -86,7 +92,9 @@ export const getProfileByHandle = async (
   handle: string,
   ignoreSoftDelete = false,
 ): Promise<ProfileWithMeta | undefined> =>
-  profilesCache.wrap(handle, () =>
+  // `all:` prefix separates the ignore-soft-delete view from the default
+  // (soft-delete-filtered) entry, matching getProfile's keying.
+  profilesCache.wrap(`${ignoreSoftDelete ? 'all:' : ''}${handle}`, () =>
     allpeepDb()
       .then(({ db }) =>
         ignoreSoftDelete
@@ -116,12 +124,20 @@ export const getLocalProfileByHandle = async (
     .then(withBlockIds);
 };
 
-export const getProfiles = async (ids: string[]): Promise<ProfileWithMeta[]> =>
+export const getProfiles = async (
+  ids: string[],
+  ignoreSoftDelete = false,
+): Promise<ProfileWithMeta[]> =>
   profilesCache
-    .mget<ProfileWithMeta>(ids)
+    .mget<ProfileWithMeta>(
+      ignoreSoftDelete ? ids.map((id) => `all:${id}`) : ids,
+    )
     .then((profiles) =>
       Promise.all(
-        profiles.map(async (p, index) => p || (await getProfile(ids[index]))),
+        profiles.map(
+          async (p, index) =>
+            p || (await getProfile(ids[index], ignoreSoftDelete)),
+        ),
       ),
     )
     .then((profiles) => profiles.filter((p) => !!p));

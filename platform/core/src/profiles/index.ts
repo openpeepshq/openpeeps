@@ -12,6 +12,7 @@ export {
 } from './activitySummary';
 export {
   getProfile,
+  getProfileByHandle,
   getPublicProfile,
   getProfiles,
   getLocalProfileByHandle,

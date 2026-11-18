@@ -30,7 +30,12 @@ export const followFinder = connectionFinder<Profile, Profile>(
 
 export const expandProfiles = (
   profiles: Profile[],
-): Promise<ProfileWithMeta[]> => getProfiles(profiles.map((p) => p.id));
+  ignoreSoftDelete = false,
+): Promise<ProfileWithMeta[]> =>
+  getProfiles(
+    profiles.map((p) => p.id),
+    ignoreSoftDelete,
+  );
 
 // Idempotent and race-safe: a role the profile already holds is a no-op, and
 // concurrent assigns (parallel first logins, login racing email validation)

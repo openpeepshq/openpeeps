@@ -1,5 +1,11 @@
 import { useState } from 'react';
-import { EyeIcon, MailIcon, PencilIcon, Trash2 } from 'lucide-react';
+import {
+  EyeIcon,
+  MailIcon,
+  PencilIcon,
+  Trash2,
+  UserRoundX,
+} from 'lucide-react';
 import type { ProfileWithMeta, Role } from '@openpeepshq/common/types';
 import { useT, useOpenpeeps, useNavigate } from '../../../index';
 import {
@@ -20,7 +26,7 @@ export interface ProfileRowActionsProps {
   profile: ProfileWithMeta;
 }
 
-type ActiveModal = 'email' | 'roles' | 'delete' | null;
+type ActiveModal = 'email' | 'roles' | 'delete' | 'deactivate' | null;
 
 export function ProfileRowActions({ profile }: ProfileRowActionsProps) {
   const t = useT();
@@ -77,6 +83,16 @@ export function ProfileRowActions({ profile }: ProfileRowActionsProps) {
           action={() => setActiveModal('roles')}
         />
         <PopupMenuButton
+          icon={UserRoundX}
+          title={t('profile.table.deactivateMember', {
+            defaultValue: 'Deactivate Member',
+          })}
+          text={t('profile.table.deactivateMember', {
+            defaultValue: 'Deactivate Member',
+          })}
+          action={() => setActiveModal('deactivate')}
+        />
+        <PopupMenuButton
           icon={Trash2}
           title={t('profile.table.deleteMember', {
             defaultValue: 'Delete Member',
@@ -95,6 +111,12 @@ export function ProfileRowActions({ profile }: ProfileRowActionsProps) {
       ) : null}
       {activeModal === 'roles' ? (
         <EditRolesModal
+          profile={profile}
+          onClose={() => setActiveModal(null)}
+        />
+      ) : null}
+      {activeModal === 'deactivate' ? (
+        <DeactivateProfileModal
           profile={profile}
           onClose={() => setActiveModal(null)}
         />
@@ -293,6 +315,72 @@ function EditRolesModal({
   );
 }
 
+function DeactivateProfileModal({
+  profile,
+  onClose,
+}: {
+  profile: ProfileWithMeta;
+  onClose: () => void;
+}) {
+  const t = useT();
+  const { openpeepsApi } = useOpenpeeps();
+  const deactivateProfile = openpeepsApi.admin.deactivateProfileAction({
+    id: profile.id,
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const submit = async () => {
+    setError(null);
+    setSubmitting(true);
+    try {
+      await deactivateProfile();
+      onClose();
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <DialogTitle>
+            {t('profile.modals.deactivateProfile.title', {
+              defaultValue: 'Deactivate this member?',
+            })}
+          </DialogTitle>
+        </DialogHeader>
+        <p className="px-1 text-sm">
+          {t('profile.modals.deactivateProfile.description', {
+            defaultValue:
+              'The profile is removed from lists and can no longer log in. Their posts and messages are kept but attributed to "Deleted Profile". This action cannot be undone.',
+            username: profile.displayName || profile.handle,
+            handle: profile.handle,
+          })}
+        </p>
+        {error ? (
+          <p className="border-error/40 text-error rounded-md border p-2 text-sm">
+            {error}
+          </p>
+        ) : null}
+        <DialogActions
+          cancelLabel={t('common.actions.cancel', { defaultValue: 'Cancel' })}
+          onCancel={onClose}
+          actionLabel={t('profile.modals.deactivateProfile.confirm', {
+            defaultValue: 'Deactivate',
+          })}
+          onAction={submit}
+          actionVariant="destructive"
+          disabled={submitting}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function DeleteProfileModal({
   profile,
   onClose,
@@ -339,7 +427,7 @@ function DeleteProfileModal({
         <p className="px-1 text-sm">
           {t('profile.modals.deleteProfile.description', {
             defaultValue:
-              'Are you sure you want to delete this profile? This action cannot be undone.',
+              'Are you sure you want to permanently delete this profile {{username}} with handle: {{handle}}? Their posts, direct messages, and media are erased, and the handle is freed. This action cannot be undone.',
             username: profile.displayName || profile.handle,
             handle: profile.handle,
           })}

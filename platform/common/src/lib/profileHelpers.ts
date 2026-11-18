@@ -29,6 +29,28 @@ export const isDeletedProfile = (
   profile: { deletedAt?: string | null } | undefined | null,
 ): boolean => !!profile?.deletedAt;
 
+/**
+ * A deactivated member: soft-deleted row with the original identity stamped
+ * into the body (deleted rows keep handle/displayName in their columns), so
+ * an admin can tell the two states apart in the members table.
+ */
+// Hydrated `ProfileWithMeta` models are *flat* — `rowToModel` spreads the
+// DB row's body jsonb into the model, so `deactivatedAt` lands top-level
+// (there is no `.body` property). Both the flat and the raw-DB-row shapes are
+// accepted so the helper works on either.
+export const isDeactivatedProfile = (
+  profile:
+    | {
+        deletedAt?: string | null;
+        deactivatedAt?: string | null;
+        body?: { deactivatedAt?: string | null } | null;
+      }
+    | undefined
+    | null,
+): boolean =>
+  !!profile?.deletedAt &&
+  (!!profile.deactivatedAt || !!profile.body?.deactivatedAt);
+
 // `handle`/`displayName` arrive from untyped DB rows (`rowToModel`),
 // so the hydration helper must accept `unknown`, not just `string | null`.
 type DeletedProfileIdentity = {
@@ -128,6 +150,40 @@ export const tombstoneProfileWithMetaIfDeleted = (
   profile && isDeletedProfile(profile)
     ? toDeletedProfileWithMeta(profile)
     : profile;
+
+/**
+ * Tombstone for a profile that has been **hard** deleted — the row is gone so
+ * there is nothing to spread. Built from just the id (recovered from the
+ * surviving report edge) and the current timestamp, so historical reports can
+ * still list (and serialize) as a tombstone. Same no-PII guarantee as
+ * {@link toDeletedProfileWithMeta}: no handle/displayName of the deleted
+ * account, empty social graph, zeroed stats.
+ */
+export const deletedProfileWithMeta = (
+  id: string | undefined | null,
+): ProfileWithMeta | undefined =>
+  id
+    ? {
+        id,
+        type: 'local',
+        handle: DELETED_AUTHOR_HANDLE,
+        displayName: DELETED_AUTHOR_DISPLAY_NAME,
+        avatar: null,
+        header: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        deletedAt: new Date().toISOString(),
+        roles: [],
+        followers: [],
+        following: [],
+        controllers: [],
+        memberships: [],
+        profileStats: { followersCount: 0, followingCount: 0 },
+        blockingIds: [],
+        blockedByIds: [],
+        followedHashtags: [],
+      }
+    : undefined;
 
 export const profileName = (profile?: PublicProfile) =>
   profile?.displayName || profile?.handle;

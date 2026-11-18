@@ -14,6 +14,8 @@ export const Error = {
 export const apiEndpoint = endpoint({ Output, Error }).handle(
   async (_, event: RequestEvent) => {
     await ensureRoleCapabilities(event, ['core-profiles-read']);
-    return listProfiles();
+    // Include deactivated (soft-deleted) members so they stay listed with the
+    // "Deactivated" chip; hard-deleted members have no row and drop out.
+    return listProfiles(undefined, { ignoreSoftDelete: true });
   },
 );

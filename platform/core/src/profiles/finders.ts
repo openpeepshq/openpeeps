@@ -54,17 +54,20 @@ const directoryFilter = (viewer?: ProfileWithMeta): SqlFilter | undefined =>
 
 export const listProfiles = (
   viewer?: ProfileWithMeta,
-  options: { directoryView?: boolean } = {},
+  options: { directoryView?: boolean; ignoreSoftDelete?: boolean } = {},
 ): Promise<ProfileWithMeta[]> =>
   allpeepDb()
-    .then(({ db }) =>
-      baseProfilesMapping
+    .then(({ db }) => {
+      let mapping = baseProfilesMapping
         .filter(profileFilters.notGuest())
         .filter(profileFilters.notIdIn(blockedPairIds(viewer)))
-        .filter(options.directoryView ? directoryFilter(viewer) : undefined)
-        .all(db),
-    )
-    .then(expandProfiles);
+        .filter(options.directoryView ? directoryFilter(viewer) : undefined);
+      if (options.ignoreSoftDelete) {
+        mapping = mapping.ignoreSoftDelete();
+      }
+      return mapping.all(db) as Promise<Profile[]>;
+    })
+    .then((profiles) => expandProfiles(profiles, options.ignoreSoftDelete));
 
 export const listProfilesByRole = (role: Role): Promise<ProfileWithMeta[]> =>
   allpeepDb()

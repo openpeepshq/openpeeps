@@ -18,6 +18,7 @@ const log = logger('app:events');
 
 export type CoreEvents = {
   profileCreated: (profile: Profile) => void;
+  profileDeleted: (profile: Profile | undefined) => void;
   postCreated: (post: PostWithMeta) => void;
   jamRecordingCompleted: (recording: JamRecordingWithMeta) => void;
   followCreated: (follower: Profile, followed: Profile) => void;
@@ -54,6 +55,7 @@ export type CoreEventKey = keyof CoreEvents;
 // event key is present and that no unexpected keys can slip in.
 const validEventKeyMap = {
   profileCreated: true,
+  profileDeleted: true,
   postCreated: true,
   jamRecordingCompleted: true,
   followCreated: true,

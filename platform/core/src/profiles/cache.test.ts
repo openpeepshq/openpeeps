@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ProfileWithMeta } from '@openpeepshq/common/types';
+import { isDeactivatedProfile } from '@openpeepshq/common/lib';
 import {
   clearProfileCache,
   getLocalProfileByHandle,
@@ -50,6 +51,56 @@ describe('clearProfileCache', () => {
 
     expect(await publicProfilesCache.get(profile.id)).toBeUndefined();
     expect(await publicProfilesCache.get(`all:${profile.id}`)).toBeUndefined();
+  });
+
+  it('evicts the handle and all: keys a delete/deactivate path leaves stale', async () => {
+    await profilesCache.set(profile.handle, { cached: 'by-handle' });
+    await publicProfilesCache.set(`all:${profile.id}`, { cached: 'all' });
+
+    await clearProfileCache(profile);
+
+    expect(await profilesCache.get(profile.handle)).toBeUndefined();
+    expect(await publicProfilesCache.get(`all:${profile.id}`)).toBeUndefined();
+  });
+
+  it('getPublicProfile misses after the cache is cleared by a hard delete', async () => {
+    await publicProfilesCache.set(profile.id, { cached: 'public' });
+
+    await clearProfileCache(profile);
+
+    expect(await publicProfilesCache.get(profile.id)).toBeUndefined();
+  });
+});
+
+describe('isDeactivatedProfile', () => {
+  it('is true for a hydrated (flat) soft-deleted model with deactivatedAt top-level', () => {
+    // rowToModel spreads the body jsonb into the model, so the real shape is flat.
+    expect(
+      isDeactivatedProfile({
+        deletedAt: '2026-01-01T00:00:00Z',
+        deactivatedAt: '2026-01-01T00:00:00Z',
+      }),
+    ).toBe(true);
+  });
+
+  it('is true for a raw DB row with deactivatedAt stamped on the body', () => {
+    expect(
+      isDeactivatedProfile({
+        deletedAt: '2026-01-01T00:00:00Z',
+        body: { deactivatedAt: '2026-01-01T00:00:00Z' },
+      }),
+    ).toBe(true);
+  });
+
+  it('is false without deactivatedAt, without a soft-delete stamp, or for null/undefined profiles', () => {
+    expect(
+      isDeactivatedProfile({ deactivatedAt: '2026-01-01T00:00:00Z' }),
+    ).toBe(false);
+    expect(isDeactivatedProfile({ deletedAt: '2026-01-01T00:00:00Z' })).toBe(
+      false,
+    );
+    expect(isDeactivatedProfile(undefined)).toBe(false);
+    expect(isDeactivatedProfile(null)).toBe(false);
   });
 });
 
