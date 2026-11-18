@@ -9,6 +9,7 @@ import {
   type PublicProfile,
   type ReportWithMeta,
   type Resource,
+  type Scope,
   type ScopeLevel,
 } from '@openpeepshq/common/types';
 
@@ -291,6 +292,41 @@ export const ensureProfileOrGuest = async (
   }
 
   throw authNeeded('Valid profile needed');
+};
+
+/**
+ * Waiting-room join gate: requires a `local` or `guest` profile that holds a
+ * jam-scoped read pass. A headerless (anonymous) request is rejected with the
+ * standard 401 `authNeeded` shape plus a machine-readable `key`
+ * (`error.jamGuestPassRequired`) so the client can distinguish "sign in /
+ * create a guest pass" from other errors. Never mints a profile server-side.
+ */
+const jamReadScope = (resource: Resource): Scope => ({
+  scopeLevel: 'read',
+  resource,
+});
+
+export const requireGuestCapableProfile = async (
+  event: RequestEvent,
+  resource: Resource,
+): Promise<ProfileWithMeta> => {
+  const profile = event.context.currentProfile;
+  if (
+    profile &&
+    (profile.type === 'local' ||
+      (profile.type === 'guest' &&
+        commonScopeMatches({
+          scopes: event.context.authorization?.scopes,
+          requiredScope: jamReadScope(resource),
+        })))
+  ) {
+    return profile;
+  }
+
+  throw authNeeded(
+    'A guest pass is required to join this jam',
+    'error.jamGuestPassRequired',
+  );
 };
 
 export const ensureScope = async (

@@ -92,6 +92,89 @@ const connectAsParticipant = async (livekitUrl: string, token: string) => {
   return room;
 };
 
+test.describe('Signed-out visitors on waiting-room jams', () => {
+  // A headerless visitor must be able to open the jam state (join CTA) and
+  // must hit the machine-readable guest-pass 401 on both join and token —
+  // never a silent empty body that strands them in a hidden waiting room.
+  test('anonymous state read succeeds and join/token return the guest-pass 401', async ({
+    request,
+  }) => {
+    const { token } = await loginUser(
+      request,
+      'jams-owner@openpeeps.test',
+      'testtesttest',
+    );
+    const me = await request.get('/api/openpeeps/core/v1/profiles/current', {
+      headers: apiHeaders(token),
+    });
+    expect(me.ok()).toBeTruthy();
+    const profile = await me.json();
+
+    const event = await createPublicJam(
+      request,
+      token,
+      profile.id,
+      `Waiting-room jam ${Date.now()}`,
+    );
+
+    const state = await request.get(
+      `/api/openpeeps/core/v1/jams/${event.id}/state`,
+    );
+    expect(
+      state.ok(),
+      `anonymous jam state failed: ${state.status()} ${await state.text()}`,
+    ).toBeTruthy();
+
+    const join = await request.post(
+      `/api/openpeeps/core/v1/jams/${event.id}/waiting-room`,
+      { data: { displayName: 'Anon Visitor' } },
+    );
+    expect(join.status()).toBe(401);
+    const joinBody = await join.json();
+    expect(joinBody.key).toBe('error.jamGuestPassRequired');
+
+    const tokenResponse = await request.get(
+      `/api/openpeeps/core/v1/jams/${event.id}/token`,
+    );
+    expect(tokenResponse.status()).toBe(401);
+  });
+
+  // A guest pass holder can queue: the pass carries the jam read scope the
+  // join gate requires (plus profiles read for chat author resolution).
+  test('guest pass holder can join the waiting room', async ({ request }) => {
+    const { token } = await loginUser(
+      request,
+      'jams-owner@openpeeps.test',
+      'testtesttest',
+    );
+    const me = await request.get('/api/openpeeps/core/v1/profiles/current', {
+      headers: apiHeaders(token),
+    });
+    expect(me.ok()).toBeTruthy();
+    const profile = await me.json();
+
+    const event = await createPublicJam(
+      request,
+      token,
+      profile.id,
+      `Guest queue jam ${Date.now()}`,
+    );
+
+    const guest = await issueGuestPass(request, event.id, 'Queue Guest');
+    const join = await request.post(
+      `/api/openpeeps/core/v1/jams/${event.id}/waiting-room`,
+      {
+        headers: apiHeaders(guest.token),
+        data: { displayName: 'Queue Guest' },
+      },
+    );
+    expect(
+      join.ok(),
+      `guest join failed: ${join.status()} ${await join.text()}`,
+    ).toBeTruthy();
+  });
+});
+
 test.describe('Public jam guests', () => {
   test('guest pass is not rejected as unauthenticated on jam token and profile', async ({
     request,

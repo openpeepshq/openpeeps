@@ -31,8 +31,8 @@ const httpError = (status: number, message: string, key?: string) => {
 };
 
 export const badRequest = (message = 'Bad request') => httpError(400, message);
-export const authNeeded = (message = 'Authentication needed') =>
-  httpError(401, message);
+export const authNeeded = (message = 'Authentication needed', key?: string) =>
+  httpError(401, message, key);
 export const forbidden = (message = 'Forbidden') => httpError(403, message);
 export const notFound = (target?: string) =>
   httpError(404, target ? `${target} not found` : 'Not found');

@@ -1,5 +1,10 @@
 import { endpoint, z } from '#lib/endpoint';
-import { forbidden, notFound, rethrowIfOpenpeepsError } from '#lib/errors';
+import {
+  authNeeded,
+  forbidden,
+  notFound,
+  rethrowIfOpenpeepsError,
+} from '#lib/errors';
 import type { RequestEvent } from '@riddl/core';
 import { jamTokenResponseSchema } from '@openpeepshq/common/types';
 import { config } from '@openpeepshq/core/config';
@@ -11,7 +16,7 @@ import {
   joinWaitingRoom,
 } from '@openpeepshq/core/jams';
 import { produceStream } from '#lib/sse';
-import { ensureProfileOrGuest } from '#lib/auth';
+import { requireGuestCapableProfile } from '#lib/auth';
 import { jamFromEvent, parseOccurrenceQuery } from '@openpeepshq/common/lib';
 export const Stream = jamTokenResponseSchema;
 export const Param = z.object({
@@ -23,12 +28,13 @@ export const Query = z.object({
 
 export const Error = {
   403: forbidden(),
+  401: authNeeded(),
 };
 
 export const apiEndpoint = endpoint({ Param, Query, Stream, Error }).handle(
   async (input, event: RequestEvent) => {
     const recurrenceId = parseOccurrenceQuery(input.occurrence);
-    const profile = await ensureProfileOrGuest(event, 'read', {
+    const profile = await requireGuestCapableProfile(event, {
       type: 'jams',
       id: input.eventId,
     });

@@ -16,7 +16,10 @@ import {
 import { svgCoverSrc } from '../../lib/svgCover';
 
 export interface AvatarProps {
-  profile?: PublicProfile;
+  /** `PublicProfile`-shaped; only `displayName`/`handle`/`avatar` are read. */
+  profile?: Partial<
+    Pick<PublicProfile, 'displayName' | 'handle' | 'avatar' | 'deletedAt'>
+  >;
   /** rem-equivalent unit (matches Svelte version: 3.5 → 3.5rem). */
   size?: number;
   borderless?: boolean;

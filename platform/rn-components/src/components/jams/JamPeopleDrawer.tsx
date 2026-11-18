@@ -3,7 +3,8 @@ import { ScrollView, View } from 'react-native';
 import { useParticipants, useRoomContext } from '@livekit/react-native';
 import type { Participant } from 'livekit-client';
 import { useTranslation } from 'react-i18next';
-import { profileName } from '@openpeepshq/common/lib';
+import { profileName, waitingRoomEntryName } from '@openpeepshq/common/lib';
+import type { JamWaitingProfile } from '@openpeepshq/common';
 import { parseParticipantMetadata, useJamPeople } from '@openpeepshq/react';
 import {
   AudioLinesIcon,
@@ -158,9 +159,9 @@ export const JamPeopleDrawer = ({ open, onClose }: JamPeopleDrawerProps) => {
                   className="flex-row items-center justify-between gap-2"
                 >
                   <View className="min-w-0 flex-1 flex-row items-center gap-2">
-                    <ProfileAvatar profile={profile} className="size-8" />
+                    <WaitingRoomAvatar profile={profile} />
                     <ThemedText numberOfLines={1} className="shrink text-sm">
-                      {profileName(profile)}
+                      {waitingRoomEntryName(profile)}
                     </ThemedText>
                   </View>
                   <Button
@@ -181,3 +182,18 @@ export const JamPeopleDrawer = ({ open, onClose }: JamPeopleDrawerProps) => {
     </JamDrawer>
   );
 };
+
+/**
+ * Waiting-room entries carry only a display name (no avatar/handle), so the
+ * initials fallback renders a stable, honest placeholder.
+ */
+function WaitingRoomAvatar({ profile }: { profile: JamWaitingProfile }) {
+  // Initials-avatar input: only the name matters, so narrow instead of
+  // widening a queue entry to a full Profile.
+  return (
+    <ProfileAvatar
+      profile={{ displayName: waitingRoomEntryName(profile) }}
+      className="size-8"
+    />
+  );
+}

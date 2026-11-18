@@ -631,7 +631,10 @@ export const canManageEventRsvps = (
 
 export type JamCapacityJoinBlock =
   | { blocked: false }
-  | { blocked: true; reason: 'full' | 'rsvp-required' | 'removed' };
+  | {
+      blocked: true;
+      reason: 'full' | 'rsvp-required' | 'removed' | 'guest-required';
+    };
 
 export const getJamCapacityJoinBlock = (
   post: PublicPost,

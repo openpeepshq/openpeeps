@@ -7,11 +7,12 @@ import { useCurrentProfile, useRouter } from '@openpeepshq/react';
 import { Button } from '../ui/button';
 import { ThemedText } from '../ui/themed-text';
 import { EventRsvpButton } from '../post/pieces/EventRsvpButton';
+import { JamGuestForm } from './JamGuestForm';
 import { JamRoomPanel, JamRoomPanelLink } from './JamRoomPanel';
 
 export interface JamCapacityGateProps {
   jamPost: PublicPost;
-  reason: 'full' | 'rsvp-required' | 'removed';
+  reason: 'full' | 'rsvp-required' | 'removed' | 'guest-required';
   eventName?: string;
   occurrence?: string;
 }
@@ -26,6 +27,13 @@ export const JamCapacityGate = ({
   const me = useCurrentProfile();
   const router = useRouter();
   const eventData = jamPost.data?.type === 'event' ? jamPost.data : undefined;
+
+  // Signed-out visitor on a waiting-room jam: the join POST refuses anonymous
+  // requests, so gate on the guest-pass form before they can queue.
+  if (reason === 'guest-required' && !me) {
+    return <JamGuestForm />;
+  }
+
   const showRsvp =
     (reason === 'rsvp-required' || reason === 'full') &&
     !!me &&

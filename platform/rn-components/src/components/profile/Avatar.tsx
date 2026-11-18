@@ -28,7 +28,10 @@ export const ProfileAvatar = ({
   profile,
   className,
 }: {
-  profile: Profile;
+  /** `Profile`-shaped; only `displayName`/`handle`/`avatar` are read. */
+  profile: Partial<
+    Pick<Profile, 'displayName' | 'handle' | 'avatar' | 'deletedAt'>
+  >;
   className?: string;
 }) => {
   const { t } = useTranslation();

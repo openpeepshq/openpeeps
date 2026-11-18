@@ -1,6 +1,9 @@
 import { useMemo, useState } from 'react';
 import type { Participant, Room } from 'livekit-client';
-import type { PublicProfile } from '@openpeepshq/common/types';
+import type {
+  JamWaitingProfile,
+  PublicProfile,
+} from '@openpeepshq/common/types';
 import { matchesQuery, sortByRaisedHand } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useCurrentProfile } from '../../components/layout/IdentityContext';
@@ -46,18 +49,23 @@ export const useJamPeople = ({ room, participants }: UseJamPeopleArgs) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [participants, query, raisedHands]);
 
-  const waitingProfiles = useMemo(() => {
-    if (!waitingRoom) return [] as PublicProfile[];
-    return Object.values(waitingRoom).filter(
-      (profile): profile is PublicProfile =>
-        !!profile &&
-        typeof profile === 'object' &&
-        'id' in profile &&
-        (!query || matchesQuery(profile, query)),
-    );
+  const waitingProfiles = useMemo((): JamWaitingProfile[] => {
+    if (!waitingRoom) return [];
+    const q = query.trim().toLowerCase();
+    return Object.entries(waitingRoom)
+      .map(([profileId, entry]) => ({
+        ...entry,
+        id: profileId,
+      }))
+      .filter(
+        (profile) =>
+          !q ||
+          (profile.displayName ?? '').toLowerCase().includes(q) ||
+          profile.id.toLowerCase().includes(q),
+      );
   }, [waitingRoom, query]);
 
-  const admit = async (profile: PublicProfile) => {
+  const admit = async (profile: Pick<PublicProfile, 'id'>) => {
     setAdmittingId(profile.id);
     try {
       await admitParticipant(

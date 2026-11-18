@@ -75,6 +75,24 @@ config). Those stay on HTTP / hub / push.
 **Code:** `platform/core/src/jams/` (especially `livekit.ts`, `token.ts`),
 jam UI under `platform/react/src/components/jams/`.
 
+#### Jam waiting room
+
+- **Join requires a profile.** `POST …/waiting-room` rejects anonymous
+  (headerless) requests with a `401` carrying
+  `key: 'error.jamGuestPassRequired'`; the client routes the visitor to the
+  guest-pass / sign-in form (`JamGuestForm`) instead of a silent wait screen.
+  The server never mints a profile for a headerless request.
+- **Queue payload is `{ displayName }` keyed by profile id.** `joinWaitingRoom`
+  stores only the display name (the full profile object does not round-trip
+  through the moderation stream). `acceptFromWaitingRoom` re-fetches the full
+  profile by id before minting the LiveKit token, so token generation never
+  depends on the streamed shape. The moderation `GET …/waiting-room` stream is
+  `Record<profileId, { displayName? }>`.
+- **Jam guest passes carry two read scopes** — `read` on `jams:<id>` plus
+  `read` on `profiles:*` (the latter is what lets an admitted guest publish
+  chat). See `createSignedGuestPass` in
+  `platform/core/src/accessTokens/tokens.ts`.
+
 ### SSE (narrow streams + session foreground channel)
 
 SSE is used for **bounded, session-scoped** streams where the client keeps a

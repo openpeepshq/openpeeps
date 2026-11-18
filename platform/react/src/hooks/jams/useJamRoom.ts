@@ -157,14 +157,18 @@ export const useJamRoom = () => {
   );
 
   const capacityBlock = (() => {
-    if (!me) {
-      const eventData = post.data?.type === 'event' ? post.data : undefined;
-      if (eventData?.maxAttendees) {
-        return { blocked: true as const, reason: 'rsvp-required' as const };
-      }
-      return { blocked: false as const };
+    if (me) return getJamCapacityJoinBlock(post, me, occurrence);
+    // A signed-out visitor on a waiting-room jam must create a guest pass
+    // (or sign in) before they can queue — the join POST refuses anonymous
+    // requests. Route them to the guest-pass gate, not a silent wait screen.
+    if (jam?.waitingRoom) {
+      return { blocked: true as const, reason: 'guest-required' as const };
     }
-    return getJamCapacityJoinBlock(post, me, occurrence);
+    const eventData = post.data?.type === 'event' ? post.data : undefined;
+    if (eventData?.maxAttendees) {
+      return { blocked: true as const, reason: 'rsvp-required' as const };
+    }
+    return { blocked: false as const };
   })();
 
   const shouldAutoRsvp =
