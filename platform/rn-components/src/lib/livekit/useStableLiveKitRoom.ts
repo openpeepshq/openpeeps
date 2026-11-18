@@ -33,6 +33,8 @@ export function useStableLiveKitRoom(
       kind?: string
     ) => void;
     onEncryptionError?: (error: Error) => void;
+    /** Runs after the signal connection, before tracks are enabled. */
+    onSignalConnected?: () => void | Promise<void>;
     simulateParticipants?: number;
   }
 ): void {
@@ -49,6 +51,7 @@ export function useStableLiveKitRoom(
     onError,
     onMediaDeviceFailure,
     onEncryptionError,
+    onSignalConnected,
     simulateParticipants,
   } = params;
 
@@ -59,23 +62,30 @@ export function useStableLiveKitRoom(
   connectOptionsRef.current = connectOptions;
   const connectOptionsKey = JSON.stringify(connectOptions);
 
+  // Callers typically pass a fresh handler object literal on every render;
+  // keep a stable ref so the wiring effect does not resubscribe each render.
+  const onSignalConnectedRef = React.useRef(onSignalConnected);
+  onSignalConnectedRef.current = onSignalConnected;
+
   React.useEffect(() => {
     const onSignalConnected = () => {
       const localP = room.localParticipant;
 
-      Promise.all([
-        localP.setMicrophoneEnabled(
-          !!audio,
-          typeof audio !== 'boolean' ? audio : undefined
-        ),
-        localP.setCameraEnabled(
-          !!video,
-          typeof video !== 'boolean' ? video : undefined
-        ),
-        // Screen share (and its capture permission) is disabled in React Native jams.
-        // localP.setScreenShareEnabled(!!screen, typeof screen !== 'boolean' ? screen : undefined),
-      ]).catch((e: unknown) => {
-        onError?.(e as Error);
+      void Promise.resolve(onSignalConnectedRef.current?.()).then(() => {
+        Promise.all([
+          localP.setMicrophoneEnabled(
+            !!audio,
+            typeof audio !== 'boolean' ? audio : undefined
+          ),
+          localP.setCameraEnabled(
+            !!video,
+            typeof video !== 'boolean' ? video : undefined
+          ),
+          // Screen share (and its capture permission) is disabled in React Native jams.
+          // localP.setScreenShareEnabled(!!screen, typeof screen !== 'boolean' ? screen : undefined),
+        ]).catch((e: unknown) => {
+          onError?.(e as Error);
+        });
       });
     };
 

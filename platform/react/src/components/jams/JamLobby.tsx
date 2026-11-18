@@ -53,7 +53,7 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
 
   const [settings, updateSettings] = useJamLocalSettings();
 
-  const [audioEnabled, setAudioEnabled] = useState(true);
+  const [audioEnabled, setAudioEnabled] = useState(settings.micEnabled);
   const [videoEnabled, setVideoEnabled] = useState(false);
   const [audioDeviceId, setAudioDeviceId] = useState('');
   const [videoDeviceId, setVideoDeviceId] = useState('');
@@ -181,7 +181,11 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
           <div className="mt-4 flex w-full items-center justify-center gap-x-4">
             <DeviceSelectorPill
               enabled={audioEnabled}
-              onToggle={() => setAudioEnabled((on) => !on)}
+              onToggle={() => {
+                const next = !audioEnabled;
+                setAudioEnabled(next);
+                updateSettings({ micEnabled: next });
+              }}
               onIcon={Mic}
               offIcon={MicOff}
               deviceType="mic"

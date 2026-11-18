@@ -4,8 +4,9 @@ import {
   useLocalParticipant,
   useRoomContext,
 } from '@livekit/react-native';
-import { Room, RoomEvent } from 'livekit-client';
+import { MediaDeviceFailure, Room, RoomEvent } from 'livekit-client';
 import { useTranslation } from 'react-i18next';
+import Toast from 'react-native-toast-message';
 import {
   CheckIcon,
   MicIcon,
@@ -19,6 +20,21 @@ import type { iconWithClassName } from '../icons/iconWithClassName';
 import { DropdownMenuItem } from '../ui/dropdown-menu';
 import { ThemedText } from '../ui/themed-text';
 import { JamToolbarButton, toneIconClass } from './JamToolbarButton';
+
+/**
+ * Fire-and-forget failure flows (mic toggle, permission probes) can race and
+ * stack duplicate toasts for a single rejection; deduplicate through a
+ * module-level in-flight guard.
+ */
+let micToastInFlight = false;
+const showMicToast = (msg: string) => {
+  if (micToastInFlight) return;
+  micToastInFlight = true;
+  Toast.show({ type: 'error', text1: msg });
+  setTimeout(() => {
+    micToastInFlight = false;
+  }, 3000);
+};
 
 type DeviceType = 'mic' | 'camera' | 'speaker';
 export type JamIconType = ReturnType<typeof iconWithClassName>;
@@ -162,15 +178,27 @@ export const useAudioOutputs = () => {
 
 /** In-room microphone control. Native exposes no selectable mic list. */
 export const JamMicSelector = () => {
+  const { t } = useTranslation();
   const { localParticipant, isMicrophoneEnabled } = useLocalParticipant();
 
   return (
     <DeviceSelectorPill
       enabled={isMicrophoneEnabled}
       onToggle={() =>
-        void localParticipant
+        localParticipant
           .setMicrophoneEnabled(!isMicrophoneEnabled)
-          .catch(() => undefined)
+          .catch((err: unknown) => {
+            // Surface mic-enable failures to the user instead of swallowing them.
+            console.warn('[jams:mic] setMicrophoneEnabled failed', err);
+            const denied =
+              MediaDeviceFailure.getFailure(err) ===
+              MediaDeviceFailure.PermissionDenied;
+            showMicToast(
+              denied
+                ? t('jams.mic.lobbyProbeFailed')
+                : t('jams.mic.enableFailed')
+            );
+          })
       }
       onIcon={MicIcon}
       offIcon={MicOffIcon}

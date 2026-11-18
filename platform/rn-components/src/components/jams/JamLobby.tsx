@@ -1,7 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  Alert,
+  AppState,
+  Linking,
+  Pressable,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { VideoView, useRoomContext } from '@livekit/react-native';
-import { createLocalVideoTrack, type LocalVideoTrack } from 'livekit-client';
+import {
+  createLocalAudioTrack,
+  createLocalVideoTrack,
+  type LocalVideoTrack,
+} from 'livekit-client';
 import { useTranslation } from 'react-i18next';
 import {
   type JamJoinParams,
@@ -69,6 +80,9 @@ const usePreviewTrack = (
  * authenticated users get a device-selection card: a centered card with a
  * square camera preview, mic/speaker/camera controls, and a join button.
  * Background blur is web-only (no track processor on React Native).
+ *
+ * When audio is enabled, a transient one-shot probe verifies mic access
+ * before the user joins (iOS permission prompt appears here, not mid-join).
  */
 export const JamLobby = ({ onJoin }: JamLobbyProps) => {
   const { t } = useTranslation();
@@ -86,13 +100,98 @@ export const JamLobby = ({ onJoin }: JamLobbyProps) => {
 
   const [settings, updateSettings] = useJamLocalSettings();
 
-  const [audioEnabled, setAudioEnabled] = useState(true);
+  const [audioEnabled, setAudioEnabled] = useState(settings.micEnabled);
   const [videoEnabled, setVideoEnabled] = useState(false);
   const [videoDeviceId, setVideoDeviceId] = useState('');
   const { devices: videoDevices } = useCameraDevices(useRoomContext());
   const speakerDevices = useAudioOutputs();
 
   const videoTrack = usePreviewTrack(videoEnabled, videoDeviceId, setError);
+
+  // Probe mic access when audio is enabled (mount and toggle-on). One alert per
+  // visit: a denied probe is remembered so every later probe only clears the
+  // stale error message instead of re-popping the alert.
+  const probingRef = useRef(false);
+  const probeRearmRef = useRef(false);
+  const permissionDeniedRef = useRef(false);
+  const probeMic = useCallback(
+    async (enabled: boolean) => {
+      if (!enabled || probingRef.current) return;
+      probingRef.current = true;
+      try {
+        const track = await createLocalAudioTrack();
+        track.stop();
+        setError(undefined);
+      } catch (err: unknown) {
+        console.warn('[jams:mic] lobby probe failed', err);
+        const denied =
+          err instanceof Error &&
+          (err.name === 'NotAllowedError' ||
+            err.name === 'PermissionDeniedError');
+        const firstDenial = denied && !permissionDeniedRef.current;
+        if (firstDenial) {
+          permissionDeniedRef.current = true;
+        }
+        setError(
+          denied ? t('jams.mic.lobbyProbeFailed') : t('jams.mic.enableFailed')
+        );
+        if (firstDenial) {
+          Alert.alert(
+            t('jams.mic.permissionTitle'),
+            t('jams.mic.permissionMessage'),
+            [
+              { text: t('common.actions.cancel'), style: 'cancel' },
+              {
+                text: t('media.permissions.openSettings'),
+                onPress: () => void Linking.openSettings(),
+              },
+            ]
+          );
+        }
+      } finally {
+        probingRef.current = false;
+        // A toggle-on during this probe re-arms it: run once more so the
+        // final "on" state is the one actually probed.
+        if (probeRearmRef.current) {
+          probeRearmRef.current = false;
+          void probeMic(true);
+        }
+      }
+    },
+    [t, setError]
+  );
+
+  useEffect(() => {
+    // Gate inside the effect: React runs effects even when the guest form is
+    // returned, so guests must not get an iOS mic prompt (review #2155).
+    if (!canAccess) return;
+    void probeMic(audioEnabled);
+  }, [canAccess, audioEnabled, probeMic]);
+
+  // After returning from Settings, `permissionDeniedRef` may still hold a stale
+  // denial: probe again on foreground (with the guard cleared) so a granted
+  // permission clears the error banner instead of leaving a stale message.
+  const appState = useRef(AppState.currentState);
+  useEffect(() => {
+    if (!audioEnabled || !canAccess) return;
+    const sub = AppState.addEventListener('change', (state) => {
+      if (appState.current.match(/inactive|background/) && state === 'active') {
+        permissionDeniedRef.current = false;
+        void probeMic(audioEnabled);
+      }
+      appState.current = state;
+    });
+    return () => sub.remove();
+  }, [canAccess, audioEnabled, probeMic]);
+
+  const handleAudioToggle = useCallback(() => {
+    const next = !audioEnabled;
+    setAudioEnabled(next);
+    updateSettings({ micEnabled: next });
+    // Re-arm only while a probe is in flight: otherwise the queued probe from
+    // the audioEnabled change already covers the final "on" state.
+    if (next && probingRef.current) probeRearmRef.current = true;
+  }, [audioEnabled, updateSettings]);
 
   if (!canAccess) {
     return <JamGuestForm />;
@@ -148,7 +247,7 @@ export const JamLobby = ({ onJoin }: JamLobbyProps) => {
           <View className="mt-4 w-full flex-row items-center justify-center gap-x-4">
             <DeviceSelectorPill
               enabled={audioEnabled}
-              onToggle={() => setAudioEnabled((on) => !on)}
+              onToggle={handleAudioToggle}
               onIcon={MicIcon}
               offIcon={MicOffIcon}
               deviceType="mic"

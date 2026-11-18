@@ -4,11 +4,17 @@ import { useCallback, useSyncExternalStore } from 'react';
  * Locally persisted jam preferences (speaker device + background blur), the
  * React counterpart to the Svelte `jamSettingsStore`. Kept in `localStorage`
  * so the lobby and the room agree on the chosen output device and blur state.
+ *
+ * `micEnabled` is the pre-join microphone preference: the default the lobby
+ * pill starts from and the value passed to the room at join time. In-room
+ * mute/unmute (e.g. via `JamMicSelector`) does not write this field — it
+ * only records the user's pre-join intent.
  */
 export interface JamLocalSettings {
   speakerDeviceId: string;
   speakerEnabled: boolean;
   blur: boolean;
+  micEnabled: boolean;
 }
 
 const STORAGE_KEY = 'openpeeps:jam-settings';
@@ -17,6 +23,7 @@ const defaults: JamLocalSettings = {
   speakerDeviceId: '',
   speakerEnabled: true,
   blur: false,
+  micEnabled: true,
 };
 
 const listeners = new Set<() => void>();

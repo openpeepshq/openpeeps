@@ -1140,7 +1140,13 @@
       "loadingDevices": "Verfügbare Geräte werden geladen…",
       "microphone": "Mikrofon",
       "camera": "Kamera",
-      "defaultSpeaker": "Standardlautsprecher"
+      "defaultSpeaker": "Standardlautsprecher",
+      "mic": {
+        "permissionTitle": "Mikrofonzugriff erforderlich",
+        "permissionMessage": "Diese App benötigt Mikrofonzugriff, damit Sie in Jams sprechen können. Bitte erteilen Sie die Mikrofonberechtigung in den Geräteeinstellungen und versuchen Sie es erneut.",
+        "enableFailed": "Mikrofon konnte nicht aktiviert werden. Bitte Berechtigungen prüfen und es erneut versuchen.",
+        "lobbyProbeFailed": "Mikrofonzugriff verweigert. Bitte erlauben Sie den Mikrofonzugriff in den Einstellungen."
+      }
     },
     "mobileMenu": {
       "inJamMessage": "Nachricht im Jam",
@@ -3058,6 +3064,9 @@
     "imageInput": {
       "maxSize": "Maximale Größe: {{size}}",
       "cropError": "Das Bild konnte nicht verarbeitet werden. Bitte versuchen Sie es erneut.",
+      "camera": {
+        "error": "Kamera konnte nicht geöffnet werden. Bitte Berechtigungen prüfen und es erneut versuchen."
+      },
       "uploadText": "Bild hochladen",
       "uploadTitle": "Bild hochladen",
       "replace": "Bild ersetzen",

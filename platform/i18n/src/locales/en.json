@@ -1145,7 +1145,13 @@
       "loadingDevices": "Loading available devices …",
       "microphone": "microphone",
       "camera": "camera",
-      "defaultSpeaker": "Default Speaker"
+      "defaultSpeaker": "Default Speaker",
+      "mic": {
+        "permissionTitle": "Microphone access required",
+        "permissionMessage": "This app needs microphone access to let you speak in Jams. Please grant microphone permission in your device settings, then try again.",
+        "enableFailed": "Unable to enable microphone. Check permissions and try again.",
+        "lobbyProbeFailed": "Microphone access denied. Please allow microphone access in Settings."
+      }
     },
     "mobileMenu": {
       "inJamMessage": "In-jam message",
@@ -2976,6 +2982,9 @@
     "imageInput": {
       "maxSize": "Max size: {{size}}",
       "cropError": "Couldn't process the image. Please try again.",
+      "camera": {
+        "error": "Couldn't open the camera. Please check permissions and try again."
+      },
       "uploadText": "Upload Image",
       "uploadTitle": "Upload Image",
       "replace": "Replace image",
