@@ -68,7 +68,9 @@ export const Tags = () => {
         variant={isFollowing ? 'outline' : 'default'}
         action={toggleFollow}
         disabled={toggling}
-        loadingContent={t('tags.following', { defaultValue: 'Following…' })}
+        loadingContent={t('tags.followingLoading', {
+          defaultValue: 'Following…',
+        })}
         title={
           isFollowing
             ? t('tags.unfollow', { defaultValue: 'Unfollow hashtag' })

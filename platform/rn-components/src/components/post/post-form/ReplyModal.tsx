@@ -22,7 +22,7 @@ export const ReplyModal = forwardRef<BottomSheetModal, ReplySheetProps>(
       <BaseSheet ref={ref} enableOverDrag={false}>
         <View className="flex-1 px-4 pt-2 pb-8">
           <ThemedText className="text-center text-xl tracking-wider font-semibold">
-            {t('posts.replies.title')}
+            {t('posts.replyModal.title')}
           </ThemedText>
           {post && (
             <ThreadPost

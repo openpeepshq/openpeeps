@@ -376,7 +376,8 @@
     "delete": {
       "confirm": "Möchten Sie diesen Beitrag wirklich löschen?",
       "success": "Beitrag gelöscht",
-      "error": "Beitrag konnte nicht gelöscht werden"
+      "error": "Beitrag konnte nicht gelöscht werden",
+      "deleting": "Wird gelöscht…"
     },
     "react": {
       "error": "Reaktion konnte nicht hinzugefügt werden"
@@ -590,15 +591,18 @@
     "reposted": "Geteilt",
     "unpinInGroup": {
       "title": "Von Gruppe lösen",
-      "success": "Der Beitrag ist nicht mehr in dieser Gruppe angepinnt"
+      "success": "Der Beitrag ist nicht mehr in dieser Gruppe angepinnt",
+      "error": "Beim Lösen dieses Beitrags aus der Gruppe ist ein Fehler aufgetreten"
     },
     "pinInGroup": {
       "success": "Dieser Beitrag wird oben in der Gruppe angepinnt",
-      "title": "In Gruppe anpinnen"
+      "title": "In Gruppe anpinnen",
+      "error": "Beim Anpinnen dieses Beitrags in der Gruppe ist ein Fehler aufgetreten"
     },
     "pinGlobally": {
       "success": "Der Beitrag ist jetzt oben im Community-Feed angepinnt",
-      "title": "Im Feed anpinnen"
+      "title": "Im Feed anpinnen",
+      "error": "Beim Anpinnen dieses Beitrags in den Feed ist ein Fehler aufgetreten"
     },
     "rsvp": {
       "attendingMessage": "Sie nehmen an dieser Veranstaltung teil",
@@ -2633,6 +2637,9 @@
     "close": "Schließen",
     "edit": "Bearbeiten",
     "you": "Sie",
+    "permissions": {
+      "required": "Erforderliche Berechtigung wurde nicht erteilt"
+    },
     "media": {
       "audioPlayer": "Audio-Player",
       "image": {
@@ -2645,6 +2652,10 @@
         "recents": "Zuletzt verwendet",
         "recordVideo": "Video aufnehmen",
         "chooseFromLibrary": "Aus Galerie wählen"
+      },
+      "audio": {
+        "record": "Audio aufnehmen",
+        "play": "Audio abspielen"
       },
       "send": "Senden",
       "sending": "Wird gesendet…",
@@ -2678,6 +2689,7 @@
   },
   "conversations": {
     "newMessage": "Neue Nachricht",
+    "selectMembers": "Mitglieder auswählen",
     "noMessages": "Keine Direktnachrichten vorhanden",
     "empty": "Keine Direktnachrichten vorhanden",
     "createNew": {
@@ -2992,7 +3004,8 @@
       "system": {
         "mode": "Betriebssystemeinstellungen verwenden"
       },
-      "updateSuccess": "Design-Einstellungen aktualisiert. Die Seite wird jetzt neu geladen."
+      "updateSuccess": "Design-Einstellungen gespeichert.",
+      "updateError": "Beim Speichern Ihrer Design-Einstellungen ist ein Fehler aufgetreten."
     },
     "language": {
       "title": "Spracheinstellungen",
@@ -3709,6 +3722,7 @@
   },
   "explore": {
     "enterSearchQuery": "Bitte geben Sie oben einen Suchbegriff ein",
+    "searchPlaceholder": "Suchen",
     "selectTab": "Wählen Sie einen Tab, um relevante Ergebnisse zu sehen",
     "SearchButton": "Suchen",
     "title": "Entdecken",
@@ -3915,7 +3929,9 @@
     "follow": "Hashtag folgen",
     "unfollow": "Nicht mehr folgen",
     "followed": "Sie folgen diesem Hashtag",
-    "notFollowing": "Folgen Sie diesem Hashtag, um Beiträge mit diesem Hashtag in Ihrem Feed zu sehen"
+    "notFollowing": "Folgen Sie diesem Hashtag, um Beiträge mit diesem Hashtag in Ihrem Feed zu sehen",
+    "following": "Folgt",
+    "followingLoading": "Folgt…"
   },
   "feed": {
     "empty": "Noch keine Beiträge.",

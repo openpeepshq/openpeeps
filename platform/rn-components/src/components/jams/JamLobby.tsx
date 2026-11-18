@@ -133,12 +133,14 @@ export const JamLobby = ({ onJoin }: JamLobbyProps) => {
           permissionDeniedRef.current = true;
         }
         setError(
-          denied ? t('jams.mic.lobbyProbeFailed') : t('jams.mic.enableFailed')
+          denied
+            ? t('jams.device.mic.lobbyProbeFailed')
+            : t('jams.device.mic.enableFailed')
         );
         if (firstDenial) {
           Alert.alert(
-            t('jams.mic.permissionTitle'),
-            t('jams.mic.permissionMessage'),
+            t('jams.device.mic.permissionTitle'),
+            t('jams.device.mic.permissionMessage'),
             [
               { text: t('common.actions.cancel'), style: 'cancel' },
               {

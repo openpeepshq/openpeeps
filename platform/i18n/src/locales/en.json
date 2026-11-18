@@ -376,7 +376,8 @@
     "delete": {
       "confirm": "Are you sure you want to delete this post?",
       "success": "Post deleted",
-      "error": "Failed to delete post"
+      "error": "Failed to delete post",
+      "deleting": "Deleting…"
     },
     "react": {
       "error": "Failed to react to post"
@@ -606,15 +607,18 @@
     "reposted": "Reposted",
     "unpinInGroup": {
       "title": "Unpin from group",
-      "success": "The post is no longer pinned to this group"
+      "success": "The post is no longer pinned to this group",
+      "error": "An error occurred while unpinning this post"
     },
     "pinInGroup": {
       "success": "This post will be pinned at the top of the group",
-      "title": "Pin to group"
+      "title": "Pin to group",
+      "error": "An error occurred while pinning this post to the group"
     },
     "pinGlobally": {
       "success": "The post is now pinned to the top of the Community feed",
-      "title": "Pin to feed"
+      "title": "Pin to feed",
+      "error": "An error occurred while pinning this post to the feed"
     },
     "rsvp": {
       "attendingMessage": "You are attending this event",
@@ -2551,6 +2555,9 @@
     "close": "Close",
     "edit": "Edit",
     "you": "You",
+    "permissions": {
+      "required": "Required permission not granted"
+    },
     "media": {
       "audioPlayer": "Audio Player",
       "image": {
@@ -2563,6 +2570,10 @@
         "recents": "Recents",
         "recordVideo": "Record video",
         "chooseFromLibrary": "Choose from library"
+      },
+      "audio": {
+        "record": "Record audio",
+        "play": "Play audio"
       },
       "send": "Send",
       "sending": "Sending…",
@@ -2596,6 +2607,7 @@
   },
   "conversations": {
     "newMessage": "New Message",
+    "selectMembers": "Select members",
     "noMessages": "No direct messages here",
     "sendError": "Failed to send message",
     "messageLog": "Messages",
@@ -2911,7 +2923,8 @@
       "system": {
         "mode": "Use my operating system settings"
       },
-      "updateSuccess": "Theme settings updated. The page will now reload."
+      "updateSuccess": "Theme settings saved.",
+      "updateError": "An error occurred while saving your theme settings."
     },
     "language": {
       "title": "Language Settings",
@@ -3627,6 +3640,7 @@
   },
   "explore": {
     "enterSearchQuery": "Please enter a search query above",
+    "searchPlaceholder": "Search",
     "selectTab": "Choose a tab to see relevant results",
     "SearchButton": "Search",
     "title": "Explore",
@@ -3812,7 +3826,9 @@
     "follow": "Follow hashtag",
     "unfollow": "Unfollow hashtag",
     "followed": "You're following this hashtag",
-    "notFollowing": "Follow this hashtag to see posts with it in your feed"
+    "notFollowing": "Follow this hashtag to see posts with it in your feed",
+    "following": "Following",
+    "followingLoading": "Following…"
   },
   "feed": {
     "empty": "No posts yet.",

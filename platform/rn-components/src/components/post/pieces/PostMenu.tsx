@@ -54,7 +54,7 @@ export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
   const [isBookmarkActionPending, setIsBookmarkActionPending] =
     React.useState(false);
   const [isFollowing, setIsFollowing] = React.useState(false);
-  const [repostsModalOpen, setRepostsModalOpen] = React.useState(false);
+  const [repostModalOpen, setRepostModalOpen] = React.useState(false);
   const [reactionsModalOpen, setReactionsModalOpen] = React.useState(false);
   const [historyModalOpen, setHistoryModalOpen] = React.useState(false);
 
@@ -139,7 +139,7 @@ export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
       setIsFollowing(true);
       Toast.show({
         type: 'success',
-        text1: t('profile.actions.followedSuccess'),
+        text1: t('profile.follow.followedSuccess'),
       });
     } else {
       Toast.show({ type: 'error', text1: t('profile.follow.error') });
@@ -152,7 +152,7 @@ export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
       setIsFollowing(false);
       Toast.show({
         type: 'success',
-        text1: t('profile.actions.unfollowedSuccess'),
+        text1: t('profile.follow.unfollowedSuccess'),
       });
     } else {
       Toast.show({ type: 'error', text1: t('profile.follow.error') });
@@ -296,7 +296,7 @@ export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
           title={t('posts.menu.reposts', { defaultValue: 'Reposts' })}
           text={t('posts.menu.reposts', { defaultValue: 'Reposts' })}
           icon={Repeat2Icon}
-          action={() => setRepostsModalOpen(true)}
+          action={() => setRepostModalOpen(true)}
         />
         <PopupMenuButton
           title={t('posts.menu.reactions', { defaultValue: 'Reactions' })}
@@ -467,17 +467,21 @@ export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
         ) : null}
       </PopupMenu>
 
-      <RepostModal
-        reposts={post.reposts ?? []}
-        repostCount={post.repostCount ?? 0}
-        open={repostsModalOpen}
-        onClose={() => setRepostsModalOpen(false)}
-      />
-      <ReactionsModal
-        reactions={post.reactions ?? []}
-        open={reactionsModalOpen}
-        onClose={() => setReactionsModalOpen(false)}
-      />
+      {repostModalOpen && (
+        <RepostModal
+          open
+          reposts={post.reposts ?? []}
+          repostCount={post.repostCount ?? 0}
+          onClose={() => setRepostModalOpen(false)}
+        />
+      )}
+      {reactionsModalOpen && (
+        <ReactionsModal
+          open
+          reactions={post.reactions ?? []}
+          onClose={() => setReactionsModalOpen(false)}
+        />
+      )}
       {showEditHistory ? (
         <PostEditHistoryModal
           post={post}

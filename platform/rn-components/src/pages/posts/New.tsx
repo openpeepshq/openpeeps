@@ -273,7 +273,7 @@ export const NewPost = ({ route, navigation }: PostProps) => {
         isPosting
           ? t('posts.create.loading')
           : attachmentsProcessing
-            ? t('posts.create.processing', 'Processing…')
+            ? t('form.upload.processing')
             : t('posts.create.submit')
       }
       onPress={() => void handlePostCreation()}

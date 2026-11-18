@@ -59,17 +59,21 @@ export const FeedPostStats = ({ post }: FeedPostStatsProps) => {
         </View>
       </View>
 
-      <ReactionsModal
-        reactions={post.reactions ?? []}
-        open={modal === 'reactions'}
-        onClose={() => setModal(null)}
-      />
-      <RepostModal
-        reposts={post.reposts ?? []}
-        repostCount={post.repostCount ?? 0}
-        open={modal === 'reposts'}
-        onClose={() => setModal(null)}
-      />
+      {modal === 'reactions' && (
+        <ReactionsModal
+          open
+          reactions={post.reactions ?? []}
+          onClose={() => setModal(null)}
+        />
+      )}
+      {modal === 'reposts' && (
+        <RepostModal
+          open
+          reposts={post.reposts ?? []}
+          repostCount={post.repostCount ?? 0}
+          onClose={() => setModal(null)}
+        />
+      )}
     </>
   );
 };

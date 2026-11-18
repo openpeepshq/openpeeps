@@ -14,6 +14,8 @@ pnpm add @openpeepshq/rn-components
 
 Wrap your app with **`OpenpeepsProvider`** from `@openpeepshq/rn-components` (and a credentials store + `baseUrl`) so `useOpenpeeps()` and theme code work. This re-exports the web provider from `@openpeepshq/react` with React Native `AppState` foreground handling wired in — do not import `OpenpeepsProvider` from `@openpeepshq/react` in native apps.
 
+Also mount **`BottomSheetModalProvider`** from `@gorhom/bottom-sheet` **once at the app root** (e.g. inside your root navigator). Every sheet in this package (`BaseSheet`-based modals) is a gorhom `BottomSheetModal` and silently fails to present without it.
+
 Configure **NativeWind** / Tailwind in the app (include this package in Tailwind `content`), load `src/global.css` from your entry, and supply **`react-native-config`** (or compatible env) for `BASE_URL` and related keys.
 
 Wrap Metro with **`withOpenPeepsMetro`** (outside `withNativeWind`) so css-interop observables defer on React 19 and `react-native-sound` 0.11.x can `require()` RN 0.80+ `resolveAssetSource`. Hosts should not patch `react-native-css-interop` or `react-native-sound`.

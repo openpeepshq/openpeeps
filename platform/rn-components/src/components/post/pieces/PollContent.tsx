@@ -72,7 +72,7 @@ export const PollContent = ({ post }: Props) => {
     } else {
       Toast.show({
         type: 'error',
-        text1: t('posts.poll.selectOption'),
+        text1: t('posts.vote.selectOption'),
       });
     }
   };

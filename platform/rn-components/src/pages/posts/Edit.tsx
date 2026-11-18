@@ -127,7 +127,7 @@ export const EditPost = ({ route, navigation }: PostProps) => {
         isPosting
           ? t('posts.edit.loading')
           : attachmentsProcessing
-            ? t('posts.create.processing', 'Processing…')
+            ? t('form.upload.processing')
             : t('posts.edit.submit')
       }
       onPress={() => void handlePostUpdate()}

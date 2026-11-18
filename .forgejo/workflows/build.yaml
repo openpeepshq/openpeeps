@@ -893,6 +893,8 @@ jobs:
           ref: ${{ needs.set-variables.outputs.full_sha }}
       - name: Locale parity (required on all branches)
         run: node scripts/check-i18n-parity.mjs --strict
+      - name: i18n usage scan (code keys must exist in locales)
+        run: node scripts/i18n-usage-scan.mjs --strict
 
   lint:
     if: needs.set-variables.outputs.is_release_branch == 'false'

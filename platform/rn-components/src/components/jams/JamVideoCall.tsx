@@ -107,8 +107,8 @@ export const JamVideoCall = ({
   const showMicPermissionAlert = useCallback(() => {
     showMicPermissionAlertModule(() =>
       Alert.alert(
-        t('jams.mic.permissionTitle'),
-        t('jams.mic.permissionMessage'),
+        t('jams.device.mic.permissionTitle'),
+        t('jams.device.mic.permissionMessage'),
         [
           { text: t('common.actions.cancel'), style: 'cancel' },
           { text: t('media.permissions.openSettings'), onPress: openSettings },
@@ -136,7 +136,7 @@ export const JamVideoCall = ({
         return;
       }
       console.warn('[jams:mic] mic permission denied', error);
-      showMicToast(t('jams.mic.lobbyProbeFailed'));
+      showMicToast(t('jams.device.mic.lobbyProbeFailed'));
       showMicPermissionAlert();
     },
     [t, showMicPermissionAlert]
@@ -153,8 +153,8 @@ export const JamVideoCall = ({
       console.warn('[jams:mic] media device failure', kind, failure);
       showMicToast(
         failure === MediaDeviceFailure.PermissionDenied
-          ? t('jams.mic.lobbyProbeFailed')
-          : t('jams.mic.enableFailed')
+          ? t('jams.device.mic.lobbyProbeFailed')
+          : t('jams.device.mic.enableFailed')
       );
       if (failure === MediaDeviceFailure.PermissionDenied) {
         showMicPermissionAlert();

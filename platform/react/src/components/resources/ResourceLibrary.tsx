@@ -394,7 +394,6 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
         {library.posts.length > 0 ? (
           <p className="text-muted-foreground text-xs">
             {t('resources.library.resourceCount', {
-              defaultValue: 'Showing {{count}} resources',
               count: library.posts.length,
             })}
           </p>

@@ -246,13 +246,13 @@ export const ReplyPost = ({ route, navigation }: PostProps) => {
   }, [t]);
 
   useSetPageHeader(
-    t('posts.reply.title', { defaultValue: 'Reply' }),
+    t('posts.replyModal.title'),
     <HeaderActionButton
       title={
         isPosting
           ? t('posts.create.loading')
           : attachmentsProcessing
-            ? t('posts.create.processing', 'Processing…')
+            ? t('form.upload.processing')
             : t('posts.create.submit')
       }
       onPress={() => void handlePostCreation()}

@@ -35,7 +35,7 @@ export const ConversationInfo = ({ route }: ConversationInfoProps) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
 
-  useSetPageHeader(t('conversations.info'));
+  useSetPageHeader(t('conversations.info.title'));
 
   return (
     <ThemedView className="flex-1">

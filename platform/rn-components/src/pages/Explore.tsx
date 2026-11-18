@@ -64,9 +64,7 @@ export const Explore: React.FC<ExploreScreenProps> = ({ navigation }) => {
       <View className="max-w-[200px] flex-row items-center">
         <Input
           className="flex-1"
-          placeholder={t('explore.searchPlaceholder', {
-            defaultValue: 'Search',
-          })}
+          placeholder={t('explore.searchPlaceholder')}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />

@@ -46,7 +46,7 @@ export const NewConversation = ({
   }, [currentProfile, allProfiles, searchQuery]);
 
   useSetPageHeader(
-    t('conversations.selectMembers', { defaultValue: 'Select Members' }),
+    t('conversations.selectMembers'),
     <HeaderActionButton
       title={t('common.next', { defaultValue: 'Next' })}
       onPress={() => navigation.navigate('DraftMessage')}

@@ -195,8 +195,8 @@ export const JamMicSelector = () => {
               MediaDeviceFailure.PermissionDenied;
             showMicToast(
               denied
-                ? t('jams.mic.lobbyProbeFailed')
-                : t('jams.mic.enableFailed')
+                ? t('jams.device.mic.lobbyProbeFailed')
+                : t('jams.device.mic.enableFailed')
             );
           })
       }
