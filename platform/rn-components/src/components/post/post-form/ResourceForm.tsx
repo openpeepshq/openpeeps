@@ -220,7 +220,8 @@ export const ResourceForm = ({
           </>
         ) : (
           <>
-            {/* Only galleries take more than one file; other kinds pick once. */}
+            {/* Every image pick is single-file so the crop/alt-text dialog
+            shows for every image; galleries stay open for further picks (#1789). */}
             {resource.resourceKind === 'gallery' ||
             (resource.attachments ?? []).length === 0 ? (
               <Pressable
@@ -347,7 +348,6 @@ export const ResourceForm = ({
         ) : null}
       </View>
       <ImagePickerSheet ref={imageRef} onSelect={addAttachments} />
-      {/* Only galleries take more than one file; other kinds pick one. */}
       <VideoPickerSheet
         ref={videoRef}
         multiple={false}

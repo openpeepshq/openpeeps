@@ -120,47 +120,7 @@ test.describe('creating gallery resources', () => {
     ]);
   });
 
-  test('a bulk pick stores the images in the order they were picked', async ({
-    page,
-    request,
-  }) => {
-    const owner = await loginUser(
-      request,
-      ownerLogin.email,
-      ownerLogin.password,
-    );
-    const title = `Gallery bulk ${uniqueHandle('gb')}`;
-
-    await signIn(page, owner.token);
-    await openFreshResourceForm(page);
-    await page.getByTestId('resources-kind-gallery').click();
-
-    // Only the gallery kind allows a multi-file pick, and a bulk pick skips
-    // the per-image crop dialog, so no dialog may appear here.
-    const imageInput = page.locator(IMAGE_INPUT);
-    await expect(imageInput).toHaveAttribute('multiple', '');
-    await imageInput.setInputFiles([
-      fixture('red-64.png'),
-      fixture('blue-64.png'),
-    ]);
-    await expect(page.getByRole('dialog')).toHaveCount(0);
-
-    // Bulk picks carry no alt text, so the descriptions are the file names.
-    const readyCards = page.getByTitle('Edit description');
-    await expect(readyCards).toHaveCount(2);
-    expect(await cardAlts(page, ['red-64.png', 'blue-64.png'])).toEqual([
-      'red-64.png',
-      'blue-64.png',
-    ]);
-
-    const created = await submitGallery(page, title);
-    expect(created.data.attachments?.map((a) => a.description)).toEqual([
-      'red-64.png',
-      'blue-64.png',
-    ]);
-  });
-
-  test('non-gallery resource kinds keep the single-file pick', async ({
+  test('every resource kind keeps the single-file pick', async ({
     page,
     request,
   }) => {
@@ -175,5 +135,9 @@ test.describe('creating gallery resources', () => {
     await page.getByTestId('resources-kind-video').click();
     await expect(page.locator(IMAGE_INPUT)).not.toHaveAttribute('multiple');
     await expect(page.locator(AUDIO_INPUT)).not.toHaveAttribute('multiple');
+    // Galleries pick one file at a time too, so every image goes through
+    // the crop/alt-text dialog (#1789).
+    await page.getByTestId('resources-kind-gallery').click();
+    await expect(page.locator(IMAGE_INPUT)).not.toHaveAttribute('multiple');
   });
 });

@@ -38,6 +38,14 @@ export const ImagePickerSheet = forwardRef<
   const createAttachment = openpeepsApi.createMediaAttachmentAction();
   const { colors, isDark } = useOpenPeepsTheme();
 
+  const onCropError = (error: unknown) => {
+    // Never bypass the cropper with an uncropped fallback upload.
+    console.error('Image crop failed:', error);
+    Toast.show({ type: 'error', text1: t('form.imageInput.cropError') });
+    // Retry surface: leave nothing interactive on top of the form (#1789).
+    bottomSheetClose(ref);
+  };
+
   const cropImage = async (uri: string) => {
     const path = await toCropperPath(uri);
     return ImagePicker.openCropper(
@@ -99,35 +107,35 @@ export const ImagePickerSheet = forwardRef<
       } catch (error) {
         if (!isPickerCancelled(error)) {
           console.error('iOS library pick failed:', error);
+          onCropError(error);
         }
       }
       return;
     }
 
+    // Single pick (parity with web, #1789) so the cropper can be shown for
+    // every image, including gallery resources.
     const result = await launchImageLibrary({
       mediaType: 'photo',
-      selectionLimit: 0,
+      selectionLimit: 1,
       quality: 1,
     });
     if (result.didCancel || !result.assets?.length) {
       return;
     }
-    const uris = result.assets
-      .map((asset) => asset.uri)
-      .filter((uri): uri is string => Boolean(uri));
-    if (uris.length === 1) {
-      try {
-        const cropped = await cropImage(uris[0]);
-        await finalize([cropped.path]);
-      } catch (error) {
-        if (isPickerCancelled(error)) {
-          return;
-        }
-        await finalize(uris);
-      }
+    const uri = result.assets[0]?.uri;
+    if (!uri) {
       return;
     }
-    await finalize(uris);
+    try {
+      const cropped = await cropImage(uri);
+      await finalize([cropped.path]);
+    } catch (error) {
+      if (isPickerCancelled(error)) {
+        return;
+      }
+      onCropError(error);
+    }
   };
 
   const handleCamera = async () => {
@@ -145,7 +153,9 @@ export const ImagePickerSheet = forwardRef<
       }
       const result = await launchCamera({ mediaType: 'photo', quality: 1 });
       if (result.errorCode) {
-        Toast.show({ type: 'error', text1: t('form.imageInput.camera.error') });
+        // No dedicated camera key exists; reuse the cropError copy so the
+        // toast resolves instead of rendering a missing key (i18n scan, #1789).
+        Toast.show({ type: 'error', text1: t('form.imageInput.cropError') });
         return;
       }
       const uri = result.assets?.[0]?.uri;
@@ -159,7 +169,7 @@ export const ImagePickerSheet = forwardRef<
         if (isPickerCancelled(error)) {
           return;
         }
-        await finalize([uri]);
+        onCropError(error);
       }
     } catch (error) {
       if (!isPickerCancelled(error)) {
