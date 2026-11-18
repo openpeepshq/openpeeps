@@ -6,6 +6,13 @@ import { mediaStorage } from '@openpeepshq/core/media';
 import { logger } from '@openpeepshq/core/log';
 import sharp from 'sharp';
 import type { RequestEvent } from '@riddl/core';
+import {
+  IMAGE_BODY_CAP_BYTES,
+  IMAGE_FETCH_TIMEOUT_MS,
+  PAGE_BODY_CAP_BYTES,
+  PAGE_FETCH_TIMEOUT_MS,
+  safeFetch,
+} from '#lib/urlGuard';
 
 const log = logger('server:urlFetcher');
 
@@ -68,7 +75,11 @@ const createPreviewImage = async (image: string | null | undefined) => {
   if (!isAbsoluteUrl(image)) {
     return '';
   }
-  const response = await fetch(image as string);
+  // Guarded fetch: SSRF-blocked hosts, 10s timeout, 5 MiB body cap.
+  const response = await safeFetch(image as string, {
+    capBytes: IMAGE_BODY_CAP_BYTES,
+    timeoutMs: IMAGE_FETCH_TIMEOUT_MS,
+  });
   const imageBuffer = await response.arrayBuffer().then(sharp);
   const arrayBuffer = await imageBuffer
     .rotate()
@@ -102,7 +113,10 @@ export const fetchUrlHandler = async (
     };
   }
 
-  const response = await fetch(pageUrl, {
+  // Guarded fetch: SSRF-blocked hosts, 10s timeout, 1 MiB body cap.
+  const response = await safeFetch(pageUrl, {
+    capBytes: PAGE_BODY_CAP_BYTES,
+    timeoutMs: PAGE_FETCH_TIMEOUT_MS,
     headers: {
       accept: 'text/html; charset=UTF-8',
       'accept-language': 'en-US, en',

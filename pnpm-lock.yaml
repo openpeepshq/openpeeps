@@ -1614,6 +1614,9 @@ importers:
       sharp:
         specifier: 0.35.5
         version: 0.35.5(@types/node@22.19.17)
+      undici:
+        specifier: 7.30.2
+        version: 7.30.2
       uuidv7:
         specifier: ^1.0.2
         version: 1.0.2
