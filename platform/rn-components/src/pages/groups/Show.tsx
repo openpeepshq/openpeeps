@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -50,7 +50,7 @@ export const GroupShow = ({ route, navigation }: GroupProps) => {
   const { t } = useTranslation();
   const currentProfile = useCurrentProfile();
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const { id, handle, tab: tabParam } = route.params;
+  const { id, handle, tab: tabParam, category } = route.params;
   const [tab, setTab] = useState<GroupSection>(() =>
     groupSectionFromHash(tabParam ? `#${tabParam}` : '')
   );
@@ -59,8 +59,31 @@ export const GroupShow = ({ route, navigation }: GroupProps) => {
     if (!tabParam) return;
     setTab(groupSectionFromHash(`#${tabParam}`));
   }, [tabParam]);
+
+  // The incoming params fully replace any previous ones (StackRouter navigate
+  // semantics): when a later navigation omits `tab`/`category`, drop the
+  // previous values instead of merging them into the new visit.
+  useEffect(() => {
+    if (tabParam === undefined && category === undefined) {
+      navigation.setParams({ tab: undefined, category: undefined });
+      return;
+    }
+    if (!tabParam) setTab(groupSectionFromHash(''));
+  }, [tabParam, category, navigation]);
+
   const groupById = openpeepsApi.useGroup(id || '');
   const groupByHandle = openpeepsApi.useGroupByHandle(handle || '');
+
+  // Mirror the folder into the route params so a later navigation with the
+  // same folder re-applies the seed (see the Resources tab write-back).
+  const onCategoryChange = useCallback(
+    (path: string[]) => {
+      navigation.setParams({
+        category: path.length ? [...path] : undefined,
+      });
+    },
+    [navigation]
+  );
 
   const group = id ? groupById.data : groupByHandle.data;
   const isLoading = id ? groupById.isLoading : groupByHandle.isLoading;
@@ -185,7 +208,11 @@ export const GroupShow = ({ route, navigation }: GroupProps) => {
                 />
               </TabsContent>
               <TabsContent value="resources" className="p-0">
-                <ResourceLibrary groupId={group.id} />
+                <ResourceLibrary
+                  groupId={group.id}
+                  categoryPath={category}
+                  onCategoryChange={onCategoryChange}
+                />
               </TabsContent>
               <TabsContent value="description" className="p-2">
                 <GroupInfoAsComponent id={group.id} />

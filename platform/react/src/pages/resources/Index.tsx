@@ -7,12 +7,13 @@ import {
   useSetPlusButtonActions,
   useAuthData,
 } from '../../index';
-import { useNavigate } from '../../contexts/router';
+import { useNavigate, useRouter } from '../../contexts/router';
 import { ResourceLibrary } from '../../components/resources/ResourceLibrary';
 import { getNewPostStores } from '../../stores';
 
 export const ResourcesIndex = () => {
   const t = useT();
+  const router = useRouter();
   const navigate = useNavigate();
   const authData = useAuthData();
   const canCreate = canCreatePostTypeIgnoringScopes(authData, 'resource');
@@ -41,5 +42,19 @@ export const ResourcesIndex = () => {
     'resources-page-heading',
   );
 
-  return <ResourceLibrary />;
+  // Kept stable so ResourceLibrary.changeCategory (deps include
+  // onCategoryChange) does not get a new identity every render.
+  const onCategoryChange = useCallback(
+    (path: string[]) => {
+      const next = new URLSearchParams(router.searchParams);
+      next.delete('category');
+      for (const segment of path) {
+        if (segment) next.append('category', segment);
+      }
+      router.setSearchParams(next, { replace: true });
+    },
+    [router],
+  );
+
+  return <ResourceLibrary onCategoryChange={onCategoryChange} />;
 };

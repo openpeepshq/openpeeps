@@ -7,6 +7,17 @@ import {
 const groupPath = (handle: string) =>
   handle.startsWith('@') ? `/groups/${handle}` : `/groups/@${handle}`;
 
+/** Encode a folder path as repeated `?category=` params (see plan: URL encoding). */
+const categorySearch = (category?: string[]) => {
+  if (!category?.length) return '';
+  const params = new URLSearchParams();
+  for (const segment of category) {
+    if (segment) params.append('category', segment);
+  }
+  const query = params.toString();
+  return query ? `?${query}` : '';
+};
+
 /**
  * Maps {@link NavTarget} values to the current OpenPeeps web path scheme.
  */
@@ -43,6 +54,16 @@ export const createWebNavigator = (): Navigator => ({
         if (target.view === 'edit-info') return `${base}/edit/info`;
         if (target.view === 'edit-roles') return `${base}/edit/roles`;
         if (target.view === 'members') return `${base}/members`;
+        // A folder target implies the group's resources tab, even if the caller
+        // omitted `section`; defaulting here keeps web parity with nativeRouter,
+        // which routes `category` to the resources tab. Encoding is centralized
+        // in the navigator; the `?category=` params are decoded in the screens
+        // (via `useSearchParams`), not in `match()` — there is no `match()`
+        // round-trip for group-category URLs, mirroring how `?kind`/`?tags`/`?q`
+        // already work.
+        if (target.section === 'resources' || target.category?.length) {
+          return `${base}${categorySearch(target.category)}#resources`;
+        }
         return base;
       }
       case 'groups':
@@ -73,7 +94,7 @@ export const createWebNavigator = (): Navigator => ({
       case 'resources': {
         if (target.view === 'new') return '/resources/new';
         if (target.resourceId) return `/resources/${target.resourceId}/edit`;
-        return '/resources';
+        return `/resources${categorySearch(target.category)}`;
       }
       case 'members':
         return '/members';

@@ -8,18 +8,21 @@ import {
 import type { ResourceKind } from '@openpeepshq/common/types';
 import { RESOURCE_KINDS, categoryPathKey } from '@openpeepshq/common/lib';
 import { Button, Input, LoadingSpinner } from '@openpeepshq/react-ui';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useT } from '../../i18n';
 import { useHrefOf, useRouter, useSearchParams } from '../../contexts/router';
-import {
-  useResourceLibrary,
-  type ResourceLibraryInitialFilters,
-} from '../../hooks';
+import { useResourceLibrary } from '../../hooks';
 import { ResourceCard } from './ResourceCard';
 import type { CategoryNode } from '@openpeepshq/common/lib';
 
 export interface ResourceLibraryProps {
   groupId?: string;
+  /**
+   * Called on every in-library folder change (including resets). The entry
+   * page keeps its URL mirror (`?category=…`) in sync through this callback
+   * so a re-navigation with the same folder still re-applies it.
+   */
+  onCategoryChange?: (path: string[]) => void;
 }
 
 const COLLECTION_LIMIT = 5;
@@ -112,15 +115,21 @@ const Tree = ({
   </ul>
 );
 
-export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
+export const ResourceLibrary = ({
+  groupId,
+  onCategoryChange,
+}: ResourceLibraryProps) => {
   const t = useT();
   const hrefOf = useHrefOf();
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Read the URL once on mount: it seeds the filter state, after which the
-  // hook state is the source of truth and the URL a shareable mirror of it.
-  const initialFilters = useMemo<ResourceLibraryInitialFilters>(
+  // Read the URL once on mount for the non-folder filters (kind/tags/q);
+  // after that the hook state is the source of truth and the URL a shareable
+  // mirror. The folder (category) is re-read from the URL on every change and
+  // passed straight through, so a deep-link that arrives while the screen is
+  // already mounted reaches the hook's re-apply effect.
+  const mountFilters = useMemo(
     () => ({
       kind: parseKindFilter(searchParams.get('kind')),
       tags: searchParams.get('tags')?.split(',').filter(Boolean),
@@ -128,7 +137,26 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
     }),
     [],
   );
-  const library = useResourceLibrary(groupId, undefined, initialFilters);
+  // `?category=` (empty segment) is a no-op filter, not "hide all" — drop it
+  // so a truncated/shared URL doesn't blank the grid. Same guard as tags.
+  const categoryPath = useMemo(
+    () => searchParams.getAll('category').filter(Boolean),
+    [searchParams],
+  );
+  const library = useResourceLibrary(groupId, undefined, {
+    ...mountFilters,
+    pathPrefix: categoryPath,
+  });
+
+  // Route in-library folder changes through here so the entry page can keep
+  // its URL/params mirror in sync on every change (including resets).
+  const changeCategory = useCallback(
+    (path: string[]) => {
+      library.setPathPrefix(path);
+      onCategoryChange?.(path);
+    },
+    [library, onCategoryChange],
+  );
 
   // Keep a fresh view of the URL so the write-back below can skip no-ops.
   const latestSearch = useRef(searchParams);
@@ -136,17 +164,25 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
     latestSearch.current = searchParams;
   });
 
-  // Shareable filters (?kind= &tags=a,b &q=): merged into the existing params
-  // so unrelated ones (e.g. ?category=) and the tab hash survive, written
-  // with replace so filter changes don't spam the history stack, and
-  // debounced so typing a search doesn't re-route on every keystroke.
+  // Shareable filters (?kind= &tags=a,b &q= &category=…): merged into the
+  // existing params so unrelated ones survive, written with replace so
+  // filter changes don't spam the history stack, and debounced so typing a
+  // search doesn't re-route on every keystroke. A deep-link that re-applies a
+  // seeded folder (the hook's re-apply effect) leaves state matching the URL,
+  // so the no-op check below skips it and never rewrites that history entry.
   useEffect(() => {
     const timer = setTimeout(() => {
       const prev = latestSearch.current;
       const next = new URLSearchParams(prev);
+      next.delete('category');
       next.delete('kind');
       next.delete('tags');
       next.delete('q');
+      // Category segments first so the folder a user shared keeps its place
+      // (and ordering) even when other filters change.
+      for (const segment of library.pathPrefix) {
+        if (segment) next.append('category', segment);
+      }
       if (library.kind !== 'all') next.set('kind', library.kind);
       if (library.selectedTags.length > 0) {
         next.set('tags', library.selectedTags.join(','));
@@ -157,7 +193,13 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
       router.setSearchParams(next, { replace: true });
     }, 250);
     return () => clearTimeout(timer);
-  }, [library.kind, library.selectedTags, library.search, router]);
+  }, [
+    library.kind,
+    library.selectedTags,
+    library.search,
+    library.pathPrefix,
+    router,
+  ]);
 
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
@@ -306,7 +348,8 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
             <button
               type="button"
               className="text-muted-foreground hover:text-foreground"
-              onClick={() => library.setPathPrefix([])}
+              onClick={() => changeCategory([])}
+              data-testid="resources-category-reset"
             >
               All
             </button>
@@ -338,7 +381,7 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
                 <Tree
                   nodes={treeNodes}
                   selected={library.pathPrefix}
-                  onSelect={library.setPathPrefix}
+                  onSelect={changeCategory}
                   counts={collectionCounts}
                   expanded={expanded}
                   onToggle={toggleNode}
@@ -426,7 +469,12 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
               href={hrefOf({ type: 'post', id: post.id })}
               className="block"
             >
-              <ResourceCard post={post} layout="list" inGroup={!!groupId} />
+              <ResourceCard
+                post={post}
+                layout="list"
+                inGroup={!!groupId}
+                onSelectCategory={changeCategory}
+              />
             </a>
           ))}
         </div>
@@ -438,7 +486,12 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
               href={hrefOf({ type: 'post', id: post.id })}
               className="block"
             >
-              <ResourceCard post={post} layout="card" inGroup={!!groupId} />
+              <ResourceCard
+                post={post}
+                layout="card"
+                inGroup={!!groupId}
+                onSelectCategory={changeCategory}
+              />
             </a>
           ))}
         </div>

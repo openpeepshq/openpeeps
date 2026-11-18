@@ -332,3 +332,77 @@ describe('CategoryPathPicker RN parity', () => {
     expect(onChange).toHaveBeenCalledWith(['[TEST] A', 'B']);
   });
 });
+
+describe('ResourceLibrary category routing through onCategoryChange (issue #1750)', () => {
+  const onCategoryChange = jest.fn();
+
+  const renderWithCallback = (onCategoryChange?: (path: string[]) => void) =>
+    render(
+      React.createElement(ResourceLibrary, {
+        onCategoryChange,
+      } as ResourceLibraryProps)
+    );
+
+  const pressText = (
+    tree: ReturnType<typeof ReactTestRenderer.create>,
+    text: string
+  ) => {
+    const node = pressables(tree).find((node: { children?: unknown }) =>
+      textOf(node).startsWith(text)
+    );
+    expect(node).toBeTruthy();
+    ReactTestRenderer.act(() => {
+      (node as { props: { onPress: () => void } }).props.onPress();
+    });
+  };
+
+  // Two Pressables render text "All": the kind-filter pill (first) and the
+  // breadcrumb "All" (last). The react-native mock drops `className`, so the
+  // breadcrumb is selected as the last bare-"All" pressable.
+  const pressBreadcrumbAll = (
+    tree: ReturnType<typeof ReactTestRenderer.create>
+  ) => {
+    const alls = pressables(tree).filter(
+      (n: { children?: unknown }) => textOf(n) === 'All'
+    );
+    const node = alls[alls.length - 1];
+    expect(node).toBeTruthy();
+    ReactTestRenderer.act(() => {
+      (node as { props: { onPress: () => void } }).props.onPress();
+    });
+  };
+
+  beforeEach(() => {
+    mockTranslations = {};
+    mockLibrary = libraryFor([]);
+    (mockLibrary.setPathPrefix as jest.Mock).mockClear();
+  });
+
+  afterEach(() => {
+    onCategoryChange.mockClear();
+  });
+
+  // The "All" breadcrumb used to call `library.setPathPrefix([])` directly,
+  // bypassing the params mirror, so the entry page's seed went stale and a
+  // later navigation with the same folder silently did not re-apply.
+  it('routes the real "All" breadcrumb press through onCategoryChange', () => {
+    const tree = renderWithCallback(onCategoryChange);
+    pressBreadcrumbAll(tree);
+    const setPathPrefix = mockLibrary.setPathPrefix as jest.Mock;
+    expect(setPathPrefix).toHaveBeenCalledWith([]);
+    expect(onCategoryChange).toHaveBeenCalledWith([]);
+    tree.unmount();
+  });
+
+  // The folder tree used to call `library.setPathPrefix` directly; selecting
+  // a folder now also mirrors into the params so a re-navigation re-applies.
+  it('routes a real folder-tree press through onCategoryChange', () => {
+    const tree = renderWithCallback(onCategoryChange);
+    pressLabel(tree, 'Expand folder');
+    pressText(tree, '[TEST] A/B');
+    const setPathPrefix = mockLibrary.setPathPrefix as jest.Mock;
+    expect(setPathPrefix).toHaveBeenCalledWith(['[TEST] A/B']);
+    expect(onCategoryChange).toHaveBeenCalledWith(['[TEST] A/B']);
+    tree.unmount();
+  });
+});

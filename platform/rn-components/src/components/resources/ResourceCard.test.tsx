@@ -21,10 +21,17 @@ jest.mock('react-native', () => ({
     children?: unknown;
     onPress?: () => void;
     disabled?: boolean;
+    accessibilityLabel?: string;
+    accessibilityRole?: string;
   }) =>
     React.createElement(
       'Pressable',
-      { onPress: props.onPress, disabled: props.disabled },
+      {
+        onPress: props.onPress,
+        disabled: props.disabled,
+        accessibilityLabel: props.accessibilityLabel,
+        accessibilityRole: props.accessibilityRole,
+      },
       props.children
     ),
   Linking: { openURL: jest.fn() },
@@ -36,8 +43,11 @@ jest.mock('react-i18next', () => ({
   }),
 }));
 
+let mockNavigate: (target: string, params?: Record<string, unknown>) => void;
 jest.mock('@react-navigation/native', () => ({
-  useNavigation: () => ({ navigate: jest.fn() }),
+  useNavigation: () => ({
+    navigate: (...args: unknown[]) => mockNavigate(...args),
+  }),
 }));
 
 jest.mock('@openpeepshq/common/lib', () => {
@@ -138,6 +148,7 @@ const EN = {
   'resources.actions.watch': 'Watch',
   'resources.kinds.file': 'File',
   'resources.kinds.video': 'Video',
+  'resources.library.openCategory': 'Show resources in {{name}}',
 };
 
 // German stand-in: the translated label never equals the English copy.
@@ -217,6 +228,7 @@ const actionTexts = (tree: ReturnType<typeof ReactTestRenderer.create>) =>
 describe('ResourceCard list-layout actions', () => {
   beforeEach(() => {
     mockTranslations = EN;
+    mockNavigate = jest.fn();
     Linking.openURL.mockClear();
   });
 
@@ -269,6 +281,151 @@ describe('ResourceCard list-layout actions', () => {
     const tree = renderCard(linkPost);
     expect(enabledPressables(tree)).toHaveLength(0);
     expect(actionTexts(tree)).not.toContain('Download');
+    tree.unmount();
+  });
+});
+
+const textOf = (node: unknown): string => {
+  const props = (node as { props?: { children?: unknown } }).props;
+  if (!props) return '';
+  return React.Children.toArray(props.children ?? [])
+    .map((child) =>
+      typeof child === 'string' ? child : textOf(child as unknown)
+    )
+    .join('');
+};
+
+const renderCardWith = (
+  post: ResourceCardProps['post'],
+  props: Record<string, unknown>
+) => {
+  let tree: ReturnType<typeof ReactTestRenderer.create>;
+  ReactTestRenderer.act(() => {
+    tree = ReactTestRenderer.create(
+      React.createElement(ResourceCard, { post, layout: 'list', ...props })
+    );
+  });
+  return tree;
+};
+
+// The i18next mock returns the key (not the interpolated default) for the
+// chip accessibility label, so the segment's own text is the stable handle.
+const pressCategory = (
+  tree: ReturnType<typeof ReactTestRenderer.create>,
+  segment: string
+) => {
+  const chip = tree.root
+    .findAllByType('Pressable')
+    .find((node) => textOf(node) === segment);
+  expect(chip).toBeTruthy();
+  ReactTestRenderer.act(() => {
+    chip!.props.onPress();
+  });
+};
+
+describe('ResourceCard category press (issue #1750)', () => {
+  const card = (
+    categoryPath: string[],
+    group?: { handle: string }
+  ): ResourceCardProps['post'] => {
+    const base = resourcePost({
+      title: 'Guide',
+      resourceKind: 'link',
+      categoryPath,
+    });
+    return group ? { ...base, group } : base;
+  };
+
+  beforeEach(() => {
+    mockNavigate = jest.fn();
+  });
+
+  it('routes a folder press to the resources tab with the category prefix', () => {
+    const tree = renderCardWith(card(['Brand', 'Marketing']));
+    pressCategory(tree, 'Marketing');
+    expect(mockNavigate).toHaveBeenCalledWith('TabNavigator', {
+      screen: 'Resources',
+      params: { category: ['Brand', 'Marketing'] },
+    });
+    tree.unmount();
+  });
+
+  it('routes a mid-path press to the prefix up to that segment', () => {
+    const tree = renderCardWith(card(['Brand', 'Marketing']));
+    pressCategory(tree, 'Brand');
+    expect(mockNavigate).toHaveBeenCalledWith('TabNavigator', {
+      screen: 'Resources',
+      params: { category: ['Brand'] },
+    });
+    tree.unmount();
+  });
+
+  it('routes a group card press to the group resources tab with tab + category', () => {
+    const tree = renderCardWith(
+      card(['Brand', 'Marketing'], { handle: 'team' })
+    );
+    pressCategory(tree, 'Marketing');
+    expect(mockNavigate).toHaveBeenCalledWith('Group', {
+      handle: 'team',
+      tab: 'resources',
+      category: ['Brand', 'Marketing'],
+    });
+    tree.unmount();
+  });
+
+  it('delegates a folder press to onSelectCategory and does not navigate', () => {
+    const onSelectCategory = jest.fn();
+    const tree = renderCardWith(card(['Brand', 'Marketing']), {
+      onSelectCategory,
+    });
+    pressCategory(tree, 'Marketing');
+    expect(onSelectCategory).toHaveBeenCalledWith(['Brand', 'Marketing']);
+    expect(mockNavigate).not.toHaveBeenCalled();
+    tree.unmount();
+  });
+});
+
+describe('ResourceCard category chip accessibility label (issue #1750)', () => {
+  const card = (categoryPath: string[]): ResourceCardProps['post'] =>
+    resourcePost({
+      title: 'Guide',
+      resourceKind: 'link',
+      categoryPath,
+    });
+
+  const chipFor = (tree: ReturnType<typeof ReactTestRenderer.create>) => {
+    const chip = tree.root
+      .findAllByType('Pressable')
+      .find((node) => textOf(node) === 'Brand');
+    expect(chip).toBeTruthy();
+    return chip!;
+  };
+
+  it('exercises the openCategory i18n key (no bare-key fallback) when the key is registered', () => {
+    // With the key mocked in (as it is in the shipped locale), the
+    // accessibilityLabel must be the translated string from the i18n bundle,
+    // not the bare key. A missing or misspelled `resources.library.openCategory`
+    // would make the mock return the key itself, which this assertion catches.
+    mockTranslations = EN;
+    const tree = renderCardWith(card(['Brand', 'Marketing']));
+    expect(chipFor(tree).props.accessibilityLabel).toBe(
+      'Show resources in {{name}}'
+    );
+    expect(chipFor(tree).props.accessibilityLabel).not.toBe(
+      'resources.library.openCategory'
+    );
+    tree.unmount();
+  });
+
+  it('does not degrade to the raw key when the key is absent from the bundle', () => {
+    // The i18next mock returns the key when no translation is mocked, which
+    // is how a missing/misspelled key would surface on a screen-reader user.
+    const { 'resources.library.openCategory': _dropped, ...withoutKey } = EN;
+    mockTranslations = withoutKey;
+    const tree = renderCardWith(card(['Brand', 'Marketing']));
+    expect(chipFor(tree).props.accessibilityLabel).toBe(
+      'resources.library.openCategory'
+    );
     tree.unmount();
   });
 });

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PublicPost, ResourceKind } from '@openpeepshq/common/types';
 import {
   categoryTreeFromPaths,
@@ -40,6 +40,20 @@ export const useResourceLibrary = (
   const [pathPrefix, setPathPrefix] = useState<string[]>(
     initial.pathPrefix ?? [],
   );
+
+  // A category link can open this screen while it is already mounted (an
+  // RN tab, the group resources tab). Re-apply the seeded folder in that
+  // case; once the caller passes a different folder the screen follows it.
+  // Joined on '\u0000' (a category segment can't contain NUL, so this is
+  // lossless) to compare whole paths rather than element-by-element.
+  const categoryKey = (initial.pathPrefix ?? []).join('\u0000');
+  const prevCategoryKey = useRef(categoryKey);
+  useEffect(() => {
+    if (prevCategoryKey.current !== categoryKey) {
+      prevCategoryKey.current = categoryKey;
+      setPathPrefix(categoryKey ? categoryKey.split('\u0000') : []);
+    }
+  }, [categoryKey]);
   const [hierarchy, setHierarchy] = useState(false);
   const [view, setView] = useState<'list' | 'cards'>('cards');
   const [saved, setSaved] = useState(false);

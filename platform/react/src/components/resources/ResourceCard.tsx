@@ -36,6 +36,11 @@ export interface ResourceCardProps {
   showDescription?: boolean;
   /** When true, hides the group label (already shown by the group context). */
   inGroup?: boolean;
+  /**
+   * Filter the surrounding library to this folder. When omitted, the
+   * category opens the resource library already filtered to that path.
+   */
+  onSelectCategory?: (path: string[]) => void;
 }
 
 // Audio attachments render their generated waveform preview like any other
@@ -141,6 +146,67 @@ const ResourceTagChip = ({ value }: { value: string }) => {
   );
 };
 
+/**
+ * Clickable category path. Child component so the router hook stays out of
+ * the static (email) render path. Clicking segment *i* targets the folder
+ * prefix up to and including that segment.
+ */
+const ResourceCategoryPath = ({
+  path,
+  groupHandle,
+  onSelect,
+}: {
+  path: string[];
+  groupHandle?: string;
+  onSelect?: (path: string[]) => void;
+}) => {
+  const t = useT();
+  const navigate = useNavigate();
+
+  const open = (index: number) => {
+    const prefix = path.slice(0, index + 1);
+    if (onSelect) {
+      onSelect(prefix);
+      return;
+    }
+    if (groupHandle) {
+      navigate({
+        type: 'group',
+        handle: groupHandle,
+        section: 'resources',
+        category: prefix,
+      });
+      return;
+    }
+    navigate({ type: 'resources', category: prefix });
+  };
+
+  return (
+    <p className="text-muted-foreground text-xs">
+      {path.map((name, index) => (
+        <span key={`${name}-${index}`}>
+          {index > 0 ? <span> / </span> : null}
+          <button
+            type="button"
+            className="text-muted-foreground hover:text-foreground cursor-pointer hover:underline"
+            title={t('resources.library.openCategory', {
+              defaultValue: 'Show resources in {{name}}',
+              name,
+            })}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              open(index);
+            }}
+          >
+            {name}
+          </button>
+        </span>
+      ))}
+    </p>
+  );
+};
+
 /** Clickable group label. Child component so the router hook stays out of the static render path. */
 const ResourceGroupLabel = ({ group }: { group: GroupWithMeta }) => {
   const t = useT();
@@ -225,6 +291,7 @@ export const ResourceCard = ({
   preview,
   showDescription = true,
   inGroup = false,
+  onSelectCategory,
 }: ResourceCardProps) => {
   const t = useT();
   const { enabled: staticRender } = useStaticRender();
@@ -302,6 +369,24 @@ export const ResourceCard = ({
     return <ResourceGroupLabel group={group} />;
   };
 
+  const renderCategoryPath = () => {
+    if (!resource.categoryPath?.length) return null;
+    if (staticRender) {
+      return (
+        <p className="text-muted-foreground text-xs">
+          {resource.categoryPath.join(' / ')}
+        </p>
+      );
+    }
+    return (
+      <ResourceCategoryPath
+        path={resource.categoryPath}
+        groupHandle={group?.handle}
+        onSelect={onSelectCategory}
+      />
+    );
+  };
+
   const renderThumbnail = () => {
     if (thumbSrc) {
       return (
@@ -338,11 +423,7 @@ export const ResourceCard = ({
         {renderThumbnail()}
         <div className="min-w-0 flex-1">
           <h3 className="text-lg font-semibold">{resource.title}</h3>
-          {resource.categoryPath?.length ? (
-            <p className="text-muted-foreground text-xs">
-              {resource.categoryPath.join(' / ')}
-            </p>
-          ) : null}
+          {renderCategoryPath()}
           {renderGroupLabel()}
           {showDescription ? (
             <TruncatedMarkdown
@@ -437,11 +518,7 @@ export const ResourceCard = ({
       </div>
 
       <h3 className="text-lg font-semibold">{resource.title}</h3>
-      {resource.categoryPath?.length ? (
-        <p className="text-muted-foreground text-xs">
-          {resource.categoryPath.join(' / ')}
-        </p>
-      ) : null}
+      {renderCategoryPath()}
       {renderGroupLabel()}
       {showDescription ? (
         <TruncatedMarkdown

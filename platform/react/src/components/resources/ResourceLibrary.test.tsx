@@ -16,13 +16,11 @@ vi.mock('../../i18n', () => ({
     opts?.defaultValue ?? key,
 }));
 
-const mockFeed = vi.hoisted(() => ({ posts: [] as unknown[] }));
-
 vi.mock('../../contexts/openpeeps', () => ({
   useOpenpeeps: () => ({
     openpeepsApi: {
       usePostsByType: () => ({
-        data: { pages: [mockFeed.posts] },
+        data: { pages: [mockedPosts] },
         isPending: false,
       }),
       useCurrentProfileBookmarkedIds: () => ({ data: [] }),
@@ -34,9 +32,26 @@ vi.mock('../../hooks/useResolvedFeedFormat', () => ({
   useFeedListParams: () => ({ format: 'linear' }),
 }));
 
+// Rendered as each visible resource's title so a test can assert on which
+// posts the filter kept (the real card is heavier than the test needs).
 vi.mock('./ResourceCard', () => ({
-  ResourceCard: () => null,
+  ResourceCard: ({
+    post,
+  }: {
+    post: { id: string; data?: { title?: string } };
+  }) =>
+    createElement(
+      'p',
+      { 'data-testid': `card-${post.id}` },
+      post.data?.title ?? post.id,
+    ),
 }));
+
+const mockedPosts: Array<{
+  id: string;
+  type: 'resource';
+  data?: { type: 'resource'; title?: string; categoryPath?: string[] };
+}> = [];
 
 interface FakeLocation {
   url: string;
@@ -103,6 +118,7 @@ describe('ResourceLibrary URL filters', () => {
       globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
     ).IS_REACT_ACT_ENVIRONMENT = true;
     vi.useFakeTimers();
+    mockedPosts.length = 0;
   });
 
   afterEach(() => {
@@ -177,9 +193,8 @@ describe('ResourceLibrary URL filters', () => {
     expect(location.url).toBe('http://localhost/groups/@x?q=notes#resources');
     expect(location.replaceWrites).toBe(0);
   });
-
   describe('folder tree collision (issue #2148)', () => {
-    const slashPost = {
+    const slashPost: (typeof mockedPosts)[number] = {
       id: 'p-slash',
       type: 'resource',
       data: {
@@ -188,7 +203,7 @@ describe('ResourceLibrary URL filters', () => {
         categoryPath: ['[TEST] A/B'],
       },
     };
-    const nestedPost = {
+    const nestedPost: (typeof mockedPosts)[number] = {
       id: 'p-nested',
       type: 'resource',
       data: {
@@ -199,7 +214,8 @@ describe('ResourceLibrary URL filters', () => {
     };
 
     const renderLibrary = () => {
-      mockFeed.posts = [slashPost, nestedPost];
+      mockedPosts.length = 0;
+      mockedPosts.push(slashPost, nestedPost);
       const location: FakeLocation = {
         url: 'http://localhost/groups/@x#resources',
         replaceWrites: 0,
@@ -282,5 +298,146 @@ describe('ResourceLibrary URL filters', () => {
 
       expect(nameButton(container, 'B(1)')).toBeTruthy();
     });
+  });
+
+  it('keeps ?category= as a repeated param when other filters change', async () => {
+    const location: FakeLocation = {
+      url: 'http://localhost/resources?category=Docs&category=Q3',
+      replaceWrites: 0,
+      pushWrites: 0,
+    };
+    const container = render(
+      createElement(
+        Harness,
+        { location },
+        createElement(ResourceLibrary, { groupId: 'g1' }),
+      ),
+    );
+
+    // The seeded folder is reflected in the breadcrumb, not the "All" reset.
+    expect(container.textContent).toContain('Docs / Q3');
+
+    const fileButton = [...container.querySelectorAll('button')].find(
+      (button) => button.textContent === 'file',
+    );
+    await act(async () => {
+      fileButton?.click();
+    });
+    await act(async () => {
+      vi.advanceTimersByTime(300);
+    });
+
+    // Both segments survive as repeated params; category comes first so the
+    // shared folder keeps its place when other filters change.
+    expect(location.url).toBe(
+      'http://localhost/resources?category=Docs&category=Q3&kind=file',
+    );
+    expect(location.replaceWrites).toBe(1);
+  });
+
+  it('writes the folder filter back to the URL when the breadcrumb resets', async () => {
+    const location: FakeLocation = {
+      url: 'http://localhost/resources?category=Docs&category=Q3',
+      replaceWrites: 0,
+      pushWrites: 0,
+    };
+    const container = render(
+      createElement(
+        Harness,
+        { location },
+        createElement(ResourceLibrary, { groupId: 'g1' }),
+      ),
+    );
+
+    const resetButton = container.querySelector(
+      '[data-testid="resources-category-reset"]',
+    ) as HTMLButtonElement | null;
+    expect(resetButton).toBeTruthy();
+    await act(async () => {
+      resetButton?.click();
+    });
+    await act(async () => {
+      vi.advanceTimersByTime(300);
+    });
+
+    // Resetting the folder removes the category params entirely.
+    expect(location.url).toBe('http://localhost/resources');
+    expect(location.replaceWrites).toBe(1);
+  });
+
+  it('treats an empty ?category= as no filter, not a hide-all', async () => {
+    // A truncated/shared URL can carry a bare `?category=` with no value.
+    mockedPosts.push(
+      {
+        id: 'p1',
+        type: 'resource',
+        data: {
+          type: 'resource',
+          title: 'Doc A',
+          categoryPath: ['Docs', 'Q3'],
+        },
+      },
+      {
+        id: 'p2',
+        type: 'resource',
+        data: { type: 'resource', title: 'Doc B', categoryPath: ['Brand'] },
+      },
+    );
+    const location: FakeLocation = {
+      url: 'http://localhost/resources?category=',
+      replaceWrites: 0,
+      pushWrites: 0,
+    };
+    const container = render(
+      createElement(
+        Harness,
+        { location },
+        createElement(ResourceLibrary, { groupId: 'g1' }),
+      ),
+    );
+
+    // The empty segment is dropped, so nothing is filtered out: both
+    // resources stay visible instead of the grid blanking to an empty
+    // `pathPrefix: ['']` that matches nothing.
+    expect(container.querySelector('[data-testid="card-p1"]')).toBeTruthy();
+    expect(container.querySelector('[data-testid="card-p2"]')).toBeTruthy();
+
+    // The write-back normalizes the empty param away, leaving a clean URL.
+    await act(async () => {
+      vi.advanceTimersByTime(300);
+    });
+    expect(location.url).toBe('http://localhost/resources');
+  });
+
+  it('re-applies a folder deep-link while mounted without a redundant replace', async () => {
+    const location: FakeLocation = {
+      url: 'http://localhost/resources?category=Docs',
+      replaceWrites: 0,
+      pushWrites: 0,
+    };
+    const ui = () =>
+      createElement(
+        Harness,
+        { location },
+        createElement(ResourceLibrary, { groupId: 'g1' }),
+      );
+    const el = render(ui());
+
+    // A new deep-link to a different folder arrives while the screen is
+    // already mounted (an RN tab, the group resources tab, a web re-link).
+    location.url = 'http://localhost/resources?category=Brand';
+    await act(async () => {
+      root?.render(ui());
+    });
+
+    // The library follows the new folder (the hook's re-apply effect).
+    await act(async () => {
+      vi.advanceTimersByTime(300);
+    });
+    expect(el.textContent).toContain('Brand');
+    // The state already matches the deep-linked URL, so the write-back is a
+    // no-op: navigating to a different folder must not rewrite that entry.
+    expect(location.replaceWrites).toBe(0);
+    expect(location.url).toBe('http://localhost/resources?category=Brand');
   });
 });

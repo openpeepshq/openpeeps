@@ -41,6 +41,8 @@ export type MainStackParamList = {
     id?: string;
     handle?: string;
     tab?: GroupSection;
+    /** Folder path to select on the group resource library. */
+    category?: string[];
   };
   GroupMembers: {
     id: string;

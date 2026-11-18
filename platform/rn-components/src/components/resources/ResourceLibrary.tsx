@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Pressable, View, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
@@ -22,6 +22,15 @@ import { ResourceCard } from './ResourceCard';
 
 export interface ResourceLibraryProps {
   groupId?: string;
+  /** Open the library already filtered to this folder. */
+  categoryPath?: string[];
+  /**
+   * Called on every in-library folder change (including resets). The entry
+   * pages mirror the folder into their seed (URL on web, route params on RN)
+   * through this callback so a re-navigation with the same folder still
+   * re-applies it.
+   */
+  onCategoryChange?: (path: string[]) => void;
 }
 
 const COLLECTION_LIMIT = 5;
@@ -108,12 +117,28 @@ const Tree = ({
   </View>
 );
 
-export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
+export const ResourceLibrary = ({
+  groupId,
+  categoryPath,
+  onCategoryChange,
+}: ResourceLibraryProps) => {
   const { t } = useTranslation();
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
-  const library = useResourceLibrary(groupId);
+  const library = useResourceLibrary(
+    groupId,
+    undefined,
+    categoryPath?.length ? { pathPrefix: categoryPath } : undefined
+  );
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
+  const changeCategory = useCallback(
+    (path: string[]) => {
+      library.setPathPrefix(path);
+      onCategoryChange?.(path);
+    },
+    [library, onCategoryChange]
+  );
 
   const toggleNode = (nodeKey: string) => {
     setExpanded((prev) => {
@@ -261,7 +286,7 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
         {/* Breadcrumb + tree */}
         <View>
           <View className="flex-row items-center gap-2">
-            <Pressable onPress={() => library.setPathPrefix([])}>
+            <Pressable onPress={() => changeCategory([])}>
               <ThemedText className="text-sm text-muted-foreground">
                 All
               </ThemedText>
@@ -303,7 +328,7 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
               <Tree
                 nodes={treeNodes}
                 selected={library.pathPrefix}
-                onSelect={library.setPathPrefix}
+                onSelect={changeCategory}
                 counts={collectionCounts}
                 expanded={expanded}
                 onToggle={toggleNode}
@@ -390,7 +415,12 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
               onPress={() => navigation.navigate('Post', { id: post.id })}
               className="border-b border-border"
             >
-              <ResourceCard post={post} layout="list" inGroup={!!groupId} />
+              <ResourceCard
+                post={post}
+                layout="list"
+                inGroup={!!groupId}
+                onSelectCategory={changeCategory}
+              />
             </Pressable>
           ))}
         </View>
@@ -401,7 +431,12 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
               key={post.id}
               onPress={() => navigation.navigate('Post', { id: post.id })}
             >
-              <ResourceCard post={post} layout="card" inGroup={!!groupId} />
+              <ResourceCard
+                post={post}
+                layout="card"
+                inGroup={!!groupId}
+                onSelectCategory={changeCategory}
+              />
             </Pressable>
           ))}
         </ScrollView>

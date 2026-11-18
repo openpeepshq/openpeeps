@@ -98,7 +98,18 @@ export const navigateToTarget = (target: NavTarget) => {
           params: { handle: target.handle },
         });
       } else {
-        go('Main', { screen: 'Group', params: { handle: target.handle } });
+        // Explicit undefined for tab/category (not conditional spreads):
+        // stack `navigate` to an existing Group route replaces the params,
+        // so stale `tab: 'resources'`/`category` from a previous resources
+        // navigation must not survive a plain group link.
+        go('Main', {
+          screen: 'Group',
+          params: {
+            handle: target.handle,
+            tab: target.section === 'resources' ? 'resources' : undefined,
+            category: target.category,
+          },
+        });
       }
       break;
     case 'conversation':
@@ -153,7 +164,15 @@ export const navigateToTarget = (target: NavTarget) => {
           params: { id: target.resourceId },
         });
       } else {
-        go('Main', { screen: 'TabNavigator', params: { screen: 'Resources' } });
+        go('Main', {
+          screen: 'TabNavigator',
+          params: {
+            screen: 'Resources',
+            ...(target.category?.length
+              ? { params: { category: target.category } }
+              : {}),
+          },
+        });
       }
       break;
     case 'about':

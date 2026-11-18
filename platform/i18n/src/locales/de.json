@@ -3751,7 +3751,8 @@
       "expandFolder": "Ordner aufklappen",
       "collapseFolder": "Ordner zuklappen",
       "showHiddenTags": "+ {{count}}",
-      "hideTags": "Ausblenden"
+      "hideTags": "Ausblenden",
+      "openCategory": "Ressourcen in {{name}} anzeigen"
     },
     "actions": {
       "watch": "Ansehen",
