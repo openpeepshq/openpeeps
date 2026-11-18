@@ -2312,7 +2312,6 @@
         "color": "Akzentfarbe für helles Design",
         "mode": "Hell",
         "uploadAuthBackground": "Klicken Sie, um ein neues Registrierungsseitenbild für das helle Design hochzuladen",
-        "uploadJamLobbyBackground": "Klicken Sie, um ein neues Jam-Lobby-Bild für das helle Design hochzuladen",
         "uploadBackground": "Klicken Sie, um ein neues Community-Hintergrundbild für das helle Design hochzuladen",
         "uploadLogo": "Klicken Sie, um ein Logo für das helle Design und E-Mail-Benachrichtigungen hochzuladen"
       },
@@ -2320,14 +2319,10 @@
         "color": "Akzentfarbe für dunkles Design",
         "mode": "Dunkel",
         "uploadAuthBackground": "Klicken Sie, um ein neues Registrierungsseitenbild für das dunkle Design hochzuladen",
-        "uploadJamLobbyBackground": "Klicken Sie, um ein neues Jam-Lobby-Bild für das dunkle Design hochzuladen",
         "uploadLogo": "Klicken Sie, um ein Logo für das dunkle Design hochzuladen",
         "uploadBackground": "Klicken Sie, um ein neues Community-Hintergrundbild für das dunkle Design hochzuladen"
       },
       "authBackgroundRequirements": "Dieses Bild passt vertikal auf diese Seiten, verwenden Sie daher ein vertikales Seitenverhältnis für beste Ergebnisse. Bilder unter 2 MB werden empfohlen.",
-      "jamLobbyBackground": "Jam-Lobby-Bild",
-      "jamLobbyBackgroundDescription": "Dieses Bild wird hinter der Jam-Lobby (der Startseite vor dem Beitreten, wo die Kamera und das Mikrofon geprüft werden) angezeigt",
-      "jamLobbyBackgroundRequirements": "Dieses Bild füllt den gesamten Jam-Lobby-Bildschirm aus, daher eignet sich ein volles Querformat am besten.  Bilder unter 2 MB werden empfohlen.",
       "backgroundRequirements": "Dieses Bild erscheint hinter dem Community-Inhalt bei der Verwendung eines breiteren Bildschirms. Es ist für Nutzer auf Mobilgeräten nicht sichtbar.",
       "fontFamily": "Schriftart",
       "typographyAndRadii": "Typografie und Rundungen",

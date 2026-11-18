@@ -98,6 +98,66 @@ steps — follow that skill.
 - Rebuild, lint, and verify touched packages before finishing — see
   `check-openpeeps-pr-readiness` when preparing a PR.
 
+## CI gates — run before every push (mandatory)
+
+CI (`.forgejo/workflows/build.yaml`) fails the whole merge-gate for any of the
+checks below. Run the exact same commands on the final (squashed) head before
+pushing; a CI failure on one of these is an implementation defect, not bad
+luck. The commands need no Docker, no database, no backing services.
+
+| Gate (CI job)   | Command to run locally before push                                                                                                                |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| commit-check    | `node scripts/check-branch.mjs && node scripts/check-pr-references.mjs`                                                                           |
+| lint (prettier) | `pnpm exec prettier --check .` at repo root — CI is NOT scoped per-package                                                                        |
+| lint (eslint)   | `pnpm run -r lint`                                                                                                                                |
+| i18n-check      | `node scripts/check-i18n-parity.mjs --strict` (only if locale files changed)                                                                      |
+| publish-gate    | `node scripts/check-publish-gate.mjs --package <p>` for every bumped published package                                                            |
+| frozen lockfile | `pnpm install --frozen-lockfile` (only if `package.json` / `pnpm-workspace.yaml` / `pnpm-lock.yaml` changed)                                      |
+| test-unit       | `pnpm --filter @openpeepshq/<pkg> exec vitest run` per touched package (rn-components uses jest: `pnpm --filter @openpeepshq/rn-components test`) |
+| typecheck       | `pnpm --filter <pkg> typecheck` for touched packages and their dependents (build `common` → `core` first)                                         |
+
+Rules behind the gates, each tied to a real failure class:
+
+- **Exactly one commit, at every push.** Every pushed state of a PR branch must
+  carry exactly one commit ahead of `main` — `commit-check` rejects anything
+  else and the whole merge-gate goes red with it. The squash is not a one-time
+  "before the PR" step: after a fix-up, amend into the single commit
+  (`bash scripts/squash-branch.sh --ci -m "<type(scope): description>"`) and
+  `git push --force-with-lease`. Never stack a second commit on a PR branch.
+- **`References #N` only.** Never `Fixes #N`, `Closes #N`, `Resolves #N` — in
+  commit messages and in the PR body (auto-close keywords fail `commit-check`;
+  the issue must stay open until QA on `main`).
+- **Prettier is repo-wide.** `pnpm format` inside one package does not cover
+  CI's `prettier --check .` over the monorepo. Run
+  `pnpm exec prettier --write <every touched file>` (or `--check .` at the
+  root) on the final tree — new files count too.
+- **Lockfile changes are commit-atomic.** Any edit to a `package.json` or
+  `pnpm-workspace.yaml` (dependency add/remove/override, version bump) must be
+  paired in the same commit with a regenerated `pnpm-lock.yaml` from a clean
+  tree (`pnpm install` at repo root), verified with
+  `pnpm install --frozen-lockfile`. A manifest change without a matching
+  lockfile turns every CI job red (`ERR_PNPM_LOCKFILE_CONFIG_MISMATCH` /
+  `ERR_PNPM_OUTDATED_LOCKFILE`), including the Docker image build.
+- **Unit tests must not require Postgres or Redis.** CI's `test-unit` job runs
+  in a bare `node:24-alpine` container — a unit test that connects to
+  `127.0.0.1:5432` (or whose before/after hooks open a DB/redis connection
+  unconditionally) passes on a dev machine and fails CI. DB-backed
+  integration-style tests belong in the integration suite; any unavoidable DB
+  touch in a unit test must skip cleanly when the service is unreachable
+  (`describe.skipIf(!await pgReachable())`), and hooks must fail fast instead
+  of hanging into `hookTimeout`.
+- **i18n: both locales in the same commit.** Every new user-facing key lands
+  in `locales/en.json` and `locales/de.json` together (strict parity gate).
+- **Ship the migration with the schema read.** Every new column/table the diff
+  reads needs its `db:generate`d SQL file under `platform/core/src/db/pg/sql/`
+  in the same PR — the integration image runs migrations on boot, and a read
+  without its migration 500s at runtime.
+- **Version bumps follow the decision table** in the
+  `check-openpeeps-pr-readiness` skill: `feat:` → minor in every touched
+  published package; `fix:` without new API surface → no bump; never private
+  packages; check open sibling PRs touching the same `package.json` before
+  choosing the number.
+
 ## Conventions to respect
 
 - **No PR labels or milestones.** When opening pull requests, do not add labels

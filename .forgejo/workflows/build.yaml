@@ -131,7 +131,10 @@ jobs:
   # ~2GB into dockerd on every run (114-131s measured).
   build-images:
     runs-on: docker
-    needs: [set-variables]
+    # Fail fast: a branch-shape violation (commit-check) must abort the
+    # 15-min image build and the whole integration matrix in seconds, not
+    # after build-images finishes.
+    needs: [commit-check, set-variables]
     container:
       image: node:24-alpine
     steps:
@@ -262,6 +265,21 @@ jobs:
     needs: [set-variables]
     container:
       image: node:24-alpine
+    # DB-backed core tests (analytics, initPostgres, posts mutations) need
+    # real services; without these the job fails on ECONNREFUSED 127.0.0.1:5432.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: openpeeps
+          POSTGRES_PASSWORD: openpeeps
+          POSTGRES_DB: openpeeps
+      redis:
+        image: redis:alpine
+        cmd: ["redis-server", "--save", "", "--appendonly", "no"]
+    env:
+      DATABASE_URL: postgresql://openpeeps:openpeeps@postgres:5432/openpeeps
+      REDIS_HOST: redis
     steps:
       - uses: actions/checkout@releases/v6
         with:
@@ -384,16 +402,34 @@ jobs:
     steps:
       - name: Wait for web service
         run: |
-          for i in $(seq 1 60); do
+          for i in $(seq 1 90); do
             if curl -sf http://web:8080/health >/dev/null 2>&1; then
               echo "Web service is ready (attempt $i)"
               exit 0
             fi
-            echo "Waiting for web service... ($i/60)"
+            if [ $i -le 10 ] || [ $((i % 10)) -eq 0 ]; then
+              echo "Waiting for web service... ($i/90)"
+            fi
             sleep 2
           done
           echo "Web service did not become ready in time" >&2
           exit 1
+      - name: Dump service diagnostics on startup failure
+        if: failure()
+        run: |
+          echo "=== DNS / TCP reachability ==="
+          getent hosts web || echo "(web not in DNS)"
+          curl -sv --max-time 5 http://web:8080/health 2>&1 | tail -25 || true
+          # Container logs are only reachable when the runner mounts the
+          # docker socket into the job container; degrade gracefully.
+          if command -v docker >/dev/null 2>&1 && [ -S /var/run/docker.sock ]; then
+            echo "=== web container logs (tail) ==="
+            docker logs --tail 200 web 2>&1 || true
+            echo "=== worker container logs (tail) ==="
+            docker logs --tail 100 worker 2>&1 || true
+          else
+            echo "(docker socket not mounted in job container; service logs unavailable)"
+          fi
       - name: Run empty suite
         env:
           CI: "true"
@@ -492,16 +528,34 @@ jobs:
     steps:
       - name: Wait for web service
         run: |
-          for i in $(seq 1 60); do
+          for i in $(seq 1 90); do
             if curl -sf http://web:8080/health >/dev/null 2>&1; then
               echo "Web service is ready (attempt $i)"
               exit 0
             fi
-            echo "Waiting for web service... ($i/60)"
+            if [ $i -le 10 ] || [ $((i % 10)) -eq 0 ]; then
+              echo "Waiting for web service... ($i/90)"
+            fi
             sleep 2
           done
           echo "Web service did not become ready in time" >&2
           exit 1
+      - name: Dump service diagnostics on startup failure
+        if: failure()
+        run: |
+          echo "=== DNS / TCP reachability ==="
+          getent hosts web || echo "(web not in DNS)"
+          curl -sv --max-time 5 http://web:8080/health 2>&1 | tail -25 || true
+          # Container logs are only reachable when the runner mounts the
+          # docker socket into the job container; degrade gracefully.
+          if command -v docker >/dev/null 2>&1 && [ -S /var/run/docker.sock ]; then
+            echo "=== web container logs (tail) ==="
+            docker logs --tail 200 web 2>&1 || true
+            echo "=== worker container logs (tail) ==="
+            docker logs --tail 100 worker 2>&1 || true
+          else
+            echo "(docker socket not mounted in job container; service logs unavailable)"
+          fi
       - name: Run sso and default suites
         env:
           CI: "true"
@@ -602,16 +656,34 @@ jobs:
     steps:
       - name: Wait for web service
         run: |
-          for i in $(seq 1 60); do
+          for i in $(seq 1 90); do
             if curl -sf http://web:8080/health >/dev/null 2>&1; then
               echo "Web service is ready (attempt $i)"
               exit 0
             fi
-            echo "Waiting for web service... ($i/60)"
+            if [ $i -le 10 ] || [ $((i % 10)) -eq 0 ]; then
+              echo "Waiting for web service... ($i/90)"
+            fi
             sleep 2
           done
           echo "Web service did not become ready in time" >&2
           exit 1
+      - name: Dump service diagnostics on startup failure
+        if: failure()
+        run: |
+          echo "=== DNS / TCP reachability ==="
+          getent hosts web || echo "(web not in DNS)"
+          curl -sv --max-time 5 http://web:8080/health 2>&1 | tail -25 || true
+          # Container logs are only reachable when the runner mounts the
+          # docker socket into the job container; degrade gracefully.
+          if command -v docker >/dev/null 2>&1 && [ -S /var/run/docker.sock ]; then
+            echo "=== web container logs (tail) ==="
+            docker logs --tail 200 web 2>&1 || true
+            echo "=== worker container logs (tail) ==="
+            docker logs --tail 100 worker 2>&1 || true
+          else
+            echo "(docker socket not mounted in job container; service logs unavailable)"
+          fi
       - name: Run public and perf suites
         env:
           CI: "true"
@@ -720,16 +792,34 @@ jobs:
     steps:
       - name: Wait for web service
         run: |
-          for i in $(seq 1 60); do
+          for i in $(seq 1 90); do
             if curl -sf http://web:8080/health >/dev/null 2>&1; then
               echo "Web service is ready (attempt $i)"
               exit 0
             fi
-            echo "Waiting for web service... ($i/60)"
+            if [ $i -le 10 ] || [ $((i % 10)) -eq 0 ]; then
+              echo "Waiting for web service... ($i/90)"
+            fi
             sleep 2
           done
           echo "Web service did not become ready in time" >&2
           exit 1
+      - name: Dump service diagnostics on startup failure
+        if: failure()
+        run: |
+          echo "=== DNS / TCP reachability ==="
+          getent hosts web || echo "(web not in DNS)"
+          curl -sv --max-time 5 http://web:8080/health 2>&1 | tail -25 || true
+          # Container logs are only reachable when the runner mounts the
+          # docker socket into the job container; degrade gracefully.
+          if command -v docker >/dev/null 2>&1 && [ -S /var/run/docker.sock ]; then
+            echo "=== web container logs (tail) ==="
+            docker logs --tail 200 web 2>&1 || true
+            echo "=== worker container logs (tail) ==="
+            docker logs --tail 100 worker 2>&1 || true
+          else
+            echo "(docker socket not mounted in job container; service logs unavailable)"
+          fi
       - name: Run jams integration suite
         env:
           CI: "true"

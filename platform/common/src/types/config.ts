@@ -367,7 +367,6 @@ export const communityConfigSchemaFactory = (_sanitize?: boolean) =>
         defaultProfileAvatar: z.string().optional(),
         defaultGroupAvatar: z.string().optional(),
         backgroundAuth: z.string().optional(),
-        jamLobbyBackground: z.string().optional(),
         background: z.string().optional(),
       }),
       dark: z.object({
@@ -380,7 +379,6 @@ export const communityConfigSchemaFactory = (_sanitize?: boolean) =>
         defaultProfileAvatar: z.string().optional(),
         defaultGroupAvatar: z.string().optional(),
         backgroundAuth: z.string().optional(),
-        jamLobbyBackground: z.string().optional(),
         background: z.string().optional(),
       }),
     }),

@@ -15,13 +15,10 @@ import {
 } from '@livekit/components-react';
 import { type LocalVideoTrack, Track } from 'livekit-client';
 import { Blur, Button } from '@openpeepshq/react-ui';
-import { getTheme } from '@openpeepshq/common';
 import { useNavigate } from '../../contexts/router';
 import { useT } from '../../i18n';
 import { useJamLobby } from '../../hooks/jams/useJamLobby';
 import type { JamJoinParams } from '../../hooks/jams/useJamRoom';
-import { useCurrentProfileSettings } from '../layout/IdentityContext';
-import { useServerInfo } from '../server-data/context';
 import { audioOutputSupported } from './constants';
 import { DeviceSelectorPill } from './JamDeviceSelectors';
 import { JamGuestForm } from './JamGuestForm';
@@ -55,13 +52,6 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
   } = useJamLobby({ onJoin });
 
   const [settings, updateSettings] = useJamLocalSettings();
-
-  const serverInfo = useServerInfo();
-  const profileSettings = useCurrentProfileSettings();
-  const lobbyBackground = getTheme(
-    serverInfo.communityConfig,
-    profileSettings,
-  ).jamLobbyBackground;
 
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [videoEnabled, setVideoEnabled] = useState(false);
@@ -149,125 +139,114 @@ export function JamLobby({ onJoin }: JamLobbyProps) {
     });
 
   return (
-    <div className="relative h-full w-full">
-      {lobbyBackground ? (
-        <img
-          src={lobbyBackground}
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-      ) : null}
-      <div className="relative mx-auto flex h-full w-full max-w-lg items-center justify-center p-4">
-        <div className="bg-background w-full rounded-md border p-4">
-          <div className="flex items-center justify-between border-b p-2">
-            <h2 className="text-lg">
-              {t('jams.lobby.readyTitle', { defaultValue: 'Ready to join' })}
-            </h2>
-            <button
-              type="button"
-              title={t('jams.exit.title', { defaultValue: 'Leave' })}
-              className="bg-surface-2 flex size-8 items-center justify-center rounded-full"
-              onClick={exitLobby}
-            >
-              <X className="size-4" />
-            </button>
-          </div>
+    <div className="mx-auto flex h-full w-full max-w-lg items-center justify-center p-4">
+      <div className="bg-background w-full rounded-md border p-4">
+        <div className="flex items-center justify-between border-b p-2">
+          <h2 className="text-lg">
+            {t('jams.lobby.readyTitle', { defaultValue: 'Ready to join' })}
+          </h2>
+          <button
+            type="button"
+            title={t('jams.exit.title', { defaultValue: 'Leave' })}
+            className="bg-surface-2 flex size-8 items-center justify-center rounded-full"
+            onClick={exitLobby}
+          >
+            <X className="size-4" />
+          </button>
+        </div>
 
-          <div className="flex flex-col items-center p-5">
-            <h2 className="my-1 text-center text-lg">
-              {jamEvent.name ||
-                t('jams.lobby.fallbackTitle', { defaultValue: 'Jam' })}
-            </h2>
+        <div className="flex flex-col items-center p-5">
+          <h2 className="my-1 text-center text-lg">
+            {jamEvent.name ||
+              t('jams.lobby.fallbackTitle', { defaultValue: 'Jam' })}
+          </h2>
 
-            <div className="relative size-64">
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className={`size-64 rounded-xl object-cover ${showVideo ? '' : 'hidden'}`}
-              />
-              {!showVideo ? (
-                <div className="bg-surface flex size-64 items-center justify-center rounded-xl">
-                  <p className="text-lg">
-                    {t('jams.lobby.cameraOff', {
-                      defaultValue: 'Camera is off',
-                    })}
-                  </p>
-                </div>
-              ) : null}
-            </div>
-
-            <div className="mt-4 flex w-full items-center justify-center gap-x-4">
-              <DeviceSelectorPill
-                enabled={audioEnabled}
-                onToggle={() => setAudioEnabled((on) => !on)}
-                onIcon={Mic}
-                offIcon={MicOff}
-                deviceType="mic"
-                devices={audioDevices}
-                activeDeviceId={audioDeviceId}
-                onDeviceChange={setAudioDeviceId}
-              />
-              {audioOutputSupported ? (
-                <DeviceSelectorPill
-                  enabled={settings.speakerEnabled}
-                  onToggle={() =>
-                    updateSettings({ speakerEnabled: !settings.speakerEnabled })
-                  }
-                  onIcon={Volume2}
-                  offIcon={VolumeX}
-                  deviceType="speaker"
-                  devices={speakerDevices}
-                  activeDeviceId={settings.speakerDeviceId}
-                  onDeviceChange={(speakerDeviceId) =>
-                    updateSettings({ speakerDeviceId })
-                  }
-                />
-              ) : null}
-              <DeviceSelectorPill
-                enabled={videoEnabled}
-                onToggle={() => setVideoEnabled((on) => !on)}
-                onIcon={Video}
-                offIcon={VideoOff}
-                deviceType="camera"
-                devices={videoDevices}
-                activeDeviceId={videoDeviceId}
-                onDeviceChange={setVideoDeviceId}
-              />
-              <JamToolbarButton
-                title={
-                  settings.blur
-                    ? t('jams.blur.turnOff', { defaultValue: 'Turn off blur' })
-                    : t('jams.blur.blurBackground', {
-                        defaultValue: 'Blur background',
-                      })
-                }
-                tone={settings.blur ? 'active' : 'default'}
-                action={() => updateSettings({ blur: !settings.blur })}
-              >
-                <Blur />
-              </JamToolbarButton>
-            </div>
-          </div>
-
-          <div className="flex w-full flex-col items-center px-5 pb-4">
-            <Button
-              variant="default"
-              title={t('jams.join.submit', { defaultValue: 'Join Jam' })}
-              loading={submitting}
-              action={handleJoin}
-            >
-              {jamActive
-                ? t('jams.join.ctaJoin', { defaultValue: 'Join' })
-                : t('jams.join.ctaStart', { defaultValue: 'Start' })}
-            </Button>
-            {error ? (
-              <div role="alert" className="text-destructive mt-3 text-sm">
-                {error}
+          <div className="relative size-64">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className={`size-64 rounded-xl object-cover ${showVideo ? '' : 'hidden'}`}
+            />
+            {!showVideo ? (
+              <div className="bg-surface flex size-64 items-center justify-center rounded-xl">
+                <p className="text-lg">
+                  {t('jams.lobby.cameraOff', { defaultValue: 'Camera is off' })}
+                </p>
               </div>
             ) : null}
           </div>
+
+          <div className="mt-4 flex w-full items-center justify-center gap-x-4">
+            <DeviceSelectorPill
+              enabled={audioEnabled}
+              onToggle={() => setAudioEnabled((on) => !on)}
+              onIcon={Mic}
+              offIcon={MicOff}
+              deviceType="mic"
+              devices={audioDevices}
+              activeDeviceId={audioDeviceId}
+              onDeviceChange={setAudioDeviceId}
+            />
+            {audioOutputSupported ? (
+              <DeviceSelectorPill
+                enabled={settings.speakerEnabled}
+                onToggle={() =>
+                  updateSettings({ speakerEnabled: !settings.speakerEnabled })
+                }
+                onIcon={Volume2}
+                offIcon={VolumeX}
+                deviceType="speaker"
+                devices={speakerDevices}
+                activeDeviceId={settings.speakerDeviceId}
+                onDeviceChange={(speakerDeviceId) =>
+                  updateSettings({ speakerDeviceId })
+                }
+              />
+            ) : null}
+            <DeviceSelectorPill
+              enabled={videoEnabled}
+              onToggle={() => setVideoEnabled((on) => !on)}
+              onIcon={Video}
+              offIcon={VideoOff}
+              deviceType="camera"
+              devices={videoDevices}
+              activeDeviceId={videoDeviceId}
+              onDeviceChange={setVideoDeviceId}
+            />
+            <JamToolbarButton
+              title={
+                settings.blur
+                  ? t('jams.blur.turnOff', { defaultValue: 'Turn off blur' })
+                  : t('jams.blur.blurBackground', {
+                      defaultValue: 'Blur background',
+                    })
+              }
+              tone={settings.blur ? 'active' : 'default'}
+              action={() => updateSettings({ blur: !settings.blur })}
+            >
+              <Blur />
+            </JamToolbarButton>
+          </div>
+        </div>
+
+        <div className="flex w-full flex-col items-center px-5 pb-4">
+          <Button
+            variant="default"
+            title={t('jams.join.submit', { defaultValue: 'Join Jam' })}
+            loading={submitting}
+            action={handleJoin}
+          >
+            {jamActive
+              ? t('jams.join.ctaJoin', { defaultValue: 'Join' })
+              : t('jams.join.ctaStart', { defaultValue: 'Start' })}
+          </Button>
+          {error ? (
+            <div role="alert" className="text-destructive mt-3 text-sm">
+              {error}
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

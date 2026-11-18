@@ -176,7 +176,13 @@ maybe('getAnalyticsOverview', () => {
   beforeEach(async () => {
     await empty();
     try {
-      await invalidateAnalyticsCache();
+      // node-redis connect() retries forever when the host is unreachable
+      // and never rejects; bound the wait so a missing Redis degrades to a
+      // cache miss instead of hanging the hook.
+      await Promise.race([
+        invalidateAnalyticsCache(),
+        new Promise((resolve) => setTimeout(resolve, 2000)),
+      ]);
     } catch {
       // Redis may be unavailable in the test environment; the cache layer
       // treats connection failures as cache misses and recomputes from DB.
