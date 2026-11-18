@@ -129,14 +129,14 @@ overrides:
   # while validating oversized constrained collections. Force 4.6.7 — first
   # patched version is 4.6.6; using 4.6.7 for an extra safety margin.
   zod: "4.6.7"
-  # fast-xml-parser 4.5.1 (via firebase-admin > @google-cloud/storage@7.16.0)
-  # carries 7 advisories; the scoped override below clears 5 (1 critical, 2 high,
-  # 1 moderate, 1 low) by bumping to 4.5.7. The 2 remaining (GHSA-gh4j-gqv2-49f6,
-  # GHSA-474x-hrwr-fgx4) require 5.x and stay after this change.
-  # @google-cloud/storage@7.16.0 declares fast-xml-parser ^4.4.1, so 4.5.7 is
-  # in-range — no cross-major jump. The other resolved instance (5.7.1 via RN CLI)
-  # is untouched by this scoped override.
-  '@google-cloud/storage>fast-xml-parser': "4.5.7"
+  # Tree-wide fast-xml-parser override: 5.12.0 is the first release patched
+  # for both advisories that were in play (GHSA-gh4j-gqv2-49f6 — XMLBuilder XML
+  # comment/CDATA injection, first-patched 5.7.0; GHSA-474x-hrwr-fgx4 —
+  # quadratic CPU DoS, <=5.11.2 vulnerable, fixed 5.12.0); pinned 5.12.1
+  # (latest). firebase-admin's @google-cloud/storage leg declares ^5.3.4
+  # (in-range, no cross-major jump) and the RN CLI chain declares ^5.3.6, so
+  # both legs clear.
+  fast-xml-parser: "5.12.1"
   # @grpc/proto-loader / @google-cloud/firestore / google-gax / proto3-json-serializer
   # all declare protobufjs ^7.x. 7.5.3 carries 13 advisories (1 critical, 5 high,
   # 6 moderate, plus 1 moderate on the @protobufjs/utf8 sub-package) all patched
@@ -147,15 +147,6 @@ overrides:
   # 3 moderate PAX size-override/numeric path/NUL-byte DoS). Force 7.5.22 tree-wide;
   # tar is install-time tooling only, not production runtime.
   tar: "7.5.22"
-  # node-forge 1.3.1 (transitive via firebase-admin ^1.3.1) carries the
-  # node-forge advisory backlog — 28 advisories (14 high / 8 moderate / 6 low
-  # per pnpm audit, as of 2026-11-14) — all cleared by 1.4.3 (latest 1.x,
-  # published 2026-11-04). GHSA IDs with 1.4.3 as first-patched:
-  # GHSA-6889-vf6x-f3g5, GHSA-w4xr-hqv8-ch44, GHSA-6cv4-p8m7-4r25,
-  # GHSA-j8rw-jp99-435v. 1.4.3 is inside ^1.3.1 — in-range bump.
-  # Note: pinned to exact 1.4.3; node-forge has a sustained advisory stream,
-  # so each new security release requires a follow-up override bump.
-  node-forge: "1.4.3"
   # fast-jwt 6.0.2 (pulled in by apns2, ^6.0.1 declared) carries multiple
   # GHSA advisories (3 critical as of 2026-11). 6.3.6 clears all of them
   # (one — GHSA-hm7r-c7qw-ghp6 — has no patched release; cleared by range
