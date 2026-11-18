@@ -131,6 +131,7 @@ req = urllib.request.Request(url)
 with urllib.request.urlopen(req) as resp:
     milestone = json.loads(resp.read().decode())
 due_date = parse_date(milestone.get("due_on"))
+MILESTONE_URL = f"https://code.openpeeps.org/openpeeps/openpeeps/milestone/{MILESTONE_ID}"
 print(f"Due date: {due_date}")
 
 # --- Build the burndown ---
@@ -331,9 +332,48 @@ for i in all_items.values():
     for key, lbl in NEEDS_HUMAN:
         if lbl in labels:
             human_counts[key] = human_counts.get(key, 0) + 1
+
+
+def fetch_label_ids():
+    """Map label name -> numeric id from the org and repo label endpoints.
+
+    The issue filter UI (`?labels=<id>`) takes numeric label IDs, not names —
+    a name in `labels=` is silently ignored and returns the unfiltered list.
+    Repo labels and org labels are separate ID spaces, so merge both.
+    """
+    ids = {}
+    for base in ("https://code.openpeeps.org/api/v1/orgs/openpeeps", "https://code.openpeeps.org/api/v1/repos/openpeeps/openpeeps"):
+        for page in range(1, 6):
+            try:
+                batch = api_get(f"{base}/labels?limit=50&page={page}")
+            except Exception:
+                break
+            if not batch:
+                break
+            for l in batch:
+                if l.get("name"):
+                    ids.setdefault(l["name"], l.get("id"))
+    return ids
+
+
+# Each item links to the milestone's open-issue list filtered to its flow
+# label (by numeric id), so a zero count still resolves to the (empty) filter
+# view. A gate whose label id cannot be resolved falls back to the plain
+# milestone URL.
+label_ids = fetch_label_ids()
+human_items = []
+for key, lbl in NEEDS_HUMAN:
+    text = f"{key} ({human_counts.get(key, 0)})"
+    lid = label_ids.get(lbl)
+    if lid is not None:
+        url = f"{MILESTONE_URL}?labels={lid}&state=open"
+        human_items.append(f"[{text}]({url})")
+    else:
+        print(f"  warning: no label id found for {lbl!r}; linking to plain milestone")
+        human_items.append(f"[{text}]({MILESTONE_URL})")
 human_line = (
     f"🧍 Needs human intervention: "
-    + " · ".join(f"{key} {human_counts.get(key, 0)}" for key, _ in NEEDS_HUMAN)
+    + " · ".join(human_items)
     + f" (total {sum(human_counts.values())})"
 )
 

@@ -29,7 +29,13 @@ The description contains:
    the milestone are currently waiting on a human gate:
    `flow/needs-specs`, `flow/ready-to-schedule`, `flow/ready-to-review-plan`,
    `flow/ready-to-merge`, `flow/on-test-instance`, `flow/waiting-for-app-build`
-   and `flow/ready-to-test`.
+   and `flow/ready-to-test`. Each gate is rendered as a markdown link to the
+   milestone's open-issue list filtered to that gate's `flow/*` label, so even
+   a zero count still links to the (empty) filter view. The Forgejo issue
+   filter takes a **numeric label id** (`?labels=<id>`, not the label name —
+   a name is silently ignored), so the script resolves each gate's label name
+   to its id from the org/repo label endpoints first; a gate whose id cannot
+   be resolved falls back to the plain milestone URL.
 
 Each issue's stage history is reconstructed from its `/timeline` label events
 (`flow/*` labels are exclusive, so the latest flow event wins; the issue's
