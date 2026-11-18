@@ -534,6 +534,26 @@ user.name`/`user.email`; do not hardcode an author here):
   line range instead.
 - Prefer targeted searches over reading whole files when locating code.
 
+### Terminal Discipline
+
+- Bound every foreground command so it is safe to abort at ~30s: use the
+  terminal tool's `timeout` parameter for anything that can block (network,
+  install, build, test, database), and add `--max-time 15` to `curl`
+  (`--timeout=15` to `wget`) in every network call. Genuinely long
+  operations run in the background with output to a log file, and you poll
+  the log — never the process.
+- Never poll a hung command. If a command hits the no-output notice, at
+  most one empty-command send is allowed; if it is still silent, send `C-c`
+  (or kill the PID), treat the command as failed, and change approach. A
+  process with no new output for ~30s is broken, not slow. Repeating the
+  same action after an identical no-op observation is how runs get killed
+  as stuck.
+- Errors must stay visible. Never `2>/dev/null` on a network or API call —
+  a hidden error is the most expensive failure mode in a non-interactive
+  run. On a visible API failure, retry once; if it still fails, skip that
+  check, note it, and continue. An informational lookup (CI status, a log
+  excerpt, a version check) must never block the actual task.
+
 ### Working Style
 
 - Before a cross-cutting change, state the full list of affected files and
