@@ -948,7 +948,9 @@
     "members": {
       "title": "Mitglieder",
       "searchPlaceholder": "Mitglieder nach Name oder Handle suchen",
-      "empty": "Keine Mitglieder gefunden"
+      "empty": "Keine Mitglieder gefunden",
+      "count_one": "{{count}} Mitglied",
+      "count_other": "{{count}} Mitglieder"
     },
     "notFound": "Gruppe nicht gefunden",
     "error": {

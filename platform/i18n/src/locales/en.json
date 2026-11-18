@@ -947,7 +947,9 @@
     "members": {
       "title": "Members",
       "searchPlaceholder": "Search members by name or handle",
-      "empty": "No members found"
+      "empty": "No members found",
+      "count_one": "{{count}} member",
+      "count_other": "{{count}} members"
     },
     "form": {
       "groupName": "Group Name",

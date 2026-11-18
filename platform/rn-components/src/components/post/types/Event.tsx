@@ -32,8 +32,11 @@ export const FeedEvent = ({ post }: { post: PublicPost }) => {
         </View>
       )}
 
-      <View className="flex-row items-center justify-between">
-        <ThemedText className="text-muted-foreground text-sm">
+      <View className="flex-row items-center justify-between gap-x-2">
+        <ThemedText
+          className="min-w-0 flex-1 text-muted-foreground text-sm"
+          numberOfLines={1}
+        >
           {formatEventDate(start)}
           {end && ` - ${formatEventDate(end)}`}
           {eventData.timeZone && ` (${eventData.timeZone})`}
@@ -41,6 +44,7 @@ export const FeedEvent = ({ post }: { post: PublicPost }) => {
         <Button
           variant="outline"
           size="sm"
+          className="shrink-0"
           onPress={() => navigation.navigate('Post', { id: post.id })}
         >
           <ThemedText className="text-xs">
