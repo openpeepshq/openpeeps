@@ -33,6 +33,8 @@ The token defaults to the FORGEJO_TOKEN environment variable.
 import argparse
 import json
 import os
+import time
+import urllib.error
 import urllib.request
 from datetime import date, timedelta
 
@@ -401,17 +403,35 @@ print(f"\n=== Description ({len(desc)} chars) ===")
 print(desc)
 
 # --- Update milestone ---
+# The write is retried: the Forgejo API intermittently answers PATCH on the
+# milestone with a transient 405/5xx (observed mid-deploy), and a single blip
+# should not fail the whole run after all the stats were computed.
 if _args.dry_run:
     print("\nDRY RUN: not updating milestone.")
 else:
     print("\n=== Updating milestone description ===")
-    result = api_patch(
-        url,
-        {
-            "title": milestone["title"],
-            "state": milestone["state"],
-            "description": desc,
-            "due_on": milestone.get("due_on"),
-        },
-    )
+    payload = {
+        "title": milestone["title"],
+        "state": milestone["state"],
+        "description": desc,
+        "due_on": milestone.get("due_on"),
+    }
+    result = None
+    last_err = None
+    for attempt in range(1, 6):
+        try:
+            result = api_patch(url, payload)
+            break
+        except urllib.error.HTTPError as e:
+            last_err = e
+            retryable = e.code in (405, 408, 429, 500, 502, 503, 504)
+            print(
+                f"  milestone update attempt {attempt}/5 failed: "
+                f"HTTP {e.code} ({'retrying' if retryable else 'not retryable'})"
+            )
+            if not retryable:
+                raise
+            time.sleep(3 * attempt)
+    if result is None:
+        raise last_err
     print(f"SUCCESS: {len(result.get('description', ''))} chars")
