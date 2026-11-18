@@ -1,6 +1,6 @@
 {
   "name": "@openpeepshq/server",
-  "version": "0.2.9",
+  "version": "0.3.0",
   "private": true,
   "license": "GPL-3.0-or-later",
   "type": "module",
@@ -20,6 +20,8 @@
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.5.0",
+    "@atproto/sync": "^0.1.40",
+    "@atproto/xrpc-server": "^0.13.7",
     "@fedify/express": "^2.3.6",
     "@fedify/fedify": "^2.3.6",
     "@fedify/postgres": "^2.3.6",
@@ -47,7 +49,9 @@
     "react-dom": "^19.0.0",
     "sharp": "^0.35.5",
     "undici": "7.30.2",
-    "uuidv7": "^1.0.2"
+    "uuidv7": "^1.0.2",
+    "ws": "^8.22.1",
+    "@types/ws": "^8.5.10"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",

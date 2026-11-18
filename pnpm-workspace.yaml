@@ -231,3 +231,17 @@ allowBuilds:
   protobufjs: true
   sharp: true
   web-audio-api: true
+
+minimumReleaseAgeExclude:
+  - '@atproto/api@0.32.2'
+  # Fresh AT Protocol resolutions pinned by the ingest/sync work (issue #2122):
+  # released within the org-wide minimum-release-age window, so they are
+  # excluded uniformly rather than gated per package.
+  - '@atproto/common@0.5.16'
+  - '@atproto/crypto@0.5.7'
+  - '@atproto/identity@0.4.12'
+  - '@atproto/lexicon@0.5.2'
+  - '@atproto/repo@0.8.13'
+  - '@atproto/sync@0.1.40'
+  - '@atproto/syntax@0.7.7'
+  - 'multiformats@13.4.2'

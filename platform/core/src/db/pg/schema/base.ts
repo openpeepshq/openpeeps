@@ -5,6 +5,10 @@ export const tsvector = customType<{ data: string }>({
   dataType: () => 'tsvector',
 });
 
+export const bytea = customType<{ data: Buffer; driverData: Buffer }>({
+  dataType: () => 'bytea',
+});
+
 export const idColumn = () => uuid('id').primaryKey();
 
 export const modelTimestamps = {

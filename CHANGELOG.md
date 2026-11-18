@@ -8,6 +8,7 @@ Changelog for OpenPeeps
 - **skills**: link each needs-human gate to its milestone filter
 - show post edit history on web and mobile
 - **federation**: publish discoverable flag for opted-out profiles (Option 1)
+- **atproto**: ingest, sync, and AppView-lite
 - **theme**: add configurable Jam Lobby background image
 - **resources**: single image per pick so the crop dialog always shows
 - **rn-components**: consolidate the mobile layout onto the web layout

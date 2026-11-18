@@ -140,6 +140,7 @@ export const unfollow = async (follower: Profile, followed: Profile) => {
   const { db } = await allpeepDb();
   await followDisconnector(db, follower, followed);
   await Promise.all([clearProfileCache(follower), clearProfileCache(followed)]);
+  hub.emit('followDeleted', follower, followed);
 };
 
 export const blockProfile = async (blocker: Profile, blocked: Profile) => {

@@ -19,13 +19,21 @@ const log = logger('app:events');
 export type CoreEvents = {
   profileCreated: (profile: Profile) => void;
   postCreated: (post: PostWithMeta) => void;
+  postUpdated: (post: PostWithMeta, previousJamModerators?: Profile[]) => void;
+  postDeleted: (post: PostWithMeta) => void;
   jamRecordingCompleted: (recording: JamRecordingWithMeta) => void;
   followCreated: (follower: Profile, followed: Profile) => void;
+  followDeleted: (follower: Profile, followed: Profile) => void;
   notificationCreated: (notification: Notification) => void;
   reactionCreated: (
     profile: Profile,
     post: PostWithMeta,
     data: ReactionData,
+  ) => void;
+  reactionDeleted: (
+    profile: Profile,
+    post: PostWithMeta,
+    data: { reaction: string },
   ) => void;
   entryCreated: (profile: Profile, post: PostWithMeta, data: EntryData) => void;
   rsvpCreated: (
@@ -53,10 +61,14 @@ export type CoreEventKey = keyof CoreEvents;
 const validEventKeyMap = {
   profileCreated: true,
   postCreated: true,
+  postUpdated: true,
+  postDeleted: true,
   jamRecordingCompleted: true,
   followCreated: true,
+  followDeleted: true,
   notificationCreated: true,
   reactionCreated: true,
+  reactionDeleted: true,
   entryCreated: true,
   rsvpCreated: true,
   postAnnounced: true,

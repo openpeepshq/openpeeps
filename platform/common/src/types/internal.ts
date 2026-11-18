@@ -87,6 +87,11 @@ export type ProfileActorFields = {
   publicKeyPem?: string | null;
   keyId?: string | null;
   fetchedAt?: string | null;
+  did?: string | null;
+  atHandle?: string | null;
+  pdsEndpoint?: string | null;
+  atSigningPublicKey?: string | null;
+  atSigningPrivateKey?: string | null;
 };
 
 export type ProfileWithMeta = Model<ProfileData> &
