@@ -2,7 +2,7 @@ import { endpoint, z } from '#lib/endpoint';
 import { badRequest, forbidden, notFound } from '#lib/errors';
 import {
   publicPostSchema,
-  postDataUnionSchema,
+  postDataInputUnionSchema,
 } from '@openpeepshq/common/types';
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
@@ -12,7 +12,7 @@ import {
   categoryPathKey,
 } from '@openpeepshq/common/lib';
 
-export const Input = postDataUnionSchema;
+export const Input = postDataInputUnionSchema;
 export const Output = publicPostSchema;
 export const Param = z.object({
   postId: z.string(),
@@ -36,7 +36,7 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
 
     await ensurePostCapabilities(event, postToUpdate, ['core-posts-update']);
 
-    const postData = postDataUnionSchema.parse(input);
+    const postData = postDataInputUnionSchema.parse(input);
     if (postData.type === 'resource') {
       // Legacy rows may hold whitespace-padded segments (pre-validation data);
       // only enforce the strict gate when the folder path itself is being edited.

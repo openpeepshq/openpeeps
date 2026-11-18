@@ -418,6 +418,8 @@
     },
     "form": {
       "content": "Was beschäftigt Sie?",
+      "contentTooLong": "Der Inhalt darf höchstens 500 sichtbare Zeichen haben",
+      "contentRequired": "Eine Notiz braucht sichtbaren Text oder einen Anhang",
       "changeGroup": "Gruppe ändern",
       "notifyEveryone": "Alle benachrichtigen",
       "visibility": {

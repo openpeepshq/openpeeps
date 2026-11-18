@@ -109,6 +109,7 @@ export const PostForm = ({
 
       <OpenpeepsMarkdownInput
         autoFocus={autoFocus}
+        blockOverflow={false}
         value={content}
         onChange={(text) => form.setValue('data.content', text)}
         placeholder={

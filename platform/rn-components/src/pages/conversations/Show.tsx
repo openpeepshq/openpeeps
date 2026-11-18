@@ -147,7 +147,9 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
   }, []);
 
   const handleSendMessage = async () => {
-    if (!canSend) return;
+    if (!canSend) {
+      return;
+    }
 
     try {
       setIsSending(true);
@@ -367,6 +369,7 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
               <View className="px-4 py-3 bg-background border-t border-border">
                 <OpenpeepsMarkdownInput
                   rows={3}
+                  blockOverflow={false}
                   value={content}
                   onChange={setContent}
                   maxLength={maxContentLength}

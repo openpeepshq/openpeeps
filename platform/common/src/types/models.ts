@@ -3,6 +3,7 @@ import validator from 'validator';
 import ISO6391 from 'iso-639-1';
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
 import { isEndBeforeStart } from '../lib/eventTime';
+import { hasVisibleText, postContentWithinBudget } from '../lib/contentLength';
 import { groupRelationships } from './capabilities';
 import { capabilitiesSchema } from './config';
 import {
@@ -498,23 +499,43 @@ export const customEmojiSchema = z
   .openapi('CustomEmoji');
 export type CustomEmoji = z.infer<typeof customEmojiSchema>;
 
-export const noteSchema = z
-  .object({
-    type: z.literal('note'),
-    content: z.string().optional(),
-    sensitive: z.boolean().optional(),
-    spoilerText: z.string().optional(),
-    attachments: z.array(mediaAttachmentDataSchema).optional(),
-    customEmojis: z.array(customEmojiSchema).optional(),
-    language: z.enum(ISO6391.getAllCodes() as [string, ...string[]]).optional(),
-  })
-  .openapi('Note');
+const noteBaseSchema = z.object({
+  type: z.literal('note'),
+  content: z.string().optional(),
+  sensitive: z.boolean().optional(),
+  spoilerText: z.string().optional(),
+  attachments: z.array(mediaAttachmentDataSchema).optional(),
+  customEmojis: z.array(customEmojiSchema).optional(),
+  language: z.enum(ISO6391.getAllCodes() as [string, ...string[]]).optional(),
+});
+
+// A note must carry something a reader can see: visible text or an
+// attachment. Whitespace-only text renders nothing, so it is not enough.
+const hasContentRefine = {
+  message: 'posts.form.contentRequired',
+  path: ['content'],
+};
+
+// Note/question carry the visible-text + raw budgets; the longer post
+// flavors (article, resource, event) extend the base without them.
+const contentBudgetRefine = {
+  message: 'posts.form.contentTooLong',
+  path: ['content'],
+};
+
+// The refines are write-side checks only: they must live on the input
+// schemas the write endpoints validate against, not on the members of
+// `postDataUnionSchema`. That union also validates API *responses*
+// (`publicPostSchema`, reply/entry data), where a contentless note is
+// legitimate — repost shells and system "left" notes have neither
+// content nor attachments, and output validation must not reject them.
+export const noteSchema = noteBaseSchema.openapi('Note');
 export type Note = z.infer<typeof noteSchema>;
 
 /** Poll choices are stored short so they fit the vote UI on small screens. */
 export const POLL_OPTION_MAX_LENGTH = 30;
 
-export const questionSchema = noteSchema
+export const questionSchema = noteBaseSchema
   .extend({
     type: z.literal('question'),
     options: z
@@ -531,7 +552,23 @@ export const questionSchema = noteSchema
 
 export type Question = z.infer<typeof questionSchema>;
 
-export const articleSchema = noteSchema
+export const noteInputSchema = noteBaseSchema
+  .refine(
+    (data) =>
+      hasVisibleText(data.content) || (data.attachments?.length ?? 0) > 0,
+    hasContentRefine,
+  )
+  .refine((data) => postContentWithinBudget(data.content), contentBudgetRefine);
+
+export const questionInputSchema = questionSchema
+  .refine(
+    (data) =>
+      hasVisibleText(data.content) || (data.attachments?.length ?? 0) > 0,
+    hasContentRefine,
+  )
+  .refine((data) => postContentWithinBudget(data.content), contentBudgetRefine);
+
+export const articleSchema = noteBaseSchema
   .extend({
     type: z.literal('article'),
     image: z.url().optional(),
@@ -544,7 +581,7 @@ export type Article = z.infer<typeof articleSchema>;
 /** Resource titles are library headings, so they stay much shorter than the description. */
 export const RESOURCE_TITLE_MAX_LENGTH = 200;
 
-export const resourcePostSchema = noteSchema
+export const resourcePostSchema = noteBaseSchema
   .extend({
     type: z.literal('resource'),
     title: z.string().max(RESOURCE_TITLE_MAX_LENGTH),
@@ -607,7 +644,7 @@ export type EventOccurrenceException = z.infer<
   typeof eventOccurrenceExceptionSchema
 >;
 
-export const eventSchema = noteSchema
+export const eventSchema = noteBaseSchema
   .extend({
     type: z.literal('event'),
     name: z.string().optional(),
@@ -645,6 +682,19 @@ export const postDataUnionSchema = z.discriminatedUnion('type', [
 ]);
 
 export type PostDataUnion = z.infer<typeof postDataUnionSchema>;
+
+// Write-side union: the server POST/PUT endpoints validate *incoming*
+// post payloads with this. The budget/requirement refines must not sit
+// on the response-facing `postDataUnionSchema` members (see above).
+export const postDataInputUnionSchema = z.discriminatedUnion('type', [
+  noteInputSchema,
+  questionInputSchema,
+  eventSchema,
+  articleSchema,
+  resourcePostSchema,
+]);
+
+export type PostDataInputUnion = z.infer<typeof postDataInputUnionSchema>;
 
 export const postDataSchema = z.object({
   type: postTypeSchema,

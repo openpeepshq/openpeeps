@@ -18,8 +18,10 @@ import {
   MediaAttachment,
   pollOptionsWithinLimit,
   PostCreationData,
+  canSubmitPostContent,
   PublicPost,
   resolvePollOptionContents,
+  visibleTextLength,
 } from '@openpeepshq/common';
 import Toast from 'react-native-toast-message';
 import {
@@ -90,7 +92,6 @@ export const ReplyPost = ({ route, navigation }: PostProps) => {
       setPostData(newPostData as PostCreationData);
       form.reset(newPostData);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post]);
 
   useEffect(() => {
@@ -118,6 +119,7 @@ export const ReplyPost = ({ route, navigation }: PostProps) => {
   }, [isPostLoading, post, postData]);
 
   const trimmedContent = (postData?.data.content ?? '').trim();
+  const visibleContentLength = visibleTextLength(trimmedContent);
   const pollOptions =
     postData?.data.type === 'question'
       ? postData.data.options.map((option) => option.content)
@@ -134,12 +136,18 @@ export const ReplyPost = ({ route, navigation }: PostProps) => {
       return false;
     }
     if (postData.data.type === 'question') {
-      return trimmedContent.length > 0 && pollOptionsValid;
+      return canSubmitPostContent({
+        visibleContentLength,
+        attachmentsLength: postData.data.attachments?.length ?? 0,
+        composerType: 'question',
+        pollOptionsValid,
+      });
     }
-    return (
-      (trimmedContent.length > 0 && trimmedContent.length <= 500) ||
-      (postData.data.attachments?.length ?? 0) > 0
-    );
+    return canSubmitPostContent({
+      visibleContentLength,
+      attachmentsLength: postData.data.attachments?.length ?? 0,
+      composerType: 'note',
+    });
   }, [
     attachmentsProcessing,
     isPosting,
@@ -147,6 +155,7 @@ export const ReplyPost = ({ route, navigation }: PostProps) => {
     post,
     postData,
     trimmedContent.length,
+    visibleContentLength,
   ]);
 
   const handlePostCreation = async () => {

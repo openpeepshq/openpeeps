@@ -27,6 +27,7 @@ import {
   type MediaAttachment,
   mediaAttachmentSchema,
   mentionDataSchema,
+  postDataInputUnionSchema,
   postDataUnionSchema,
   postTypeSchema,
   profileDataSchema,
@@ -799,7 +800,7 @@ export type DirectMessageSearchHit = z.infer<
 export const postCreationDataSchema = z.object({
   visibility: visibilityTypeSchema,
   type: postTypeSchema,
-  data: postDataUnionSchema,
+  data: postDataInputUnionSchema,
   inReplyToId: z.uuid().nullable().optional(),
   mentions: mentionWithPublicProfileSchema.array().nullable().optional(),
   audience: publicProfileSchema.array().nullable().optional(),

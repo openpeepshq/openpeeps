@@ -7,7 +7,7 @@ import {
 } from '#lib/errors';
 import {
   publicPostSchema,
-  postDataUnionSchema,
+  postDataInputUnionSchema,
   postDataSchema,
   type PostData,
 } from '@openpeepshq/common/types';
@@ -95,7 +95,7 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
         ? baseAudience.filter((p) => p.id !== lastPostAuthorId)
         : baseAudience;
 
-    const postData = postDataUnionSchema.parse(input.data);
+    const postData = postDataInputUnionSchema.parse(input.data);
     if (
       postData.type === 'resource' &&
       !validResourceCategoryPath(postData.categoryPath)

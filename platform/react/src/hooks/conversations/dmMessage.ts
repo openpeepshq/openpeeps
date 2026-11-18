@@ -1,13 +1,19 @@
+import {
+  POST_MAX_VISIBLE_LENGTH,
+  visibleTextLength,
+} from '@openpeepshq/common';
 import type { MediaAttachmentData } from '@openpeepshq/common/types';
 
 /** DM messages are note posts, so their text carries the note budget. */
-export const DM_MESSAGE_MAX_LENGTH = 500;
+export const DM_MESSAGE_MAX_LENGTH = POST_MAX_VISIBLE_LENGTH;
 /** Client-side cap on attachments per DM message (applied on both platforms). */
 export const DM_MAX_ATTACHMENTS = 4;
 
 /**
  * Send gate for DM messages: nothing in flight, no pending uploads, within
- * the text budget, and something to send (text or attachments).
+ * the visible-text budget (markdown source like link URLs does not count,
+ * same measurement as the post composers and the server refine), and
+ * something to send (text or attachments).
  */
 export const canSendDmMessage = ({
   sending,
@@ -22,5 +28,5 @@ export const canSendDmMessage = ({
 }) =>
   !sending &&
   !uploadsPending &&
-  text.length <= DM_MESSAGE_MAX_LENGTH &&
+  visibleTextLength(text) <= DM_MESSAGE_MAX_LENGTH &&
   (text.trim().length > 0 || attachments.length > 0);

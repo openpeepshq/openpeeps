@@ -15,7 +15,7 @@ import {
   adjustUnseenCounts,
   useNavigate,
 } from '../../index';
-import { canCreatePost } from '@openpeepshq/common';
+import { canCreatePost, POST_MAX_VISIBLE_LENGTH } from '@openpeepshq/common';
 import {
   Avatar,
   ConversationParticipantsModal,
@@ -34,8 +34,6 @@ import {
   DM_MAX_ATTACHMENTS,
 } from '../../hooks/conversations/dmMessage';
 import { Button, LoadingSpinner } from '@openpeepshq/react-ui';
-
-const MAX_LENGTH = 500;
 
 const isMessageId = (value: string | null): value is string =>
   !!value &&
@@ -83,9 +81,10 @@ const ConversationComposer = ({
       {compose.previews}
       <OpenpeepsMarkdownInput
         rows={3}
+        blockOverflow={false}
         value={text}
         onChange={setText}
-        maxLength={MAX_LENGTH}
+        maxLength={POST_MAX_VISIBLE_LENGTH}
         placeholder={t('conversations.placeholder', {
           defaultValue: 'Write a message…',
         })}

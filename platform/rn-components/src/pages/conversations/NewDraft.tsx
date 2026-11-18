@@ -115,6 +115,7 @@ export const DraftMessage = ({ navigation }: DraftMessageProps) => {
           ) : null}
           <OpenpeepsMarkdownInput
             rows={5}
+            blockOverflow={false}
             value={message}
             onChange={setMessage}
             maxLength={maxContentLength}
@@ -135,10 +136,8 @@ export const DraftMessage = ({ navigation }: DraftMessageProps) => {
             </Button>
             <TouchableOpacity
               onPress={() => void send()}
+              className={`p-2 rounded-full ${canSend ? 'bg-primary' : 'bg-surface'}`}
               disabled={!canSend}
-              className={`p-2 rounded-full ${
-                canSend ? 'bg-primary' : 'bg-surface'
-              }`}
             >
               {submitting ? (
                 <ActivityIndicator size={'small'} />

@@ -28,12 +28,20 @@ vi.mock('../../profile', () => ({
 
 const renderInput = (
   root: Root,
-  props: { value: string; onChange: (value: string) => void },
+  props: {
+    value: string;
+    onChange: (value: string) => void;
+    maxLength?: number;
+    blockOverflow?: boolean;
+  },
 ) => {
   act(() => {
     root.render(createElement(OpenpeepsMarkdownInput, props));
   });
 };
+
+const counterDiv = (container: HTMLDivElement) =>
+  container.querySelector('.text-right');
 
 describe('OpenpeepsMarkdownInput', () => {
   let root: Root | undefined;
@@ -87,5 +95,65 @@ describe('OpenpeepsMarkdownInput', () => {
     const textarea = container.querySelector('textarea');
     expect(textarea).toBeTruthy();
     expect(textarea?.value).toBe('');
+  });
+
+  it('counts only the visible link text, not the markdown', () => {
+    const { container, root } = mount();
+
+    // 30 raw chars, 7 visible — the counter must show the visible count.
+    renderInput(root, {
+      value: '[AllPeeP](https://allpeep.com)',
+      onChange: () => undefined,
+      blockOverflow: false,
+    });
+
+    expect(counterDiv(container)?.textContent).toBe('7 / 500');
+  });
+
+  it('tracks the raw length while the native hard cap is on', () => {
+    const { container, root } = mount();
+
+    // 30 raw chars — with blockOverflow the counter tracks the cap it enforces.
+    renderInput(root, {
+      value: '[AllPeeP](https://allpeep.com)',
+      onChange: () => undefined,
+    });
+
+    expect(counterDiv(container)?.textContent).toBe('30 / 500');
+  });
+
+  it('keeps the hard cap by default and drops it with blockOverflow off', () => {
+    const { container, root } = mount();
+    renderInput(root, { value: 'x', onChange: () => undefined });
+    let textarea = container.querySelector('textarea');
+    expect(textarea?.maxLength).toBe(500);
+
+    act(() => {
+      root.render(
+        createElement(OpenpeepsMarkdownInput, {
+          value: 'x',
+          onChange: () => undefined,
+          blockOverflow: false,
+        }),
+      );
+    });
+    textarea = container.querySelector('textarea');
+    expect(textarea?.maxLength).toBe(-1);
+  });
+
+  it('turns the counter red once the visible text exceeds the budget', () => {
+    const { container, root } = mount();
+
+    // 8 visible chars over a budget of 5, though the raw string is far longer.
+    renderInput(root, {
+      value: '[aaaaaaaa](https://example.com)',
+      onChange: () => undefined,
+      maxLength: 5,
+      blockOverflow: false,
+    });
+
+    const span = counterDiv(container)?.querySelector('span');
+    expect(span?.textContent).toBe('8');
+    expect(span?.className).toContain('text-error');
   });
 });

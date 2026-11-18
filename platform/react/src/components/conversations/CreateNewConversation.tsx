@@ -1,6 +1,9 @@
 import { Image } from 'lucide-react';
 import type { PublicProfile } from '@openpeepshq/common/types';
-import { blockedPairIds } from '@openpeepshq/common/lib';
+import {
+  blockedPairIds,
+  POST_MAX_VISIBLE_LENGTH,
+} from '@openpeepshq/common/lib';
 import {
   Button,
   Dialog,
@@ -18,8 +21,6 @@ import {
 } from '../../hooks/conversations/dmMessage';
 import { OpenpeepsMarkdownInput, useComposeAttachments } from '../post';
 import { ProfilesInput } from '../profile';
-
-const MAX_MESSAGE_LENGTH = 500;
 
 export interface CreateNewConversationProps {
   profiles?: PublicProfile[];
@@ -120,9 +121,10 @@ export const CreateNewConversation = ({
                 {compose.previews}
                 <OpenpeepsMarkdownInput
                   rows={5}
+                  blockOverflow={false}
                   value={message}
                   onChange={setMessage}
-                  maxLength={MAX_MESSAGE_LENGTH}
+                  maxLength={POST_MAX_VISIBLE_LENGTH}
                   placeholder={t('conversations.createNew.messagePlaceholder', {
                     defaultValue: 'Write a message…',
                   })}
@@ -153,7 +155,7 @@ export const CreateNewConversation = ({
                 )}
                 <Button
                   variant="default"
-                  disabled={!canSend || selectedProfiles.length === 0}
+                  disabled={selectedProfiles.length === 0 || !canSend}
                   action={send}
                 >
                   {submitting

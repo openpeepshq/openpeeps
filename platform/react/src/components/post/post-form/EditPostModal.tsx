@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import {
+  canSubmitPostContent,
   pollOptionsWithinLimit,
   resolvePollOptionContents,
+  visibleTextLength,
 } from '@openpeepshq/common';
 import type {
   MediaAttachmentData,
@@ -95,15 +97,26 @@ export function EditPostModal({ post, onClose }: EditPostModalProps) {
     }
   };
 
+  const visibleContentLength = visibleTextLength(content);
+
   const canSave = useMemo(() => {
     if (data.type === 'question') {
-      return content.trim().length > 0 && pollOptionsValid;
+      return canSubmitPostContent({
+        visibleContentLength,
+        attachmentsLength: data.attachments?.length ?? 0,
+        composerType: 'question',
+        pollOptionsValid,
+      });
     }
     if (data.type === 'note') {
-      return content.trim().length > 0 || (data.attachments?.length ?? 0) > 0;
+      return canSubmitPostContent({
+        visibleContentLength,
+        attachmentsLength: data.attachments?.length ?? 0,
+        composerType: 'note',
+      });
     }
     return true;
-  }, [content, data, pollOptionsValid]);
+  }, [data, visibleContentLength, pollOptionsValid]);
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -118,6 +131,7 @@ export function EditPostModal({ post, onClose }: EditPostModalProps) {
           <>
             <OpenpeepsMarkdownInput
               rows={3}
+              blockOverflow={false}
               value={content}
               onChange={setContent}
             />
@@ -154,6 +168,7 @@ export function EditPostModal({ post, onClose }: EditPostModalProps) {
           <>
             <OpenpeepsMarkdownInput
               rows={6}
+              blockOverflow={false}
               value={content}
               onChange={setContent}
             />

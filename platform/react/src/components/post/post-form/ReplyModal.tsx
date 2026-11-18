@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AudioLines, Image, Paperclip } from 'lucide-react';
 import {
+  canSubmitPostContent,
   pollOptionsWithinLimit,
   resolvePollOptionContents,
+  visibleTextLength,
 } from '@openpeepshq/common';
 import type { PostCreationData, PublicPost } from '@openpeepshq/common/types';
 import {
@@ -114,6 +116,7 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
   };
 
   const trimmedContent = content.trim();
+  const visibleContentLength = visibleTextLength(trimmedContent);
   const resolvedPollOptions = resolvePollOptionContents(pollOptions, (index) =>
     pollOptionLabel(index, t),
   );
@@ -123,18 +126,17 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
 
   const canSubmit = useMemo(() => {
     if (submitting || composeAttachments.pending) return false;
-    if (composerType === 'question') {
-      return trimmedContent.length > 0 && pollOptionsValid;
-    }
-    return (
-      (trimmedContent.length > 0 && trimmedContent.length <= 500) ||
-      attachments.length > 0
-    );
+    return canSubmitPostContent({
+      visibleContentLength,
+      attachmentsLength: attachments.length,
+      composerType: composerType === 'question' ? 'question' : 'note',
+      pollOptionsValid,
+    });
   }, [
     submitting,
     composeAttachments.pending,
     composerType,
-    trimmedContent,
+    visibleContentLength,
     pollOptionsValid,
     attachments.length,
   ]);
@@ -211,6 +213,7 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
               <div className="w-full space-y-2">
                 <OpenpeepsMarkdownInput
                   rows={4}
+                  blockOverflow={false}
                   value={content}
                   onChange={setContent}
                   placeholder={

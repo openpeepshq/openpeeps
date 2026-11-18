@@ -7,7 +7,7 @@ import {
 } from '#lib/errors';
 import {
   publicPostSchema,
-  postDataUnionSchema,
+  postDataInputUnionSchema,
   postDataSchema,
 } from '@openpeepshq/common/types';
 import { ensureLocalProfile } from '#lib/auth';
@@ -33,7 +33,7 @@ export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
   async (input, event: RequestEvent) => {
     const profile = await ensureLocalProfile(event);
 
-    const postData = postDataUnionSchema.parse(input.data);
+    const postData = postDataInputUnionSchema.parse(input.data);
     if (
       postData.type === 'resource' &&
       !validResourceCategoryPath(postData.categoryPath)

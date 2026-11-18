@@ -3,6 +3,7 @@ import { twMerge } from 'tailwind-merge';
 import { lightFormat, parse, parseJSON } from 'date-fns';
 import {
   GroupData,
+  POST_MAX_VISIBLE_LENGTH,
   Profile,
   PublicProfile,
   SuccessFailureResponse,
@@ -21,7 +22,9 @@ const DATE_FORMAT = 'MM/dd/yyyy';
 const TIME_FORMAT = 'hh:mm aaa';
 const DATE_TIME_FORMAT = `${DATE_FORMAT} ${TIME_FORMAT}`;
 
-export const maxContentLength = 500;
+// DM/post composer budget — sourced from the shared note budget so the RN
+// default and the server-side refine can never drift apart.
+export const maxContentLength = POST_MAX_VISIBLE_LENGTH;
 export const maxArticleContentLength = 10000;
 
 export const formatDateTime = (date: Date) =>
