@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useLocalParticipant } from '@livekit/react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ConnectionQuality } from 'livekit-client';
 import { useTranslation } from 'react-i18next';
 import {
   useJamRecordingElapsed,
   useJamRecordingState,
+  useJamExternalSessions,
 } from '@openpeepshq/react';
-import { CircleIcon, XIcon } from '../icons/index';
+import { CircleIcon, EyeOnIcon, XIcon } from '../icons/index';
 import { ThemedText } from '../ui/themed-text';
 import { useThemeOpacity } from '../../theme/useThemeOpacity';
 import { useConnectionQuality } from './useParticipantConnection';
@@ -36,6 +38,37 @@ export const JamRecordingIndicator = () => {
       <ThemedText className="text-sm font-medium text-destructive-foreground">
         {t('events.recordingInProgress')}
         {elapsed ? ` ${elapsed}` : ''}
+      </ThemedText>
+    </View>
+  );
+};
+
+/**
+ * Eye pill shown to participants while hidden external sessions are
+ * connected, top-right. The jam screen has no top header, so the pill clears
+ * the safe-area top inset (notch/status bar) plus 16px of margin; toasts
+ * (rendered by the host app at the safe-area inset) then win the corner, as
+ * the transparency signal is lower priority than user feedback.
+ */
+export const JamObserverIndicator = () => {
+  const { t } = useTranslation();
+  const { background } = useThemeOpacity();
+  const insets = useSafeAreaInsets();
+  const sessions = useJamExternalSessions();
+
+  if (sessions <= 0) return null;
+
+  // NativeWind v4 can't apply `/N` opacity to CSS-variable colors (e.g.
+  // `bg-primary/90`), so the pill background uses an inline rgba style.
+  return (
+    <View
+      pointerEvents="none"
+      style={[{ top: insets.top + 16, right: 16 }, background('primary', 0.9)]}
+      className="z-50 flex-row items-center gap-2 rounded-full px-3 py-1"
+    >
+      <EyeOnIcon size={16} className="text-primary-foreground" />
+      <ThemedText className="text-sm font-medium text-primary-foreground">
+        {t('jams.observers.present', { count: sessions })}
       </ThemedText>
     </View>
   );

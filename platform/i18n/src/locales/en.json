@@ -1173,6 +1173,10 @@
       "connectionDetail": "Your internet connection is {{quality}}.",
       "dismiss": "Dismiss"
     },
+    "observers": {
+      "present_one": "{{count}} external session is connected to this jam",
+      "present_other": "{{count}} external sessions are connected to this jam"
+    },
     "screenShare": {
       "stopTitle": "Stop Screen sharing",
       "startScreenshareMobile": "Start Screenshare",

@@ -24,6 +24,8 @@ const { mapColors } = require('../../theme/defaults');
 const mockViewProps: Array<{ style?: unknown; className?: string }> = [];
 let mockQuality = 1; // livekit-client ConnectionQuality.Good
 let mockIsDark = false;
+let mockSessions = 0;
+let mockSafeAreaTop = 36; // a typical status-bar inset
 
 jest.mock('react-native', () => {
   const View = (props: {
@@ -51,20 +53,39 @@ jest.mock('livekit-client', () => ({
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, opts?: Record<string, unknown>) =>
-      key.replace(/\{\{(\w+)\}\}/g, (_m: string, n: string) =>
+    // Plural branches mirror `jams.observers.present` in en.json, so the
+    // rendered text pins both the key/count usage and the plural choice.
+    t: (key: string, opts?: Record<string, unknown>) => {
+      if (key === 'jams.observers.present') {
+        const count = Number(opts?.count ?? 0);
+        const text =
+          count === 1
+            ? '{{count}} external session is connected to this jam'
+            : '{{count}} external sessions are connected to this jam';
+        return text.replace(/\{\{(\w+)\}\}/g, (_m: string, n: string) =>
+          String(opts?.[n] ?? '')
+        );
+      }
+      return key.replace(/\{\{(\w+)\}\}/g, (_m: string, n: string) =>
         String(opts?.[n] ?? '')
-      ),
+      );
+    },
   }),
 }));
 
 jest.mock('@openpeepshq/react', () => ({
   useJamRecordingState: () => ({ isRecording: false }),
   useJamRecordingElapsed: () => null,
+  useJamExternalSessions: () => mockSessions,
+}));
+
+jest.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({ top: mockSafeAreaTop, bottom: 0 }),
 }));
 
 jest.mock('../icons/index', () => ({
   CircleIcon: () => React.createElement('CircleIcon'),
+  EyeOnIcon: () => React.createElement('EyeOnIcon'),
   XIcon: () => React.createElement('XIcon'),
 }));
 
@@ -92,7 +113,10 @@ jest.mock('./useParticipantConnection', () => ({
   useConnectionQuality: () => mockQuality,
 }));
 
-const { JamNetworkQuality } = require('./JamRoomIndicators');
+const {
+  JamNetworkQuality,
+  JamObserverIndicator,
+} = require('./JamRoomIndicators');
 
 const renderQuality = (quality: number, isDark: boolean) => {
   mockViewProps.length = 0;
@@ -103,6 +127,21 @@ const renderQuality = (quality: number, isDark: boolean) => {
     tree = ReactTestRenderer.create(React.createElement(JamNetworkQuality));
   });
   return { tree, banner: mockViewProps[mockViewProps.length - 1] };
+};
+
+const renderObserverPill = (sessions: number, safeAreaTop: number) => {
+  mockViewProps.length = 0;
+  mockSessions = sessions;
+  mockSafeAreaTop = safeAreaTop;
+  let tree!: ReactTestRenderer.ReactTestRenderer;
+  ReactTestRenderer.act(() => {
+    tree = ReactTestRenderer.create(React.createElement(JamObserverIndicator));
+  });
+  const texts = tree.root.findAllByType('ThemedText');
+  return {
+    pill: mockViewProps[mockViewProps.length - 1],
+    renderedText: texts.length ? texts[0].children.join('') : null,
+  };
 };
 
 describe('JamNetworkQuality banner background', () => {
@@ -139,5 +178,42 @@ describe('JamNetworkQuality banner background', () => {
   it('renders nothing when the connection is good', () => {
     renderQuality(1, false); // ConnectionQuality.Good
     expect(mockViewProps).toHaveLength(0);
+  });
+});
+
+describe('JamObserverIndicator pill', () => {
+  it('renders nothing when no external sessions are connected', () => {
+    const { pill, renderedText } = renderObserverPill(0, 36);
+    expect(pill).toBeUndefined();
+    expect(renderedText).toBeNull();
+  });
+
+  it('renders the singular copy with the inline primary background and a safe-area-aware top when one session is connected', () => {
+    mockIsDark = false;
+    const { pill, renderedText } = renderObserverPill(1, 36);
+
+    expect(renderedText).toBe('1 external session is connected to this jam');
+    expect(pill).toBeDefined();
+    // The pill background is the real primary color at 0.9 opacity (inline
+    // rgba, not a NativeWind `/90` class) and clears the safe-area top
+    // inset plus a 16px margin; pinned against the shipped light primary
+    // (#16161a).
+    expect(pill!.style).toEqual([
+      { top: 52, right: 16 },
+      { backgroundColor: 'rgba(22, 22, 26, 0.9)' },
+    ]);
+    // Positioning lives in the inline style; the magic `top-14` class must
+    // not come back.
+    expect(pill!.className).not.toContain('top-14');
+  });
+
+  it('renders the plural copy when two sessions are connected', () => {
+    const { renderedText } = renderObserverPill(2, 0);
+    expect(renderedText).toBe('2 external sessions are connected to this jam');
+  });
+
+  it('adapts the top offset to the device safe-area inset', () => {
+    const { pill } = renderObserverPill(1, 59); // large status-bar inset
+    expect((pill!.style as Array<{ top?: number }>)[0].top).toBe(59 + 16);
   });
 });

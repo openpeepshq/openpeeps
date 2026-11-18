@@ -730,6 +730,8 @@ export type ReportCreationData = z.infer<typeof reportCreationDataSchema>;
 export const jamStateSchema = z.object({
   active: z.boolean(),
   participants: z.uuid().array(),
+  /** Count of hidden `EG_` sessions (observer links, recording/RTMP egress). */
+  observers: z.number().optional(),
 });
 export type JamState = z.infer<typeof jamStateSchema>;
 

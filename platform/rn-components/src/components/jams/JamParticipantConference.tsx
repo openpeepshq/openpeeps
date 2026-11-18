@@ -22,7 +22,11 @@ import { JamDetailsDrawer } from './JamDetailsDrawer';
 import { JamDesktopFooter } from './JamDesktopFooter';
 import { JamFooter, type JamFooterProps } from './JamFooter';
 import { JamPeopleDrawer } from './JamPeopleDrawer';
-import { JamNetworkQuality, JamRecordingIndicator } from './JamRoomIndicators';
+import {
+  JamNetworkQuality,
+  JamObserverIndicator,
+  JamRecordingIndicator,
+} from './JamRoomIndicators';
 import { JamVideoLayout } from './JamVideoLayout';
 
 type Drawer = 'chat' | 'people' | 'details' | null;
@@ -92,6 +96,7 @@ const JamParticipantConferenceInner = () => {
     <View className="relative flex-1 overflow-hidden bg-background">
       <JamNetworkQuality />
       <JamRecordingIndicator />
+      <JamObserverIndicator />
       <View className="relative min-h-0 w-full flex-1 overflow-hidden p-2">
         <View className="min-h-0 flex-1 overflow-hidden">
           <View className="shrink-0 flex-row items-center">

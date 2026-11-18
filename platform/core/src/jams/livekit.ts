@@ -58,6 +58,38 @@ export const roomService = async () => {
   return new RoomServiceClient(url, apiKey, apiSecret);
 };
 
+/** Egress identities are minted only by createJamEgressToken(). */
+const EGRESS_IDENTITY_PREFIX = 'EG_';
+
+export const isEgressIdentity = (identity: string) =>
+  identity.startsWith(EGRESS_IDENTITY_PREFIX);
+
+/**
+ * Split LiveKit participant identities into humans and hidden external
+ * sessions (observer links, recording/RTMP web egress), which share the
+ * `EG_` identity prefix minted by `createJamEgressToken()`.
+ */
+export const splitJamParticipants = (identities: string[]) => {
+  const humans: string[] = [];
+  let observers = 0;
+  for (const identity of identities) {
+    if (isEgressIdentity(identity)) {
+      observers += 1;
+    } else {
+      humans.push(identity);
+    }
+  }
+  return { humans, observers };
+};
+
+const listParticipantIdentities = async (jamId: string) => {
+  const rs = await roomService();
+  if (rs === undefined) {
+    return [];
+  }
+  return (await rs.listParticipants(jamId)).map((p) => p.identity);
+};
+
 export const listParticipantIds = async (jamId: string) => {
   const rs = await roomService();
   if (rs === undefined) {
@@ -65,7 +97,7 @@ export const listParticipantIds = async (jamId: string) => {
   }
   return (await rs.listParticipants(jamId))
     .map((p) => p.identity)
-    .filter((identity) => !identity.startsWith('EG_'));
+    .filter((identity) => !isEgressIdentity(identity));
 };
 
 const getJamEgressToken = async (jamId: string) =>
@@ -422,7 +454,7 @@ export const jamState = async (
   hideParticipants?: boolean,
   recurrenceId?: string,
 ): Promise<JamState> => {
-  const inactive: JamState = { participants: [], active: false };
+  const inactive: JamState = { participants: [], active: false, observers: 0 };
   const rs = await roomService();
   const roomName = jamRoomName(jam.id, recurrenceId);
   if (rs === undefined) {
@@ -441,14 +473,16 @@ export const jamState = async (
     if (!room.numParticipants) {
       return inactive;
     }
-    const participants = await listParticipantIds(roomName);
-    if (shouldReclaimJamRoom(room.numParticipants, participants.length)) {
+    const identities = await listParticipantIdentities(roomName);
+    const { humans, observers } = splitJamParticipants(identities);
+    if (shouldReclaimJamRoom(room.numParticipants, humans.length)) {
       void reclaimOrphanJamRoom(jam, roomName);
       return inactive;
     }
     return {
-      participants: hideParticipants ? [] : participants,
+      participants: hideParticipants ? [] : humans,
       active: true,
+      observers,
     };
   } catch (e) {
     log.warn(
