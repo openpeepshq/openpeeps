@@ -34,4 +34,21 @@ describe('Analytics monthly report email', () => {
     expect(html).toContain('2026-09-30');
     expect(html).toContain('Total membership stood at 120 for the period.');
   });
+
+  it('shows the reporting period exactly once', async () => {
+    // #1887: the period must render once in the email. The body no longer
+    // carries its own `Period:` line, so the template's line is the only one.
+    const html = await render(
+      createElement(AnalyticsMonthlyReport, {
+        globals,
+        locals: {
+          periodFrom: '2026-09-01',
+          periodTo: '2026-09-30',
+          reportText: 'Total membership stood at 120 for the period.',
+        },
+      }),
+    );
+
+    expect((html.match(/Period:/g) ?? []).length).toBe(1);
+  });
 });

@@ -1,11 +1,57 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type {
   AnalyticsEngagement,
   AnalyticsGrowth,
   AnalyticsOverview,
 } from '@openpeepshq/common/types';
+import { getTableColumns } from 'drizzle-orm';
+import { communityConfig } from '../config';
+import { defaultCommunityConfig } from '../config/defaults/community';
 import { buildAnalyticsPdf } from './pdfReport';
-import { buildSimplePdf } from './report';
+import {
+  buildAnalyticsBoardReport,
+  buildSimplePdf,
+  sendMonthlyAnalyticsReport,
+} from './report';
+import {
+  getAnalyticsEngagement,
+  getAnalyticsGrowth,
+  getAnalyticsOverview,
+} from './read';
+import { analyticsReportDeliveries } from '../db/pg/schema/analytics';
+import { getAnalyticsReportSettings } from './settings';
+
+vi.mock('../config', () => ({
+  communityConfig: vi.fn(),
+}));
+
+vi.mock('./read', () => ({
+  getAnalyticsOverview: vi.fn(),
+  getAnalyticsGrowth: vi.fn(),
+  getAnalyticsEngagement: vi.fn(),
+}));
+
+vi.mock('./settings', () => ({
+  getAnalyticsReportSettings: vi.fn(),
+}));
+
+const { insertValues, dbMock } = vi.hoisted(() => {
+  const insertValues = vi.fn();
+  const dbMock = {
+    insert: vi.fn(() => ({ values: insertValues })),
+    update: vi.fn(() => ({
+      set: vi.fn(() => ({ where: vi.fn(() => Promise.resolve([])) })),
+    })),
+  };
+  return { insertValues, dbMock };
+});
+vi.mock('../db', () => ({
+  database: vi.fn(async () => dbMock),
+}));
+
+vi.mock('../email', () => ({
+  sendEmailQueue: vi.fn(() => ({ add: vi.fn(async () => undefined) })),
+}));
 
 const metric = (value: number, previousValue = value) => ({
   key: 'm',
@@ -207,9 +253,115 @@ describe('buildAnalyticsPdf', () => {
   });
 });
 
+describe('buildAnalyticsBoardReport', () => {
+  it('omits the title and period from the email body', async () => {
+    vi.mocked(getAnalyticsOverview).mockResolvedValue(overviewFixture);
+    vi.mocked(getAnalyticsGrowth).mockResolvedValue(growthFixture);
+    vi.mocked(getAnalyticsEngagement).mockResolvedValue(engagementFixture);
+    vi.mocked(communityConfig).mockResolvedValue(defaultCommunityConfig);
+
+    const { text } = await buildAnalyticsBoardReport();
+
+    // The email template renders the title and `Period:` line itself, so the
+    // body must not repeat them (#1887).
+    expect(text.startsWith('Executive summary')).toBe(true);
+    expect(text).not.toContain('Community analytics report');
+    expect(text).not.toContain('Period:');
+  });
+
+  it('keeps the period in the PDF export while omitting it from the email body', async () => {
+    vi.mocked(getAnalyticsOverview).mockResolvedValue(overviewFixture);
+    vi.mocked(getAnalyticsGrowth).mockResolvedValue(growthFixture);
+    vi.mocked(getAnalyticsEngagement).mockResolvedValue(engagementFixture);
+    vi.mocked(communityConfig).mockResolvedValue(defaultCommunityConfig);
+
+    const { text, pdf } = await buildAnalyticsBoardReport();
+    // pdfkit emits text as hex strings in `<hex> TJ` operators, so decode
+    // them before searching for the period in the rendered content. This only
+    // works because pdfReport.ts creates the document with `compress: false`
+    // and standard Helvetica/WinAnsi encoding — with compression on, the text
+    // would exist only inside FlateDecode streams, which this helper does not
+    // inflate (it would silently scan binary noise instead).
+    const pdfText = (pdf.toString('latin1').match(/<([0-9a-fA-F]{4,})>/g) ?? [])
+      .map((h) => Buffer.from(h.slice(1, -1), 'hex').toString('latin1'))
+      .join('');
+
+    // The visual PDF is a separate deliverable and must still show the period,
+    // rendered as `${range.from} to ${range.to}` in the page chrome/footer
+    // (#1887 review item 1: verify the PDF export keeps the period).
+    expect(pdfText).toContain(`${range.from} to ${range.to}`);
+    // …while the plain-text email body stays header-free.
+    expect(text).not.toContain(range.from);
+    expect(text).not.toContain('Period:');
+  });
+});
+
+describe('sendMonthlyAnalyticsReport', () => {
+  it('stores periodStart/periodEnd on the delivery record without repeating them in body.text', async () => {
+    vi.mocked(getAnalyticsReportSettings).mockResolvedValue({
+      enabled: true,
+      recipients: ['admin@example.com'],
+    });
+    vi.mocked(getAnalyticsOverview).mockResolvedValue(overviewFixture);
+    vi.mocked(getAnalyticsGrowth).mockResolvedValue(growthFixture);
+    vi.mocked(getAnalyticsEngagement).mockResolvedValue(engagementFixture);
+    vi.mocked(communityConfig).mockResolvedValue(defaultCommunityConfig);
+    insertValues.mockClear();
+
+    const result = await sendMonthlyAnalyticsReport({
+      from: '2026-10-01',
+      to: '2026-10-31',
+    });
+
+    expect(result.sent).toBe(true);
+    const record = (insertValues.mock.calls[0] as [Record<string, unknown>])[0];
+    expect(record).toMatchObject({
+      periodStart: '2026-10-01',
+      periodEnd: '2026-10-31',
+      recipients: ['admin@example.com'],
+      status: 'sending',
+    });
+    const body = record.body as {
+      text: string;
+      pdfAttached: boolean;
+      filename: string;
+    };
+    expect(body.pdfAttached).toBe(true);
+    // The period lives only in the dedicated periodStart/periodEnd columns; the
+    // stored body must not repeat it or #1887 regresses (#1887 review item 2).
+    expect(body.text).not.toContain('2026-10-01');
+    expect(body.text).not.toContain('2026-10-31');
+    expect(body.text).not.toContain('Period:');
+    expect(body.text.startsWith('Executive summary')).toBe(true);
+  });
+});
+
+describe('analyticsReportDeliveries schema', () => {
+  it('keeps the body JSONB separate from the dedicated period columns', () => {
+    // The period lives in dedicated periodStart/periodEnd columns and the
+    // stored body is header-free (#1887); this pins the split at the schema
+    // level so a reshape can't silently re-merge the period into `body`.
+    const columns = getTableColumns(analyticsReportDeliveries);
+    expect(Object.keys(columns).sort()).toEqual(
+      [
+        'body',
+        'createdAt',
+        'id',
+        'periodEnd',
+        'periodStart',
+        'recipients',
+        'status',
+      ].sort(),
+    );
+    expect(columns.periodStart.columnType).toBe('PgDateString');
+    expect(columns.periodEnd.columnType).toBe('PgDateString');
+    expect(columns.body.columnType).toBe('PgJsonb');
+  });
+});
+
 describe('buildSimplePdf', () => {
   it('still builds a single-page text PDF', () => {
-    const pdf = buildSimplePdf('Community analytics report\nPeriod: 2026-07');
+    const pdf = buildSimplePdf('Executive summary\nTotal membership: 120');
     const text = pdf.toString('latin1');
     expect(text.startsWith('%PDF-1.4')).toBe(true);
     expect(text).toContain('/Count 1');
