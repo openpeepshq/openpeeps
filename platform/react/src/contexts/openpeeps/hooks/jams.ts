@@ -1,4 +1,5 @@
 import type { OpenpeepsClient } from '@openpeepshq/client';
+import type { SseError } from '@openpeepshq/fetch-client';
 import {
   apiHook,
   infiniteChronologicalQueryApiHook,
@@ -44,10 +45,15 @@ export const jamHooks = (client: OpenpeepsClient) => ({
       queryParameters: occurrence ? { occurrence } : undefined,
     }),
   admitParticipantAction: noPayloadMutation(client.jams.waitingRoom.admit),
-  useJoinWaitingRoomStream: (id: string, occurrence?: string) =>
+  useJoinWaitingRoomStream: (
+    id: string,
+    occurrence?: string,
+    onError?: (error: SseError) => void,
+  ) =>
     noPayloadStream(client.jams.waitingRoom.join).last({
       pathParameters: { id },
       queryParameters: occurrence ? { occurrence } : undefined,
+      onError,
     }),
   startRecordingAction: noPayloadMutation(client.jams.recordings.start, [
     ['jams'],

@@ -31,6 +31,7 @@ const buildSource = async <
   lastId,
   handler,
   start,
+  onError,
 }: BuildSourceOptions<
   EventType,
   PayloadType,
@@ -60,6 +61,32 @@ const buildSource = async <
       await handler(decodeAndParse<EventType>(data));
     },
   );
+  if (onError) {
+    // sse.js fires `error` with the HTTP status and response body when the
+    // request returns non-OK (e.g. a 401 authNeeded from the join endpoint).
+    // Surface the machine-readable `key` so callers can map it to a message.
+    source.addEventListener(
+      'error',
+      (event: { responseCode?: number; data?: string }) => {
+        let key: string | undefined;
+        let message: string | undefined;
+        if (typeof event.data === 'string' && event.data.length > 0) {
+          try {
+            const body = JSON.parse(event.data) as {
+              errorKey?: string;
+              key?: string;
+              message?: string;
+            };
+            key = body.errorKey ?? body.key;
+            message = body.message;
+          } catch {
+            message = event.data;
+          }
+        }
+        onError({ status: event.responseCode, key, message });
+      },
+    );
+  }
   if (start) {
     source.stream();
   }

@@ -47,6 +47,15 @@ export const jamFromEvent = (event: PublicPost): Jam | undefined => {
   return undefined;
 };
 
+/** A public post that is a real jam (the anonymous state-read short-circuit). */
+export const isPublicJamPost = (event: {
+  visibility: string;
+  data?: { type?: string; jam?: unknown } | null;
+}): boolean =>
+  event.visibility === 'public' &&
+  event.data?.type === 'event' &&
+  !!event.data?.jam;
+
 export const canModerateJam = (
   profile: Pick<PublicProfile, 'id'> | undefined,
   post: PublicPost,

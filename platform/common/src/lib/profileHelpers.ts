@@ -1,6 +1,7 @@
 import type {
   GroupWithMeta,
   InviteLinkWithMeta,
+  JamWaitingProfile,
   ProfileSettings,
   ProfileWithMeta,
   PublicProfile,
@@ -130,6 +131,10 @@ export const tombstoneProfileWithMetaIfDeleted = (
 
 export const profileName = (profile?: PublicProfile) =>
   profile?.displayName || profile?.handle;
+
+/** Display name for a waiting-room queue entry (queue stores only a name). */
+export const waitingRoomEntryName = (entry?: JamWaitingProfile) =>
+  entry?.displayName || `#${entry?.id.slice(0, 6)}`;
 
 export const matchesQuery = (
   profile: PublicProfile | GroupWithMeta | undefined,

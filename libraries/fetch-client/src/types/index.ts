@@ -177,6 +177,15 @@ export interface TypedPayloadProgressObserverEndpoint<
   }) => QueryKey;
 }
 
+/** Error surfaced when an SSE stream fails (non-OK response, dropped connection). */
+export interface SseError {
+  /** HTTP status of the response, if one was received. */
+  status?: number;
+  /** Machine-readable error key from the JSON body, if present. */
+  key?: string;
+  message?: string;
+}
+
 export interface EventSourceOptions<
   EventType,
   PathParameters extends ParametersType = undefined,
@@ -185,6 +194,8 @@ export interface EventSourceOptions<
   pathParameters?: PathParameters;
   queryParameters?: QueryParameters;
   handler: (event: EventType) => void | Promise<void>;
+  /** Fired once when the stream fails to open (non-OK / connection error). */
+  onError?: (error: SseError) => void;
   headers?: Record<string, string>;
   start?: boolean;
   onlyNew?: boolean;

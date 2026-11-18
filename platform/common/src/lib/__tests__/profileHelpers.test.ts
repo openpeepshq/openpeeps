@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
+  waitingRoomEntryName,
   clampProfileDisplayName,
   profileName,
   matchesQuery,
@@ -478,5 +479,17 @@ describe('profileHelpers', () => {
       expect(stub.handle).toBe('alice');
       expect(stub.bio).toBeUndefined();
     });
+  });
+});
+
+describe('waitingRoomEntryName', () => {
+  it('prefers the stored display name', () => {
+    expect(waitingRoomEntryName({ id: 'abc12345', displayName: 'Ada' })).toBe(
+      'Ada',
+    );
+  });
+
+  it('falls back to an id prefix when no name is stored', () => {
+    expect(waitingRoomEntryName({ id: 'abc12345' })).toBe('#abc123');
   });
 });

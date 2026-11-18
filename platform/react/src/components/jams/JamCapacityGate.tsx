@@ -3,10 +3,11 @@ import { isCapacityEvent } from '@openpeepshq/common/lib';
 import { useT } from '../../i18n';
 import { useCurrentProfile } from '../layout/IdentityContext';
 import { EventRsvpButton } from '../post/pieces/EventRsvpButton';
+import { JamGuestForm } from './JamGuestForm';
 
 export interface JamCapacityGateProps {
   jamPost: PublicPost;
-  reason: 'full' | 'rsvp-required' | 'removed';
+  reason: 'full' | 'rsvp-required' | 'removed' | 'guest-required';
   eventName?: string;
   occurrence?: string;
 }
@@ -25,6 +26,13 @@ export const JamCapacityGate = ({
     !!me &&
     !!eventData &&
     isCapacityEvent(eventData);
+
+  // A signed-out visitor on a waiting-room jam needs a guest pass (or sign-in)
+  // before they can queue. The form re-issues identity, which re-runs the
+  // room hook and carries them through to the lobby / request-to-join.
+  if (reason === 'guest-required' && !me) {
+    return <JamGuestForm />;
+  }
 
   const message =
     reason === 'full'

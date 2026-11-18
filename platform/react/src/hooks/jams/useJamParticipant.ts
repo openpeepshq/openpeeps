@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import type { Participant } from 'livekit-client';
+import type { SseError } from '@openpeepshq/fetch-client';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { useJamContext } from '../../components/jams/JamContext';
@@ -52,16 +53,35 @@ export const useJamParticipantMute = ({
 /** Joins automatically once a moderator admits us from the waiting room. */
 export const useJoinWaitingRoomToken = (
   onJoin: (params: JamJoinParams) => void,
+  onError?: (error: SseError | undefined) => void,
 ) => {
   const { jamPost, occurrence } = useJamContext();
   const { openpeepsApi } = useOpenpeeps();
+
+  // The stream is (re)created whenever its options change identity, so
+  // `onError` must be referentially stable across renders. Callers pass an
+  // inline callback, so route it through a ref and hand the stream one
+  // callback that never changes identity — otherwise the waiting-room
+  // connection would be torn down and re-opened on every render.
+  const onErrorRef = useRef(onError);
+  useEffect(() => {
+    onErrorRef.current = onError;
+  });
+  const stableOnError = useCallback(
+    (error?: SseError) => onErrorRef.current?.(error),
+    [],
+  );
   const tokenResponse = openpeepsApi.useJoinWaitingRoomStream(
     jamPost.id,
     occurrence,
+    stableOnError,
   );
 
   useEffect(() => {
     if (tokenResponse?.token && tokenResponse.livekitUrl) {
+      // Re-join is a no-op on the server (the room stores one entry per
+      // profile id), so a render-cycled onJoin identity cannot corrupt the
+      // queue — but the token response itself must still be fresh.
       onJoin({
         token: tokenResponse.token,
         livekitUrl: tokenResponse.livekitUrl,

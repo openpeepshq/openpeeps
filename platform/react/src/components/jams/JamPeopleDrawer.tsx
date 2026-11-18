@@ -8,7 +8,8 @@ import {
   WifiOff,
   X,
 } from 'lucide-react';
-import { profileName } from '@openpeepshq/common/lib';
+import { profileName, waitingRoomEntryName } from '@openpeepshq/common/lib';
+import type { JamWaitingProfile } from '@openpeepshq/common/types';
 import { useParticipants, useRoomContext } from '@livekit/components-react';
 import type { Participant } from 'livekit-client';
 import { Button, Input } from '@openpeepshq/react-ui';
@@ -169,9 +170,9 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
                   className="flex items-center justify-between gap-2"
                 >
                   <div className="flex min-w-0 items-center gap-2">
-                    <Avatar profile={profile} size={2} />
+                    <WaitingRoomAvatar profile={profile} size={2} />
                     <span className="truncate text-sm">
-                      {profileName(profile)}
+                      {waitingRoomEntryName(profile)}
                     </span>
                   </div>
                   <Button
@@ -192,5 +193,26 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
         ) : null}
       </div>
     </div>
+  );
+}
+
+/**
+ * Waiting-room entries carry only a display name (no avatar/handle), so the
+ * plain Avatar's initials fallback renders a stable, honest placeholder.
+ */
+function WaitingRoomAvatar({
+  profile,
+  size,
+}: {
+  profile: JamWaitingProfile;
+  size: number;
+}) {
+  // Initials-avatar input: only the name matters, so narrow instead of
+  // widening a queue entry to a full PublicProfile.
+  return (
+    <Avatar
+      profile={{ displayName: waitingRoomEntryName(profile) }}
+      size={size}
+    />
   );
 }

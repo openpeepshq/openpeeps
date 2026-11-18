@@ -5,8 +5,8 @@ import {
 } from '#lib/auth';
 import { endpoint, z } from '#lib/endpoint';
 import { jamStateSchema } from '@openpeepshq/common';
-import { parseOccurrenceQuery } from '@openpeepshq/common/lib';
-import { findPostsForAuth, isPublic } from '@openpeepshq/core/posts';
+import { isPublicJamPost, parseOccurrenceQuery } from '@openpeepshq/common/lib';
+import { findPostsForAuth } from '@openpeepshq/core/posts';
 import { notFound, forbidden } from '#lib/errors';
 import { findJamState } from '@openpeepshq/core/jams';
 
@@ -38,8 +38,13 @@ export const apiEndpoint = endpoint({ Output, Param, Query, Error }).handle(
       resource: { type: 'jams', id: input.eventId },
     });
 
+    // Signed-out visitors may read the state of a public jam post (it drives
+    // the join CTA / waiting-room notice); any other public post still
+    // requires a profile, so the anonymous short-circuit is jam-only.
+    const publicJam = isPublicJamPost(jamEvent);
+
     const profile =
-      isPublic(jamEvent) || isServiceAuthorized
+      publicJam || isServiceAuthorized
         ? event.context.currentProfile
         : await ensureProfileOrGuest(event, 'read', {
             type: 'jams',

@@ -579,6 +579,23 @@ export const jamTokenResponseSchema = tokenResponseSchema.extend({
 });
 export type JamTokenResponse = z.infer<typeof jamTokenResponseSchema>;
 
+/**
+ * Waiting-room entry as stored in Redis and streamed to moderators: the
+ * profile's `displayName` (or `handle` when absent) keyed by `profile.id`.
+ * The admission path re-fetches the full profile by id, so the queue never
+ * carries the full object.
+ */
+export const jamWaitingRoomEntrySchema = z.object({
+  displayName: z.string().optional(),
+});
+export type JamWaitingRoomEntry = z.infer<typeof jamWaitingRoomEntrySchema>;
+
+/** A waiting-room entry resolved for UI: the profile id (the record key) plus display name. */
+export type JamWaitingProfile = {
+  id: string;
+  displayName?: string;
+};
+
 export interface Credentials {
   token: string;
 }
