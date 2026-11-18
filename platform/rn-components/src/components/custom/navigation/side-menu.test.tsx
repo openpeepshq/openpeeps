@@ -41,6 +41,15 @@ jest.mock('@openpeepshq/common', () => ({
     .formatBadgeCount,
 }));
 
+jest.mock('react-native-toast-message', () => ({
+  __esModule: true,
+  default: { show: jest.fn() },
+}));
+
+jest.mock('../../../lib/push-notifications', () => ({
+  unregisterPushForLogout: jest.fn(async () => 'ok'),
+}));
+
 // Mutable so each case can drive the unseen-counts hook; the mock factory
 // reads it lazily per call.
 let mockUnseenData: {

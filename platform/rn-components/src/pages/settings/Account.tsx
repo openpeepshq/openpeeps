@@ -13,6 +13,7 @@ import { Account } from '@openpeepshq/common';
 import { ActivityIndicator, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { downloadDocument } from '../../lib/downloadFile';
+import { unregisterPushForLogout } from '../../lib/push-notifications';
 
 type AccountSettingsProps = MainScreenProps<'AccountSettings'>;
 
@@ -139,7 +140,20 @@ export const AccountSettings: React.FC<AccountSettingsProps> = () => {
         await queryClient.invalidateQueries({
           queryKey: ['profile'],
         });
+        // Best-effort cleanup (never throws); logout always follows. The RN
+        // side owns FCM cleanup, so this outcome — not the web pushCleanup
+        // flag — is what the logout toast reflects on native.
+        const pushResult = await unregisterPushForLogout(client);
         await logout();
+        if (pushResult === 'failed') {
+          Toast.show({
+            type: 'error',
+            text1: t('settings.notifications.pushCleanupFailed', {
+              defaultValue:
+                'Could not remove push notifications for this device.',
+            }),
+          });
+        }
       })
       .catch((err) => {
         console.log('response', err);

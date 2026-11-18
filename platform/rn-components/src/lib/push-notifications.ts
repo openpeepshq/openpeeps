@@ -22,7 +22,11 @@ import {
   consumePendingPushAction,
   setPendingPushAction,
 } from './push-notification-navigation';
+import type { useOpenpeeps } from '@openpeepshq/react';
+import { isSubscriptionNotFound, handleResult } from '@openpeepshq/react';
 import './push-notifications-background';
+
+type OpenpeepsClient = ReturnType<typeof useOpenpeeps>['client'];
 
 const messageToPushNotification = (
   message: FirebaseMessagingTypes.RemoteMessage
@@ -244,4 +248,65 @@ export const initializePushNotifications = async (
     });
   }
   return fcmRegistration;
+};
+
+/**
+ * Logout cleanup: remove this device's FCM subscription from the server and
+ * drop the local FCM registration, so the logged-out device stops receiving
+ * pushes for this account and the next login registers fresh. Must run before
+ * credentials are cleared — the API calls need the auth token. Best-effort:
+ * never throws, so logout cannot be blocked by push cleanup.
+ *
+ * Returns `'failed'` when the server row could not be removed (the user would
+ * keep receiving pushes for this account, so the caller toasts); `'ok'`
+ * otherwise, including when there was no local registration at all or only
+ * the local token drop failed (the server-side delete is what stops delivery).
+ */
+export const unregisterPushForLogout = async (
+  client: OpenpeepsClient
+): Promise<'ok' | 'failed'> => {
+  let token: string | undefined;
+  try {
+    token = await getToken(getApp().messaging());
+  } catch {
+    // No Firebase messaging available; nothing to unregister.
+    return 'ok';
+  }
+  if (!token) return 'ok';
+
+  let serverCleanupFailed = false;
+  try {
+    const subscriptions = await client.accounts.current
+      .listPushSubscriptions()
+      .then(handleResult);
+    const own = subscriptions.find(
+      (subscription) =>
+        subscription.type === 'fcm' && subscription.fcmToken === token
+    );
+    if (own) {
+      await client.accounts.current
+        .deletePushSubcription({
+          pathParameters: { pushSubscriptionId: own.id },
+        })
+        .then(handleResult)
+        .catch((err) => {
+          // The row may already be gone (e.g. logged out elsewhere);
+          // deleting a missing subscription is not a failure.
+          if (isSubscriptionNotFound(err)) return;
+          throw err;
+        });
+    }
+  } catch (err) {
+    // Keep the subscription as a fallback: the delivery-time cleanup still
+    // removes it once the token gets rejected as unregistered.
+    serverCleanupFailed = true;
+    console.info('Error removing push subscription on logout', err);
+  }
+
+  try {
+    await getApp().messaging().deleteToken();
+  } catch {
+    // Token may already be gone; nothing to do.
+  }
+  return serverCleanupFailed ? 'failed' : 'ok';
 };

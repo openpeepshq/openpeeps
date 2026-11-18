@@ -111,12 +111,15 @@ export const usePushSubscription = ({
     setIsLoading(true);
     setError(null);
     try {
-      await unsubscribePushNotifications();
+      // `client` is required in the options (both consumers pass it from
+      // useOpenpeeps()), so the server row is always deleted on the settings
+      // self-service path — no provider lookup needed here.
+      await unsubscribePushNotifications({ client });
       setIsSubscribed(false);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [client]);
 
   return {
     isSubscribed,

@@ -1,7 +1,10 @@
 /// <reference lib="dom" />
 import type { OpenpeepsClient } from '@openpeepshq/client';
 import type { PushSubscriptionData } from '@openpeepshq/common';
+import { handleResult, isSubscriptionNotFound } from './pushSubscriptionErrors';
 import { subscriptionKeyMatches, vapidKeyBytes } from './vapid';
+
+export { handleResult, isSubscriptionNotFound } from './pushSubscriptionErrors';
 
 const isPushSupported = () =>
   typeof window !== 'undefined' &&
@@ -12,11 +15,6 @@ const isPushSupported = () =>
 /** Brave exposes `navigator.brave`; other Chromium browsers do not. */
 export const isBraveBrowser = (): boolean =>
   typeof navigator !== 'undefined' && 'brave' in navigator;
-
-const handleResult = <T>(r: { data: T } | { error: unknown }): T => {
-  if ('data' in r) return r.data;
-  throw r.error;
-};
 
 /** `serviceWorker.ready` never settles when nothing is registered. */
 const getRegistration = async (): Promise<
@@ -36,6 +34,44 @@ const keyMatches = (
     subscription.options.applicationServerKey,
     applicationServerKey,
   );
+
+/**
+ * Delete the server rows that match this browser's *live* push endpoints —
+ * the endpoint of whatever each service-worker registration currently holds.
+ * We deliberately match only live endpoints: a web row whose registration is
+ * already gone (a profile or tab abandoned without an explicit logout, so
+ * `getSubscription()` returns null and no endpoint is visible here) cannot be
+ * matched client-side, and stays registered until the next push to that
+ * endpoint is rejected with 404/410, which `doPush` then uses to remove the
+ * dead row (same delivery-time safety net as dead FCM tokens).
+ */
+const deleteServerSubscription = async (
+  client: OpenpeepsClient,
+  endpoints: string[],
+): Promise<void> => {
+  if (endpoints.length === 0) return;
+  const subscriptions = await client.accounts.current
+    .listPushSubscriptions()
+    .then(handleResult);
+  const matches = subscriptions.filter(
+    (s) => s.type === 'web' && endpoints.includes(s.endpoint),
+  );
+  await Promise.all(
+    matches.map((match) =>
+      client.accounts.current
+        .deletePushSubcription({
+          pathParameters: { pushSubscriptionId: match.id },
+        })
+        .then(handleResult)
+        .catch((err) => {
+          // The row may already be gone (concurrent logout); deleting a
+          // missing subscription is not a failure.
+          if (isSubscriptionNotFound(err)) return;
+          throw err;
+        }),
+    ),
+  );
+};
 
 const isApplicationServerKeyConflict = (err: unknown): boolean => {
   const message = err instanceof Error ? err.message : String(err);
@@ -145,19 +181,53 @@ export const subscribePushNotifications = async ({
   return subscription;
 };
 
-export const unsubscribePushNotifications = async (): Promise<boolean> => {
-  if (!isPushSupported()) return false;
+/**
+ * Unsubscribe this browser's push subscription. With a client it also removes
+ * the matching server-side subscription rows (logout path); without one it
+ * only drops the local registration (settings path, where the row is deleted
+ * via the device list UI).
+ */
+export const unsubscribePushNotifications = async (options?: {
+  client: OpenpeepsClient;
+  /**
+   * Set by the logout path on native: the RN side owns FCM cleanup
+   * explicitly there, so the browser subscription flow must not run even
+   * if its environment check ever changes.
+   */
+  skip?: boolean;
+}): Promise<boolean> => {
+  if (options?.skip || !isPushSupported()) return false;
   const registrations = await navigator.serviceWorker.getRegistrations();
   if (registrations.length === 0) return false;
+  const endpoints = (
+    await Promise.all(
+      registrations.map(async (registration) => {
+        const sub = await registration.pushManager.getSubscription();
+        return sub ? [sub.endpoint] : [];
+      }),
+    )
+  ).flat();
+  if (options) {
+    // One server list for all registrations, not one per endpoint.
+    await deleteServerSubscription(options.client, endpoints);
+  }
   const results = await Promise.all(
     registrations.map(async (registration) => {
       const sub = await registration.pushManager.getSubscription();
-      if (!sub) return false;
-      return sub.unsubscribe();
+      return sub ? sub.unsubscribe() : false;
     }),
   );
   return results.some(Boolean);
 };
+
+/**
+ * Explicit native gate for the logout cleanup path: on RN the logout flow owns
+ * FCM cleanup itself (rn-components `unregisterPushForLogout`), so the browser
+ * subscription flow must not run there — an explicit decision so the behavior
+ * survives `isPushSupported` changing.
+ */
+export const isReactNative = (): boolean =>
+  typeof navigator !== 'undefined' && navigator.product === 'ReactNative';
 
 export const getPushSubscription =
   async (): Promise<PushSubscription | null> => {

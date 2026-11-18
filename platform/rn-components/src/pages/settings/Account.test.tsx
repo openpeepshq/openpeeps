@@ -101,6 +101,10 @@ jest.mock('../../lib/downloadFile', () => ({
   downloadDocument,
 }));
 
+jest.mock('../../lib/push-notifications', () => ({
+  unregisterPushForLogout: jest.fn(async () => 'ok'),
+}));
+
 jest.mock('../../components/ui/themed-view', () => ({
   ThemedView: (props: { children?: unknown }) =>
     React.createElement('ThemedView', null, props.children),

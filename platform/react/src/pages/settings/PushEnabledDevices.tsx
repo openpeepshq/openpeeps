@@ -9,12 +9,14 @@ import {
   unsubscribePushNotifications,
   useT,
   useSetPageHeader,
+  useOpenpeeps,
 } from '../../index';
 import { usePushEnabledDevices } from '../../hooks';
 import { Button, Toast } from '@openpeepshq/react-ui';
 
 export function PushEnabledDevices() {
   const t = useT();
+  const { client } = useOpenpeeps();
   const {
     subscriptions,
     isCurrentDevice,
@@ -27,7 +29,7 @@ export function PushEnabledDevices() {
   } = usePushEnabledDevices({
     getCurrentEndpoint: async () => (await getPushSubscription())?.endpoint,
     unsubscribeCurrent: async () => {
-      await unsubscribePushNotifications();
+      await unsubscribePushNotifications({ client });
     },
   });
 

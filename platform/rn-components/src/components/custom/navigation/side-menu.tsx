@@ -6,10 +6,12 @@ import {
   ScrollView,
   useColorScheme,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { Separator } from '../../ui/separator';
 import { TouchableOpacity, View } from 'react-native';
 import { Button } from '../../ui/button';
 import { SvgImage } from '../../ui/svg-image';
+import { unregisterPushForLogout } from '../../../lib/push-notifications';
 import {
   BellIcon,
   BookCheckIcon,
@@ -116,7 +118,7 @@ export const SideMenu = ({
   close,
   onProfilePress,
 }: SideMenuProps) => {
-  const { openpeepsApi, currentProfile } = useOpenpeeps();
+  const { openpeepsApi, currentProfile, client } = useOpenpeeps();
   const { isMediumScreenOrLarger } = useWindowSize();
   const logout = openpeepsApi.logoutAction();
   const { data: serverInfo } = openpeepsApi.useServerInfo();
@@ -249,8 +251,22 @@ export const SideMenu = ({
               accessibilityLabel={t('navigation.logOut')}
               tooltip={t('navigation.tooltips.logOut')}
               onPress={() => {
-                logout();
-                close?.();
+                // The RN side owns FCM cleanup, so this outcome — not the web
+                // pushCleanup flag — is what the logout toast reflects.
+                void unregisterPushForLogout(client).then((pushResult) => {
+                  void logout().then(() => {
+                    if (pushResult === 'failed') {
+                      Toast.show({
+                        type: 'error',
+                        text1: t('settings.notifications.pushCleanupFailed', {
+                          defaultValue:
+                            'Could not remove push notifications for this device.',
+                        }),
+                      });
+                    }
+                  });
+                  close?.();
+                });
               }}
             >
               <LogOutIcon size={20} className="mr-5 text-destructive" />

@@ -89,6 +89,9 @@ vi.mock('../components', () => ({
 
 vi.mock('@openpeepshq/react-ui', () => ({
   Input: () => null,
+  // authHooks (via buildOpenpeepsApi) loads the real ToastProvider module,
+  // which imports `Toast` from react-ui at module scope.
+  Toast: () => null,
 }));
 
 import { Members } from './Members';

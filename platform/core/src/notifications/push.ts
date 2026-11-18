@@ -90,6 +90,22 @@ const sendWebPushNotification = (
     ),
   );
 
+/**
+ * Carries the webhook target's HTTP status so callers can tell a gone/dead
+ * endpoint (404/410) apart from a transient failure (timeout, 5xx, …) —
+ * the web path rejects with `{ statusCode }` for the same reason, and only a
+ * gone endpoint justifies deleting the subscription.
+ */
+class WebhookPushError extends Error {
+  readonly statusCode: number;
+
+  constructor(statusCode: number) {
+    super(`Webhook push failed with status ${statusCode}`);
+    this.name = 'WebhookPushError';
+    this.statusCode = statusCode;
+  }
+}
+
 const sendWebhookPushNotification = async (
   subscription: Extract<PushSubscription, { type: 'webhook' }>,
   payload: PushPayload,
@@ -115,7 +131,7 @@ const sendWebhookPushNotification = async (
   });
 
   if (!response.ok) {
-    throw new Error(`Webhook push failed with status ${response.status}`);
+    throw new WebhookPushError(response.status);
   }
 };
 
@@ -278,6 +294,33 @@ const sendAppFCMPushNotifications = async (
         `FCM push to ${describeFcmTarget(account, subscription)} failed`,
         response.error,
       );
+      // registration-token-not-registered is the only reliable dead-token
+      // signal: INVALID_ARGUMENT also fires for request-level problems (bad
+      // payload keys, size limits), where the token is still live. FCM v1
+      // codes are normalized to UPPERCASE client codes, so match the suffix
+      // case-insensitively.
+      const errorCode = (response.error as { code?: string } | undefined)?.code;
+      if (
+        typeof errorCode === 'string' &&
+        /registration-token-not-registered/i.test(errorCode)
+      ) {
+        await deletePushSubscription(subscription.id)
+          .then(() =>
+            logStep(
+              jobLog,
+              log,
+              `Removed dead FCM subscription ${subscription.id} (${errorCode})`,
+            ),
+          )
+          .catch((deleteError) =>
+            logFailure(
+              jobLog,
+              log,
+              `failed to remove FCM subscription ${subscription.id}`,
+              deleteError,
+            ),
+          );
+      }
     }
   }
 
@@ -338,7 +381,8 @@ export const doPush = async (
   }
 
   const webSubscriptions = uniqueSubscriptions.filter(
-    (sub) => sub.type === 'web',
+    (sub): sub is Extract<PushSubscription, { type: 'web' }> =>
+      sub.type === 'web',
   );
   const webhookSubscriptions = uniqueSubscriptions.filter(
     (sub): sub is Extract<PushSubscription, { type: 'webhook' }> =>
@@ -391,10 +435,25 @@ export const doPush = async (
         );
       })
       .catch(async (error) => {
+        // web-push rejects with { statusCode } for >= 400 and resolves for
+        // 2xx/3xx. Only 404/410 mean the endpoint is gone; deleting on
+        // anything else (403 VAPID misconfig, 429 rate limit, transient
+        // network errors with no status) would wipe live subscriptions.
+        const statusCode = (error as { statusCode?: number } | undefined)
+          ?.statusCode;
+        if (statusCode !== 404 && statusCode !== 410) {
+          await logFailure(
+            jobLog,
+            log,
+            `web push to ${describeSubscription(subscription)} failed; keeping subscription`,
+            error,
+          );
+          return;
+        }
         await logFailure(
           jobLog,
           log,
-          `web push to ${describeSubscription(subscription)} failed; removing dead subscription`,
+          `web push to ${describeSubscription(subscription)} gone (${statusCode}); removing dead subscription`,
           error,
         );
         await deletePushSubscription(subscription.id)
@@ -430,14 +489,18 @@ export const doPush = async (
           `Webhook push delivered to ${describeSubscription(subscription)}`,
         ),
       )
-      .catch((error) =>
+      .catch((error) => {
+        // Webhook delivery failures never auto-delete the subscription:
+        // unlike web (404/410) and FCM (registration-token-not-registered),
+        // a webhook has no reliable dead-endpoint signal, so a transient
+        // outage must not wipe a live one.
         logFailure(
           jobLog,
           log,
           `webhook push to ${describeSubscription(subscription)} failed`,
           error,
-        ),
-      );
+        );
+      });
   }
 
   await sendAppIOSPushNotifications(
@@ -488,7 +551,20 @@ export const sendTestPushNotification = async (
     await sendWebPushNotification(webSubscription, payload)
       .catch(async (error) => {
         log.error(error);
-        await deletePushSubscription(webSubscription.id);
+        // web-push rejects with { statusCode } for >= 400. Only 404/410 mean
+        // the endpoint is gone; a transient 403/429 or status-less network
+        // error must not delete a live subscription (mirrors doPush).
+        const statusCode = (error as { statusCode?: number } | undefined)
+          ?.statusCode;
+        if (statusCode === 404 || statusCode === 410) {
+          await deletePushSubscription(webSubscription.id).catch(
+            (deleteError) =>
+              log.error(
+                `failed to remove dead test-push subscription`,
+                deleteError,
+              ),
+          );
+        }
         throw error;
       })
       .then((r) => {
@@ -504,7 +580,20 @@ export const sendTestPushNotification = async (
     await sendWebhookPushNotification(webhookSubscription, payload).catch(
       async (error) => {
         log.error(error);
-        await deletePushSubscription(webhookSubscription.id);
+        // Only a gone webhook endpoint (404/410) justifies deleting the
+        // subscription — a transient 5xx/timeout must not wipe a live one
+        // (mirrors the web-path guard above).
+        const statusCode =
+          error instanceof WebhookPushError ? error.statusCode : undefined;
+        if (statusCode === 404 || statusCode === 410) {
+          await deletePushSubscription(webhookSubscription.id).catch(
+            (deleteError) =>
+              log.error(
+                `failed to remove dead test-push webhook subscription`,
+                deleteError,
+              ),
+          );
+        }
         throw error;
       },
     );

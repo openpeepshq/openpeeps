@@ -1,5 +1,8 @@
 export {
   isBraveBrowser,
+  isReactNative,
+  isSubscriptionNotFound,
+  handleResult,
   subscribePushNotifications,
   unsubscribePushNotifications,
   getPushSubscription,

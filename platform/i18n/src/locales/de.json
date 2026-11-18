@@ -2945,6 +2945,7 @@
       "pushUnsupported": "Push-Benachrichtigungen werden in diesem Browser nicht unterstützt.",
       "pushServiceWorkerRequired": "Push-Benachrichtigungen erfordern den App-Service-Worker. Sie sind in dieser Umgebung nicht verfügbar.",
       "pushPermissionDenied": "Die Benachrichtigungsberechtigung wurde verweigert. Aktivieren Sie sie in Ihren Browsereinstellungen und versuchen Sie es erneut.",
+      "pushCleanupFailed": "Push-Benachrichtigungen für dieses Gerät konnten nicht entfernt werden. Versuchen Sie, sich später erneut abzumelden.",
       "pushSubscribeFailed": "Push-Benachrichtigungen konnten nicht aktiviert werden. Bitte versuchen Sie es erneut.",
       "preferences": {
         "title": "Alle Benachrichtigungseinstellungen",
