@@ -238,19 +238,19 @@ Issues move through a fixed pipeline of `flow/*` stage labels. An issue has
 or two flow labels is dealing with a labeling bug: skip it and name it in the
 run summary). Stages, and what moves an issue into each, are:
 
-| Stage label                  | Meaning                                                                                                                                                                                                            | How the issue arrives here                                                                                                                |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `flow/needs-specs`           | New issue, not yet fully specified. Open questions are being asked in comments.                                                                                                                                    | **Intake** automation (new, unlabelled issues)                                                                                            |
-| `flow/ready-to-schedule`     | Well-defined and prioritized; waiting to be picked for planning.                                                                                                                                                   | **Intake** automation (clear issues), or human (from `flow/needs-specs` once questions are answered)                                      |
-| `flow/ready-to-plan`         | Scheduled; needs an implementation plan.                                                                                                                                                                           | Human (from `flow/ready-to-schedule`)                                                                                                     |
-| `flow/ready-to-review-plan`  | A plan exists (or a review returned here for re-planning); the plan needs a human sign-off.                                                                                                                        | **Planning** automation (from `flow/ready-to-plan`), or **Review** automation (from `flow/ready-to-review` when it posts suggestions)     |
-| `flow/ready-to-implement`    | Plan approved; the implementation (or re-implementation) should happen.                                                                                                                                            | Human (from `flow/ready-to-review-plan`)                                                                                                  |
-| `flow/ready-to-review`       | A PR exists that implements the plan; it needs a code review.                                                                                                                                                      | **Implementation** automation (from `flow/ready-to-implement`)                                                                            |
-| `flow/ready-to-merge`        | Review passed with no open suggestions. A **human fork**: the human decides whether the PR goes straight to the merge (`flow/merge-accepted`) or is first verified on the test instance (`flow/on-test-instance`). | **Review** automation (from `flow/ready-to-review` when there are no suggestions)                                                         |
-| `flow/merge-accepted`        | Human accepted the merge; it just needs to land (rebase if needed, then merge).                                                                                                                                    | Human (from `flow/ready-to-merge`, or from `flow/on-test-instance` once pre-merge testing passes)                                         |
-| `flow/ready-to-test`         | Merged to `main`; the merged result is awaiting QA verification, after which the issue is closed.                                                                                                                  | **Merge** automation (after the PR lands — except RN-only changes), or human (from `flow/waiting-for-app-build` once the app build ships) |
-| `flow/waiting-for-app-build` | Merged to `main`, but the PR changed **only** `platform/rn-components`; the change is not verifiable until the native app is rebuilt with the new code.                                                            | **Merge** automation (post-merge, RN-only changes)                                                                                        |
-| `flow/on-test-instance`      | Pre-merge: the PR is being verified on the test instance before the merge is accepted.                                                                                                                             | Human (from `flow/ready-to-merge`)                                                                                                        |
+| Stage label                  | Meaning                                                                                                                                                                                                            | How the issue arrives here                                                                                                                            |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `flow/needs-specs`           | New issue, not yet fully specified. Open questions are being asked in comments.                                                                                                                                    | **Intake** automation (new, unlabelled issues)                                                                                                        |
+| `flow/ready-to-schedule`     | Well-defined and prioritized; waiting to be picked for planning.                                                                                                                                                   | **Intake** automation (clear issues), or human (from `flow/needs-specs` once questions are answered)                                                  |
+| `flow/ready-to-plan`         | Scheduled; needs an implementation plan.                                                                                                                                                                           | Human (from `flow/ready-to-schedule`)                                                                                                                 |
+| `flow/ready-to-review-plan`  | A plan exists; the plan needs a human sign-off.                                                                                                                                                                    | **Planning** automation (from `flow/ready-to-plan`)                                                                                                   |
+| `flow/ready-to-implement`    | Plan approved; the implementation (or re-implementation) should happen.                                                                                                                                            | Human (from `flow/ready-to-review-plan`), or **Review** automation (from `flow/ready-to-review` when every suggestion is test/doc/quality/dependency) |
+| `flow/ready-to-review`       | A PR exists that implements the plan; it needs a code review.                                                                                                                                                      | **Implementation** automation (from `flow/ready-to-implement`)                                                                                        |
+| `flow/ready-to-merge`        | Review passed with no open suggestions. A **human fork**: the human decides whether the PR goes straight to the merge (`flow/merge-accepted`) or is first verified on the test instance (`flow/on-test-instance`). | **Review** automation (from `flow/ready-to-review` when there are no suggestions)                                                                     |
+| `flow/merge-accepted`        | Human accepted the merge; it just needs to land (rebase if needed, then merge).                                                                                                                                    | Human (from `flow/ready-to-merge`, or from `flow/on-test-instance` once pre-merge testing passes)                                                     |
+| `flow/ready-to-test`         | Merged to `main`; the merged result is awaiting QA verification, after which the issue is closed.                                                                                                                  | **Merge** automation (after the PR lands — except RN-only changes), or human (from `flow/waiting-for-app-build` once the app build ships)             |
+| `flow/waiting-for-app-build` | Merged to `main`, but the PR changed **only** `platform/rn-components`; the change is not verifiable until the native app is rebuilt with the new code.                                                            | **Merge** automation (post-merge, RN-only changes)                                                                                                    |
+| `flow/on-test-instance`      | Pre-merge: the PR is being verified on the test instance before the merge is accepted.                                                                                                                             | Human (from `flow/ready-to-merge`)                                                                                                                    |
 
 The pipeline, with the **human-only** transitions marked:
 
@@ -264,15 +264,15 @@ flow/needs-specs ──human──► flow/ready-to-schedule
                           flow/ready-to-plan
                                   │  planning (auto)
                                   ▼
-                     flow/ready-to-review-plan ◄────────────┐
-                                  │  human (approve plan)    │
-                                  ▼                          │
-                          flow/ready-to-implement            │
-                                  │  implementation (auto)   │
-                                  ▼                          │
+                     flow/ready-to-review-plan ◄─────┐
+                                  │  human (approve plan)    │ (plan-level or
+                                  ▼                          │  functional change)
+                          flow/ready-to-implement ◄──────────┤ (test/doc/quality/
+                                  │  implementation (auto)   │  dependency-only
+                                  ▼                          │  suggestions)
                           flow/ready-to-review ──────────────┤
-                                  │  review (auto)           │ (any suggestion →
-                                  ▼                          │  re-plan first)
+                                  │  review (auto)           │
+                                  ▼                          │
                           ┌───────┴────────┐                 │
                           ▼ (no suggestions) ▼ (suggestions)──┘
                      flow/ready-to-merge
@@ -300,6 +300,26 @@ The loops:
   suggestions) → `flow/ready-to-review-plan` → human approves →
   `flow/ready-to-implement` → `flow/ready-to-review`. Implementation must
   address the latest plan and the numbered review suggestions from that loop.
+  This is the path whenever any suggestion changes the plan or behavior
+  (functional, architecture, or product-level).
+- **Fast rework loop (test/doc/quality/dependency-only):** if **every**
+  suggestion in the review round is one of:
+
+  - **Test** — adding, fixing, or strengthening tests for the change,
+  - **Doc** — comments, AGENTS.md/docs text, PR or commit messages,
+  - **Quality** — style, naming, lint/prettier, typecheck hygiene, dead code,
+    small refactors that do not change behavior, convention alignment,
+  - **Dependency** — lockfile/manifest hygiene, version bumps, pinning,
+    package-gate issues,
+
+  then the Review automation moves the issue straight to
+  `flow/ready-to-implement` — the human re-sign step is skipped, because the
+  suggestions cannot alter what was agreed to be built, only how it is
+  delivered. The Review automation names in its comment why the re-sign step
+  was skipped (all suggestions in one of the four classes). If even one
+  suggestion is outside these classes, the issue takes the normal re-plan
+  loop instead.
+
 - **Pre-merge test loop (one branch of the `flow/ready-to-merge` fork):**
   `flow/ready-to-merge` → human routes it to `flow/on-test-instance` →
   verified, the human moves it to `flow/merge-accepted`; or a defect is found
@@ -327,14 +347,15 @@ The loops:
 **Automations** (each works only from its own queue — see
 [Automation principles](#automation-principles)):
 
-| Automation         | Queue (input)                                                            | Work                                                                                                                                                                                                                                                                                                                                                         | Destination                                                                                                                              |
-| ------------------ | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| **Intake**         | new issues with no `flow/*` label and no referencing PR                  | Analyze clarity/complexity/impact/security                                                                                                                                                                                                                                                                                                                   | `flow/needs-specs` (unclear) or `flow/ready-to-schedule` (clear)                                                                         |
-| **Planning**       | `flow/ready-to-plan`                                                     | Write a clear implementation plan (simplest architecture, trade-offs named) in a comment on the issue that starts with `## Implementation plan`                                                                                                                                                                                                              | `flow/ready-to-review-plan`                                                                                                              |
-| **Implementation** | `flow/ready-to-implement`                                                | Implement the latest `## Implementation plan` comment (or address the newest numbered review suggestions / test report posted after it); keep exactly one open PR for the issue; leave the PR with **CI green** — a red job means another fixing round, not a finished run (CI-fix loop)                                                                     | `flow/ready-to-review`                                                                                                                   |
-| **Review**         | `flow/ready-to-review`                                                   | Critically review the PR in the context of the whole repo; if there are suggestions, post them as a **numbered list** (one list, no categories) on the issue. **Never flag a PR for being behind `main` / not rebased** — keeping the PR current is the separate **Rebase** automation's job (post-merge), not a review finding or an implementation defect. | `flow/ready-to-review-plan` (any suggestions) **or** `flow/ready-to-merge` (none)                                                        |
-| **Rebase**         | `flow/merge-accepted` (the PR is behind `main`)                          | Rebase the PR onto `main`, resolve conflicts, then **recompute and apply version bumps** for the packages the (possibly conflict-resolved) diff changes, per the `check-openpeeps-pr-readiness` decision table (minor for `feat:`, none for `fix:` without new API surface, never private packages)                                                          | leave `flow/merge-accepted`; if conflict resolution changed behavior → `flow/ready-to-review`                                            |
-| **Merge**          | `flow/merge-accepted` (the PR is mergeable: not behind `main`, CI green) | Merge the PR fast-forward; if the PR changed **only** `platform/rn-components` files the issue goes to `flow/waiting-for-app-build`, otherwise to `flow/ready-to-test`                                                                                                                                                                                       | remove `flow/merge-accepted`, add `flow/ready-to-test` (or `flow/waiting-for-app-build` for RN-only changes); do **not** close the issue |
+| Automation | Queue (input) | Work | Destination |
+| ---------- | ------------- | ---- | ----------- |
+
+| **Intake** | new issues with no `flow/*` label and no referencing PR | Analyze clarity/complexity/impact/security | `flow/needs-specs` (unclear) or `flow/ready-to-schedule` (clear) |
+| **Planning** | `flow/ready-to-plan` | Write a clear implementation plan (simplest architecture, trade-offs named) in a comment on the issue that starts with `## Implementation plan` | `flow/ready-to-review-plan` |
+| **Implementation** | `flow/ready-to-implement` | Implement the latest `## Implementation plan` comment (or address the newest numbered review suggestions / test report posted after it); keep exactly one open PR for the issue; leave the PR with **CI green** — a red job means another fixing round, not a finished run (CI-fix loop) | `flow/ready-to-review` |
+| **Review** | `flow/ready-to-review` | Critically review the PR in the context of the whole repo; if there are suggestions, post them as a **numbered list** (one list, no categories) on the issue. **Never flag a PR for being behind `main` / not rebased** — keeping the PR current is the separate **Rebase** automation's job (post-merge), not a review finding or an implementation defect. | `flow/ready-to-review-plan` (any suggestion is functional / changes the plan or behavior), `flow/ready-to-implement` (every suggestion is test/doc/quality/dependency — see the fast rework loop), **or** `flow/ready-to-merge` (no suggestions) |
+| **Rebase** | `flow/merge-accepted` (the PR is behind `main`) | Rebase the PR onto `main`, resolve conflicts, then **recompute and apply version bumps** for the packages the (possibly conflict-resolved) diff changes, per the `check-openpeeps-pr-readiness` decision table (minor for `feat:`, none for `fix:` without new API surface, never private packages) | leave `flow/merge-accepted`; if conflict resolution changed behavior → `flow/ready-to-review` |
+| **Merge** | `flow/merge-accepted` (the PR is mergeable: not behind `main`, CI green) | Merge the PR fast-forward; if the PR changed **only** `platform/rn-components` files the issue goes to `flow/waiting-for-app-build`, otherwise to `flow/ready-to-test` | remove `flow/merge-accepted`, add `flow/ready-to-test` (or `flow/waiting-for-app-build` for RN-only changes); do **not** close the issue |
 
 **Humans** are the only ones who may move an issue:
 
@@ -418,14 +439,19 @@ this issue was selected>.` If the run already posts a substantive comment on
    it says so in the comment it leaves: which label it added or removed, and
    why (e.g. "moved `flow/ready-to-plan` → `flow/ready-to-review-plan` — plan
    written"). A run that makes a label change without a comment explaining it
-   has not finished its work on that issue.
+   has not finished its work on that issue. When the Review automation skips
+   the human re-sign step via the fast rework loop, that comment must say so
+   explicitly (all suggestions test/doc/quality/dependency-only) so the human
+   can veto it and move the issue back to `flow/ready-to-review-plan`.
 
 ### Retired / not used
 
 These former labels are no longer part of the flow; do not (re)apply them:
 
 - `flow/ready-to-rework` — rework is expressed by the re-plan loop (review →
-  `flow/ready-to-review-plan` → human → `flow/ready-to-implement`).
+  `flow/ready-to-review-plan` → human → `flow/ready-to-implement`) or, for
+  test/doc/quality/dependency-only suggestion rounds, the fast rework loop
+  (review → `flow/ready-to-implement` directly).
 - `flow/ready-to-replan` — folded into the re-plan loop (a re-plan is just a
   pass through `flow/ready-to-review-plan`).
 
