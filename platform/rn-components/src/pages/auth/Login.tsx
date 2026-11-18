@@ -22,6 +22,7 @@ import {
 } from '@openpeepshq/react';
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
+import { unregisterPushForLogout } from '../../lib/push-notifications';
 import { LOGIN_EMAIL, LOGIN_PASSWORD } from '../../lib/constants';
 
 export const Login = ({
@@ -30,7 +31,7 @@ export const Login = ({
   const { t } = useTranslation();
   const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
   const { login, submitting } = usePasswordLogin();
-  const { openpeepsApi } = useOpenpeeps();
+  const { openpeepsApi, client } = useOpenpeeps();
   const logout = openpeepsApi.logoutAction();
   const isRegistrationOpen =
     !!useServerInfo().communityConfig?.settings?.openRegistrations;
@@ -45,8 +46,21 @@ export const Login = ({
 
   const onSubmit = async (values: LoginRequest) => {
     try {
-      // Drop any stale session cache before switching accounts.
+      // Best-effort cleanup (never throws); clears stale subscriptions from
+      // any previous session before switching accounts. The RN side owns FCM
+      // cleanup, so this outcome — not the web pushCleanup flag — is what the
+      // logout toast reflects on native.
+      const pushResult = await unregisterPushForLogout(client);
       await logout();
+      if (pushResult === 'failed') {
+        Toast.show({
+          type: 'error',
+          text1: t('settings.notifications.pushCleanupFailed', {
+            defaultValue:
+              'Could not remove push notifications for this device.',
+          }),
+        });
+      }
       await login(values);
     } catch (err) {
       Toast.show({

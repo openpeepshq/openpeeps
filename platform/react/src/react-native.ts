@@ -20,6 +20,7 @@ export { isSvgUrl, svgCoverSrc } from './lib/svgCover';
 export * from './lib/capabilityMatrix';
 export * from './lib/groupFormErrors';
 export * from './lib/passwordStrength';
+export { isSubscriptionNotFound, handleResult } from './push';
 export { apiErrorMessage } from './lib/apiErrorMessage';
 export {
   performLogin,

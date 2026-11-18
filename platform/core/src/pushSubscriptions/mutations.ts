@@ -1,7 +1,11 @@
 import { Account, PushSubscriptionData } from '@openpeepshq/common/types';
 import { pushSubscriptionsMapping } from './mapping';
 import { allpeepDb } from '../db';
-import { pushSubscriptionAccountConnector } from './helpers';
+import {
+  pushSubscriptionAccountConnector,
+  pushSubscriptionAccountDisconnector,
+} from './helpers';
+import { findAccountForPushSubscription } from './finders';
 
 const uniqueCredential = (data: PushSubscriptionData) => {
   switch (data.type) {
@@ -28,6 +32,34 @@ export const createPushSubscription = async (
     .first(db);
 
   if (existingPushSubscription) {
+    // Re-linking to a different account must switch the edge, not add one:
+    // account_to_push_subscription allows parallel edges, and a stale second
+    // edge makes doPush treat the shared token as a duplicate and delete it.
+    const previousAccount = await findAccountForPushSubscription(
+      existingPushSubscription,
+    );
+    if (previousAccount && previousAccount.id !== account.id) {
+      await pushSubscriptionAccountDisconnector(
+        db,
+        previousAccount,
+        existingPushSubscription,
+      );
+      // The new account may already hold a (stale) edge to this subscription —
+      // the parallel-edge state created before the relink guard existed. Drop
+      // it first so the connect below is the only edge for the new account,
+      // keeping the single-edge invariant airtight (doPush would otherwise
+      // collapse the duplicate only later).
+      await pushSubscriptionAccountDisconnector(
+        db,
+        account,
+        existingPushSubscription,
+      );
+      await pushSubscriptionAccountConnector(
+        db,
+        account,
+        existingPushSubscription,
+      );
+    }
     return existingPushSubscription;
   }
 
