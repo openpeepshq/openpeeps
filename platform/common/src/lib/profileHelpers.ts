@@ -28,6 +28,21 @@ export const isDeletedProfile = (
   profile: { deletedAt?: string | null } | undefined | null,
 ): boolean => !!profile?.deletedAt;
 
+/**
+ * A deactivated member: soft-deleted row with the original identity stamped
+ * into the body (deleted rows keep handle/displayName in their columns), so
+ * an admin can tell the two states apart in the members table.
+ */
+export const isDeactivatedProfile = (
+  profile:
+    | {
+        deletedAt?: string | null;
+        body?: { deactivatedAt?: string | null } | null;
+      }
+    | undefined
+    | null,
+): boolean => !!profile?.deletedAt && !!profile.body?.deactivatedAt;
+
 // `handle`/`displayName` arrive from untyped DB rows (`rowToModel`),
 // so the hydration helper must accept `unknown`, not just `string | null`.
 type DeletedProfileIdentity = {

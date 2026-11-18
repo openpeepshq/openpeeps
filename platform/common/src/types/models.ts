@@ -348,6 +348,10 @@ export const profileDataSchema = z.object({
       resource: resourceSchema.optional(),
     })
     .optional(),
+  /** Set on soft-delete by `deactivateProfile`; original identity is kept alongside. */
+  deactivatedAt: z.string().optional(),
+  deactivatedOriginalHandle: z.string().optional(),
+  deactivatedOriginalDisplayName: z.string().optional(),
   pinnedPostId: z.string().optional(),
 });
 

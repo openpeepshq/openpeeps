@@ -180,6 +180,7 @@ export type Admin = {
       { id: string }
     >;
     delete: OpenpeepsNoPayloadEndpoint<ProfileWithMeta, { id: string }>;
+    deactivate: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
     listRoles: OpenpeepsNoPayloadEndpoint<Role[], { id: string }>;
     updateRoles: OpenpeepsPayloadEndpoint<
       Role[],
@@ -490,6 +491,11 @@ export const admin = (rawClient: FetchClient): Admin => ({
       rawClient,
       '/admin/profiles/:id',
       'delete',
+    ),
+    deactivate: allpeepNoPayloadEndpoint<SuccessResponse, { id: string }>(
+      rawClient,
+      '/admin/profiles/:id/deactivate',
+      'post',
     ),
     listRoles: allpeepNoPayloadEndpoint<Role[], { id: string }>(
       rawClient,

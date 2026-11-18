@@ -1,4 +1,5 @@
 import {
+  isDeactivatedProfile,
   sharesControllingAccount,
   targetBlockedViewer,
   toBlockedProfileStub,
@@ -87,6 +88,21 @@ export const publicProfileForViewer = async (
   const viewer = event.context.currentProfile as ProfileWithMeta | undefined;
   if (targetBlockedViewer(viewer, target.id)) {
     throw notFound(notFoundLabel);
+  }
+  // Deactivated members keep their row (soft-deleted) so they can be listed
+  // in the admin members table; publicly they render as a minimal tombstone
+  // instead of 404ing or leaking the stored profile body.
+  if (isDeactivatedProfile(target)) {
+    return publicProfileSchema.parse({
+      id: target.id,
+      type: target.type,
+      createdAt: target.createdAt,
+      updatedAt: target.updatedAt,
+      deletedAt: target.deletedAt,
+      handle: target.deactivatedOriginalHandle ?? target.handle,
+      displayName: target.deactivatedOriginalDisplayName,
+      avatar: null,
+    });
   }
   if (viewerBlockedTarget(viewer, target.id)) {
     return toBlockedProfileStub(target);

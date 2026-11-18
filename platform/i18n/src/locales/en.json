@@ -277,8 +277,8 @@
     },
     "modals": {
       "deleteProfile": {
-        "title": "Delete Profile",
-        "description": "Are you sure you want to delete this profile {{username}} with handle: {{handle}}? This action cannot be undone.",
+        "title": "Delete member permanently",
+        "description": "Are you sure you want to permanently delete this profile {{username}} with handle: {{handle}}? Their posts, direct messages, and media are erased, and the handle is freed. This action cannot be undone.",
         "confirm": "Delete Profile",
         "cancel": "Cancel",
         "profileDeleted": "Profile has been successfully deleted from your community.",
@@ -295,6 +295,11 @@
       },
       "closeReport": {
         "success": "Report has been successfully closed"
+      },
+      "deactivateProfile": {
+        "title": "Deactivate this member?",
+        "description": "The profile is removed from lists and can no longer log in. Their posts and messages are kept but attributed to \"Deleted Profile\". This action cannot be undone.",
+        "confirm": "Deactivate"
       }
     },
     "table": {
@@ -306,7 +311,10 @@
       "editRoles": "Edit Roles",
       "viewDetails": "View Details",
       "deleteMember": "Delete Member",
-      "delete": "Delete"
+      "delete": "Delete",
+      "deactivateMember": "Deactivate Member",
+      "deactivated": "Deactivated",
+      "viewDetails": "View Details"
     },
     "followers": {
       "title": "Followers",
@@ -1659,8 +1667,8 @@
           "title": "Close this report?",
           "description": "You are about to close this report, select an action below to close it:",
           "deleteProfile": {
-            "description": "Prevents the profile from showing up in lists and being seen by anyone, removes content also.",
-            "button": "Delete Profile"
+            "description": "Removes the profile from lists, erases their posts, direct messages, and media, and frees the handle. This action cannot be undone.",
+            "button": "Remove member permanently"
           },
           "deletePost": {
             "description": "Post will no longer be on the feed and community",
@@ -1690,7 +1698,7 @@
       "profile": {
         "delete": {
           "title": "Delete this profile?",
-          "description": "You are about to delete this profile. Prevents the profile from showing up in lists and being seen by anyone, removes content also.. Are you sure about this?",
+          "description": "You are about to permanently remove this member. Their profile, posts, direct messages, and media are erased, and the handle is freed. Are you sure about this?",
           "cancel": "Back",
           "confirm": "Yes, delete it"
         }

@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { ChevronDownIcon, ChevronUpIcon, DownloadIcon } from 'lucide-react';
-import { matchesQuery } from '@openpeepshq/common/lib';
+import { isDeactivatedProfile, matchesQuery } from '@openpeepshq/common/lib';
 import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
 import { Avatar } from '../../components';
 import { Button, Input, LoadingSpinner } from '@openpeepshq/react-ui';
@@ -161,6 +161,13 @@ export function AdminMembers() {
                     <div className="flex items-center gap-2">
                       <Avatar profile={p} size={2} />
                       <span>{p.displayName || `@${p.handle}`}</span>
+                      {isDeactivatedProfile(p) ? (
+                        <span className="bg-muted text-muted-foreground rounded px-1.5 py-0.5 text-xs">
+                          {t('admin.members.deactivated', {
+                            defaultValue: 'Deactivated',
+                          })}
+                        </span>
+                      ) : null}
                     </div>
                   </td>
                   <td className="text-muted-foreground p-2">@{p.handle}</td>

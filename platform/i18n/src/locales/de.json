@@ -255,8 +255,8 @@
     },
     "modals": {
       "deleteProfile": {
-        "title": "Profil löschen",
-        "description": "Möchten Sie dieses Profil {{username}} mit dem Benutzernamen {{handle}} wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+        "title": "Mitglied endgültig löschen",
+        "description": "Möchtest du dieses Profil {{username}} mit Handle: {{handle}} endgültig löschen? Beiträge, Direktnachrichten und Medien werden gelöscht und der Handle freigegeben. Diese Aktion kann nicht rückgängig gemacht werden.",
         "confirm": "Profil löschen",
         "cancel": "Abbrechen",
         "profileDeleted": "Das Profil wurde erfolgreich aus Ihrer Community entfernt.",
@@ -273,6 +273,11 @@
       },
       "closeReport": {
         "success": "Die Meldung wurde erfolgreich geschlossen"
+      },
+      "deactivateProfile": {
+        "title": "Dieses Mitglied deaktivieren?",
+        "description": "Das Profil wird aus Listen entfernt und kann sich nicht mehr anmelden. Beiträge und Nachrichten bleiben erhalten, werden aber \"Gelöschtes Profil\" zugeordnet. Diese Aktion kann nicht rückgängig gemacht werden.",
+        "confirm": "Deaktivieren"
       }
     },
     "table": {
@@ -284,7 +289,9 @@
       "editRoles": "Rollen bearbeiten",
       "deleteMember": "Mitglied löschen",
       "delete": "Löschen",
-      "viewDetails": "Details anzeigen"
+      "deactivateMember": "Mitglied deaktivieren",
+      "viewDetails": "Details anzeigen",
+      "deactivated": "Deaktiviert"
     },
     "followers": {
       "title": "Follower",
@@ -1583,8 +1590,8 @@
           "title": "Diese Meldung schließen?",
           "description": "Sie sind dabei, diese Meldung zu schließen. Wählen Sie eine Aktion aus:",
           "deleteProfile": {
-            "description": "Verhindert, dass das Profil in Listen angezeigt und von anderen gesehen wird. Inhalte werden ebenfalls entfernt.",
-            "button": "Profil löschen"
+            "description": "Entfernt das Profil aus Listen, löscht Beiträge, Direktnachrichten und Medien unwiderruflich und gibt den Handle frei.",
+            "button": "Mitglied endgültig entfernen"
           },
           "deletePost": {
             "description": "Der Beitrag wird nicht mehr im Feed und in der Community angezeigt",
@@ -1615,7 +1622,7 @@
       "profile": {
         "delete": {
           "title": "Dieses Profil löschen?",
-          "description": "Sie sind dabei, dieses Profil zu löschen. Das Profil wird nicht mehr in Listen angezeigt und von niemandem gesehen. Inhalte werden ebenfalls entfernt. Sind Sie sicher?",
+          "description": "Du bist dabei, dieses Mitglied endgültig zu entfernen. Profil, Beiträge, Direktnachrichten und Medien werden gelöscht und der Handle freigegeben. Bist du sicher?",
           "cancel": "Zurück",
           "confirm": "Ja, löschen"
         }
