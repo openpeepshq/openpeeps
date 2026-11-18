@@ -158,6 +158,27 @@ Rules behind the gates, each tied to a real failure class:
   packages; check open sibling PRs touching the same `package.json` before
   choosing the number.
 
+## Environment & dependency changes (automation worktrees)
+
+Automation runs work in git worktrees of the warm seed checkout
+(`/home/openhands/.openhands/workspaces/openpeeps`), whose root `node_modules`
+is normally symlinked into the worktree so no install is needed.
+
+- If the change touches any `package.json`, `pnpm-workspace.yaml`, or
+  `pnpm-lock.yaml`, **remove the symlink first**
+  (`rm <worktree>/node_modules`) and run `CI=1 pnpm install` — then commit the
+  regenerated `pnpm-lock.yaml` in the same commit as the manifest change and
+  verify `CI=1 pnpm install --frozen-lockfile` passes. The `CI=1` is what
+  makes pnpm non-interactive.
+- **Never run `pnpm install` with the symlinked seed store present.** pnpm's
+  purge-mismatch prompt then waits for a keypress that never comes in a
+  non-interactive terminal, and the command hangs forever with no output
+  (killed an implementation run for #2183 on 2026-11-18).
+- Hang escape: if any terminal command shows no new output on two consecutive
+  polls, send `C-c` and change approach or add an explicit `timeout` — a
+  hung `pnpm`/`npm`/`git` process in an empty-output loop is a prompt or
+  network stall, not slowness.
+
 ## Conventions to respect
 
 - **No PR labels or milestones.** When opening pull requests, do not add labels
