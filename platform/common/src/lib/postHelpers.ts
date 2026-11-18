@@ -813,7 +813,11 @@ export const getPostActionAvailability = (
 export const HIDDEN_AUTHOR_HANDLE = 'hidden';
 
 export const toHiddenPost = <
-  T extends { data: PostDataUnion; profile: PublicProfile },
+  T extends {
+    data: PostDataUnion;
+    profile: PublicProfile;
+    entries?: EntryWithPublicProfile[];
+  },
 >(
   post: T,
 ): T & { hidden: true } =>
@@ -824,6 +828,13 @@ export const toHiddenPost = <
       ...post.data,
       ...('content' in post.data ? { content: '' } : {}),
     },
+    // create/edit entries each carry a full content snapshot; dropping them
+    // keeps the redacted text out of the hidden post's serialized payload.
+    entries: post.entries
+      ? post.entries.filter(
+          (entry) => entry.type !== 'create' && entry.type !== 'edit',
+        )
+      : post.entries,
     profile: {
       ...post.profile,
       displayName: undefined,
@@ -872,6 +883,85 @@ export const isConversationLeavePost = (
   const authorId = post.profile?.id;
   if (!post.inReplyToId || !authorId) return false;
   return !post.audience?.some((p) => p.id === authorId);
+};
+
+export type PostVersionOrder = 'oldest' | 'newest';
+
+export type PostEditVersion = {
+  id: string;
+  createdAt: string;
+  data: PostDataUnion;
+  /** Author snapshot of the entry that produced this version. */
+  profile: EntryWithPublicProfile['profile'];
+  /** Create entry is the original text. Each edit entry is that save's text. */
+  kind: 'original' | 'edit';
+  current: boolean;
+};
+
+type SnapshotEntry = Extract<
+  EntryWithPublicProfile,
+  { type: 'create' | 'edit' }
+>;
+
+const isSnapshotEntry = (
+  entry: EntryWithPublicProfile,
+): entry is SnapshotEntry => entry.type === 'create' || entry.type === 'edit';
+
+/** True when at least one edit has been saved for this post. */
+export const postHasEditHistory = (
+  entries: readonly EntryWithPublicProfile[] | undefined,
+): boolean => !!entries?.some((entry) => entry.type === 'edit');
+
+/**
+ * Saved versions of a post. The create entry is the original; each edit entry
+ * stores the content written at that save. Oldest first unless `order` is newest.
+ * Returns nothing until the post has been edited.
+ */
+export const postEditVersions = (
+  entries: readonly EntryWithPublicProfile[] | undefined,
+  order: PostVersionOrder = 'oldest',
+): PostEditVersion[] => {
+  if (!postHasEditHistory(entries)) return [];
+
+  const chronological = (entries ?? [])
+    .map((entry, index) => ({ entry, index }))
+    .filter((item): item is { entry: SnapshotEntry; index: number } =>
+      isSnapshotEntry(item.entry),
+    )
+    .sort(
+      (a, b) =>
+        Date.parse(a.entry.createdAt) - Date.parse(b.entry.createdAt) ||
+        a.index - b.index,
+    );
+
+  const last = chronological.length - 1;
+  const versions = chronological.map(
+    ({ entry, index }, position): PostEditVersion => ({
+      id: `${entry.type}-${entry.createdAt}-${index}`,
+      createdAt: entry.createdAt,
+      data: entry.data,
+      profile: entry.profile,
+      kind: entry.type === 'create' ? 'original' : 'edit',
+      current: position === last,
+    }),
+  );
+
+  return order === 'newest' ? [...versions].reverse() : versions;
+};
+
+export const postEditVersionKind = (
+  version: Pick<PostEditVersion, 'current' | 'kind'>,
+): 'original' | 'edit' | 'current' =>
+  version.current ? 'current' : version.kind;
+
+export const postEditVersionTitle = (
+  data: PostDataUnion,
+): string | undefined => {
+  if (data.type === 'article' || data.type === 'resource') {
+    return data.title || undefined;
+  }
+  if (data.type === 'event') return data.name || undefined;
+  return undefined;
 };
 
 export const isOneToOneWithBlocked = (

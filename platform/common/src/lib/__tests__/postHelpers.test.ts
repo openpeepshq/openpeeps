@@ -34,6 +34,9 @@ import {
   isOneToOneDm,
   isConversationLeavePost,
   HIDDEN_AUTHOR_HANDLE,
+  postHasEditHistory,
+  postEditVersions,
+  postEditVersionKind,
 } from '../postHelpers';
 import { groupCapabilityTemplates } from '../groupHelpers';
 import {
@@ -1504,6 +1507,150 @@ describe('postHelpers', () => {
         audience: undefined,
       };
       expect(isConversationLeavePost(empty)).toBe(true);
+    });
+  });
+
+  describe('edit history', () => {
+    const note = (content: string) => ({ type: 'note' as const, content });
+
+    const entries = [
+      {
+        type: 'create',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        data: note('original'),
+        profile: { id: 'profile1' } as PublicProfile,
+      },
+      {
+        type: 'reaction',
+        createdAt: '2024-01-02T00:00:00.000Z',
+        data: { reaction: '👍' },
+        profile: { id: 'profile2' } as PublicProfile,
+      },
+      {
+        type: 'edit',
+        createdAt: '2024-02-01T00:00:00.000Z',
+        data: note('first edit'),
+        profile: { id: 'profile1' } as PublicProfile,
+      },
+      {
+        type: 'edit',
+        createdAt: '2024-03-01T00:00:00.000Z',
+        data: note('latest'),
+        profile: { id: 'profile3' } as PublicProfile,
+      },
+    ] as EntryWithPublicProfile[];
+
+    it('hides history until the post has been edited', () => {
+      expect(postHasEditHistory(undefined)).toBe(false);
+      expect(
+        postHasEditHistory([
+          { type: 'create' },
+          { type: 'reaction' },
+        ] as EntryWithPublicProfile[]),
+      ).toBe(false);
+      expect(
+        postEditVersions([
+          {
+            type: 'create',
+            createdAt: '2024-01-01T00:00:00.000Z',
+            data: note('only'),
+            profile: { id: 'profile1' } as PublicProfile,
+          },
+        ] as EntryWithPublicProfile[]),
+      ).toEqual([]);
+    });
+
+    it('lists versions oldest first, then reverses', () => {
+      expect(postHasEditHistory(entries)).toBe(true);
+      const oldest = postEditVersions(entries);
+      expect(oldest.map((version) => version.data)).toEqual([
+        note('original'),
+        note('first edit'),
+        note('latest'),
+      ]);
+      expect(oldest.map((version) => version.kind)).toEqual([
+        'original',
+        'edit',
+        'edit',
+      ]);
+      expect(oldest.map(postEditVersionKind)).toEqual([
+        'original',
+        'edit',
+        'current',
+      ]);
+      expect(
+        postEditVersions(entries, 'newest').map((version) =>
+          version.data.type === 'note' ? version.data.content : '',
+        ),
+      ).toEqual(['latest', 'first edit', 'original']);
+    });
+
+    it('sorts entries with equal timestamps by their position', () => {
+      const tied = [
+        {
+          type: 'edit',
+          createdAt: '2024-02-01T00:00:00.000Z',
+          data: note('later'),
+          profile: { id: 'profile1' } as PublicProfile,
+        },
+        {
+          type: 'create',
+          createdAt: '2024-02-01T00:00:00.000Z',
+          data: note('first'),
+          profile: { id: 'profile1' } as PublicProfile,
+        },
+      ] as EntryWithPublicProfile[];
+      expect(
+        postEditVersions(tied).map(
+          (version) => version.data.type === 'note' && version.data.content,
+        ),
+      ).toEqual(['later', 'first']);
+    });
+
+    it('marks the newest-first head as current', () => {
+      const newest = postEditVersions(entries, 'newest');
+      expect(newest.map(postEditVersionKind)).toEqual([
+        'current',
+        'edit',
+        'original',
+      ]);
+    });
+  });
+
+  describe('toHiddenPost entries', () => {
+    const note = (content: string) => ({ type: 'note' as const, content });
+
+    it('drops content snapshots from create/edit entries so hidden text stays hidden', () => {
+      const hidden = toHiddenPost({
+        data: note('redacted current text'),
+        profile: { id: 'profile1', handle: 'alice' } as PublicProfile,
+        entries: [
+          {
+            type: 'create',
+            createdAt: '2024-01-01T00:00:00.000Z',
+            data: note('redacted original'),
+            profile: { id: 'profile1' } as PublicProfile,
+          },
+          {
+            type: 'edit',
+            createdAt: '2024-01-02T00:00:00.000Z',
+            data: note('redacted current text'),
+            profile: { id: 'profile2' } as PublicProfile,
+          },
+          {
+            type: 'reaction',
+            createdAt: '2024-01-03T00:00:00.000Z',
+            data: { reaction: '👍' },
+            profile: { id: 'profile2' } as PublicProfile,
+          },
+        ] as EntryWithPublicProfile[],
+      });
+      expect(
+        hidden.entries.filter(
+          (entry) => entry.type === 'create' || entry.type === 'edit',
+        ),
+      ).toEqual([]);
+      expect(hidden.entries).toHaveLength(1);
     });
   });
 });

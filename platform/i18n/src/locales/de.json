@@ -654,6 +654,17 @@
       "success": "Der Beitrag ist nicht mehr an Ihrem Profil angepinnt",
       "error": "Beim Lösen dieses Beitrags von Ihrem Profil ist ein Fehler aufgetreten"
     },
+    "editHistory": {
+      "menu": "Bearbeitungsverlauf",
+      "title": "Bearbeitungsverlauf",
+      "newestFirst": "Neueste zuerst",
+      "oldestFirst": "Älteste zuerst",
+      "original": "Original",
+      "edit": "Bearbeiten",
+      "current": "Aktuell",
+      "editedBy": "von @{{handle}}",
+      "mediaUnavailable": "Medien dieser Version sind nicht mehr verfügbar"
+    },
     "repostModal": {
       "title": "Geteilt von",
       "empty": "Noch keine Reposts",

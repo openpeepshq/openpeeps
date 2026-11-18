@@ -1,6 +1,6 @@
 {
   "name": "@openpeepshq/rn-components",
-  "version": "0.12.5",
+  "version": "0.13.0",
   "description": "React Native community screens and shared UI (extracted from the Black Ambition app) for the OpenPeeps stack.",
   "source": "./src/index.ts",
   "main": "./src/index.ts",

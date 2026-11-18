@@ -11,11 +11,15 @@ import {
   BookmarkMinusIcon,
   Repeat2Icon,
   ThumbsUpIcon,
+  HistoryIcon,
 } from '../../icons/index';
 import { PopupMenu, PopupMenuButton, PopupSeparator } from '../../ui';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { checkGroupCapabilities } from '@openpeepshq/common';
-import { checkRoleCapabilities } from '@openpeepshq/common/lib';
+import {
+  checkRoleCapabilities,
+  postHasEditHistory,
+} from '@openpeepshq/common/lib';
 import type { PublicPost } from '@openpeepshq/common/types';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -26,6 +30,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { DeletePostModal } from './modals/DeletePostModal';
 import { ReportProfileOrPostModal } from '../../profile/ReportProfileOrPostModal';
 import { RepostModal } from './modals/RepostModal';
+import { PostEditHistoryModal } from './modals/PostEditHistoryModal';
 import { ReactionsModal } from './modals/ReactionsModal';
 import Toast from 'react-native-toast-message';
 
@@ -51,6 +56,12 @@ export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
   const [isFollowing, setIsFollowing] = React.useState(false);
   const [repostsModalOpen, setRepostsModalOpen] = React.useState(false);
   const [reactionsModalOpen, setReactionsModalOpen] = React.useState(false);
+  const [historyModalOpen, setHistoryModalOpen] = React.useState(false);
+
+  // Hidden (blocked-author tombstone) posts have their entry snapshots
+  // stripped server-side; never offer history for them or deleted posts.
+  const showEditHistory =
+    !post.hidden && !post.deletedAt && postHasEditHistory(post.entries);
 
   const { data: serverInfo } = openpeepsApi.useServerInfo();
   const canPinToGroup =
@@ -293,6 +304,16 @@ export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
           icon={ThumbsUpIcon}
           action={() => setReactionsModalOpen(true)}
         />
+        {showEditHistory ? (
+          <PopupMenuButton
+            title={t('posts.editHistory.menu', {
+              defaultValue: 'Edit history',
+            })}
+            text={t('posts.editHistory.menu', { defaultValue: 'Edit history' })}
+            icon={HistoryIcon}
+            action={() => setHistoryModalOpen(true)}
+          />
+        ) : null}
 
         {isBookmarked ? (
           <PopupMenuButton
@@ -457,6 +478,13 @@ export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
         open={reactionsModalOpen}
         onClose={() => setReactionsModalOpen(false)}
       />
+      {showEditHistory ? (
+        <PostEditHistoryModal
+          post={post}
+          open={historyModalOpen}
+          onClose={() => setHistoryModalOpen(false)}
+        />
+      ) : null}
       <DeletePostModal
         ref={deleteMessageModalRef}
         onDelete={handleDelete}
