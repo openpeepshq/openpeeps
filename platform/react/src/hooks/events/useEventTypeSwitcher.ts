@@ -124,6 +124,11 @@ export const useEventTypeSwitcher = ({
     onChange({ ...event, jam: { ...event.jam, waitingRoom } });
   };
 
+  const setNotifyEveryone = (notifyEveryone: boolean) => {
+    if (!event.jam) return;
+    onChange({ ...event, jam: { ...event.jam, notifyEveryone } });
+  };
+
   const setUrl = (url: string) => onChange({ ...event, url });
 
   const setPhysicalLocation = (physicalLocation: Location | undefined) =>
@@ -152,6 +157,7 @@ export const useEventTypeSwitcher = ({
     moderatorProfiles,
     setModerators,
     setWaitingRoom,
+    setNotifyEveryone,
     setUrl,
     setPhysicalLocation,
   };

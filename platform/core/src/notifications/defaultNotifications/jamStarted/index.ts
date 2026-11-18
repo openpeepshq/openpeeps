@@ -6,11 +6,6 @@ import type {
   ProfileWithMeta,
 } from '@openpeepshq/common/types';
 
-import {
-  listProfiles,
-  listGroupMembers,
-  findProfile,
-} from '@openpeepshq/core/profiles';
 import { maybeCreateNotification } from '@openpeepshq/core/notifications';
 import {
   getJamUrl,
@@ -19,6 +14,7 @@ import {
 } from '@openpeepshq/common/lib';
 import { listJamStarts } from '../../../jams/finders';
 import { PUSH_INVALIDATE } from '../../pushInvalidation';
+import { jamStartAudience } from './recipients';
 
 // The start row is written in the same request, then the notification is
 // queued. They are not linked by id, so match on time.
@@ -58,54 +54,22 @@ const eventHandler = async (...args: unknown[]) => {
     return;
   }
 
-  const notify = (recipientProfile: ProfileWithMeta) =>
+  const notify = (recipientProfile: ProfileWithMeta, groupId?: string) =>
     maybeCreateNotification(recipientProfile, {
       type: 'jamStarted',
       fromProfileId: profile.id,
       postId: post.id,
+      ...(groupId ? { groupId } : {}),
       ...(recurrenceId ? { data: { recurrenceId } } : {}),
     });
 
-  if (['local', 'public'].includes(post.visibility)) {
-    for (const recipientProfile of await listProfiles()) {
-      if (profile.id !== recipientProfile?.id) {
-        await notify(recipientProfile);
-      }
-    }
-    return;
-  }
-
-  const recipients = new Set<ProfileWithMeta>();
-  const skipRecipient = (recipient?: ProfileWithMeta) =>
-    !profile ||
-    !recipient ||
-    profile.id === recipient?.id ||
-    recipients.has(recipient);
-
-  if (jam.moderators) {
-    for (const id of [...jam.moderators, ...(jam.speakers || [])]) {
-      const moderatorProfile = await findProfile(id);
-      if (skipRecipient(moderatorProfile)) continue;
-      recipients.add(moderatorProfile!);
-    }
-  }
-  if (post.audience) {
-    for (const audience of post.audience) {
-      const audienceProfile = await findProfile(audience?.id as string);
-      if (skipRecipient(audienceProfile)) continue;
-      recipients.add(audienceProfile!);
-    }
-  }
-  if (post.visibility === 'group' && post.group) {
-    for (const { profile: recipient } of await listGroupMembers(post.group)) {
-      const recipientProfile = await findProfile(recipient?.id as string);
-      if (skipRecipient(recipientProfile)) continue;
-      recipients.add(recipientProfile!);
-    }
-  }
-
+  const { profiles: recipients, groupId } = await jamStartAudience(
+    profile,
+    post,
+    recurrenceId,
+  );
   for (const recipientProfile of recipients) {
-    await notify(recipientProfile);
+    await notify(recipientProfile, groupId);
   }
 };
 

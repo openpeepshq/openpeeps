@@ -40,6 +40,7 @@ const groupScopedNotificationTypes = [
   'newGroupPost',
   'groupMemberJoined',
   'groupMemberLeft',
+  'jamStarted',
 ] as const;
 
 export const groupNotificationLevelFor = (
@@ -68,6 +69,10 @@ export const allowsGroupNotification = ({
   }
   if (level === 'off') return false;
   if (level === 'mostRelevant') {
+    // Jam-start alerts are RSVP-aware: the jamStarted handler only offers
+    // profiles with an effective RSVP, so anything reaching the gate counts
+    // as relevant.
+    if (type === 'jamStarted') return true;
     return type === 'newGroupPost' && followsAuthor;
   }
   return true;

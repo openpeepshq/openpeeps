@@ -1,11 +1,16 @@
 import { Link, MapPin } from 'lucide-react';
 import type { Event, Location } from '@openpeepshq/common/types';
+import {
+  canAnnouncePosts,
+  isCommunityWideVisibility,
+} from '@openpeepshq/common/lib';
 import { Input, Label } from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
 import {
   useEventTypeSwitcher,
   useLocationSearch,
 } from '../../../hooks/events/useEventTypeSwitcher';
+import { useAuthData } from '../../layout/IdentityContext';
 import { ProfilesInput } from '../../profile';
 
 export type { EventFormat } from '../../../hooks/events/useEventTypeSwitcher';
@@ -14,6 +19,8 @@ export interface EventTypeSwitcherProps {
   event: Event;
   isEdit?: boolean;
   onChange: (event: Event) => void;
+  /** Post visibility; gates the community-wide "notify everyone" opt-in. */
+  visibility?: string;
 }
 
 function SimpleLocationInput({
@@ -74,8 +81,13 @@ export function EventTypeSwitcher({
   event,
   isEdit = false,
   onChange,
+  visibility,
 }: EventTypeSwitcherProps) {
   const t = useT();
+  const authData = useAuthData();
+  const canNotify =
+    canAnnouncePosts(authData.profile?.roles) &&
+    isCommunityWideVisibility(visibility);
   const {
     eventFormat,
     formats,
@@ -84,6 +96,7 @@ export function EventTypeSwitcher({
     moderatorProfiles,
     setModerators,
     setWaitingRoom,
+    setNotifyEveryone,
     setUrl,
     setPhysicalLocation,
   } = useEventTypeSwitcher({
@@ -181,6 +194,30 @@ export function EventTypeSwitcher({
               })}
             </span>
           </label>
+          {canNotify ? (
+            <label className="flex items-start gap-2">
+              <input
+                type="checkbox"
+                className="mt-1"
+                checked={event.jam?.notifyEveryone ?? false}
+                disabled={!livekitEnabled}
+                onChange={(e) => setNotifyEveryone(e.target.checked)}
+              />
+              <span className="flex flex-col">
+                <span className="text-sm">
+                  {t('events.form.jamNotifyEveryone', {
+                    defaultValue: 'Notify everyone when the jam starts',
+                  })}
+                </span>
+                <span className="text-muted-foreground text-xs">
+                  {t('events.form.jamNotifyEveryoneDescription', {
+                    defaultValue:
+                      'Every member of the community gets a notification when the jam starts.',
+                  })}
+                </span>
+              </span>
+            </label>
+          ) : null}
         </>
       ) : null}
     </div>

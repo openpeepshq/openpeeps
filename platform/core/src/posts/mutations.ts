@@ -61,6 +61,7 @@ import {
   rsvpCancelNotice,
   rsvpTargetsPastEvent,
   sameRecurrenceId,
+  withoutCommunityJamNotifyEveryone,
 } from '@openpeepshq/common/lib';
 import { forbidden, notFound, unprocessableRequest } from '../errors';
 import { areBlocked, hasBlockAmong } from '../profiles/blocks';
@@ -94,7 +95,6 @@ export const createPost = async (
   }
 
   const { db } = await allpeepDb();
-
   const repostedPost = relations.repostId
     ? await postsMapping.find(db, relations.repostId)
     : undefined;
@@ -134,6 +134,13 @@ export const createPost = async (
   // (which only include public/local) never surface them incorrectly.
   if (group) {
     postData = { ...postData, visibility: 'group' };
+  }
+  // The broadcast flag survives only on community-wide posts. Key off the
+  // post's own final visibility — the same field the notification handler
+  // reads — so a payload carrying `visibility: 'public'` plus a group can
+  // never keep a flag the jam-start path would treat as instance-wide.
+  if (data.type === 'event') {
+    data = withoutCommunityJamNotifyEveryone(data, postData.visibility);
   }
   const hashtags = extractHashtags(data);
   const id = uuidv7();
@@ -226,7 +233,12 @@ export const updatePost = async (
 ) => {
   const previousEvent = post.data?.type === 'event' ? post.data : undefined;
   const normalized =
-    data.type === 'event' ? normalizeEventDataForSave(data) : data;
+    data.type === 'event'
+      ? withoutCommunityJamNotifyEveryone(
+          normalizeEventDataForSave(data),
+          post.visibility,
+        )
+      : data;
   const dataForDb =
     normalized.type === 'event'
       ? eventDataForDbUpdate(previousEvent, normalized)

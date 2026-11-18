@@ -11,7 +11,9 @@ import { hub } from '../events';
 import * as blocks from '../profiles/blocks';
 import * as activity from './activity';
 import * as helpers from './helpers';
-import { createPost } from './mutations';
+import * as eventOccurrences from './eventOccurrences';
+import * as pollEndJobs from './pollEndJobs';
+import { createPost, updatePost } from './mutations';
 import { postsMapping } from './mapping';
 
 vi.mock('../db', async (importOriginal) => ({
@@ -19,6 +21,11 @@ vi.mock('../db', async (importOriginal) => ({
   allpeepDb: vi.fn().mockResolvedValue({ db: {} }),
 }));
 vi.mock('../config', () => ({ config: vi.fn() }));
+vi.mock('../groups/finders', () => ({
+  findGroup: vi.fn(async (id: string) =>
+    id === 'group-1' ? { id, handle: 'grp' } : undefined,
+  ),
+}));
 
 const PARENT_ID = '01970000-0000-7000-8000-000000000001';
 const REPLY_ID = '01970000-0000-7000-8000-000000000002';
@@ -148,5 +155,217 @@ describe('createPost reply validation', () => {
     );
     expect(replyConnector).toHaveBeenCalledWith({}, reply, parent);
     expect(transformPost).toHaveBeenCalledWith(reply);
+  });
+});
+
+describe('createPost community-wide jam broadcast flag', () => {
+  const jamData = (
+    jam: Record<string, unknown>,
+    over: Record<string, unknown> = {},
+  ) =>
+    ({
+      type: 'event',
+      name: 'Standup',
+      start: '2026-01-01T09:00:00.000Z',
+      ...over,
+      jam,
+    }) as unknown as PostDataUnion;
+
+  const eventPostData = (visibility: string) =>
+    ({
+      type: 'event',
+      visibility,
+      creatorId: 'creator-1',
+    }) as unknown as PostData;
+
+  const runCreate = async (
+    data: PostDataUnion,
+    relations: object = {},
+    nominalVisibility: string = 'public',
+  ) => {
+    const create = vi.fn().mockResolvedValue(reply);
+    vi.spyOn(postsMapping, 'removeDefaultFilter').mockReturnValue({
+      create,
+    } as never);
+    vi.spyOn(helpers, 'groupConnector').mockResolvedValue({} as never);
+    vi.spyOn(eventOccurrences, 'rebuildEventOccurrences').mockResolvedValue(
+      undefined,
+    );
+    await createPost(
+      data,
+      profile,
+      eventPostData(nominalVisibility),
+      relations as never,
+    );
+    return { create };
+  };
+
+  it('drops the broadcast flag when the post lands in a group (group override)', async () => {
+    mockDependencies();
+    vi.spyOn(postsMapping, 'find').mockResolvedValue(undefined);
+    const { create } = await runCreate(
+      jamData({ notifyEveryone: true, waitingRoom: true }),
+      { groupId: 'group-1' },
+    );
+    expect(create).toHaveBeenCalledWith(
+      {},
+      expect.objectContaining({
+        visibility: 'group',
+        data: expect.objectContaining({
+          jam: expect.not.objectContaining({ notifyEveryone: true }),
+        }),
+      }),
+    );
+  });
+
+  it('keys the strip on the final visibility, not the nominal groupId', async () => {
+    // A public-visibility payload that carries a group id which does not
+    // resolve to a group (stale/denied). The post therefore lands public, so
+    // the creator's opt-in must survive. The strip must key off the post's own
+    // final visibility (what the jam-start handler and updatePost read), not
+    // `relations.groupId != null ? 'group' : ...`, which would wrongly drop it.
+    mockDependencies();
+    vi.spyOn(postsMapping, 'find').mockResolvedValue(undefined);
+    const { create } = await runCreate(
+      jamData({ notifyEveryone: true, waitingRoom: true }),
+      { groupId: 'orphan-group' },
+    );
+    expect(create).toHaveBeenCalledWith(
+      {},
+      expect.objectContaining({
+        visibility: 'public',
+        data: expect.objectContaining({
+          jam: expect.objectContaining({ notifyEveryone: true }),
+        }),
+      }),
+    );
+  });
+
+  it('keeps the broadcast flag on a community-wide event without a group', async () => {
+    mockDependencies();
+    vi.spyOn(postsMapping, 'find').mockResolvedValue(undefined);
+    const { create } = await runCreate(
+      jamData({ notifyEveryone: true, waitingRoom: true }),
+      {},
+    );
+    expect(create).toHaveBeenCalledWith(
+      {},
+      expect.objectContaining({
+        visibility: 'public',
+        data: expect.objectContaining({
+          jam: expect.objectContaining({ notifyEveryone: true }),
+        }),
+      }),
+    );
+  });
+
+  it('keeps the broadcast flag on a local community-wide event', async () => {
+    // `local` is the second community-wide visibility: it shares the
+    // `['local', 'public']` branch with `public`, so its opt-in survives the
+    // strip just like the public keep-case above.
+    mockDependencies();
+    vi.spyOn(postsMapping, 'find').mockResolvedValue(undefined);
+    const { create } = await runCreate(
+      jamData({ notifyEveryone: true, waitingRoom: true }),
+      {},
+      'local',
+    );
+    expect(create).toHaveBeenCalledWith(
+      {},
+      expect.objectContaining({
+        visibility: 'local',
+        data: expect.objectContaining({
+          jam: expect.objectContaining({ notifyEveryone: true }),
+        }),
+      }),
+    );
+  });
+});
+
+describe('updatePost community-wide jam broadcast flag', () => {
+  const jamData = (
+    jam: Record<string, unknown>,
+    over: Record<string, unknown> = {},
+  ) =>
+    ({
+      type: 'event',
+      name: 'Standup',
+      start: '2026-01-01T09:00:00.000Z',
+      ...over,
+      jam,
+    }) as unknown as PostDataUnion;
+
+  const runUpdate = async (visibility: string, data: PostDataUnion) => {
+    mockDependencies();
+    vi.spyOn(eventOccurrences, 'rebuildEventOccurrences').mockResolvedValue(
+      undefined,
+    );
+    vi.spyOn(pollEndJobs, 'cancelPollEnd').mockResolvedValue(undefined);
+    vi.spyOn(pollEndJobs, 'schedulePollEnd').mockResolvedValue(undefined);
+    const update = vi
+      .spyOn(postsMapping, 'update')
+      .mockResolvedValue(undefined);
+    vi.spyOn(postsMapping, 'find').mockResolvedValue(reply);
+    await updatePost(
+      {
+        id: REPLY_ID,
+        visibility,
+        tags: [],
+        data: undefined,
+      } as unknown as PostWithMeta,
+      profile,
+      data,
+    );
+    return { update };
+  };
+
+  it('drops the broadcast flag when the post is group-scoped', async () => {
+    const { update } = await runUpdate(
+      'group',
+      jamData({ notifyEveryone: true, waitingRoom: true }),
+    );
+    expect(update).toHaveBeenCalledWith(
+      expect.anything(),
+      REPLY_ID,
+      expect.objectContaining({
+        data: expect.objectContaining({
+          jam: expect.not.objectContaining({ notifyEveryone: true }),
+        }),
+      }),
+    );
+  });
+
+  it('keeps the broadcast flag when the post is community-wide (public)', async () => {
+    const { update } = await runUpdate(
+      'public',
+      jamData({ notifyEveryone: true, waitingRoom: true }),
+    );
+    expect(update).toHaveBeenCalledWith(
+      expect.anything(),
+      REPLY_ID,
+      expect.objectContaining({
+        data: expect.objectContaining({
+          jam: expect.objectContaining({ notifyEveryone: true }),
+        }),
+      }),
+    );
+  });
+
+  it('keeps the broadcast flag when the post is community-wide (local)', async () => {
+    // `local` is the second community-wide visibility, so its opt-in survives
+    // the update strip just like the public keep-case above.
+    const { update } = await runUpdate(
+      'local',
+      jamData({ notifyEveryone: true, waitingRoom: true }),
+    );
+    expect(update).toHaveBeenCalledWith(
+      expect.anything(),
+      REPLY_ID,
+      expect.objectContaining({
+        data: expect.objectContaining({
+          jam: expect.objectContaining({ notifyEveryone: true }),
+        }),
+      }),
+    );
   });
 });

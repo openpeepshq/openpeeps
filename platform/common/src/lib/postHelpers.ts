@@ -19,6 +19,7 @@ import {
   visibilityTypeValues,
 } from '../types';
 import { canModerateJam } from './jamHelpers';
+import { isCommunityWideVisibility } from './capabilitiesHelpers';
 import {
   defaultRsvpRecurrenceId,
   effectiveEventTimes,
@@ -562,6 +563,21 @@ export const withoutEventMaxAttendees = <T extends Event>(event: T): T => {
   const { maxAttendees: _, waitlistOfferMinutes: __, ...rest } = event;
   return rest as T;
 };
+
+/** A community-wide jam only broadcasts when the creator opted in. */
+export const withoutJamNotifyEveryone = <T extends Event>(event: T): T => {
+  if (!event.jam?.notifyEveryone) return event;
+  return { ...event, jam: { ...event.jam, notifyEveryone: undefined } } as T;
+};
+
+/** Broadcast requires community-wide visibility; other visibilities drop the flag. */
+export const withoutCommunityJamNotifyEveryone = <T extends Event>(
+  event: T,
+  visibility: string | undefined,
+): T =>
+  isCommunityWideVisibility(visibility)
+    ? event
+    : withoutJamNotifyEveryone(event);
 
 export const normalizeEventDataForSave = <T extends Event>(event: T): T => {
   const { maxAttendees } = event;
