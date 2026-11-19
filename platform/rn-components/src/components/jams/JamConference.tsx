@@ -14,6 +14,7 @@ import {
 import { JamObserverShell } from './JamObserverShell';
 import { JamParticipantConference } from './JamParticipantConference';
 import { JamVideoLayout } from './JamVideoLayout';
+import { useTrackSubscriptionBump } from './useTrackSubscriptionBump';
 
 const JamObserverConference = () => {
   const tracks = useTracks(
@@ -65,6 +66,10 @@ const JamObserverRoom = () => {
  */
 export const JamConference = () => {
   const observer = useJamObserver();
+  // Applied once here (rather than in each conference) so every useTracks
+  // consumer in the Jam tree — participant and observer — re-reads
+  // publication.track when a remote video track is (un)subscribed (#1808).
+  useTrackSubscriptionBump(useRoomContext());
 
   if (observer) {
     return <JamObserverRoom />;
