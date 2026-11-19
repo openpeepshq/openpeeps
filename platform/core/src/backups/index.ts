@@ -15,7 +15,7 @@ import { emptyDir } from 'fs-extra';
 import { join, sep, isAbsolute } from 'node:path';
 import { tmpdir } from 'node:os';
 import archiver from 'archiver';
-import extract from 'extract-zip';
+import { extractWithNodeStreamZip } from './extractWithNodeStreamZip';
 import { collectionInfos } from '../db';
 import { communityConfig, config, defaultConfig } from '../config';
 import {
@@ -91,19 +91,15 @@ const extractWithUnzipCli = (
   };
 };
 
-const extractWithExtractZip = (
-  zipPath: string,
-  tempDir: string,
-): { promise: Promise<void>; kill: () => void } => ({
-  promise: extract(zipPath, { dir: tempDir }),
-  kill: () => {
-    /* extract-zip has no cancel handle; rely on outer rejection. */
-  },
-});
-
-const extractZipArchive = (zipPath: string, tempDir: string) => {
+/**
+ * Chooses the unzip CLI on Linux and the node-stream-zip fallback everywhere
+ * else (and when the CLI is unavailable).
+ *
+ * @internal exposed for tests
+ */
+export const extractZipArchive = (zipPath: string, tempDir: string) => {
   if (process.platform !== 'linux') {
-    return extractWithExtractZip(zipPath, tempDir);
+    return extractWithNodeStreamZip(zipPath, tempDir);
   }
 
   const cli = extractWithUnzipCli(zipPath, tempDir);
@@ -113,9 +109,12 @@ const extractZipArchive = (zipPath: string, tempDir: string) => {
     if (!message.includes('unzip binary not found')) {
       throw err;
     }
-    log.warn('unzip CLI unavailable; falling back to extract-zip');
-    const fallback = extractWithExtractZip(zipPath, tempDir);
+    log.warn('unzip CLI unavailable; falling back to node-stream-zip');
+    const fallback = extractWithNodeStreamZip(zipPath, tempDir);
     fallbackKill = fallback.kill;
+    // A kill that fires in the ENOENT→fallback window is dropped on purpose:
+    // the fallback's reader is not open yet, so a carried request would still
+    // hit the pre-open no-op rule and the extraction would complete anyway.
     await fallback.promise;
   });
 
