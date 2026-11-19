@@ -1,5 +1,11 @@
 import React from 'react';
-import { View, TouchableWithoutFeedback, Pressable } from 'react-native';
+import {
+  View,
+  TouchableWithoutFeedback,
+  Pressable,
+  type AccessibilityRole,
+  type AccessibilityState,
+} from 'react-native';
 import type { PublicProfile, Profile } from '@openpeepshq/common/types';
 import { markdownPlainText } from '@openpeepshq/common/lib';
 import { XIcon } from '../icons/index';
@@ -18,7 +24,6 @@ export interface ProfileCardProps {
   showAction?: boolean;
   /** Custom action node rendered on the right of the card. */
   action?: React.ReactNode;
-  hasAction?: boolean;
   actionType?: 'follow' | 'message' | 'unfollow' | 'link' | 'select';
   handleSelectProfile?: () => void;
   rightComponent?: React.ReactNode;
@@ -28,6 +33,16 @@ export interface ProfileCardProps {
    * tight card-to-border spacing.
    */
   unspaced?: boolean;
+  /**
+   * Screen-reader identity for select (picker) rows, forwarded to the row's
+   * touchable. Picker rows are sometimes rendered bare — no accessible
+   * wrapper (the DM candidate list) — so the select-mode a11y travels with
+   * the row instead of assuming a `ProfileSelector`-style wrapper
+   * (issue #1666 round-10 review S1).
+   */
+  accessibilityRole?: AccessibilityRole;
+  accessibilityLabel?: string;
+  accessibilityState?: AccessibilityState;
 }
 
 export const ProfileCard = ({
@@ -39,6 +54,9 @@ export const ProfileCard = ({
   handleSelectProfile,
   rightComponent,
   unspaced = false,
+  accessibilityRole,
+  accessibilityLabel,
+  accessibilityState,
 }: ProfileCardProps) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
@@ -64,25 +82,58 @@ export const ProfileCard = ({
 
   const bio = markdownPlainText(profile.bio);
 
+  // Picker rows (actionType="select") are a fixed single-line row —
+  // `px-4 mb-1 py-1.5`, name + handle, no bio — so the avatar stays
+  // vertically centered regardless of long-name content (issue #1666).
+  const selectRow = actionType === 'select';
+
+  // Select rows render two ways: wrapped in an accessible `Pressable`
+  // (ProfileSelector — the wrapper carries the a11y, the inner touchable
+  // must defer so screen readers see one element per row, issue #1666
+  // review S2) or bare (the DM candidate list — the row must carry the
+  // a11y itself, issue #1666 round-10 review S1). The caller's a11y props
+  // pick the mode: present → the touchable is the accessible element;
+  // absent → it defers to the wrapper.
+  const hasRowA11y =
+    accessibilityRole !== undefined ||
+    accessibilityLabel !== undefined ||
+    accessibilityState !== undefined;
+
   return (
     <View
       className={
         unspaced
           ? 'w-full flex-row items-center justify-between'
           : `w-full flex-row items-center justify-between px-4 ${
-              actionType === 'select' ? 'mb-1 py-1' : 'mb-8'
+              selectRow ? 'mb-1 py-1.5' : 'mb-8'
             }`
       }
     >
-      <TouchableWithoutFeedback onPress={onPress}>
+      <TouchableWithoutFeedback
+        accessible={selectRow ? hasRowA11y : undefined}
+        accessibilityRole={
+          selectRow && hasRowA11y ? accessibilityRole : undefined
+        }
+        accessibilityLabel={
+          selectRow && hasRowA11y ? accessibilityLabel : undefined
+        }
+        accessibilityState={
+          selectRow && hasRowA11y ? accessibilityState : undefined
+        }
+        onPress={onPress}
+      >
         <View className="flex flex-row items-center gap-x-2 min-w-0 flex-1">
           <ProfileAvatar
             profile={profile}
-            className={actionType === 'select' ? 'size-10' : 'size-16'}
+            className={selectRow ? 'size-10' : 'size-16'}
           />
           <View className="min-w-0 flex-1">
             <ThemedText
-              className="text-lg font-semibold truncate"
+              className={
+                selectRow
+                  ? 'text-base font-semibold truncate'
+                  : 'text-lg font-semibold truncate'
+              }
               numberOfLines={1}
             >
               {truncateText(profile.displayName, 18) || profile.handle}
@@ -90,7 +141,7 @@ export const ProfileCard = ({
             <ThemedText className="truncate" numberOfLines={1}>
               @{profile.handle}
             </ThemedText>
-            {bio ? (
+            {bio && !selectRow ? (
               <ThemedText
                 className="text-muted-foreground mt-1 text-sm"
                 numberOfLines={2}
@@ -126,9 +177,11 @@ export const MiniProfileCard = ({
   showAction = true,
 }: MiniProfileCardProps) => {
   return (
-    <View className="flex flex-row items-center gap-x-2 rounded-md border border-border px-2 py-2">
-      <ProfileAvatar profile={profile} className="size-8" />
-      <ThemedText>
+    <View className="flex flex-row items-center gap-x-2 rounded-md border border-border px-2 py-1.5">
+      <ProfileAvatar profile={profile} className="size-3" />
+      {/* text-xs: matches the web ProfileBadge label (issue #1666 review S4);
+          an unstyled ThemedText here would render larger than the 12dp avatar. */}
+      <ThemedText className="text-xs">
         {truncateText(profile.displayName, 10) || `@${profile.handle}`}
       </ThemedText>
       {showAction && (

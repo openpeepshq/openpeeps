@@ -1,18 +1,19 @@
 import React, { useEffect } from 'react';
 import { ThemedView } from '../../components/ui/themed-view';
-import { ProfileCard } from '../../components/profile/index';
+import { MiniProfileCard, ProfileCard } from '../../components/profile/index';
 import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
 import { EmptyStateContainer } from '../../components/custom/common/index';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useOpenpeeps } from '@openpeepshq/react';
-import { CheckIcon, XIcon } from '../../components/icons/index';
+import { CheckIcon } from '../../components/icons/index';
 import { ThemedText } from '../../components/ui/themed-text';
-import { ActivityIndicator, Pressable, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import { MainScreenProps } from '../../components/navigation/types/index';
 import { useNewConversationStore } from '../../stores/useNewConversationStore';
 import { Input } from '../../components/ui/input';
 import { profileMatchesQuery } from '../../lib/utils';
 import { blockedPairIds } from '@openpeepshq/common/lib';
+import type { Profile, PublicProfile } from '@openpeepshq/common';
 import { useTranslation } from 'react-i18next';
 
 type SelectPrivateMessageMembersProps =
@@ -46,7 +47,7 @@ export const NewConversation = ({
   }, [currentProfile, allProfiles, searchQuery]);
 
   useSetPageHeader(
-    t('conversations.selectMembers'),
+    t('conversations.createNew.title'),
     <HeaderActionButton
       title={t('common.next', { defaultValue: 'Next' })}
       onPress={() => navigation.navigate('DraftMessage')}
@@ -59,7 +60,7 @@ export const NewConversation = ({
       <View className="w-full flex flex-row justify-between items-center p-4">
         <Input
           className="flex-1"
-          placeholder="Enter name or handle"
+          placeholder={t('conversations.createNew.searchPlaceholder')}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
@@ -68,46 +69,50 @@ export const NewConversation = ({
         {isLoading && <ActivityIndicator size={'small'} />}
 
         {members.length > 0 && (
-          <ThemedView className=" my-4 w-full grid grid-cols-2 gap-2">
-            {members.map((profile, index) => (
-              <ThemedView key={index} className="col-span-1">
-                <ProfileCard
-                  profile={profile}
-                  hasAction={true}
-                  actionType="select"
-                  handleSelectProfile={() => removeMember(profile)}
-                  rightComponent={
-                    <Pressable onPress={() => removeMember(profile)}>
-                      <XIcon className="text-foreground" />
-                    </Pressable>
-                  }
-                />
-              </ThemedView>
+          <ThemedView className="my-4 w-full flex-row flex-wrap gap-2">
+            {members.map((member) => (
+              <MiniProfileCard
+                key={member.id}
+                profile={member as PublicProfile}
+                onPress={() => removeMember(member as Profile)}
+              />
             ))}
           </ThemedView>
         )}
         {members.length > 0 && (
           <ThemedText className="text-center">
-            {members.length} selected
+            {t('conversations.createNew.selectedCount', {
+              count: members.length,
+            })}
           </ThemedText>
         )}
 
-        {filteredProfiles?.map((profile, index) => {
+        {filteredProfiles?.map((profile) => {
+          const selected = members.some((m) => m.id === profile.id);
+          // The candidate rows are bare `ProfileCard` rows with no accessible
+          // wrapper, so they carry their own screen-reader identity: without
+          // it the whole DM picker is invisible to screen readers (issue
+          // #1666 round-10 review S1).
+          const rowLabel = selected
+            ? t('profile.selector.rowSelected', {
+                name: profile.displayName || `@${profile.handle}`,
+              })
+            : profile.displayName || `@${profile.handle}`;
           return (
             <ProfileCard
-              key={index}
+              key={profile.id}
               profile={profile}
-              hasAction={true}
               actionType="select"
+              accessibilityRole="button"
+              accessibilityLabel={rowLabel}
+              accessibilityState={{ selected }}
               rightComponent={
-                <>
-                  {members.includes(profile) ? (
-                    <CheckIcon className="text-foreground" />
-                  ) : null}
-                </>
+                selected ? (
+                  <CheckIcon size={16} className="text-primary" />
+                ) : null
               }
               handleSelectProfile={() => {
-                if (members.includes(profile)) {
+                if (selected) {
                   removeMember(profile);
                 } else {
                   setMember(profile);

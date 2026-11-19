@@ -126,6 +126,14 @@ jest.mock('./ui/avatar', () => ({
   AvatarImage: () => null,
   AvatarFallback: () => null,
 }));
+// ProfileAvatar now renders SVG avatars through ui/svg-image, which imports
+// react-native-svg (unusable under this test's partial react-native mock).
+// Stub the leaf like the sibling ui/* mocks; the test profiles have no
+// avatar, so it is never exercised.
+jest.mock('./ui/svg-image', () => ({
+  SvgImage: (props: Record<string, unknown>) =>
+    React.createElement('SvgImage', props),
+}));
 jest.mock('./ui/themed-text', () => ({
   ThemedText: el('ThemedText', { forwarded: true }),
   TextClassContext: {

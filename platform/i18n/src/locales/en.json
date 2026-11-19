@@ -334,7 +334,8 @@
       "empty": "No profiles available",
       "emptySearch": "No results found",
       "confirm": "OK",
-      "remove": "Remove"
+      "remove": "Remove",
+      "rowSelected": "{{name}}, selected"
     },
     "input": {
       "placeholder": "Select profiles"
@@ -2613,7 +2614,6 @@
   },
   "conversations": {
     "newMessage": "New Message",
-    "selectMembers": "Select members",
     "noMessages": "No direct messages here",
     "sendError": "Failed to send message",
     "messageLog": "Messages",
@@ -2630,6 +2630,8 @@
     "createNew": {
       "title": "New Conversation",
       "searchPlaceholder": "Search for people",
+      "selectedCount_one": "{{count}} selected",
+      "selectedCount_other": "{{count}} selected",
       "sendMessage": "Send Message",
       "messagePlaceholder": "Type your message",
       "send": "Send"

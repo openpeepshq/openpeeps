@@ -25,7 +25,7 @@ import { BaseSheet, SheetFooter } from '../../custom/modals/common';
 import { useTranslation } from 'react-i18next';
 import { useAudienceChoices } from './constants';
 import { GroupNameFromId } from '../../groups/GroupNameFromId';
-import { ProfileAvatar } from '../../profile/Avatar';
+import { MiniProfileCard } from '../../profile/ProfileCard';
 import { ProfileSelector } from '../../profile/ProfileSelector';
 import { bottomSheetClose } from '../../../lib/bottom-sheet-ref';
 
@@ -183,13 +183,14 @@ export const VisibilitySheet = forwardRef<
                         )}
                         {option.value === 'direct' &&
                           selectedAudience.visibility === 'direct' &&
-                          selectedAudience.audience && (
-                            <View className="flex-row items-center gap-2 pl-2">
+                          selectedAudience.audience &&
+                          selectedAudience.audience.length > 0 && (
+                            <View className="flex-row flex-wrap gap-2 py-2">
                               {selectedAudience.audience.map((a) => (
-                                <ProfileAvatar
+                                <MiniProfileCard
                                   key={a.id}
                                   profile={a}
-                                  className="size-4 -ml-3"
+                                  showAction={false}
                                 />
                               ))}
                             </View>

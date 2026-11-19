@@ -354,7 +354,8 @@
       "empty": "Keine Profile verfügbar",
       "emptySearch": "Keine Ergebnisse gefunden",
       "confirm": "OK",
-      "remove": "Entfernen"
+      "remove": "Entfernen",
+      "rowSelected": "{{name}}, ausgewählt"
     },
     "input": {
       "placeholder": "Profile auswählen"
@@ -2613,12 +2614,13 @@
   },
   "conversations": {
     "newMessage": "Neue Nachricht",
-    "selectMembers": "Mitglieder auswählen",
     "noMessages": "Keine Direktnachrichten vorhanden",
     "empty": "Keine Direktnachrichten vorhanden",
     "createNew": {
       "title": "Neue Unterhaltung",
       "searchPlaceholder": "Personen suchen",
+      "selectedCount_one": "{{count}} ausgewählt",
+      "selectedCount_other": "{{count}} ausgewählt",
       "sendMessage": "Nachricht senden",
       "messagePlaceholder": "Nachricht eingeben",
       "send": "Senden"

@@ -6,10 +6,12 @@ import {
   getInitials,
   hueFromHandle,
   initialsBackground,
+  isSvgUrl,
   svgCoverSrc,
 } from '@openpeepshq/react';
 import { useOpenPeepsTheme } from '../../theme/OpenPeepsThemeProvider';
 import { Avatar, AvatarImage } from '../ui/avatar';
+import { SvgImage } from '../ui/svg-image';
 import { UserXIcon } from '../icons/index';
 import { cn } from '../../lib/utils';
 
@@ -43,6 +45,12 @@ export const ProfileAvatar = ({
   const roundedClass = 'rounded-full';
   const deleted = isDeletedProfile(profile);
 
+  // SVG-ness must come from the original URL: svgCoverSrc appends the
+  // web-only #svgView cover fragment, which the RN media cache does not
+  // strip — if the fragment leaked into the cache lookup the URL would miss
+  // the isSvgUrl test and the SVG would silently fall back to the raster
+  // path (issue #1666).
+  const isSvg = !deleted && !!profile?.avatar && isSvgUrl(profile.avatar);
   const avatarSource =
     !deleted && profile?.avatar ? { uri: svgCoverSrc(profile.avatar) } : null;
 
@@ -78,6 +86,24 @@ export const ProfileAvatar = ({
             </Text>
           )}
         </View>
+      </Avatar>
+    );
+  }
+
+  // RN Image cannot decode SVG: render via SvgImage, which ignores the
+  // #svgView fragment and applies cover natively via preserveAspectRatio.
+  if (isSvg) {
+    return (
+      <Avatar
+        alt={t('profile.header.avatarAlt')}
+        className={rootClassName}
+        style={{ width: px, height: px }}
+      >
+        <SvgImage
+          uri={avatarSource.uri}
+          className={cn('h-full w-full', roundedClass)}
+          resizeMode="cover"
+        />
       </Avatar>
     );
   }
