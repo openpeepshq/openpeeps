@@ -3,8 +3,9 @@
 Stats + burndown for a Gitea/Forgejo milestone.
 
 Produces a milestone description containing:
-  1. A stats table counting OPEN issues per pipeline stage.
-  2. A burndown chart for the 7 days before the milestone due date, counting
+  1. A "generated at" line with the UTC timestamp of this refresh.
+  2. A stats table counting OPEN issues per pipeline stage.
+  3. A burndown chart for the 7 days before the milestone due date, counting
      currently-scoped issues that were still open at end of each day and
      splitting each day's total across four pipeline stages:
        - pre-planning   (unlabeled / needs-specs / ready-to-schedule)
@@ -36,7 +37,7 @@ import os
 import time
 import urllib.error
 import urllib.request
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 
 BASE = "https://code.openpeeps.org/api/v1/repos/openpeeps/openpeeps"
 
@@ -396,6 +397,8 @@ burndown_section = [
     f"count for that day, linear from {first_count} on {start.isoformat()} to 0 "
     f"on {end.isoformat()}. "
     f"Scope changes (issues moved in/out of the milestone during the window) are not reflected.",
+    "",
+    f"<sub>Stats generated at {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}</sub>",
 ]
 
 desc = "\n".join(burndown_section)
