@@ -30,6 +30,7 @@ import {
 } from './dateRange';
 import { metricCard, sumSeries, averageSeries } from './metrics';
 import { isPublicAnalyticsGroup } from './privacy';
+import { localMemberScope } from './memberScope';
 
 const POST_TYPE_KEYS = [
   'jam',
@@ -60,24 +61,32 @@ const countDistinctActives = async (
   const db = await database();
   const start = utcDayStart(from);
   const end = exclusiveEnd(to);
+  // Scope actors to the same population as totalMembersAt (local,
+  // non-deleted profiles) so federated or deleted actors cannot make
+  // active members exceed total members. The scope composes from the shared
+  // localMemberScope fragment so a future query edit cannot silently drop it.
   const result = await db.execute(sql`
     select count(*)::int as c from (
-      select creator_id as profile_id from posts
-        where deleted_at is null
-          and created_at >= ${start} and created_at < ${end}
-      union
-      select from_id from entries
-        where body->>'type' in ('reaction', 'unreaction')
-        and created_at >= ${start} and created_at < ${end}
-      union
-      select from_id from repost
-        where created_at >= ${start} and created_at < ${end}
-      union
-      select from_id from reply_to
-        where created_at >= ${start} and created_at < ${end}
-      union
-      select from_id from bookmarks
-        where created_at >= ${start} and created_at < ${end}
+      select a.actor_id as profile_id
+        from (
+          select creator_id as actor_id from posts
+            where deleted_at is null
+              and created_at >= ${start} and created_at < ${end}
+          union
+          select from_id from entries
+            where body->>'type' in ('reaction', 'unreaction')
+            and created_at >= ${start} and created_at < ${end}
+          union
+          select from_id from repost
+            where created_at >= ${start} and created_at < ${end}
+          union
+          select from_id from reply_to
+            where created_at >= ${start} and created_at < ${end}
+          union
+          select from_id from bookmarks
+            where created_at >= ${start} and created_at < ${end}
+        ) a
+        ${localMemberScope(sql`a.actor_id`)}
     ) active
   `);
   const rows = result.rows as Array<Record<string, unknown>>;
@@ -166,11 +175,15 @@ const sumColumn = async (
 
 const totalMembersAt = async (day: string): Promise<number> => {
   const db = await database();
-  const end = `${day}T23:59:59.999Z`;
+  // Exclusive next-day boundary, matching the active-members rollup
+  // (compile.ts) and the self-check guard. `<= 23:59:59.999` missed
+  // microsecond-precision timestamps in the last millisecond of the day, so a
+  // profile created at range end would fall on one side of the
+  // active <= total invariant but not the other.
   const result = await db.execute(sql`
     select count(*)::int as c from profiles
     where deleted_at is null and type = 'local'
-      and created_at <= ${end}
+      and created_at < ${exclusiveEnd(day)}
   `);
   const rows = result.rows as Array<{ c?: number }>;
   return Number(rows[0]?.c ?? 0);
@@ -178,7 +191,9 @@ const totalMembersAt = async (day: string): Promise<number> => {
 
 const verifiedMembersAt = async (day: string): Promise<number> => {
   const db = await database();
-  const end = `${day}T23:59:59.999Z`;
+  // Exclusive next-day boundary (see totalMembersAt) so a profile created in
+  // the day's final millisecond is counted like the active-members metrics.
+  const end = exclusiveEnd(day);
   const result = await db.execute(sql`
     select count(*)::int as c from profiles p
     join controls c on c.to_id = p.id::text
@@ -186,7 +201,7 @@ const verifiedMembersAt = async (day: string): Promise<number> => {
     where p.deleted_at is null and p.type = 'local'
       and a.deleted_at is null
       and a.email_validated = true
-      and p.created_at <= ${end}
+      and p.created_at < ${end}
   `);
   const rows = result.rows as Array<{ c?: number }>;
   return Number(rows[0]?.c ?? 0);
@@ -194,7 +209,9 @@ const verifiedMembersAt = async (day: string): Promise<number> => {
 
 const unverifiedMembersAt = async (day: string): Promise<number> => {
   const db = await database();
-  const end = `${day}T23:59:59.999Z`;
+  // Exclusive next-day boundary (see totalMembersAt) so a profile created in
+  // the day's final millisecond is counted like the active-members metrics.
+  const end = exclusiveEnd(day);
   const result = await db.execute(sql`
     select count(*)::int as c from profiles p
     join controls c on c.to_id = p.id::text
@@ -202,7 +219,7 @@ const unverifiedMembersAt = async (day: string): Promise<number> => {
     where p.deleted_at is null and p.type = 'local'
       and a.deleted_at is null
       and a.email_validated = false
-      and p.created_at <= ${end}
+      and p.created_at < ${end}
   `);
   const rows = result.rows as Array<{ c?: number }>;
   return Number(rows[0]?.c ?? 0);
@@ -914,7 +931,7 @@ export const getAnalyticsGrowth = async (
         where p.deleted_at is null
           and p.type <> 'guest'
           and p.created_at >= ${`${range.from}T00:00:00.000Z`}
-          and p.created_at <= ${`${range.to}T23:59:59.999Z`}
+          and p.created_at < ${exclusiveEnd(range.to)}
         order by p.created_at desc
         limit 25
       `),

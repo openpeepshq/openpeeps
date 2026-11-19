@@ -1,6 +1,6 @@
 import { getSharedConnection } from '../redis';
 
-const KEY_PREFIX = 'analytics:v5:';
+const KEY_PREFIX = 'analytics:v6:';
 const OPEN_DAY_TTL_SEC = 60 * 60;
 const CLOSED_RANGE_TTL_SEC = 60 * 60 * 6;
 

@@ -117,7 +117,7 @@ export function AdminDashboard() {
             subtitle={lastWeek}
             info={info(
               'activeMembers',
-              'Distinct members who posted, liked, replied, reposted, or bookmarked at least once in the selected range. A member active on multiple days is counted once.',
+              'Distinct members who posted, liked, replied, reposted, or bookmarked at least once in the selected range. A member active on multiple days is counted once. Counts live local members only — activity by federated or guest actors still counts toward the activity and post series but not in active members.',
             )}
           />
           <MetricCard
@@ -211,7 +211,7 @@ export function AdminDashboard() {
             })}
             info={info(
               'mau',
-              'Distinct members who posted, liked, replied, reposted, or bookmarked in the 30 days ending at the range end.',
+              'Distinct members who posted, liked, replied, reposted, or bookmarked in the 30 days ending at the range end. Counts live local members only — activity by federated or guest actors still counts toward the activity and post series but not in MAU.',
             )}
           />
           <MetricCard
@@ -223,7 +223,7 @@ export function AdminDashboard() {
             subtitle={thisPeriod}
             info={info(
               'activeMembers',
-              'Distinct members who posted, liked, replied, reposted, or bookmarked at least once in the selected range. A member active on multiple days is counted once.',
+              'Distinct members who posted, liked, replied, reposted, or bookmarked at least once in the selected range. A member active on multiple days is counted once. Counts live local members only — activity by federated or guest actors still counts toward the activity and post series but not in active members.',
             )}
           />
           <MetricCard
@@ -233,7 +233,7 @@ export function AdminDashboard() {
             subtitle={thisPeriod}
             info={info(
               'dau',
-              'Average daily active members in the selected range. Active means posted, liked, replied, reposted, or bookmarked that day.',
+              'Average daily active members in the selected range. Active means posted, liked, replied, reposted, or bookmarked that day. Counts live local members only — activity by federated or guest actors still counts toward the activity and post series but not in DAU.',
             )}
           />
         </div>

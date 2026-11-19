@@ -135,7 +135,7 @@ export const AnalyticsOverviewPage = () => {
           })}
           info={info(
             'activeMembers',
-            'Distinct members who posted, liked, replied, reposted, or bookmarked at least once in the selected range. A member active on multiple days is counted once.',
+            'Distinct members who posted, liked, replied, reposted, or bookmarked at least once in the selected range. A member active on multiple days is counted once. Counts live local members only — activity by federated or guest actors still counts toward the activity and post series but not in active members.',
           )}
         />
         <MetricCard

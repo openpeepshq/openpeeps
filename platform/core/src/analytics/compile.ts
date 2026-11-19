@@ -4,6 +4,7 @@ import { database, type PgDb } from '../db';
 import { analyticsDailyTotals } from '../db/pg/schema/analytics';
 import { logger } from '../log';
 import { invalidateAnalyticsCache } from './cache';
+import { localMemberScope } from './memberScope';
 
 const log = logger('app:analytics:compile');
 
@@ -103,25 +104,34 @@ export const compileAnalyticsDay = async (day: string): Promise<void> => {
           and created_at >= ${start} and created_at < ${end}`,
   );
 
+  // Scope to the same population as newMembers/totalMembersAt (local,
+  // non-deleted profiles) so the daily active_members rollup — and hence the
+  // overview series/chart — cannot exceed the member series. Composes from
+  // the shared localMemberScope fragment so a future query edit cannot
+  // silently drop it.
   const activeMembers = await countScalar(
     db,
     sql`select count(*)::int as c from (
-          select creator_id as profile_id from posts
-            where deleted_at is null
-              and created_at >= ${start} and created_at < ${end}
-          union
-          select from_id from entries
-            where body->>'type' in ('reaction', 'unreaction')
-              and created_at >= ${start} and created_at < ${end}
-          union
-          select from_id from repost
-            where created_at >= ${start} and created_at < ${end}
-          union
-          select from_id from reply_to
-            where created_at >= ${start} and created_at < ${end}
-          union
-          select from_id from bookmarks
-            where created_at >= ${start} and created_at < ${end}
+          select a.actor_id as profile_id
+            from (
+              select creator_id as actor_id from posts
+                where deleted_at is null
+                  and created_at >= ${start} and created_at < ${end}
+              union
+              select from_id from entries
+                where body->>'type' in ('reaction', 'unreaction')
+                  and created_at >= ${start} and created_at < ${end}
+              union
+              select from_id from repost
+                where created_at >= ${start} and created_at < ${end}
+              union
+              select from_id from reply_to
+                where created_at >= ${start} and created_at < ${end}
+              union
+              select from_id from bookmarks
+                where created_at >= ${start} and created_at < ${end}
+            ) a
+            ${localMemberScope(sql`a.actor_id`)}
         ) active`,
   );
 
@@ -279,6 +289,22 @@ export const compileAnalyticsDay = async (day: string): Promise<void> => {
     where created_at >= ${start} and created_at < ${end}
     group by to_id
   `);
+
+  // Cheap self-check that a future query edit cannot silently reintroduce the
+  // active-members > total-members bug this module once had. The rollup is
+  // scoped through localMemberScope, so this only trips on a real regression.
+  const memberPopulation = await countScalar(
+    db,
+    sql`select count(*)::int as c from profiles
+        where deleted_at is null and type = 'local'
+          and created_at < ${end}`,
+  );
+  if (activeMembers > memberPopulation) {
+    log.error(
+      `active_members (${activeMembers}) exceeds the member population (${memberPopulation}) for ${day}; ` +
+        `the active-members scope join is likely broken`,
+    );
+  }
 
   log.info(`Compiled analytics for ${day}`);
 };
