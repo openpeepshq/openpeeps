@@ -25,5 +25,5 @@
     }
   },
   "include": ["src/**/*"],
-  "exclude": ["drizzle.config.ts", "**/*.test.ts"]
+  "exclude": ["drizzle.config.ts", "**/*.test.ts", "src/testUtils/**"]
 }

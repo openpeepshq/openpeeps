@@ -2,8 +2,8 @@ import { existsSync } from 'node:fs';
 import { mkdtemp, rm, stat, utimes, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import extract from 'extract-zip';
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
+import { extractZipForTest } from '../testUtils/extractZip';
 import { cleanOldLogs } from './retention';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -49,7 +49,7 @@ describe('cleanOldLogs', () => {
     await stat(zipPath);
 
     const extractDir = await makeTmpDir();
-    await extract(zipPath, { dir: extractDir });
+    await extractZipForTest(zipPath, extractDir);
     await stat(join(extractDir, '20260901.log'));
   });
 
