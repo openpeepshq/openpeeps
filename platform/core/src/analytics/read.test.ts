@@ -267,9 +267,14 @@ const seed = async () => {
 // The CI `test-unit` job provides postgres:16-alpine + redis and a DATABASE_URL
 // (.forgejo/workflows/build.yaml), so these suites run for real there; the
 // graceful skip only covers bare-container CI jobs (lint, commit-check, …)
-// and local runs without a database.
+// and local runs without a database. connect_timeout bounds the probe so a
+// slow-to-refuse server cannot hang the worker (parity with
+// conversationQueries.test.ts).
 const hasPostgres = await (async () => {
-  const client = new pg.Client({ connectionString: pgConnectionString() });
+  const client = new pg.Client({
+    connectionString: pgConnectionString(),
+    connect_timeout: 2,
+  });
   try {
     await client.connect();
     return true;

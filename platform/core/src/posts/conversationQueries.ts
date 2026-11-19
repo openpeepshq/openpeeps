@@ -56,6 +56,8 @@ export const listConversationRootLeafPairs = async (
       SELECT walk.leaf_id, rt.to_id, walk.depth + 1
       FROM reply_to rt
       INNER JOIN walk ON rt.from_id = walk.node_id
+      -- Unreachable for a well-formed reply tree; caps pathological data only.
+      WHERE walk.depth < 9999
     ),
     roots AS (
       SELECT DISTINCT ON (leaf_id) leaf_id, node_id AS root_id
@@ -223,6 +225,27 @@ export const mergeOneToOnePreviews = (
  * they authored but are no longer in the audience of. Returns
  * [root, lastReadablePost] per conversation so the user can still find and
  * view the conversation history after leaving.
+ *
+ * Leaf semantics: the leaf is the newest post above the leave chain that is
+ * not itself a leave note (i.e. the newest message the leaver can still read).
+ * Root is the deepest ancestor in the walk (thread start). The walk starts at
+ * the leave note and follows `reply_to` edges only, so the root is the
+ * reply-chain ancestor — for a thread whose newest post was deleted it still
+ * resolves through `reply_to` edges; posts linked only via a mention or uri
+ * (e.g. `in_reply_to_uri` federation rows) are not ancestors of the walk.
+ *
+ * Deleted posts: follows the active-inbox deletion semantics —
+ * postContextMappingForProfile uses softDelete: false, so deleted posts
+ * surface as tombstones in hydrateLeanPostsByIds. A deleted root or deleted
+ * intermediate node still produces a root/leaf pair; if hydrateLeanPostsByIds
+ * cannot resolve it, the preview is silently dropped (identical to the
+ * active inbox).
+ *
+ * The visibility = 'direct' filter on left_posts exists because public and
+ * group replies never carry an audience edge back to their creator, so without
+ * it every public reply would register as the leaver "leaving" the conversation.
+ * Leave notes are always created with visibility = 'direct' (see
+ * leaveConversation), making the filter exact.
  */
 export const listLeftConversations = async (
   authData: AuthorizationData,
@@ -232,35 +255,59 @@ export const listLeftConversations = async (
     throw new Error('AuthorizationData.profile is required');
   }
   const { db } = await allpeepDb();
-  type RootLeafPair = { rootId: string; leafId: string };
   const result = (await db.execute(sql`
-    WITH left_posts AS (
-      SELECT p.id AS left_id, rt.to_id AS parent_id
+    WITH RECURSIVE left_posts AS (
+      SELECT p.id AS left_id
       FROM posts p
-      INNER JOIN reply_to rt ON rt.from_id = p.id
+      INNER JOIN reply_to rt ON rt.from_id = p.id::text
       WHERE p.creator_id = ${profile.id}
+        AND p.visibility = 'direct'
         AND p.deleted_at IS NULL
         AND NOT EXISTS (
           SELECT 1 FROM audience a
-          WHERE a.from_id = p.id AND a.to_id = p.creator_id
+          WHERE a.from_id = p.id::text AND a.to_id = p.creator_id
         )
     ),
     walk AS (
-      SELECT lp.left_id AS conv_id, lp.parent_id AS leaf_id,
-             lp.parent_id AS node_id, 0 AS depth
+      -- node_id is the reply-graph cursor: text, to match rt.from_id/to_id.
+      -- (posts.id is uuid, so the leave id must be cast to keep the
+      -- UNION ALL and the recursive join on one type.)
+      SELECT lp.left_id::text AS conv_id, lp.left_id::text AS node_id,
+             0 AS depth
       FROM left_posts lp
       UNION ALL
-      SELECT walk.conv_id, walk.leaf_id, rt.to_id, walk.depth + 1
+      SELECT walk.conv_id, rt.to_id, walk.depth + 1
       FROM reply_to rt
       INNER JOIN walk ON rt.from_id = walk.node_id
       WHERE walk.depth < 9999
     ),
     roots AS (
-      SELECT DISTINCT ON (conv_id) conv_id, node_id AS root_id, leaf_id
+      SELECT DISTINCT ON (conv_id) conv_id, node_id AS root_id
       FROM walk
       ORDER BY conv_id, depth DESC
+    ),
+    leaves AS (
+      -- Leave notes are excluded from leaf candidacy so the leaf is the
+      -- newest *readable* post (the newest message the leaver can still
+      -- read), not the leave note itself.
+      SELECT DISTINCT ON (conv_id) conv_id, node_id AS leaf_id
+      FROM walk
+      WHERE NOT EXISTS (
+        SELECT 1 FROM left_posts lp WHERE lp.left_id::text = walk.node_id
+      )
+      ORDER BY conv_id, depth ASC
+    ),
+    combined AS (
+      SELECT r.root_id, l.leaf_id
+      FROM roots r
+      JOIN leaves l ON r.conv_id = l.conv_id
+    ),
+    best AS (
+      SELECT DISTINCT ON (root_id) root_id, leaf_id
+      FROM combined
+      ORDER BY root_id, leaf_id DESC
     )
-    SELECT root_id, leaf_id FROM roots ORDER BY leaf_id DESC
+    SELECT root_id, leaf_id FROM best ORDER BY leaf_id DESC
   `)) as unknown as { rows: Record<string, unknown>[] };
 
   const pairs: RootLeafPair[] = result.rows.map((row) => ({
