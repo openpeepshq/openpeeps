@@ -1,6 +1,6 @@
 {
   "name": "@openpeepshq/rn-components",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "description": "React Native community screens and shared UI (extracted from the Black Ambition app) for the OpenPeeps stack.",
   "source": "./src/index.ts",
   "main": "./src/index.ts",
@@ -76,6 +76,7 @@
     "@livekit/react-native-webrtc": "144.1.1",
     "@notifee/react-native": "^9.1.8",
     "@openpeepshq/common": "workspace:^",
+    "@openpeepshq/fetch-client": "workspace:^",
     "@openpeepshq/react": "workspace:^",
     "@react-native-async-storage/async-storage": "^2.1.1",
     "@react-native-clipboard/clipboard": "^1.16.1",

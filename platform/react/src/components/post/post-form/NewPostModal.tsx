@@ -9,6 +9,7 @@ import {
 import {
   canAnnouncePosts,
   canSubmitPostContent,
+  POLL_DEFAULT_EXPIRY_MS,
   isCommunityWideVisibility,
   pollOptionsWithinLimit,
   resolvePollOptionContents,
@@ -46,6 +47,19 @@ import { PostTypeSwitcher } from './PostTypeSwitcher';
 import { audienceSummary } from './audienceChoices';
 import { Avatar, ProfileBadge } from '../../profile';
 
+/**
+ * Convert a stored UTC ISO string to the `datetime-local` input format in the
+ * browser's local wall time.
+ *
+ * The poll expiry is persisted as a UTC ISO string, but a rehydrated question
+ * draft is sliced through this function on the next mount and later re-parsed
+ * as *local* wall time on submit. That round trip shifts the displayed/kept
+ * expiry by the local UTC offset (e.g. a stored `…T12:00:00Z` renders as
+ * `13:00` in UTC+1 and is republished as `…T12:00:00Z` next session). The
+ * shift is accepted as cosmetic: the default expiry is ~30 days out and every
+ * fresh mount regenerates it, so the offset never changes which day a poll
+ * closes.
+ */
 const toDatetimeLocal = (iso?: string): string => {
   if (!iso) return '';
   const d = new Date(iso);
@@ -54,9 +68,14 @@ const toDatetimeLocal = (iso?: string): string => {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
-// Mirrors the Svelte `defaultPostData('question')` expiry: 24h from now.
+// Same default expiry *offset* the shared `toQuestion` helper and the native
+// composer use (`POLL_DEFAULT_EXPIRY_MS`), so new polls and reply polls agree.
+// Note the stored *format* differs: this modal keeps a `datetime-local`
+// string (converted on submit), while `toQuestion` and the native store keep
+// an ISO UTC string — a draft carried between them renders a different
+// initial expiry value in the input.
 const defaultPollExpiry = (): string =>
-  toDatetimeLocal(new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString());
+  toDatetimeLocal(new Date(Date.now() + POLL_DEFAULT_EXPIRY_MS).toISOString());
 
 export interface NewPostToast {
   type: 'success' | 'error';
@@ -138,16 +157,15 @@ export function NewPostModal({
 
   const selectComposerType = (next: ComposerType) => {
     if (next === composerType) return;
-    const stored = draftContent(next);
-    // The note body and poll question share one field. When the destination
-    // has no stored draft, keep the current text so note -> poll carries the
-    // typed note over as the poll question instead of erasing it.
-    setContent(stored || content);
+    // The note body and poll question share one field: typed text carries
+    // over as-is, while an empty composer picks up the destination's stored
+    // draft instead of showing a half-restored poll (options, no question).
+    setContent(content.trim() ? content : draftContent(next));
     setComposerType(next);
   };
 
-  // Persist the active draft so note/poll content survives a modal close,
-  // mirroring the Svelte `postDataStore` writes in `updateStore`.
+  // Persist the active draft so note/poll content survives a modal close and
+  // a later reopen of the same composer.
   useEffect(() => {
     const targetGroupId = group?.id ?? groupId;
     const shared = {
@@ -223,8 +241,8 @@ export function NewPostModal({
     resolvedPollOptions.length >= 2 &&
     pollOptionsWithinLimit(resolvedPollOptions);
 
-  // Mirrors the Svelte `isPostFormSubmittable`: block while uploading, and
-  // require enough content for the active composer type.
+  // Block while uploading, and require enough content for the active
+  // composer type.
   const canSubmit = useMemo(() => {
     if (submitting || composeAttachments.pending) return false;
     if (visibility === 'direct' && audience.length === 0) return false;
@@ -289,7 +307,7 @@ export function NewPostModal({
       }
 
       // Posting into a group you haven't joined yet auto-joins you first, so
-      // the post lands as a member (mirrors the Svelte modal).
+      // the post lands as a member.
       if (
         targetGroupId &&
         !me?.memberships?.some((m) => m.group.id === targetGroupId)
@@ -437,38 +455,42 @@ export function NewPostModal({
 
           <DialogFooter className="flex-col items-stretch gap-0 border-t-0 px-6 py-4 sm:flex-col">
             <div className="flex w-full items-center justify-between">
-              <div className="flex items-center gap-x-2">
-                <button
-                  type="button"
-                  title={t('posts.form.addImage', {
-                    defaultValue: 'Add Media',
-                  })}
-                  onClick={composeAttachments.openImagePicker}
-                  className="hover:bg-surface rounded-button p-2"
-                >
-                  <Image className="size-5" />
-                </button>
-                <button
-                  type="button"
-                  title={t('posts.form.addAudio', {
-                    defaultValue: 'Add audio',
-                  })}
-                  onClick={composeAttachments.openAudioPicker}
-                  className="hover:bg-surface rounded-button p-2"
-                >
-                  <AudioLines className="size-5" />
-                </button>
-                <button
-                  type="button"
-                  title={t('posts.form.addDocument', {
-                    defaultValue: 'Add Document',
-                  })}
-                  onClick={composeAttachments.openDocumentPicker}
-                  className="hover:bg-surface rounded-button p-2"
-                >
-                  <Paperclip className="size-5" />
-                </button>
-              </div>
+              {/* Polls can't display media, so the pickers are note-only —
+                  matching ReplyModal and the native `hideMedia` gating. */}
+              {composerType === 'note' ? (
+                <div className="flex items-center gap-x-2">
+                  <button
+                    type="button"
+                    title={t('posts.form.addImage', {
+                      defaultValue: 'Add Media',
+                    })}
+                    onClick={composeAttachments.openImagePicker}
+                    className="hover:bg-surface rounded-button p-2"
+                  >
+                    <Image className="size-5" />
+                  </button>
+                  <button
+                    type="button"
+                    title={t('posts.form.addAudio', {
+                      defaultValue: 'Add audio',
+                    })}
+                    onClick={composeAttachments.openAudioPicker}
+                    className="hover:bg-surface rounded-button p-2"
+                  >
+                    <AudioLines className="size-5" />
+                  </button>
+                  <button
+                    type="button"
+                    title={t('posts.form.addDocument', {
+                      defaultValue: 'Add Document',
+                    })}
+                    onClick={composeAttachments.openDocumentPicker}
+                    className="hover:bg-surface rounded-button p-2"
+                  >
+                    <Paperclip className="size-5" />
+                  </button>
+                </div>
+              ) : null}
 
               <PostTypeSwitcher
                 type={composerType}

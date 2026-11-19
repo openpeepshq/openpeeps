@@ -11,7 +11,12 @@ import {
   MainStackParamList,
   TabStackParamList,
 } from '../../components/navigation/types/index';
-import { useOpenpeeps } from '@openpeepshq/react';
+import {
+  isSwitchablePostData,
+  toNote,
+  toQuestion,
+  useOpenpeeps,
+} from '@openpeepshq/react';
 import {
   AudioPickerSheet,
   ImagePickerSheet,
@@ -40,7 +45,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Footer } from '../../components/post/post-form/Footer';
 import { PostTypeSwitcher } from '../../components/post/post-form/PostTypeSwitcher';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { hasProcessingAttachments, toNote, toQuestion } from '../../lib/post';
+import { hasProcessingAttachments } from '../../lib/post';
 import { useForm } from 'react-hook-form';
 
 import { ArticleForm } from '../../components/post/index';
@@ -234,9 +239,20 @@ export const NewPost = ({ route, navigation }: PostProps) => {
       if (postData.data.type === next) {
         return;
       }
+      if (!isSwitchablePostData(postData)) {
+        return;
+      }
       const newPostData =
         next === 'question' ? toQuestion(postData) : toNote(postData);
       form.reset(newPostData);
+      // Persisting the converted draft to the (module-scoped, app-lifetime)
+      // local post store is what makes the carry-over survive a screen
+      // unmount/remount: a fresh `NewPost` mount re-seeds its form from
+      // `useLocalPostStore.getState().postData`, so the converted note body /
+      // poll question (and, for a poll, its stashed `questionDraft` fields)
+      // are restored on return. A full app restart clears the store, so a
+      // draft only survives within a running app — matching the web, whose
+      // draft stores are in-memory too.
       setPostData(newPostData);
     },
     [postData, form, setPostData]

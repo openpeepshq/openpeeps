@@ -1,4 +1,9 @@
-import { PostCreationData, PostType, PostDataUnion } from '@openpeepshq/common';
+import {
+  POLL_DEFAULT_EXPIRY_MS,
+  PostCreationData,
+  PostType,
+  PostDataUnion,
+} from '@openpeepshq/common';
 import { create } from 'zustand';
 
 const defaultPostData = (type: PostType): PostDataUnion => {
@@ -8,9 +13,7 @@ const defaultPostData = (type: PostType): PostDataUnion => {
         type: 'question',
         content: '',
         options: [],
-        expiresAt: new Date(
-          Date.now() + 1000 * 60 * 60 * 24 * 30
-        ).toISOString(),
+        expiresAt: new Date(Date.now() + POLL_DEFAULT_EXPIRY_MS).toISOString(),
       };
     case 'event':
       return {

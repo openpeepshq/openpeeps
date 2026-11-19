@@ -5,7 +5,13 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { apiErrorMessage, useOpenpeeps } from '@openpeepshq/react';
+import {
+  apiErrorMessage,
+  isSwitchablePostData,
+  toNote,
+  toQuestion,
+  useOpenpeeps,
+} from '@openpeepshq/react';
 import {
   AudioPickerSheet,
   DocumentPickerSheet,
@@ -40,7 +46,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Footer } from '../../components/post/post-form/Footer';
 import { PostTypeSwitcher } from '../../components/post/post-form/PostTypeSwitcher';
 import { useForm } from 'react-hook-form';
-import { hasProcessingAttachments, toNote, toQuestion } from '../../lib/post';
+import { hasProcessingAttachments } from '../../lib/post';
 import { CompactReplyParent } from '../../components/post/CompactReplyParent';
 
 import { ReplyModal } from '../../components/post/index';
@@ -230,9 +236,18 @@ export const ReplyPost = ({ route, navigation }: PostProps) => {
       if (!postData || postData.data.type === next) {
         return;
       }
+      if (!isSwitchablePostData(postData)) {
+        return;
+      }
       const newPostData =
         next === 'question' ? toQuestion(postData) : toNote(postData);
       form.reset(newPostData);
+      // Persisting the converted draft to the (module-scoped, app-lifetime)
+      // `replyData[id]` store slot is what makes the carry-over survive the
+      // reply screen unmounting/remounting: a fresh `ReplyPost` mount
+      // re-seeds its form from `useLocalPostStore(...).replyData[id]`, so the
+      // converted note body / poll question (and, for a poll, its stashed
+      // `questionDraft` fields) are restored on return.
       setPostData(newPostData);
     },
     [postData, form, setPostData]

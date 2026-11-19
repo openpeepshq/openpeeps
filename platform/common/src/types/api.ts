@@ -32,6 +32,7 @@ import {
   postTypeSchema,
   profileDataSchema,
   profileStatsSchema,
+  questionSchema,
   reactionDataSchema,
   roleDataSchema,
   Report,
@@ -849,6 +850,16 @@ export const postCreationDataSchema = z.object({
   groupId: z.uuid().nullable().optional(),
   reportId: z.uuid().nullable().optional(),
   capabilitiesNeeded: z.string().array().nullable().optional(),
+  /**
+   * Composer-side poll stash: the structural poll fields (`options`,
+   * `expiresAt`, `multiple`, `votersVisible`) that `toNote` captures when a
+   * poll draft is switched away so `toQuestion` can restore them on the
+   * reverse switch. Client-side only, never set by the server, and never
+   * persisted: the `POST /posts` handler parses the stored record with
+   * `postDataSchema`, which has no `questionDraft` key, so the parse
+   * strips it.
+   */
+  questionDraft: questionSchema.partial().optional(),
 });
 
 export type PostCreationData = z.infer<typeof postCreationDataSchema>;

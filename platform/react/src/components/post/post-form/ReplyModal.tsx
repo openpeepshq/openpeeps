@@ -20,13 +20,8 @@ import { useT } from '../../../i18n';
 import { apiErrorMessage } from '../../../lib/apiErrorMessage';
 import { useToast } from '../../layout/ToastProvider';
 import { useCurrentProfile } from '../../layout/IdentityContext';
-import {
-  defaultNewNote,
-  defaultNewQuestion,
-  resetReplyData,
-  useReplyStore,
-} from '../../../stores/newPosts';
-import { useServerInfo } from '../../server-data';
+import { resetReplyData, useReplyStore } from '../../../stores/newPosts';
+import { isSwitchablePostData, toNote, toQuestion } from '../../../lib/post';
 import { CompactReplyParent } from '../CompactReplyParent';
 import { Avatar } from '../../profile';
 import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
@@ -45,7 +40,6 @@ type ComposerType = 'note' | 'question';
 export function ReplyModal({ post, onClose }: ReplyModalProps) {
   const t = useT();
   const { success, error: toastError } = useToast();
-  const serverInfo = useServerInfo();
   const me = useCurrentProfile();
   const { openpeepsApi } = useOpenpeeps();
   const createPost = openpeepsApi.createPostAction();
@@ -96,17 +90,15 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
   });
 
   const setComposerType = (type: ComposerType) => {
-    const base =
-      type === 'question'
-        ? defaultNewQuestion(serverInfo.publicContent)
-        : defaultNewNote(serverInfo.publicContent);
-    replyStore.set({
-      ...draft,
-      type,
-      data: base.data,
-    });
+    if (type === composerType) return;
+    // toNote/toQuestion only accept note/question drafts, so guard first.
+    if (!isSwitchablePostData(draft)) return;
+    // They carry the shared text field over instead of resetting the draft —
+    // same helpers the native composer uses. Switching to a poll drops note
+    // attachments (a poll can't display media) and sets the default poll
+    // expiry.
+    replyStore.set(type === 'question' ? toQuestion(draft) : toNote(draft));
   };
-
   const setContent = (value: string) => {
     if (draft.data.type !== 'note' && draft.data.type !== 'question') return;
     replyStore.set({

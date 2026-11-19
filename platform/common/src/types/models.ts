@@ -535,6 +535,9 @@ export type Note = z.infer<typeof noteSchema>;
 /** Poll choices are stored short so they fit the vote UI on small screens. */
 export const POLL_OPTION_MAX_LENGTH = 30;
 
+/** Default expiry for a new poll, applied by the web and native composers. */
+export const POLL_DEFAULT_EXPIRY_MS = 30 * 24 * 60 * 60 * 1000;
+
 export const questionSchema = noteBaseSchema
   .extend({
     type: z.literal('question'),
