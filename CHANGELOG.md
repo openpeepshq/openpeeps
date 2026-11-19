@@ -5,6 +5,11 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **skills**: link each needs-human gate to its milestone filter
+- show post edit history on web and mobile
+- **federation**: publish discoverable flag for opted-out profiles (Option 1)
+- **theme**: add configurable Jam Lobby background image
+- **resources**: single image per pick so the crop dialog always shows
 - **i18n**: share 4+ strings under common keys without deleting aliases
 - **rn-components**: make the Jam URL on the single event page tappable
 - **theme**: preview light and dark mode colors with contrast check
@@ -19,6 +24,21 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **skills**: retry the milestone description write on transient HTTP errors
+- **server,react,rn,core,common**: date-range event feed for the calendar (issue #2128)
+- **posts**: count only visible text toward the 500-character note limit
+- **rn-components**: attach the first late screen share by polling the stream
+- **jams**: preserve pre-join mic state and surface mic failures in Jams
+- **events**: filter past events on the Upcoming tab client-side
+- **analytics**: show the report period once in the monthly analytics email
+- **react,rn-components**: render event times in the viewer's time zone
+- **deps**: bump firebase-admin to ^13.10.0 and force fast-xml-parser 5.12.1
+- **deps**: remove @hono/node-server override pinning vulnerable 1.19.19
+- **rn-components**: use localized audience/profile-picker titles for member selection
+- **ci**: pre-push gates in AGENTS.md; fail-fast build; per-worker test DB
+- **deps**: bump vite-plugin-dts to ^4.5.4 in greenscreen and react-ui
+- **seo**: gate post meta on real capability checks; keep shells 200 + noindex
+- **server**: block SSRF and bound url-preview fetches
 - **resources**: injective keys for slash folder names; RN picker parity; blank path validation
 - **rn-components**: give the poor-connection banner an opaque background
 - **rn-components**: constrain ProfileCard bio layout to prevent button clipping
@@ -82,6 +102,8 @@ Changelog for OpenPeeps
 
 ### Documentation
 
+- **flow**: let review push test/doc/quality/dependency-only rounds straight back to implement
+- **agents**: require a CI-fix loop — a run never finishes with red CI
 - **agents**: require terse action comments and label-change explanations
 - **skill**: add pre-existing-error verification guidance to openpeeps-pr-rebase
 - **flow**: route RN-only merges to flow/waiting-for-app-build
