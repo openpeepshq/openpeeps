@@ -43,6 +43,7 @@ const JamRoomInner = () => {
     autoRsvpError,
     shouldAutoRsvp,
     capacityBlock,
+    removedFromJam,
     canDirectJoin,
     canRequestJoin,
     handleJoin,
@@ -121,6 +122,20 @@ const JamRoomInner = () => {
           {t('jams.room.autoRsvpInProgress')}
         </ThemedText>
       </Centered>
+    );
+  }
+
+  if (removedFromJam) {
+    return (
+      <JamRoomPanel title={jamEvent.name}>
+        <ThemedText className="text-center text-sm">
+          {t('jams.room.removedFromJam')}
+        </ThemedText>
+        <JamRoomPanelLink
+          label={t('jams.room.viewEvent')}
+          onPress={() => router.navigate({ type: 'post', id: jamPost.id })}
+        />
+      </JamRoomPanel>
     );
   }
 

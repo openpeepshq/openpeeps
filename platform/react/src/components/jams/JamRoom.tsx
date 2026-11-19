@@ -57,6 +57,7 @@ function JamRoomInner() {
     autoRsvpError,
     shouldAutoRsvp,
     capacityBlock,
+    removedFromJam,
     canDirectJoin,
     canRequestJoin,
     handleJoin,
@@ -164,6 +165,29 @@ function JamRoomInner() {
             defaultValue: 'Registering you for this event…',
           })}
         </span>
+      </div>
+    );
+  }
+
+  if (removedFromJam) {
+    return (
+      <div className="mx-auto flex h-full w-full items-center justify-center p-4">
+        <div className="w-full max-w-md space-y-5 text-center">
+          <h3 className="text-lg">{jamEvent.name}</h3>
+          <div className="bg-surface flex w-full flex-col items-center justify-center space-y-4 rounded border p-4">
+            <p className="text-sm">
+              {t('jams.room.removedFromJam', {
+                defaultValue: 'You were removed from this jam.',
+              })}
+            </p>
+            <a
+              href={`/posts/${jamPost.id}`}
+              className="text-primary text-sm underline"
+            >
+              {t('jams.room.viewEvent', { defaultValue: 'View event' })}
+            </a>
+          </div>
+        </div>
       </div>
     );
   }

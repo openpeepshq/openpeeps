@@ -1068,7 +1068,10 @@
       "muteParticipant": "Teilnehmer stummschalten",
       "muting": "Wird stummgeschaltet…",
       "turnOffCamera": "Kamera ausschalten",
-      "turningOffCamera": "Wird ausgeschaltet…"
+      "turningOffCamera": "Wird ausgeschaltet…",
+      "removeSuccess": "Teilnehmer wurde aus dem Jam entfernt",
+      "removeError": "Teilnehmer konnte nicht entfernt werden",
+      "removeConfirm": "Diese Person aus dem Jam entfernen? Sie kann nicht wieder beitreten."
     },
     "waitingRoom": {
       "joinedToastOne": "{{count}} Person ist dem Warteraum beigetreten!",
@@ -1123,13 +1126,16 @@
       "messagePlaceholder": "Nachricht senden",
       "sendTitle": "Nachricht senden",
       "openEveryoneTitle": "Mit allen chatten",
-      "noMessages": "Keine Nachrichten gefunden"
+      "noMessages": "Keine Nachrichten gefunden",
+      "wasRemoved": "wurde aus dem Jam entfernt"
     },
     "people": {
       "inJam": "IM JAM",
       "inWaitingRoom": "IM WARTERAUM",
       "noParticipants": "Keine Teilnehmenden gefunden",
-      "connectionLost": "Verbindung unterbrochen"
+      "connectionLost": "Verbindung unterbrochen",
+      "banned": "ENTFERNT",
+      "unban": "Wieder zulassen"
     },
     "debug": {
       "audioLevelLabel": "Audiopegel",
@@ -1269,7 +1275,8 @@
       "viewEvent": "Veranstaltung ansehen",
       "autoRsvpInProgress": "Sie werden für diese Veranstaltung angemeldet…",
       "autoRsvpError": "Anmeldung zu dieser Veranstaltung fehlgeschlagen.",
-      "reconnecting": "Verbindung zum Jam wird wiederhergestellt…"
+      "reconnecting": "Verbindung zum Jam wird wiederhergestellt…",
+      "removedFromJam": "Du wurdest aus diesem Jam entfernt."
     },
     "participant": {
       "showEveryone": "Alle anzeigen",
@@ -3824,6 +3831,7 @@
     "eventWaitlistNotOpen": "Die Warteliste ist nur offen, wenn die Veranstaltung ausgebucht ist.",
     "eventWaitlistNeedsDate": "Wählen Sie einen Termin, um auf die Warteliste zu kommen.",
     "jamNotOpen": "Dieser Jam ist nicht geöffnet.",
+    "jamBanned": "Sie wurden aus diesem Jam entfernt und können nicht mehr teilnehmen.",
     "jamsUnavailable": "Jams sind nicht verfügbar, weil LiveKit nicht verbunden ist.",
     "jamRsvpRequired": "Sie müssen mit Ja antworten, um an dieser Veranstaltung teilzunehmen.",
     "jamGuestPassRequired": "Melden Sie sich an oder erstellen Sie einen Gastzugang, um an diesem Jam teilzunehmen.",

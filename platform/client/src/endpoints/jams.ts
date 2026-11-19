@@ -7,6 +7,7 @@ import type {
   PublicPost,
   MuteParticipantRequest,
   PublicProfile,
+  RemoveParticipantRequest,
   SuccessResponse,
   JamRecording,
   JamObserverResponseData,
@@ -47,6 +48,16 @@ export const jams = (
       { id: string },
       OccurrenceQuery
     >(rawClient, '/jams/:id/mute-participant'),
+    removeParticipant: allpeepPayloadEndpoint<
+      SuccessResponse,
+      RemoveParticipantRequest,
+      { id: string },
+      OccurrenceQuery
+    >(rawClient, '/jams/:id/remove-participant'),
+    liftBan: allpeepNoPayloadEndpoint<
+      SuccessResponse,
+      { id: string; profileId: string }
+    >(rawClient, '/jams/:id/bans/:profileId', 'delete'),
     waitingRoom: {
       listen: eventSource<
         Record<string, PublicProfile>,

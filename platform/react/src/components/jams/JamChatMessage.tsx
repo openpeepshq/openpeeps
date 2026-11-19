@@ -5,6 +5,7 @@ import {
   type PublicProfile,
 } from '@openpeepshq/common';
 import { useOpenpeeps } from '../../contexts/openpeeps';
+import { useT } from '../../i18n';
 import { OpenpeepsMarkdown } from '../markdown/OpenpeepsMarkdown';
 import { Avatar } from '../profile/Avatar';
 import { UpdatingDate } from '@openpeepshq/react-ui';
@@ -27,6 +28,7 @@ export function JamChatMessage({
   message,
   mentionProfiles = [],
 }: JamChatMessageProps) {
+  const t = useT();
   const { openpeepsApi } = useOpenpeeps();
   const profileQuery = openpeepsApi.useProfile(message.profileId || 'unknown');
   const profile = profileQuery.data;
@@ -86,6 +88,20 @@ export function JamChatMessage({
       <div className="flex items-center justify-center">
         <span className="text-muted-foreground text-center text-sm">
           {profile.displayName || `@${profile.handle}`} {label} the jam{' '}
+          <UpdatingDate date={message.createdAt} />
+        </span>
+      </div>
+    );
+  }
+
+  if (message.type === 'kicked') {
+    return (
+      <div className="flex items-center justify-center">
+        <span className="text-muted-foreground text-center text-sm">
+          {profile.displayName || `@${profile.handle}`}{' '}
+          {t('jams.chat.wasRemoved', {
+            defaultValue: 'was removed from the jam',
+          })}{' '}
           <UpdatingDate date={message.createdAt} />
         </span>
       </div>

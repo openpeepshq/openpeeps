@@ -34,9 +34,19 @@ export const useJamPeople = ({ room, participants }: UseJamPeopleArgs) => {
     occurrence,
   );
   const admitParticipant = openpeepsApi.admitParticipantAction();
+  const liftJamBan = openpeepsApi.liftJamBanAction();
 
   const [query, setQuery] = useState('');
   const [admittingId, setAdmittingId] = useState<string | null>(null);
+  const [liftingId, setLiftingId] = useState<string | null>(null);
+
+  // Ban list ids only — names are resolved lazily per id by the drawer's
+  // banned sublist (one `useProfile(id)` per row, mounted on expand) instead
+  // of a full `profiles.list` directory fetch for every moderator.
+  const bannedIds = useMemo(
+    () => (isModerator ? (jam.banned ?? []) : []),
+    [isModerator, jam.banned],
+  );
 
   const listedParticipants = useMemo(() => {
     const visible = participants.filter((participant) => {
@@ -46,7 +56,6 @@ export const useJamPeople = ({ room, participants }: UseJamPeopleArgs) => {
     });
     return sortByRaisedHand(visible, (participant) => participant.metadata);
     // raisedHands changes participant metadata order; re-sort when it updates.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [participants, query, raisedHands]);
 
   const waitingProfiles = useMemo((): JamWaitingProfile[] => {
@@ -77,10 +86,21 @@ export const useJamPeople = ({ room, participants }: UseJamPeopleArgs) => {
     }
   };
 
+  const liftBan = async (profileId: string) => {
+    setLiftingId(profileId);
+    try {
+      await liftJamBan({ id: jamPost.id, profileId });
+    } finally {
+      setLiftingId(null);
+    }
+  };
+
   return {
     isModerator,
     hasWaitingRoom,
     moderatorIds: jam.moderators,
+    bannedIds,
+    liftingId,
     raisedHands,
     query,
     setQuery,
@@ -88,5 +108,6 @@ export const useJamPeople = ({ room, participants }: UseJamPeopleArgs) => {
     waitingProfiles,
     admittingId,
     admit,
+    liftBan,
   };
 };

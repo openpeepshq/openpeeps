@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import {
   AudioLines,
+  ChevronDown,
+  ChevronRight,
   Hand,
   Mic,
   MicOff,
@@ -14,6 +17,7 @@ import { useParticipants, useRoomContext } from '@livekit/components-react';
 import type { Participant } from 'livekit-client';
 import { Button, Input } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
+import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useJamPeople } from '../../hooks/jams/useJamPeople';
 import { Avatar } from '../profile';
 import { parseParticipantMetadata } from './jamEventActions';
@@ -81,6 +85,7 @@ function JamParticipantRow({
  */
 export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
   const t = useT();
+  const [bannedExpanded, setBannedExpanded] = useState(false);
   const room = useRoomContext();
   const participants = useParticipants();
   const {
@@ -94,6 +99,9 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
     waitingProfiles,
     admittingId,
     admit,
+    bannedIds,
+    liftingId,
+    liftBan,
   } = useJamPeople({ room, participants });
 
   if (!open) return null;
@@ -175,20 +183,57 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
                       {waitingRoomEntryName(profile)}
                     </span>
                   </div>
-                  <Button
-                    variant="outline"
-                    compact
-                    action={() => admit(profile)}
-                    disabled={admittingId === profile.id}
-                    title={t('jams.waitingRoom.admitParticipant', {
-                      defaultValue: 'Admit',
-                    })}
-                  >
-                    <UserRoundCheck className="size-4" />
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="outline"
+                      compact
+                      action={() => admit(profile)}
+                      disabled={admittingId === profile.id}
+                      title={t('jams.waitingRoom.admitParticipant', {
+                        defaultValue: 'Admit',
+                      })}
+                    >
+                      <UserRoundCheck className="size-4" />
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
+          </div>
+        ) : null}
+
+        {isModerator && bannedIds.length > 0 ? (
+          <div>
+            <button
+              type="button"
+              className="flex w-full items-center justify-between gap-2 text-left"
+              onClick={() => setBannedExpanded((current) => !current)}
+              aria-expanded={bannedExpanded}
+            >
+              <span className="text-muted-foreground text-xs font-semibold uppercase">
+                {t('jams.people.banned', {
+                  defaultValue: 'Removed',
+                })}{' '}
+                ({bannedIds.length})
+              </span>
+              {bannedExpanded ? (
+                <ChevronDown className="text-muted-foreground size-4" />
+              ) : (
+                <ChevronRight className="text-muted-foreground size-4" />
+              )}
+            </button>
+            {bannedExpanded ? (
+              <div className="mt-1 flex flex-col gap-2">
+                {bannedIds.map((profileId) => (
+                  <BannedProfileRow
+                    key={profileId}
+                    profileId={profileId}
+                    lifting={liftingId === profileId}
+                    onLift={() => liftBan(profileId)}
+                  />
+                ))}
+              </div>
+            ) : null}
           </div>
         ) : null}
       </div>
@@ -214,5 +259,44 @@ function WaitingRoomAvatar({
       profile={{ displayName: waitingRoomEntryName(profile) }}
       size={size}
     />
+  );
+}
+
+/**
+ * A banned-sublist row. Splits into its own component so the per-id
+ * `useProfile(id)` only fires when the row is actually mounted — i.e. when the
+ * moderator expands the "Removed" sublist — instead of a full profile-directory
+ * fetch up front.
+ */
+function BannedProfileRow({
+  profileId,
+  lifting,
+  onLift,
+}: {
+  profileId: string;
+  lifting: boolean;
+  onLift: () => void;
+}) {
+  const t = useT();
+  const { openpeepsApi } = useOpenpeeps();
+  const profile = openpeepsApi.useProfile(profileId).data;
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <div className="flex min-w-0 items-center gap-2 opacity-60">
+        <Avatar profile={profile} size={2} />
+        <span className="truncate text-sm">
+          {profile ? profileName(profile) : profileId.slice(0, 8)}
+        </span>
+      </div>
+      <Button
+        variant="outline"
+        compact
+        action={onLift}
+        disabled={lifting}
+        title={t('jams.people.unban', { defaultValue: 'Allow to rejoin' })}
+      >
+        <UserRoundCheck className="size-4" />
+      </Button>
+    </div>
   );
 }

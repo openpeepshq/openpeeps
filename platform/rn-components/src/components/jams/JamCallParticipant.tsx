@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer, useRef } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import Sound from 'react-native-sound';
 import {
   isTrackReference,
@@ -16,10 +16,12 @@ import {
   useJamContext,
   useJamEventsContext,
   useJamParticipantMute,
+  useJamParticipantRemove,
   useRaisedHands,
 } from '@openpeepshq/react';
 import {
   AudioLinesIcon,
+  BanIcon,
   EllipsisIcon,
   HandIcon,
   MicIcon,
@@ -118,6 +120,11 @@ const JamParticipantMenu = ({
     onSuccess: (text1) => Toast.show({ type: 'success', text1 }),
     onError: (text1) => Toast.show({ type: 'error', text1 }),
   });
+  const handleRemove = useJamParticipantRemove({
+    participant: trackRef.participant,
+    onSuccess: (text1) => Toast.show({ type: 'success', text1 }),
+    onError: (text1) => Toast.show({ type: 'error', text1 }),
+  });
 
   return (
     <DropdownMenu>
@@ -140,6 +147,31 @@ const JamParticipantMenu = ({
             >
               <MicOffIcon size={16} className="text-foreground" />
               <ThemedText>{t('jams.participants.muteParticipant')}</ThemedText>
+            </DropdownMenuItem>
+          ) : null}
+          {canMute ? (
+            <DropdownMenuItem
+              className="flex-row items-center gap-x-2"
+              onPress={() =>
+                Alert.alert(
+                  t('jams.participantMenu.removeFromJam'),
+                  t('jams.participants.removeConfirm'),
+                  [
+                    {
+                      text: t('common.actions.cancel'),
+                      style: 'cancel',
+                    },
+                    {
+                      text: t('jams.participantMenu.removeFromJam'),
+                      style: 'destructive',
+                      onPress: () => void handleRemove(),
+                    },
+                  ]
+                )
+              }
+            >
+              <BanIcon size={16} className="text-destructive" />
+              <ThemedText>{t('jams.participantMenu.removeFromJam')}</ThemedText>
             </DropdownMenuItem>
           ) : null}
           {onToggleSpotlight ? (

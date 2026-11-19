@@ -1073,7 +1073,10 @@
       "muteParticipant": "Mute Participant",
       "muting": "muting…",
       "turnOffCamera": "Turn off Camera",
-      "turningOffCamera": "Turning off…"
+      "turningOffCamera": "Turning off…",
+      "removeSuccess": "Participant removed from the jam",
+      "removeError": "Failed to remove participant",
+      "removeConfirm": "Remove this person from the jam? They will not be able to rejoin."
     },
     "waitingRoom": {
       "joinedToastOne": "{{count}} person joined the waiting room!",
@@ -1128,13 +1131,16 @@
       "messagePlaceholder": "Send a message",
       "sendTitle": "Send Message",
       "openEveryoneTitle": "Chat with Everyone",
-      "noMessages": "No messages found"
+      "noMessages": "No messages found",
+      "wasRemoved": "was removed from the jam"
     },
     "people": {
       "inJam": "IN JAM",
       "inWaitingRoom": "IN WAITING ROOM",
       "noParticipants": "No participants found",
-      "connectionLost": "Connection lost"
+      "connectionLost": "Connection lost",
+      "banned": "REMOVED",
+      "unban": "Allow back in"
     },
     "debug": {
       "audioLevelLabel": "Audio Level",
@@ -1278,7 +1284,8 @@
       "viewEvent": "View event",
       "autoRsvpInProgress": "Registering you for this event…",
       "autoRsvpError": "Failed to register for this event.",
-      "reconnecting": "Reconnecting to the jam…"
+      "reconnecting": "Reconnecting to the jam…",
+      "removedFromJam": "You were removed from this jam."
     },
     "participant": {
       "showEveryone": "Show everyone",
@@ -3788,6 +3795,7 @@
     "eventWaitlistNotOpen": "The waitlist is only open when this event is full.",
     "eventWaitlistNeedsDate": "Choose a date to join the waitlist.",
     "jamNotOpen": "This jam is not open.",
+    "jamBanned": "You have been removed from this jam and cannot rejoin.",
     "jamsUnavailable": "Jams are unavailable because LiveKit is not connected.",
     "jamRsvpRequired": "You must RSVP yes to join this event.",
     "jamGuestPassRequired": "Sign in, or create a guest pass, to join this jam.",

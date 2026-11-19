@@ -56,7 +56,18 @@ export const isAdmittedToJam = async (
 export const clearJamAdmittance = async (
   event: PostWithMeta,
   recurrenceId?: string,
+  onlyProfileIds?: string[],
 ): Promise<void> => {
+  if (onlyProfileIds !== undefined) {
+    // Per-profile path: an explicit (possibly empty) id set must never fall
+    // through to the wipe-everything del() below, so `[]` is a no-op.
+    if (onlyProfileIds.length === 0) return;
+    await getSharedConnection().then((conn) =>
+      // ioredis flattens an array field at the protocol level.
+      conn.hDel(admittanceKey(event, recurrenceId), onlyProfileIds),
+    );
+    return;
+  }
   await getSharedConnection().then((conn) =>
     conn.del(admittanceKey(event, recurrenceId)),
   );
