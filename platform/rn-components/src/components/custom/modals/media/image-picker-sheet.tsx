@@ -153,9 +153,11 @@ export const ImagePickerSheet = forwardRef<
       }
       const result = await launchCamera({ mediaType: 'photo', quality: 1 });
       if (result.errorCode) {
-        // No dedicated camera key exists; reuse the cropError copy so the
-        // toast resolves instead of rendering a missing key (i18n scan, #1789).
-        Toast.show({ type: 'error', text1: t('form.imageInput.cropError') });
+        // Camera cannot start (permissions / unavailable) — dedicated copy.
+        Toast.show({
+          type: 'error',
+          text1: t('form.imageInput.camera.error'),
+        });
         return;
       }
       const uri = result.assets?.[0]?.uri;

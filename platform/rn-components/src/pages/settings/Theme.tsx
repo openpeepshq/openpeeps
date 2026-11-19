@@ -36,6 +36,9 @@ export const ThemeSettings: React.FC<ThemeSettingsProps> = () => {
 
     try {
       await save();
+      // Copy says "saved", not "updated / page will reload": RN applies the
+      // theme in place via refresh() below (the web screen reloads instead),
+      // so a reload mention would mislead.
       Toast.show({
         type: 'success',
         text1: t('settings.theme.updateSuccess'),

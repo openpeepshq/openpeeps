@@ -1,0 +1,6 @@
+{
+  "error.emailAlreadyTaken": {
+    "reason": "Documented orphan awaiting a delete-or-prefix decision. The ambiguity is one-sided: the API-error mapper translates only keys starting with 'error.', while core raises the UNPREFIXED form ('emailAlreadyTaken', platform/core/src/accounts/mutations.ts:83,197) — so the prefixed key is unreferenced AND unreachable, a leftover, not a convention-in-play candidate. The convention-in-play candidate is the unprefixed form (reachable the moment core prefixes its errorKey; the register handler's auth.register.emailAlreadyTaken is the other half of that pattern). Fixing core's errorKey would be a behavior change, out of scope for the Test/Doc/Quality round — this mask is the interim home. Scoped to the packages that resolve this error path so a literal t('error.emailAlreadyTaken') reference elsewhere still surfaces. See scripts/i18n-usage-scan.mjs header — in particular its known-miss class (a key resolved at runtime from a plain string variable, t(variable) / dot path in a variable, is undetectable by design): this entry is that class's seed case, motivated by the API-error mapper's variable reference.",
+    "dirs": ["platform/core/src", "platform/server/src"]
+  }
+}

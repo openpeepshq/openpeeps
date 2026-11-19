@@ -154,8 +154,10 @@ export function Explore() {
         }}
       >
         <Input
-          placeholder={t('explore.enterSearchQuery', {
-            defaultValue: 'Search for members, posts, groups…',
+          // Parity with RN: the input placeholder is explore.searchPlaceholder
+          // ("Search"); explore.enterSearchQuery is the RN empty-state hint.
+          placeholder={t('explore.searchPlaceholder', {
+            defaultValue: 'Search',
           })}
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}

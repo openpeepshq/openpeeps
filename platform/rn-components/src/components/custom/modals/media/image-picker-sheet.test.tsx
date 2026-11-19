@@ -1,10 +1,16 @@
 /**
- * Unit tests for the ImagePickerSheet error paths (#1789).
+ * Unit tests for the ImagePickerSheet error paths (#1789, #2109).
  *
- * The sheet is the single gate for image picks: every library/camera pick
- * must go through the cropper, a crop failure must upload nothing and show
- * the form.imageInput.cropError toast (the sheet closes so the retry
- * surface is clean), and a cancel must be silent.
+ * The sheet is the single gate for image picks. Two distinct failure
+ * surfaces are covered:
+ *
+ * - A camera-start failure (iOS `launchCamera` resolves an `errorCode`)
+ *   toasts the dedicated form.imageInput.camera.error copy before any crop
+ *   happens.
+ * - Every library/camera pick that starts successfully must go through the
+ *   cropper; a crop failure must upload nothing and show the
+ *   form.imageInput.cropError toast (the sheet closes so the retry surface
+ *   is clean), and a cancel must be silent.
  */
 
 const React = require('react');
@@ -123,10 +129,12 @@ const renderSheet = (onSelect: (attachments: unknown[]) => void) => {
   return tree;
 };
 
-// The Library button is the second outline Button in the sheet. Drain the
-// pick promise chain inside act so the sheet's state updates stay wrapped.
-const pressLibrary = async (
-  tree: ReturnType<typeof ReactTestRenderer.create>
+// Press the i-th non-disabled outline Button in the sheet (0 = Camera,
+// 1 = Library). Drain the pick promise chain inside act so the sheet's
+// state updates stay wrapped.
+const pressButton = async (
+  tree: ReturnType<typeof ReactTestRenderer.create>,
+  index: number
 ) => {
   const buttons = tree.root.findAll(
     (node) =>
@@ -135,12 +143,18 @@ const pressLibrary = async (
       !node.props.disabled
   );
   await ReactTestRenderer.act(async () => {
-    buttons[buttons.length - 1].props.onPress();
+    buttons[index].props.onPress();
     for (let i = 0; i < 15; i++) {
       await Promise.resolve();
     }
   });
 };
+
+const pressCamera = (tree: ReturnType<typeof ReactTestRenderer.create>) =>
+  pressButton(tree, 0);
+
+const pressLibrary = (tree: ReturnType<typeof ReactTestRenderer.create>) =>
+  pressButton(tree, 1);
 
 describe('ImagePickerSheet error paths', () => {
   beforeEach(() => {
@@ -167,6 +181,43 @@ describe('ImagePickerSheet error paths', () => {
       expect.objectContaining({ text1: 'Crop failed' })
     );
     expect(bottomSheetClose).toHaveBeenCalled();
+  });
+
+  it('shows the camera error toast when the iOS camera cannot start', async () => {
+    const { Platform } = require('react-native');
+    // The `react-native` mock above returns a single shared Platform object,
+    // and this is the only test in the file that reads a platform branch, so
+    // flipping OS is safe here: jest runs the file's tests sequentially, and
+    // the try/finally below restores the mock's original ('android') value
+    // before any later test observes it.
+    const originalOS = Platform.OS;
+    Platform.OS = 'ios';
+    mockTranslations = {
+      ...mockTranslations,
+      'form.imageInput.camera.error': 'Camera is unavailable',
+    };
+    const launchCamera = require('react-native-image-picker').launchCamera;
+    launchCamera.mockResolvedValue({
+      didCancel: false,
+      errorCode: 'camera_unavailable',
+      assets: [],
+    });
+
+    try {
+      const tree = renderSheet(jest.fn());
+      await pressCamera(tree);
+
+      expect(toastShow).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'error',
+          text1: 'Camera is unavailable',
+        })
+      );
+      expect(openCropper).not.toHaveBeenCalled();
+      expect(uploadMedia).not.toHaveBeenCalled();
+    } finally {
+      Platform.OS = originalOS;
+    }
   });
 
   it('stays silent on a cancelled pick', async () => {

@@ -895,6 +895,11 @@ jobs:
         run: node scripts/check-i18n-parity.mjs --strict
       - name: i18n usage scan (code keys must exist in locales)
         run: node scripts/i18n-usage-scan.mjs --strict
+      - name: i18n dead-key detector self-test
+        # Guards the --dead-keys reference detector (fixture-based, never
+        # content-dependent): proves it flags an orphaned key and does not
+        # flag live/templated/plural/data-driven ones.
+        run: node scripts/i18n-usage-scan.mjs --self-test
 
   lint:
     if: needs.set-variables.outputs.is_release_branch == 'false'
