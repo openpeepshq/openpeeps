@@ -47,6 +47,14 @@ export type CalendarScopeProps = {
   mine?: boolean;
   /** Group ID — fetch the group-scoped calendar. */
   groupId?: string;
+  /**
+   * The agenda tab the calendar belongs to. The range feed returns every
+   * occurrence overlapping the visible month regardless of that relation to
+   * now, so the tab's window is re-applied to the rows client-side (see
+   * `calendarRowInWindow`) — without it the Upcoming tab renders past events
+   * as soon as the user navigates the grid to a previous month.
+   */
+  window?: EventsAgendaWindow;
 };
 
 /**
@@ -377,6 +385,35 @@ export const applyAgendaWindowFilter = (
   window: EventsAgendaWindow,
   now = new Date(),
 ): PublicPost[] => posts.filter((post) => rowMatchesAgenda(post, window, now));
+
+/**
+ * Per-occurrence window guard for the date-range calendar (issue #2131).
+ * The range feed returns one row per occurrence that overlaps the visible
+ * month, with the occurrence's own times on `occurrenceStart` /
+ * `occurrenceEnd` — so the predicate must judge the *row's* occurrence, not
+ * the whole series (`rowMatchesAgenda` would keep an old occurrence of a
+ * series that still has an in-window occurrence). Without this guard the
+ * Upcoming tab renders past events once the grid navigates to a previous
+ * month. Same window semantics as `occurrenceMatchesAgenda` (and the
+ * server's `occurrenceTimeFilter`), including the one-hour implied end and
+ * the whole-day local-midnight alignment.
+ */
+export const calendarRowInWindow = (
+  post: PublicPost,
+  window: EventsAgendaWindow,
+  now = new Date(),
+): boolean => {
+  if (post.data.type !== 'event') return false;
+  const startIso = eventStartIso(post);
+  if (!startIso) return false;
+  const endIso = eventEndIso(post);
+  return occurrenceMatchesAgenda(
+    { start: startIso, ...(endIso ? { end: endIso } : {}) },
+    window,
+    now,
+    post.data.wholeDay,
+  );
+};
 
 /** Drop day buckets outside the rendered window — overflow rows may extend past it. */
 const filterBucketsToWindow = (

@@ -5,6 +5,7 @@ import type {
 } from '@openpeepshq/common/types';
 import {
   agendaCoversRange,
+  calendarRowInWindow,
   eventDayKeys,
   expandRecurringAgendaPosts,
   applyAgendaWindowFilter,
@@ -348,6 +349,149 @@ describe('applyAgendaWindowFilter', () => {
     );
     expect(rows).toHaveLength(1);
     expect(rows[0]).toEqual(series);
+  });
+});
+
+describe('calendarRowInWindow (range-feed calendar guard, issue #2131)', () => {
+  // now sits mid-day on July 31 so the "implied hour" and "in-progress"
+  // fixtures (all July 31) are judged against a matching clock.
+  const pastNow = new Date(2026, 7, 31, 12, 0, 0, 0);
+
+  const occurrenceRow = (
+    start: string,
+    end: string | undefined,
+    recurrenceId?: string,
+  ): PublicPost =>
+    ({
+      id: start,
+      data: { type: 'event', start, end, name: 'Meet' },
+      occurrenceStart: start,
+      ...(end ? { occurrenceEnd: end } : {}),
+      ...(recurrenceId ? { occurrenceRecurrenceId: recurrenceId } : {}),
+    }) as PublicPost;
+
+  it('drops an occurrence row that ended before now on the upcoming window', () => {
+    const row = occurrenceRow(
+      new Date(2026, 7, 15, 10, 0, 0, 0).toISOString(),
+      new Date(2026, 7, 15, 11, 0, 0, 0).toISOString(),
+    );
+    expect(calendarRowInWindow(row, 'upcoming', pastNow)).toBe(false);
+  });
+
+  it('keeps a future occurrence row on the upcoming window', () => {
+    const row = occurrenceRow(
+      new Date(2026, 8, 20, 10, 0, 0, 0).toISOString(),
+      new Date(2026, 8, 20, 11, 0, 0, 0).toISOString(),
+    );
+    expect(calendarRowInWindow(row, 'upcoming', pastNow)).toBe(true);
+  });
+
+  it('keeps a started occurrence without an end on upcoming until the implied hour passes', () => {
+    const row = occurrenceRow(
+      new Date(2026, 7, 31, 11, 40, 0, 0).toISOString(),
+    );
+    expect(calendarRowInWindow(row, 'upcoming', pastNow)).toBe(true);
+  });
+
+  it('keeps an in-progress occurrence on the current window', () => {
+    const row = occurrenceRow(
+      new Date(2026, 7, 31, 11, 0, 0, 0).toISOString(),
+      new Date(2026, 7, 31, 13, 0, 0, 0).toISOString(),
+    );
+    expect(calendarRowInWindow(row, 'current', pastNow)).toBe(true);
+  });
+
+  it('keeps an ended occurrence on the past window and drops a future one', () => {
+    const past = occurrenceRow(
+      new Date(2026, 7, 15, 10, 0, 0, 0).toISOString(),
+      new Date(2026, 7, 15, 11, 0, 0, 0).toISOString(),
+    );
+    const future = occurrenceRow(
+      new Date(2026, 8, 20, 10, 0, 0, 0).toISOString(),
+      new Date(2026, 8, 20, 11, 0, 0, 0).toISOString(),
+    );
+    expect(calendarRowInWindow(past, 'past', pastNow)).toBe(true);
+    expect(calendarRowInWindow(future, 'past', pastNow)).toBe(false);
+  });
+
+  it('judges the row occurrence, not the series, on the upcoming window', () => {
+    // A recurring series that still has an upcoming occurrence, but the
+    // range-feed row is one of its already-ended occurrences. The calendar
+    // must drop the old row — while the series-level list guard keeps the
+    // same row, because a future occurrence of the series matches the window.
+    const data = {
+      type: 'event',
+      name: 'Meet',
+      start: new Date(2026, 7, 15, 10, 0, 0, 0).toISOString(),
+      end: new Date(2026, 7, 15, 11, 0, 0, 0).toISOString(),
+      recurrence: { freq: 'WEEKLY' as const, count: 4 },
+    };
+    const oldOccurrenceRow = {
+      id: 'series-22',
+      data,
+      occurrenceRecurrenceId: new Date(2026, 7, 22, 10, 0, 0, 0).toISOString(),
+      occurrenceStart: new Date(2026, 7, 22, 10, 0, 0, 0).toISOString(),
+      occurrenceEnd: new Date(2026, 7, 22, 11, 0, 0, 0).toISOString(),
+    } as PublicPost;
+    const now = new Date(2026, 8, 1, 12, 0, 0, 0);
+    expect(calendarRowInWindow(oldOccurrenceRow, 'upcoming', now)).toBe(false);
+    // The series-level guard expands the whole series (Sep 15, 22, 29 and
+    // the upcoming Aug 5 occurrence) and keeps the row on that basis.
+    expect(
+      applyAgendaWindowFilter([oldOccurrenceRow], 'upcoming', now),
+    ).toHaveLength(1);
+  });
+
+  // Whole-day rows (data.wholeDay) use local-midnight alignment plus a
+  // 24-hour implied end instead of the timed events' one-hour one — the
+  // branch the round-3 rework of #2159 hardened for communities west of
+  // UTC. The range feed delivers their occurrence times as midnight-UTC
+  // ISO stamps (`normalizeComputedDatetime`); the fixtures use ymd dates
+  // relative to `pastNow` (Aug 31 mid-day).
+  const wholeDayRow = (startYmd: string, endYmd?: string): PublicPost => {
+    const start = `${startYmd}T00:00:00.000Z`;
+    const end = endYmd ? `${endYmd}T00:00:00.000Z` : undefined;
+    return {
+      id: `whole-${startYmd}`,
+      data: { type: 'event', start, end, wholeDay: true, name: 'Meet' },
+      occurrenceStart: start,
+      ...(end ? { occurrenceEnd: end } : {}),
+    } as PublicPost;
+  };
+
+  it('drops a whole-day row that ended before now on the upcoming window', () => {
+    // Explicit inclusive last day (Aug 15): the window end is local
+    // midnight after it, so the row is past by now (Aug 31 mid-day).
+    const row = wholeDayRow('2026-08-14', '2026-08-15');
+    expect(calendarRowInWindow(row, 'upcoming', pastNow)).toBe(false);
+    expect(calendarRowInWindow(row, 'past', pastNow)).toBe(true);
+  });
+
+  it('drops a whole-day row whose implicit last day is over on upcoming', () => {
+    // No explicit end: the implied end is local midnight after the last
+    // day (the start of Aug 31), so the row is past mid-day on Aug 31.
+    const row = wholeDayRow('2026-08-30');
+    expect(calendarRowInWindow(row, 'upcoming', pastNow)).toBe(false);
+  });
+
+  it('keeps a whole-day row covering today on upcoming and current', () => {
+    // Whole-day rows store the inclusive last day: end == start for a
+    // single-day event, so the window end is local midnight after today.
+    const row = wholeDayRow('2026-08-31', '2026-08-31');
+    expect(calendarRowInWindow(row, 'upcoming', pastNow)).toBe(true);
+    expect(calendarRowInWindow(row, 'current', pastNow)).toBe(true);
+    expect(calendarRowInWindow(row, 'past', pastNow)).toBe(false);
+  });
+
+  it('keeps a whole-day row that ends on its last future day on upcoming', () => {
+    // A multi-day row whose inclusive last day (Sep 1) has not finished
+    // yet stays on upcoming until local midnight after Sep 1.
+    const row = wholeDayRow('2026-08-31', '2026-09-01');
+    expect(calendarRowInWindow(row, 'upcoming', pastNow)).toBe(true);
+    // And it moves to the past window only after its last day.
+    expect(
+      calendarRowInWindow(row, 'past', new Date(2026, 8, 2, 0, 30, 0, 0)),
+    ).toBe(true);
   });
 });
 

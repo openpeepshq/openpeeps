@@ -79,25 +79,32 @@ const future = {
   },
 } as unknown as PublicPost;
 
+// Records the scope the component forwards so the window-threading test can
+// assert the native side hands the active tab's window to the shared hook.
+const hookScope: Record<string, unknown> = {};
+
 jest.mock('@openpeepshq/react', () => ({
-  useEventsCalendar: () => ({
-    cells: [
-      { key: '2026-11-18', inMonth: true },
-      { key: '2026-11-19', inMonth: true },
-    ],
-    byDay: new Map([['2026-11-19', [future]]]),
-    todayKey: '2026-11-18',
-    selected: '2026-11-19',
-    selectedEvents: [future],
-    selectedLabel: 'Selected day',
-    setSelectedKey: () => undefined,
-    monthLabel: 'Parity month',
-    weekdayLabels: ['S', 'M'],
-    isLoading: false,
-    isFetchingNextPage: false,
-    shiftMonth: () => undefined,
-    goToday: () => undefined,
-  }),
+  useEventsCalendar: (scope: Record<string, unknown>) => {
+    hookScope.window = scope.window;
+    return {
+      cells: [
+        { key: '2026-11-18', inMonth: true },
+        { key: '2026-11-19', inMonth: true },
+      ],
+      byDay: new Map([['2026-11-19', [future]]]),
+      todayKey: '2026-11-18',
+      selected: '2026-11-19',
+      selectedEvents: [future],
+      selectedLabel: 'Selected day',
+      setSelectedKey: () => undefined,
+      monthLabel: 'Parity month',
+      weekdayLabels: ['S', 'M'],
+      isLoading: false,
+      isFetchingNextPage: false,
+      shiftMonth: () => undefined,
+      goToday: () => undefined,
+    };
+  },
   calendarDayNumber: (key: string) => key,
   calendarEventName: (post: PublicPost) =>
     post.data.type === 'event' ? (post.data.name ?? '') : '',
@@ -140,5 +147,13 @@ describe('EventsCalendar (native) shared-hook parity', () => {
     // hook's `selectedEvents`. An event absent from that list must not leak
     // into the grid or the day list.
     expect(text).not.toContain('past-event');
+  });
+
+  it('forwards the active tab window to the shared hook (issue #2131)', async () => {
+    // The native component must pass the tab's agenda window into the shared
+    // hook so the Upcoming tab never renders past occurrences on the grid —
+    // the guard itself lives in @openpeepshq/react, not here.
+    await renderCalendar({ window: 'upcoming' });
+    expect(hookScope.window).toBe('upcoming');
   });
 });

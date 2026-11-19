@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { PublicPost } from '@openpeepshq/common';
 import {
+  calendarRowInWindow,
   dateFromDayKey,
   groupPostsByDay,
   localDateKey,
@@ -20,10 +21,28 @@ export const dayNumber = (key: string): string =>
   String(Number(key.slice(8, 10)));
 
 /**
+ * Re-evaluates the window guard while the user sits on an unchanged month —
+ * the range query has no refetch interval of its own. Same cadence as the
+ * agenda lists' `AGENDA_REFETCH_INTERVAL_MS` — the two 60s intervals start at
+ * different mount times and are not synchronized, so calendar and list can
+ * drop an ended event up to a minute apart.
+ */
+const NOW_TICK_MS = 60_000;
+
+/**
  * Date-centered events calendar hook. Computes a `[from, to)` window directly
  * from the rendered month grid, fetches one row per occurrence from the
  * date-range feed, then buckets the rows by browser-local day keys
  * (`YYYY-MM-DD`). The Upcoming/Current/Past lists keep the windowed feeds.
+ *
+ * The range feed only bounds rows by the visible month, so the active tab's
+ * agenda window is re-applied to the rows here (`calendarRowInWindow`) — the
+ * Upcoming tab must never render a past occurrence, whatever month the grid
+ * navigates to. The lists' periodic refetch re-runs their own selector; the
+ * calendar needs its own tick (`NOW_TICK_MS`) because the range query does
+ * not refetch while the month is unchanged, so an in-window row that ends
+ * while the user sits on the grid would otherwise linger until the next
+ * month navigation.
  */
 export const useEventsCalendar = (scope: CalendarScopeProps = {}) => {
   const initial = new Date();
@@ -36,6 +55,16 @@ export const useEventsCalendar = (scope: CalendarScopeProps = {}) => {
   const { openpeepsApi, client } = useOpenpeeps();
   const currentProfile = useCurrentProfile();
   const mineEnabled = scope.mine === true && currentProfile?.type === 'local';
+
+  // The window guard compares against a ticked `now` rather than a fresh
+  // `new Date()` per render: the `byDay` memo below depends on the tick, so a
+  // filter re-run is tied to an explicit state change (data, month, or the
+  // minute boundary) instead of to render timing.
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), NOW_TICK_MS);
+    return () => clearInterval(id);
+  }, []);
 
   const rangeWindow = useMemo(
     () => monthWindow(cursor.year, cursor.month),
@@ -139,10 +168,18 @@ export const useEventsCalendar = (scope: CalendarScopeProps = {}) => {
     () => uniquePosts([activeQuery.data ?? [], overflowRows]),
     [activeQuery.data, overflowRows],
   );
-  const byDay = useMemo(
-    () => groupPostsByDay(rows, rangeWindow),
-    [rows, rangeWindow],
-  );
+  const byDay = useMemo(() => {
+    // The range feed returns every occurrence that overlaps the visible month
+    // — past ones included. Re-apply the active tab's agenda window so the
+    // Upcoming tab never renders an ended occurrence and the Past tab never
+    // renders a future one (issue #2131). Rows are already deduplicated, so
+    // the per-occurrence predicate cannot double-count a series.
+    const agendaWindow = scope.window;
+    const inWindow = agendaWindow
+      ? rows.filter((post) => calendarRowInWindow(post, agendaWindow, now))
+      : rows;
+    return groupPostsByDay(inWindow, rangeWindow);
+  }, [rows, rangeWindow, scope.window, now]);
   const cells = useMemo(
     () => monthCells(cursor.year, cursor.month),
     [cursor.year, cursor.month],

@@ -51,7 +51,7 @@ export const EventsMy: React.FC<MainScreenProps<'MyEvents'>> = () => {
         ]}
       />
       <EventsView
-        calendar={{ mine: true }}
+        calendar={{ mine: true, window: tab }}
         list={<Feed query={activeQuery} formatSwitch={false} />}
       />
     </ThemedView>

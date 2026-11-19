@@ -174,7 +174,7 @@ export const GroupShow = ({ route, navigation }: GroupProps) => {
                   </Pressable>
                 </View>
                 <EventsView
-                  calendar={{ groupId: group.id }}
+                  calendar={{ groupId: group.id, window: eventsTab }}
                   list={
                     <EventsFeed
                       query={

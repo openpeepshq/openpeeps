@@ -68,7 +68,10 @@ export function EventsIndex() {
           {t('events.feed.past', { defaultValue: 'Past' })}
         </TabButton>
       </nav>
-      <EventsView list={<EventsFeed query={activeQuery} />} />
+      <EventsView
+        calendar={{ window: tab }}
+        list={<EventsFeed query={activeQuery} />}
+      />
     </div>
   );
 }

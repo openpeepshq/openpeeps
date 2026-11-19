@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { PublicPost } from '@openpeepshq/common';
 import { CALENDAR_RANGE_LIMIT } from '../../contexts/openpeeps/hooks/posts';
 import { useEventsCalendar } from './useEventsCalendar';
 
@@ -21,6 +22,8 @@ const fake = vi.hoisted(() => {
     walkArmed: true,
     /** When set, even the first page comes back short (no paging case). */
     shortFirstPage: false,
+    /** When set, the first page returns exactly these rows (short page). */
+    customFirstPage: null as unknown[] | null,
   };
   type RangeOptions = {
     queryParameters: {
@@ -49,7 +52,7 @@ const fake = vi.hoisted(() => {
     return `${date.getFullYear()}-${month}-${day}`;
   };
 
-  const eventPost = (start: string, index: number) => ({
+  const eventPost = (start: string, index = 0) => ({
     id: `post-${start}-${index}-${counter++}`,
     data: { type: 'event', start, name: 'Meet' },
     occurrenceStart: start,
@@ -67,6 +70,9 @@ const fake = vi.hoisted(() => {
       const fullDay = ymdPlus(queryParameters.from.slice(0, 10), 2);
       const shortDay = ymdPlus(queryParameters.from.slice(0, 10), 3);
       if (queryParameters.offset === undefined) {
+        if (state.customFirstPage) {
+          return { data: state.customFirstPage };
+        }
         if (state.shortFirstPage) {
           return {
             data: [eventPost(`${fullDay}T10:00:00.000Z`, 0)],
@@ -139,6 +145,7 @@ const fake = vi.hoisted(() => {
   return {
     state,
     client,
+    eventPost,
   };
 });
 
@@ -161,13 +168,18 @@ vi.mock('../../contexts/openpeeps', async () => {
 
 type Captured = ReturnType<typeof useEventsCalendar>;
 
-const mountHook = (): { root: Root; read: () => Captured } => {
+const mountHook = (
+  scope: Parameters<typeof useEventsCalendar>[0] = {},
+): {
+  root: Root;
+  read: () => Captured;
+} => {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
   let captured: Captured | undefined;
   const Probe = (): null => {
-    captured = useEventsCalendar({});
+    captured = useEventsCalendar(scope);
     return null;
   };
   const root = createRoot(document.createElement('div'));
@@ -195,6 +207,7 @@ describe('useEventsCalendar offset paging', () => {
     fake.state.calls.length = 0;
     fake.state.walkArmed = true;
     fake.state.shortFirstPage = false;
+    fake.state.customFirstPage = null;
   });
 
   it('does not page when the first page comes back short', async () => {
@@ -275,6 +288,63 @@ describe('useEventsCalendar offset paging', () => {
     expect(fake.state.calls[3]!.offset).toBe(CALENDAR_RANGE_LIMIT);
     expect(totalByDay(mount!.read().byDay)).toBe(CALENDAR_RANGE_LIMIT + 1);
     expect(mount!.read().byDay.size).toBe(2);
+
+    await act(async () => {
+      mount!.root.unmount();
+    });
+  });
+});
+
+describe('useEventsCalendar agenda window guard (issue #2131)', () => {
+  afterEach(() => {
+    fake.state.calls.length = 0;
+    fake.state.walkArmed = true;
+    fake.state.shortFirstPage = false;
+    fake.state.customFirstPage = null;
+  });
+
+  // Real-time fixtures. Fake timers would block the async TanStack query from
+  // resolving, so the rows are built relative to the real clock: one started
+  // 4h ago (its implied one-hour end has passed, so it is genuinely past) and
+  // one starting 30h ahead. We assert the *out-of-window* row is absent from
+  // the grid — the guard drops it regardless of which month it falls in, so
+  // the assertion is stable across month boundaries and time zones.
+  const makeRow = (offsetMs: number) =>
+    fake.eventPost(new Date(Date.now() + offsetMs).toISOString());
+  const HOUR = 60 * 60 * 1000;
+  const idsInByDay = (byDay: Map<string, unknown[]>): string[] =>
+    [...byDay.values()].flat().map((post) => (post as PublicPost).id);
+
+  it('does not render a past row on the Upcoming tab', async () => {
+    const past = makeRow(-4 * HOUR);
+    const upcoming = makeRow(30 * HOUR);
+    fake.state.customFirstPage = [past, upcoming];
+    let mount: ReturnType<typeof mountHook> | undefined;
+    await act(async () => {
+      mount = mountHook({ window: 'upcoming' });
+    });
+    await act(async () => {});
+
+    const ids = idsInByDay(mount!.read().byDay);
+    expect(ids).not.toContain(past.id);
+
+    await act(async () => {
+      mount!.root.unmount();
+    });
+  });
+
+  it('does not render a future row on the Past tab', async () => {
+    const past = makeRow(-4 * HOUR);
+    const upcoming = makeRow(30 * HOUR);
+    fake.state.customFirstPage = [past, upcoming];
+    let mount: ReturnType<typeof mountHook> | undefined;
+    await act(async () => {
+      mount = mountHook({ window: 'past' });
+    });
+    await act(async () => {});
+
+    const ids = idsInByDay(mount!.read().byDay);
+    expect(ids).not.toContain(upcoming.id);
 
     await act(async () => {
       mount!.root.unmount();
