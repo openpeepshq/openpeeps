@@ -202,6 +202,21 @@ const mountHook = (
 const totalByDay = (byDay: Map<string, unknown[]>): number =>
   [...byDay.values()].reduce((sum, bucket) => sum + bucket.length, 0);
 
+// The offset walk settles through a React state commit
+// (`setOverflowRows`), which a bare `await` never flushes — waiting alone
+// cannot observe the committed rows (the endpoint itself resolves on the
+// microtask queue; only the commit needs a flush). Poll inside `act` so
+// every check drives the flush the walk needs.
+const expectCalendarRows = async (
+  read: () => Captured,
+  total: number,
+): Promise<void> => {
+  await vi.waitFor(async () => {
+    await act(async () => {});
+    expect(totalByDay(read().byDay)).toBe(total);
+  });
+};
+
 describe('useEventsCalendar offset paging', () => {
   afterEach(() => {
     fake.state.calls.length = 0;
@@ -248,11 +263,12 @@ describe('useEventsCalendar offset paging', () => {
     expect(state.calls[0]!.offset).toBeUndefined();
     expect(state.calls[1]!.offset).toBe(CALENDAR_RANGE_LIMIT);
 
-    const read = mount!.read();
+    const read = mount!.read;
     // Full first page + short overflow page both land in the day buckets,
-    // split across the two fixture days of the window.
-    expect(totalByDay(read.byDay)).toBe(CALENDAR_RANGE_LIMIT + 1);
-    expect(read.byDay.size).toBe(2);
+    // split across the two fixture days of the window. Await the walk's
+    // commit the same way (it settles through `setOverflowRows`).
+    await expectCalendarRows(read, CALENDAR_RANGE_LIMIT + 1);
+    expect(read().byDay.size).toBe(2);
 
     await act(async () => {
       mount!.root.unmount();
@@ -264,9 +280,9 @@ describe('useEventsCalendar offset paging', () => {
     await act(async () => {
       mount = mountHook();
     });
-    await act(async () => {});
-    await act(async () => {});
-    expect(totalByDay(mount!.read().byDay)).toBe(CALENDAR_RANGE_LIMIT + 1);
+    // The initial range walk settles through a React state commit, so
+    // await it with a flush on each poll.
+    await expectCalendarRows(mount!.read, CALENDAR_RANGE_LIMIT + 1);
 
     // The next window's first page comes back full again, so the reset
     // overflow state must allow a fresh offset walk for the new window.
@@ -286,7 +302,8 @@ describe('useEventsCalendar offset paging', () => {
     expect(fake.state.calls[2]!.offset).toBeUndefined();
     expect(fake.state.calls[2]!.from).not.toBe(fake.state.calls[0]!.from);
     expect(fake.state.calls[3]!.offset).toBe(CALENDAR_RANGE_LIMIT);
-    expect(totalByDay(mount!.read().byDay)).toBe(CALENDAR_RANGE_LIMIT + 1);
+    // The re-walk for the new window settles the same way: await it.
+    await expectCalendarRows(mount!.read, CALENDAR_RANGE_LIMIT + 1);
     expect(mount!.read().byDay.size).toBe(2);
 
     await act(async () => {

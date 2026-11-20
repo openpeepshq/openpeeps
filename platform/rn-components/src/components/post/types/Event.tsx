@@ -1,6 +1,7 @@
 import React from 'react';
 import { Event, PublicPost } from '@openpeepshq/common';
 import { formatEventRecurrence } from '@openpeepshq/common/lib';
+import { useEventDisplayTimeZone } from '@openpeepshq/react';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
@@ -17,6 +18,7 @@ export const FeedEvent = ({ post }: { post: PublicPost }) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const eventData = post.data as Event;
+  const displayTz = useEventDisplayTimeZone(eventData.timeZone);
   const start = post.occurrenceStart ?? eventData.start;
   const end = post.occurrenceEnd ?? eventData.end;
 
@@ -37,9 +39,13 @@ export const FeedEvent = ({ post }: { post: PublicPost }) => {
           className="min-w-0 flex-1 text-muted-foreground text-sm"
           numberOfLines={1}
         >
-          {formatEventDate(start)}
-          {end && ` - ${formatEventDate(end)}`}
-          {eventData.timeZone && ` (${eventData.timeZone})`}
+          {formatEventDate(start, displayTz)}
+          {end && ` - ${formatEventDate(end, displayTz)}`}
+          {displayTz && displayTz !== eventData.timeZone
+            ? ` — ${t('events.inYourTimeZone', {
+                defaultValue: 'in your time zone',
+              })}`
+            : ''}
         </ThemedText>
         <Button
           variant="outline"

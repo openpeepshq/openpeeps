@@ -1,10 +1,12 @@
 import type { Event, PublicPost } from '@openpeepshq/common/types';
 import {
+  eventTimeZoneOptions,
   formatEventRecurrence,
   formatEventWhen,
 } from '@openpeepshq/common/lib';
 import { Button } from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
+import { useEventDisplayTimeZone } from '../../../hooks/events/useEventDisplayTimeZone';
 import { resolveStaticUrl, useStaticRender } from '../../markdown/staticRender';
 import { EventLocation } from '../pieces/EventLocation';
 
@@ -12,15 +14,27 @@ export interface FeedEventProps {
   post: PublicPost;
 }
 
-const fmtRange = (start: string, end?: string): string => {
-  const s = new Date(start).toLocaleString();
+// `wholeDay` is not special-cased here: `fmtRange` always renders date +
+// clock time, and feed cards have no date-only all-day label. The
+// static-render email path uses `formatEventWhen` instead, which renders
+// a date-only label for all-day events.
+const fmtRange = (start: string, end?: string, tz?: string): string => {
+  const options = eventTimeZoneOptions(tz);
+  // Deliberate `en-US` pin (product decision): the feed card mirrors the
+  // RN `formatEventDate`, which is also `en-US`, so a card reads identically
+  // on web and native regardless of device locale; it also keeps the string
+  // stable for the render tests.
+  const s = new Date(start).toLocaleString('en-US', options);
   if (!end) return s;
-  return `${s} → ${new Date(end).toLocaleString()}`;
+  return `${s} → ${new Date(end).toLocaleString('en-US', options)}`;
 };
 
 export function FeedEvent({ post }: FeedEventProps) {
   const t = useT();
   const { enabled: staticRender, baseUrl, timeZone } = useStaticRender();
+  const displayTz = useEventDisplayTimeZone(
+    post?.data?.type === 'event' ? (post.data as Event).timeZone : undefined,
+  );
 
   if (post?.data?.type !== 'event') {
     return (
@@ -40,7 +54,7 @@ export function FeedEvent({ post }: FeedEventProps) {
         timeZone,
         allDay: event.wholeDay,
       })
-    : fmtRange(start, end);
+    : fmtRange(start, end, displayTz);
   const viewEventHref = resolveStaticUrl(
     `/posts/${post.id}`,
     staticRender ? baseUrl : undefined,
@@ -121,8 +135,16 @@ export function FeedEvent({ post }: FeedEventProps) {
       )}
       <div className="flex w-full items-center justify-between">
         <span className="text-destructive text-sm">
-          {when}{' '}
-          <span className="text-muted-foreground">(your local time)</span>
+          {when}
+          {displayTz && displayTz !== event.timeZone ? (
+            <span className="text-muted-foreground">
+              {' '}
+              —{' '}
+              {t('events.inYourTimeZone', {
+                defaultValue: 'in your time zone',
+              })}
+            </span>
+          ) : null}
         </span>
         <Button
           action={viewEventHref}

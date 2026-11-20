@@ -137,9 +137,18 @@ export const wallClockDateToUtcIso = (date: Date, timeZone: string): string => {
 };
 
 /**
- * Zone to display an event in: the viewer's zone wins, the event zone is the
- * last resort. `undefined` means no resolvable zone — formatters fall through
- * to the ambient device zone.
+ * Canonical statement of the event display-zone precedence: the viewer's zone
+ * wins, the event's own zone is the last resort; `undefined` means no
+ * resolvable zone (formatters fall through to the ambient device zone).
+ *
+ * Deliberately kept as the documented, tested reference for that precedence
+ * even though no production surface calls it directly today: the React hook
+ * `useEventDisplayTimeZone` mirrors this same viewer-over-event rule for the
+ * provider-backed profile/community tiers (which this pure helper cannot see),
+ * and its final fallback is the event-zone half of this exact expression. If
+ * the precedence ever changes, update both — the `eventDisplayTimeZone` tests
+ * pin this pure contract while the `FeedEvent` integration test pins the hook
+ * chain.
  */
 export const eventDisplayTimeZone = (
   eventTimeZone?: string | null,

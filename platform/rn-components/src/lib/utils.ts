@@ -9,6 +9,7 @@ import {
   SuccessFailureResponse,
   groupSectionFromHash,
 } from '@openpeepshq/common';
+import { eventTimeZoneOptions } from '@openpeepshq/common/lib';
 import { NativeScrollEvent } from 'react-native';
 import { buildGoto } from '../components/navigation/helpers';
 import { BASE_URL } from './constants';
@@ -66,13 +67,14 @@ export const profileMatchesQuery = (profile: Profile, query: string) => {
   );
 };
 
-export const formatEventDate = (dateString: string) => {
+export const formatEventDate = (dateString: string, timeZone?: string) => {
   return new Date(dateString).toLocaleString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
+    ...eventTimeZoneOptions(timeZone),
   });
 };
 

@@ -323,6 +323,15 @@ jobs:
         run: >
           pnpm --filter @openpeepshq/rn-components
           test
+      - name: Run server email tests
+        # Email renders reuse @openpeepshq/react components (built above)
+        # under StaticRenderContext only, so a provider-dependent hook in a
+        # shared component breaks emails even though the in-app suites pass;
+        # keep the email path in unit CI (no services needed — the suites
+        # render with mocked globals only).
+        run: >
+          pnpm --filter @openpeepshq/server
+          exec vitest run src/emails
 
   test-integration:
     if: needs.set-variables.outputs.is_release_branch == 'false'
