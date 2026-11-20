@@ -62,6 +62,16 @@ jest.mock('@openpeepshq/common/lib', () => ({
 
 jest.mock('@openpeepshq/react', () => ({
   useOpenpeeps: () => ({ queryClient: { invalidateQueries: jest.fn() } }),
+  // Pass-through by contract, not just a stub: with no viewer tier (profile
+  // settings / community default) in scope, the real hook returns the event
+  // zone — its documented fallback tier (profile -> community -> event zone),
+  // so these cards render exactly as before (no suffix). Do not "simplify"
+  // this to a constant `undefined`: layout is unaffected, but the suffix
+  // visibility contract is not (a constant would suppress the suffix and
+  // still pass). These are flex-layout tests, not timezone tests (the feed
+  // card's tz behavior is pinned in post/types/Event.test.tsx).
+  useEventDisplayTimeZone: (eventTimeZone?: string | null) =>
+    eventTimeZone ?? undefined,
   useJamFooterControls: () => ({
     isModerator: false,
     isRecording: false,
