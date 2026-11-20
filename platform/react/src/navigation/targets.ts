@@ -61,6 +61,9 @@ export type NavItemDef = {
 export const encodeNavRedirect = (target: NavTarget): string =>
   encodeURIComponent(JSON.stringify(target));
 
+/** Canonical welcome href, shared by auth pages that cannot use the router hook. */
+export const hrefOfWelcome = '/welcome';
+
 export const decodeNavRedirect = (
   raw: string | null | undefined,
 ): NavTarget | null => {

@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Loader2 } from 'lucide-react';
-import { useT, useOpenpeeps } from '../../index';
+import { useT, useOpenpeeps, useHrefOf } from '../../index';
 
 export function PaymentSuccess() {
   const t = useT();
   const navigate = useNavigate();
-  const [params] = useSearchParams();
+  const hrefOf = useHrefOf();
   const { openpeepsApi } = useOpenpeeps();
 
   // Re-use the payment status endpoint as a verification ping. It returns 200
@@ -16,12 +16,10 @@ export function PaymentSuccess() {
 
   useEffect(() => {
     if (!verified) return;
-    if (params.has('user')) {
-      navigate('/feeds/local');
-    } else {
-      navigate('/welcome');
-    }
-  }, [verified, params, navigate]);
+    // Every payment success lands on the welcome page, the same first page a
+    // fresh login shows, so a paying existing user isn't dropped on the feed.
+    navigate(hrefOf({ type: 'welcome' }));
+  }, [verified, navigate, hrefOf]);
 
   return (
     <div className="from-success/10 via-success/5 to-surface flex min-h-screen flex-col items-center justify-center bg-gradient-to-br p-4 text-center">

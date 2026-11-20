@@ -1,7 +1,13 @@
 import React, { useCallback, useMemo } from 'react';
 import { ThemedView } from '../components/ui/themed-view';
-import { ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
-import { useOpenpeeps } from '@openpeepshq/react';
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { useOpenpeeps, useRouter } from '@openpeepshq/react';
 import { useSetPageHeader } from '../components/layout';
 import {
   UserCheckIcon,
@@ -42,6 +48,7 @@ type AccountSetupChecklistItem = {
 
 export const Welcome = () => {
   const { openpeepsApi, currentProfile, currentAccount } = useOpenpeeps();
+  const router = useRouter();
   const { t } = useTranslation();
   const { data: serverInfo, isLoading } = openpeepsApi.useServerInfo();
   const { data: posts, isLoading: isPostLoading } =
@@ -125,16 +132,55 @@ export const Welcome = () => {
 
   useSetPageHeader(t('navigation.welcome'));
 
+  // Guest mirror of web Welcome.tsx: a signed-out visitor on the guest-reachable
+  // Onboarding screen sees the markdown welcome plus a Sign In CTA instead of
+  // the signed-in checklist — the checklist's posts query is disabled without a
+  // profile id and would leave the checklist in a permanent loading spin.
+  if (!currentProfile) {
+    return (
+      <ThemedView className="flex-1">
+        <ScrollView className="p-4 w-full">
+          {isLoading && <ActivityIndicator size={'small'} />}
+          <ThemedView className="w-full mt-2">
+            <ThemedText className="text-3xl font-bold mb-2">
+              {t('welcome.heading', {
+                name: serverInfo?.communityConfig?.info?.name,
+              })}
+            </ThemedText>
+            <OpenpeepsMarkdown
+              source={serverInfo?.communityConfig?.content?.welcomePage || ''}
+            />
+          </ThemedView>
+          <View className="mt-4">
+            <ThemedText className="text-base text-muted-foreground">
+              {t('welcome.guestSignIn')}
+            </ThemedText>
+            <Pressable
+              testID="welcome-guest-sign-in"
+              onPress={() => router.navigate({ type: 'auth', mode: 'login' })}
+            >
+              <ThemedText className="text-base font-medium text-primary">
+                {t('auth.register.signIn')}
+              </ThemedText>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </ThemedView>
+    );
+  }
+
   return (
     <ThemedView className="flex-1">
       <ScrollView className="p-4 w-full">
         {isLoading && <ActivityIndicator size={'small'} />}
         <ThemedView className="w-full mt-2">
           <ThemedText className="text-3xl font-bold mb-2">
-            Welcome to {serverInfo?.communityConfig.info.name}
+            {t('welcome.heading', {
+              name: serverInfo?.communityConfig?.info?.name,
+            })}
           </ThemedText>
           <OpenpeepsMarkdown
-            source={serverInfo?.communityConfig.content.welcomePage || ''}
+            source={serverInfo?.communityConfig?.content?.welcomePage || ''}
           />
         </ThemedView>
         <ThemedText className="text-3xl font-bold my-4">

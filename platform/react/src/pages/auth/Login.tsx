@@ -25,6 +25,7 @@ import {
   Toast,
 } from '@openpeepshq/react-ui';
 import { useT, useNavigate, useSearchParams, useHrefOf } from '../../index';
+import { sanitizeRedirect } from '../../lib/sanitizeRedirect';
 import { AuthLayout, useServerInfo, useToast } from '../../components';
 import { usePasswordLogin } from '../../hooks';
 
@@ -44,7 +45,10 @@ export function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   const redirectUrl =
-    searchParams.get('redirect') ?? href({ type: 'feed', feed: 'local' });
+    searchParams
+      .getAll('redirect')
+      .map(sanitizeRedirect)
+      .find((value) => value !== null) ?? href({ type: 'welcome' });
   const paymentParam = searchParams.get('payment');
   const destinations = ssoLoginDestinations(serverInfo.sso);
   const onlySsoView = resolveOnlySsoView(serverInfo.sso, searchParams);
