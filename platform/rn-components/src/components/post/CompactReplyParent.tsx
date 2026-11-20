@@ -238,13 +238,19 @@ export const CompactReplyParent = ({
   const name = post.profile.displayName || `@${post.profile.handle}`;
   const thumb = post.deletedAt ? null : compactThumb(post);
 
+  // Intentionally divergent from the web twin: web keeps `items-center` and
+  // vertically centers its (truly line-clamped) content in an inner
+  // `min-h-0 flex-col justify-center overflow-hidden` column; RN cannot
+  // line-clamp rendered markdown, so it starts the row at the top and lets
+  // any residual overflow clip at the bottom — the author line can never be
+  // cut. See the approved plan for issue #2074.
   return (
     <Pressable
       accessibilityLabel={t('posts.compact.viewPost', {
         defaultValue: 'View post',
       })}
       onPress={() => navigation.navigate('Post', { id: post.id })}
-      className={`bg-muted mx-2 mb-2 max-h-20 flex-row items-center gap-2 overflow-hidden rounded-lg px-2 py-1.5 ${className ?? ''}`}
+      className={`bg-muted mx-2 mb-2 max-h-20 flex-row items-start gap-2 overflow-hidden rounded-lg px-2 py-1.5 ${className ?? ''}`}
     >
       <ProfileAvatar profile={post.profile} className="size-8" />
       {post.deletedAt ? (
