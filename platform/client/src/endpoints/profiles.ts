@@ -7,7 +7,8 @@ import type {
   AccessTokenWithMeta,
   FollowData,
   GroupWithMeta,
-  ChronologicalInfiniteQueryParams,
+  NotificationFeedQueryParams,
+  NotificationFeedExcludeTypesQuery,
   PublicPost,
   NotificationStats,
   ProfileData,
@@ -49,7 +50,7 @@ export const profiles = (
     notifications: allpeepNoPayloadEndpoint<
       PublicNotification[],
       undefined,
-      ChronologicalInfiniteQueryParams
+      NotificationFeedQueryParams
     >(rawClient, '/profiles/current/notifications'),
     notificationStats: allpeepNoPayloadEndpoint<NotificationStats>(
       rawClient,
@@ -67,11 +68,11 @@ export const profiles = (
       rawClient,
       '/profiles/current/bookmarkedIds',
     ),
-    markAllNotificationsAsSeen: allpeepNoPayloadEndpoint<SuccessResponse>(
-      rawClient,
-      '/profiles/current/notifications/mark-all-seen',
-      'put',
-    ),
+    markAllNotificationsAsSeen: allpeepNoPayloadEndpoint<
+      SuccessResponse,
+      undefined,
+      NotificationFeedExcludeTypesQuery
+    >(rawClient, '/profiles/current/notifications/mark-all-seen', 'put'),
     readSettings: allpeepNoPayloadEndpoint<ProfileSettings>(
       rawClient,
       '/profiles/current/settings',

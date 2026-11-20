@@ -63,6 +63,20 @@ describe('pg filters', () => {
     expect(postFilters.creatorId('profile-id').kind).toBe('sql');
   });
 
+  it('excludes notification types with a NOT IN on the JSONB body', () => {
+    // The same predicate the feed's `excludeTypes` and "mark all as seen"
+    // (setAllSeen) apply over `body ->> 'type'`, using real type keys.
+    const rendered = flattenSql(
+      notificationFilters.typesNotIn(['repost', 'pollVote']).where!,
+    );
+    expect(rendered).toMatch(/not in/i);
+    expect(rendered).toContain("->> 'type'");
+    expect(rendered).toContain('repost');
+    expect(rendered).toContain('pollVote');
+    // An empty list is a no-op, matching the sibling array filters.
+    expect(notificationFilters.typesNotIn([])).toBeUndefined();
+  });
+
   it('excludes blocked creators and profile ids', () => {
     const creatorFilter = postFilters.notCreatorIn(['blocked-1', 'blocked-2']);
     expect(creatorFilter).toBeDefined();

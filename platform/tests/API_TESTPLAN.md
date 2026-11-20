@@ -107,11 +107,11 @@ Existing helpers: `platform/tests/helpers/api.ts`. Suites:
 | API-PROF-07 | `PATCH /profiles/current`                           | local                   | fields updated               |                                           |
 | API-PROF-08 | `GET /profiles/current/settings`                    | guest OK if allowed     | settings                     |                                           |
 | API-PROF-09 | `PUT /profiles/current/settings`                    | local                   | settings saved               |                                           |
-| API-PROF-10 | `GET /profiles/current/notifications`               | local                   | paginated list               |                                           |
+| API-PROF-10 | `GET /profiles/current/notifications`               | local                   | paginated list               | `excludeTypes` hides types                |
 | API-PROF-11 | `GET /profiles/current/notifications/stats`         | local                   | stats                        |                                           |
 | API-PROF-12 | `GET /profiles/current/notifications/types`         | local                   | types                        |                                           |
 | API-PROF-13 | `GET /profiles/current/notifications/:id`           | local                   | one notification             |                                           |
-| API-PROF-14 | `PUT /profiles/current/notifications/mark-all-seen` | local                   | unseen cleared               |                                           |
+| API-PROF-14 | `PUT /profiles/current/notifications/mark-all-seen` | local                   | unseen cleared               | `excludeTypes` left unseen                |
 | API-PROF-15 | `GET /profiles/current/bookmarkedIds`               | local                   | ids                          |                                           |
 | API-PROF-16 | `GET /profiles/current/reposts`                     | local                   | posts                        |                                           |
 | API-PROF-17 | `GET /profiles/current/access-tokens`               | local                   | list                         |                                           |

@@ -38,11 +38,25 @@ export const setNotificationSeen = async (
   notification: ExpandedNotification | DbNotification,
 ) => updateNotification(notification, { seen: true });
 
-export const setAllSeen = async (profile: ProfileWithMeta) =>
+/**
+ * Marks the profile's unseen notifications seen. When `excludeTypes` is
+ * given, notifications of those types are skipped: hidden types are only
+ * excluded from the feed view, so "mark all as seen" should not touch
+ * notifications the user is not seeing.
+ */
+export const setAllSeen = async (
+  profile: ProfileWithMeta,
+  excludeTypes?: string[],
+) =>
   allpeepDb()
     .then(({ db }) =>
       baseListNotifications(profile)
         .filter(notificationFilters.unseen())
+        .filter(
+          excludeTypes
+            ? notificationFilters.typesNotIn(excludeTypes)
+            : undefined,
+        )
         .all(db),
     )
     .then((notifications) =>

@@ -11,6 +11,7 @@ import type {
 
 import { useT } from '../../i18n';
 import { useOpenpeeps } from '../../contexts/openpeeps';
+import { useNotificationFeedFilter } from '../../hooks';
 import {
   markCachedNotificationsSeen,
   syncAppBadgeCount,
@@ -47,12 +48,14 @@ export function NotificationsList({
 }: NotificationsListProps) {
   const t = useT();
   const { openpeepsApi, queryClient, client } = useOpenpeeps();
+  const { hasFilter, excludeTypes } = useNotificationFeedFilter();
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   const query =
     externalQuery ??
     openpeepsApi.useCurrentProfileNotifications({
       limit: pageSize,
+      excludeTypes,
     });
 
   const markAllNotificationsAsSeen =
@@ -93,6 +96,8 @@ export function NotificationsList({
       document.removeEventListener('visibilitychange', onVisibilityChange);
   }, [refetch, onRefresh]);
 
+  // Hidden types are excluded server-side (`excludeTypes`), so every item
+  // here is visible and pagination can rely on the server's page length.
   const notifications = useMemo(() => {
     const flat: PublicNotification[] = (query.data?.pages ?? []).flat();
     const seen = new Set<string>();
@@ -143,7 +148,11 @@ export function NotificationsList({
   if (notifications.length === 0) {
     return (
       <p className="text-muted-foreground px-5 py-8 text-sm">
-        {t('notification.empty', { defaultValue: 'No notifications' })}
+        {hasFilter
+          ? t('notification.emptyFiltered', {
+              defaultValue: 'No notifications of the selected types',
+            })
+          : t('notification.empty', { defaultValue: 'No notifications' })}
       </p>
     );
   }

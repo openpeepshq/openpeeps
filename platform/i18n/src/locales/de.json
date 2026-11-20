@@ -3379,6 +3379,11 @@
     }
   },
   "notification": {
+    "emptyFiltered": "Keine Benachrichtigungen der gewählten Typen",
+    "filter": {
+      "title": "Benachrichtigungen filtern",
+      "showAll": "Alle Typen anzeigen"
+    },
     "announcement": {
       "text": "{{profileName}} hat eine Ankündigung gemacht"
     },

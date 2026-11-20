@@ -775,6 +775,41 @@ export const chronologicalInfiniteQueryParamsSchema = z.object({
 export type ChronologicalInfiniteQueryParams =
   | z.infer<typeof chronologicalInfiniteQueryParamsSchema>
   | undefined;
+
+/**
+ * Notifications feed query. `excludeTypes` is comma-joined because fetch
+ * query params only allow string | number; the server splits it back.
+ */
+export type NotificationFeedQueryParams = ChronologicalInfiniteQueryParams &
+  NotificationFeedExcludeTypesQuery;
+
+/**
+ * The `excludeTypes` query param of the notifications feed `GET` and the
+ * mark-all-seen `PUT`, shared by both client endpoint declarations so the two
+ * can't drift from each other or from `excludeTypesQuerySchema` (whose parse
+ * consumes exactly this comma-joined string).
+ */
+export type NotificationFeedExcludeTypesQuery = { excludeTypes?: string };
+
+/**
+ * Server-side schema for the notifications `excludeTypes` query param. The
+ * client sends a comma-joined string (fetch query params only allow
+ * string | number); this splits it back into a list of type keys. Shared by
+ * the feed `GET` and the mark-all-seen `PUT` so the two can't drift.
+ *
+ * The parse must be idempotent: Riddl validates the query before the handler
+ * and the handlers re-parse the already-parsed value, so the second pass sees
+ * the array this transform produces. Accepting the array (union) in addition
+ * to the string keeps both passes stable; a plain `z.string()` would reject
+ * the array and 500 the endpoint.
+ */
+export const excludeTypesQuerySchema = z
+  .union([z.string(), z.array(z.string())])
+  .transform((value) =>
+    (Array.isArray(value) ? value : value.split(',')).filter(Boolean),
+  )
+  .optional();
+
 export const offsetInfiniteQueryParamsSchema = z.object({
   offset: z.coerce.number().optional(),
   limit: z.coerce.number().optional(),

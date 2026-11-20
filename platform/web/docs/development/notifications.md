@@ -236,6 +236,10 @@ await setNotificationSeen(notification);
 
 // Mark all notifications as seen
 await setAllSeen(profile);
+
+// Mark all *visible* notifications seen — the given types are left
+// untouched (the feed only shows what is not excluded)
+await setAllSeen(profile, ['repost', 'pollVote']);
 ```
 
 ## Querying Notifications
@@ -248,6 +252,7 @@ import { listNotificationsByProfile } from '@openpeepshq/core/notifications';
 const notifications = await listNotificationsByProfile(profile, {
   start: 'cursor-id', // For pagination
   limit: 100,
+  excludeTypes: ['repost', 'pollVote'], // Omit to show every type
 });
 ```
 

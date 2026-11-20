@@ -8,8 +8,15 @@ import {
   loginUser,
   patchAdminConfig,
   registerUser,
+  requestValidationEmail,
   uniqueHandle,
+  validateEmailToken,
 } from '../../../../helpers/api';
+import {
+  clearMailpit,
+  extractFromMailpitMessage,
+  waitForMailpitMessage,
+} from '../../../../helpers/mailpit';
 
 const owner = {
   email: 'test@test.com',
@@ -490,6 +497,121 @@ test.describe('API coverage gaps', () => {
       { headers: apiHeaders(token), data: {} },
     );
     expect(markSeen.ok(), await markSeen.text()).toBeTruthy();
+  });
+
+  test('notification feed excludeTypes filters GET and spares the mark-all PUT', async ({
+    request,
+  }) => {
+    // End-to-end bridge for the per-type feed filter (#354). A fresh member
+    // follows the owner — the same follow→notification setup as the
+    // user-actions suite, which passes in CI. Other tests in this shard may
+    // add their own follow notifications to the owner, so every assertion
+    // identifies *this* notification by `senderProfile.id` instead of by
+    // type or count.
+    const { token: ownerToken } = await loginUser(
+      request,
+      owner.email,
+      owner.password,
+    );
+    const ownerProfile = await currentProfile(request, ownerToken);
+
+    const handle = uniqueHandle('excl');
+    const email = `${handle}@openpeeps.test`;
+    const { token: memberToken } = await registerUser(request, {
+      handle,
+      email,
+      password: 'testtest12',
+    });
+    await clearMailpit();
+    await requestValidationEmail(request, memberToken);
+    const validationMail = await waitForMailpitMessage(
+      (message) =>
+        message.To.some((to) => to.Address === email) &&
+        /validate your email/i.test(message.Subject),
+      { timeoutMs: 45_000 },
+    );
+    const validationToken = await extractFromMailpitMessage(
+      validationMail.ID,
+      /[?&]token=([^&"'>\s]+)/i,
+    );
+    expect((await validateEmailToken(request, validationToken)).success).toBe(
+      true,
+    );
+    const memberProfile = await currentProfile(request, memberToken);
+
+    const follow = await request.post(
+      `/api/openpeeps/core/v1/profiles/${ownerProfile.id}/follow`,
+      { headers: apiHeaders(memberToken), data: {} },
+    );
+    expect(follow.ok(), await follow.text()).toBeTruthy();
+
+    // Wait for the once-queue worker to create the follow notification.
+    const findMyNotification = async () => {
+      const response = await request.get(
+        `/api/openpeeps/core/v1/profiles/current/notifications?limit=100`,
+        { headers: apiHeaders(ownerToken) },
+      );
+      expect(response.ok(), await response.text()).toBeTruthy();
+      const feed = (await response.json()) as Array<{
+        type: string;
+        seen?: boolean;
+        senderProfile?: { id: string };
+      }>;
+      return feed.find(
+        (n) => n.type === 'follow' && n.senderProfile?.id === memberProfile.id,
+      );
+    };
+    await expect
+      .poll(async () => Boolean(await findMyNotification()), {
+        timeout: 45_000,
+        intervals: [500, 1000, 2000],
+      })
+      .toBe(true);
+
+    // `?excludeTypes=follow` hides this follow notification, while excluding
+    // an unrelated type leaves it in place (type-specific).
+    const excludeFollow = await request.get(
+      `/api/openpeeps/core/v1/profiles/current/notifications?limit=100&excludeTypes=follow`,
+      { headers: apiHeaders(ownerToken) },
+    );
+    expect(excludeFollow.ok(), await excludeFollow.text()).toBeTruthy();
+    const withFollowExcluded = (await excludeFollow.json()) as Array<{
+      type: string;
+      senderProfile?: { id: string };
+    }>;
+    expect(
+      withFollowExcluded.some(
+        (n) => n.type === 'follow' && n.senderProfile?.id === memberProfile.id,
+      ),
+    ).toBe(false);
+    const excludeOther = await request.get(
+      `/api/openpeeps/core/v1/profiles/current/notifications?limit=100&excludeTypes=reaction`,
+      { headers: apiHeaders(ownerToken) },
+    );
+    expect(excludeOther.ok(), await excludeOther.text()).toBeTruthy();
+    const withOtherExcluded = (await excludeOther.json()) as Array<{
+      type: string;
+      senderProfile?: { id: string };
+    }>;
+    expect(
+      withOtherExcluded.some(
+        (n) => n.type === 'follow' && n.senderProfile?.id === memberProfile.id,
+      ),
+    ).toBe(true);
+
+    // Mark-all-seen with the same exclusion leaves this notification unseen.
+    const markSeen = await request.put(
+      '/api/openpeeps/core/v1/profiles/current/notifications/mark-all-seen?excludeTypes=follow',
+      { headers: apiHeaders(ownerToken), data: {} },
+    );
+    expect(markSeen.ok(), await markSeen.text()).toBeTruthy();
+
+    // Still present in the feed (hidden types are the ones excluded from the
+    // view) and not marked seen: an unseen notification omits `seen` (the
+    // schema is `z.boolean().optional()`), so assert falsy, not `false`.
+    const after = await findMyNotification();
+    expect(after).toBeTruthy();
+    expect(after?.seen).toBeFalsy();
   });
 
   test('RSVP tentative and no cycle', async ({ request }) => {
