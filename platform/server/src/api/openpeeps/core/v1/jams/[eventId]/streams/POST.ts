@@ -3,6 +3,7 @@ import {
   forbidden,
   rethrowIfOpenpeepsError,
   unprocessableRequest,
+  notFound,
 } from '#lib/errors';
 import {
   jamRtmpStreamRequestSchema,
@@ -17,7 +18,6 @@ import {
 import { ensureLocalProfile } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import { findJamEvent, startRtmpStream } from '@openpeepshq/core/jams';
-import { notFound } from '#lib/helpers';
 
 export const Input = jamRtmpStreamRequestSchema;
 export const Output = jamRtmpStreamResponseSchema;
@@ -27,6 +27,7 @@ export const Param = z.object({
 
 export const Error = {
   403: forbidden(),
+  404: notFound(),
   422: unprocessableRequest(),
 };
 
@@ -34,7 +35,7 @@ export const apiEndpoint = endpoint({ Input, Output, Param, Error }).handle(
   async (input, event: RequestEvent) => {
     const jamEvent = await findJamEvent(input.eventId);
     if (!jamEvent) {
-      throw notFound('Jam not found');
+      throw notFound('Jam');
     }
 
     const profile = await ensureLocalProfile(event);

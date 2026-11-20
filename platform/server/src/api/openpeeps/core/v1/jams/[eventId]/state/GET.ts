@@ -29,7 +29,7 @@ export const apiEndpoint = endpoint({ Output, Param, Query, Error }).handle(
   async (input, event) => {
     const [jamEvent] = await findPostsForAuth([input.eventId]);
     if (!jamEvent) {
-      throw notFound(`Jam with id ${input.eventId} not found`);
+      throw notFound(`Jam with id ${input.eventId}`);
     }
 
     const isServiceAuthorized = serviceScopeMatches({

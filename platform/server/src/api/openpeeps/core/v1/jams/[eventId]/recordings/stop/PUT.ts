@@ -1,11 +1,10 @@
 import { endpoint, z } from '#lib/endpoint';
-import { forbidden } from '#lib/errors';
+import { forbidden, notFound } from '#lib/errors';
 import { jamRecordingSchema } from '@openpeepshq/common/types';
 import { parseOccurrenceQuery } from '@openpeepshq/common/lib';
 import { ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import { findJamEvent, stopRecording } from '@openpeepshq/core/jams';
-import { notFound } from '#lib/helpers';
 
 export const Output = jamRecordingSchema;
 export const Param = z.object({
@@ -17,13 +16,14 @@ export const Query = z.object({
 
 export const Error = {
   403: forbidden(),
+  404: notFound(),
 };
 
 export const apiEndpoint = endpoint({ Param, Query, Output, Error }).handle(
   async (input, event: RequestEvent) => {
     const jamEvent = await findJamEvent(input.eventId);
     if (!jamEvent) {
-      throw notFound('Jam not found');
+      throw notFound('Jam');
     }
 
     ensurePostCapabilities(event, jamEvent, ['core-posts-jam-moderate']);
@@ -34,7 +34,7 @@ export const apiEndpoint = endpoint({ Param, Query, Output, Error }).handle(
     );
 
     if (!recording) {
-      throw notFound('Recording not found');
+      throw notFound('Recording');
     }
 
     return recording;

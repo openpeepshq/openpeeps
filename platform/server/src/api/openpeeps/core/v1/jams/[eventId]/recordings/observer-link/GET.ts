@@ -1,11 +1,10 @@
 import { endpoint, z } from '#lib/endpoint';
-import { forbidden, authNeeded } from '#lib/errors';
+import { forbidden, authNeeded, notFound } from '#lib/errors';
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import { findJamEvent, getJamObserverPath } from '@openpeepshq/core/jams';
 import { parseOccurrenceQuery } from '@openpeepshq/common/lib';
 import { jamObserverResponseSchema } from '@openpeepshq/common/types';
-import { notFound } from '#lib/helpers';
 
 export const Output = jamObserverResponseSchema.optional();
 export const Param = z.object({
@@ -17,13 +16,14 @@ export const Query = z.object({
 export const Error = {
   401: authNeeded(),
   403: forbidden(),
+  404: notFound(),
 };
 
 export const apiEndpoint = endpoint({ Param, Query, Output, Error }).handle(
   async (input, event: RequestEvent) => {
     const jamEvent = await findJamEvent(input.eventId);
     if (!jamEvent) {
-      throw notFound('Jam not found');
+      throw notFound('Jam');
     }
 
     await ensureLocalProfile(event);
