@@ -6,7 +6,11 @@ export const renderMermaidBlocks = async (root: HTMLElement): Promise<void> => {
     return;
   }
 
+  // mermaid 12 emits ES2024, which moves the web browser-support floor to
+  // Safari 17.4+ (accepted with the 12.3.0 bump).
   const { default: mermaid } = await import('mermaid');
+  // Only the document-level `data-theme` drives the theme here; a body-level
+  // attribute (written by the theme provider) is intentionally not read.
   const dark =
     document.documentElement.getAttribute('data-theme')?.includes('Dark') ===
     true;
