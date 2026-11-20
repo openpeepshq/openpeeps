@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { X } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
-export type ToastVariant = 'success' | 'error';
+export type ToastVariant = 'success' | 'error' | 'info';
 
 export interface ToastProps {
   children: ReactNode;
@@ -22,6 +22,7 @@ export interface ToastProps {
 const variantClasses: Record<ToastVariant, string> = {
   success: 'bg-success text-success-foreground border-success',
   error: 'bg-error text-error-foreground border-error',
+  info: 'bg-warning text-warning-foreground border-warning',
 };
 
 /**

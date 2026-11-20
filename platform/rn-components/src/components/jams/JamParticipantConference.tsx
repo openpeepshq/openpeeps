@@ -7,6 +7,7 @@ import {
   useRoomContext,
   useTracks,
 } from '@livekit/react-native';
+import Toast from 'react-native-toast-message';
 import { Track } from 'livekit-client';
 import { truncateText } from '@openpeepshq/common';
 import {
@@ -29,6 +30,7 @@ import {
   JamsBannerStack,
 } from './JamRoomIndicators';
 import { JamVideoLayout } from './JamVideoLayout';
+import { useThemedToastConfig } from './JamFooter';
 
 type Drawer = 'chat' | 'people' | 'details' | null;
 
@@ -39,6 +41,7 @@ const JamParticipantConferenceInner = () => {
   const [drawer, setDrawer] = useState<Drawer>(null);
   const [settings, updateSettings] = useJamLocalSettings();
   const remoteParticipants = useRemoteParticipants();
+  const toastConfig = useThemedToastConfig();
 
   const tracks = useTracks(
     [
@@ -100,6 +103,7 @@ const JamParticipantConferenceInner = () => {
         <JamObserverBanner />
         <JamRecordingIndicator />
       </JamsBannerStack>
+      <Toast config={toastConfig} />
       <View className="relative min-h-0 w-full flex-1 overflow-hidden p-2">
         <View className="min-h-0 flex-1 overflow-hidden">
           <View className="shrink-0 flex-row items-center">

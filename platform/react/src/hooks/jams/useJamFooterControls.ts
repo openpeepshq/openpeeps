@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Room } from 'livekit-client';
+import type { JamWaitingRoomEntry } from '@openpeepshq/common/types';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { useServerInfo } from '../../components/server-data/context';
@@ -13,6 +14,21 @@ import { logger } from '../../log';
 
 const log = logger('jams:recording');
 
+/**
+ * Return entries present in `next` but not in `prev` (keyed by profile id).
+ * The waiting-room stream sends display-only entries
+ * (`jamWaitingRoomEntrySchema`), not full profiles — only the keys are read.
+ */
+export const diffWaitingRoomAdditions = (
+  prev: Record<string, JamWaitingRoomEntry> | null,
+  next: Record<string, JamWaitingRoomEntry> | undefined,
+): JamWaitingRoomEntry[] => {
+  if (!prev || !next) return [];
+  return Object.entries(next)
+    .filter(([id]) => !(id in prev))
+    .map(([, profile]) => profile);
+};
+
 export type UseJamFooterControlsArgs = {
   room: Room;
   participantCount: number;
@@ -20,6 +36,12 @@ export type UseJamFooterControlsArgs = {
   confirmStopRecording: () => boolean | Promise<boolean>;
   onSuccess: (message: string) => void;
   onError: (message: string) => void;
+  /**
+   * Show a toast when someone joins the waiting room. One-way: each platform
+   * maps the event to its own neutral (info) toast, so no variant is threaded
+   * through the shared hook.
+   */
+  showToast: (message: string) => void;
 };
 
 /** Toolbar business logic shared by the web and native jam footers. */
@@ -29,6 +51,7 @@ export const useJamFooterControls = ({
   confirmStopRecording,
   onSuccess,
   onError,
+  showToast,
 }: UseJamFooterControlsArgs) => {
   const t = useT();
   const me = useCurrentProfile();
@@ -50,12 +73,59 @@ export const useJamFooterControls = ({
     occurrence,
   );
 
+  /**
+   * The waiting room's previous snapshot. Diffing against the previous state
+   * (rather than an accumulating ever-seen set) means a profile that left and
+   * re-joined toasts again. `null` means "no snapshot for this room yet".
+   */
+  const waitingRoomBaseline = useRef<Record<
+    string,
+    JamWaitingRoomEntry
+  > | null>(null);
+
+  /** Count the toast diff is based on, so the badge never disagrees with it. */
+  const [waitingRoomCountState, setWaitingRoomCountState] = useState(0);
+
+  // Reset the baseline when the room identity changes (occurrence switch or
+  // gate toggle): without this, the first snapshot of the next room diffs
+  // against the previous room's last snapshot and announces everyone already
+  // waiting there in one burst toast. The reset effect runs before the
+  // snapshot effect sees the new room's first value.
+  useEffect(() => {
+    if (!isModerator || !jam.waitingRoom) {
+      waitingRoomBaseline.current = null;
+      setWaitingRoomCountState(0);
+      return;
+    }
+    waitingRoomBaseline.current = null;
+  }, [jamPost.id, occurrence, isModerator, jam.waitingRoom]);
+
+  useEffect(() => {
+    if (!waitingRoom) return;
+
+    const previous = waitingRoomBaseline.current;
+    waitingRoomBaseline.current = { ...waitingRoom };
+    setWaitingRoomCountState(Object.keys(waitingRoom).length);
+
+    if (previous === null) return;
+
+    const additions = diffWaitingRoomAdditions(previous, waitingRoom);
+
+    if (additions.length > 0) {
+      showToast(
+        t(
+          additions.length === 1
+            ? 'jams.waitingRoom.joinedToastOne'
+            : 'jams.waitingRoom.joinedToastMany',
+          { count: additions.length },
+        ),
+      );
+    }
+  }, [waitingRoom, t, showToast]);
+
   const [busy, setBusy] = useState(false);
 
-  const waitingRoomCount =
-    isModerator && jam.waitingRoom && waitingRoom
-      ? Object.keys(waitingRoom).length
-      : 0;
+  const waitingRoomCount = waitingRoomCountState;
 
   const toggleRecording = async () => {
     if (isRecording && !(await confirmStopRecording())) {

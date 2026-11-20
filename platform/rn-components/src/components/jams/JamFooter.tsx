@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Alert, Pressable, View } from 'react-native';
 import { useParticipants, useRoomContext } from '@livekit/react-native';
-import Toast from 'react-native-toast-message';
+import Toast, {
+  type ToastConfig,
+  type ToastConfigParams,
+} from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
 import { useJamFooterControls } from '@openpeepshq/react';
 import {
@@ -15,6 +18,7 @@ import {
   UsersRoundIcon,
 } from '../icons/index';
 import { ThemedText } from '../ui/themed-text';
+import { useOpenPeepsTheme } from '../../theme/OpenPeepsThemeProvider';
 import {
   JamAudioOutputSelector,
   JamCameraSelector,
@@ -25,6 +29,58 @@ import { JamReactionMenu } from './JamReactionMenu';
 import { JamToolbarButton, toneIconClass } from './JamToolbarButton';
 import { LeaveCloseButton } from './LeaveCloseButton';
 import { useThemeOpacity } from '../../theme/useThemeOpacity';
+
+/** Themed toast body; the library default colors sit off the app palette. */
+const TOAST_BODY = {
+  borderWidth: 1,
+  borderRadius: 8,
+  paddingHorizontal: 16,
+  paddingVertical: 10,
+  maxWidth: '90%' as const,
+};
+
+const ThemedToast = ({
+  text1,
+  bg,
+  fg,
+}: {
+  text1?: string;
+  bg: string;
+  fg: string;
+}) => (
+  <View style={[TOAST_BODY, { backgroundColor: bg, borderColor: fg }]}>
+    <ThemedText style={{ color: fg }} className="text-sm font-medium">
+      {text1}
+    </ThemedText>
+  </View>
+);
+
+/** Toast layouts mapped to theme tokens (success, error/destructive, info/primary). */
+export const useThemedToastConfig = (): ToastConfig => {
+  const { colors } = useOpenPeepsTheme();
+  return useMemo(
+    () => ({
+      success: ({ text1 }: ToastConfigParams<Record<string, never>>) => (
+        <ThemedToast
+          text1={text1}
+          bg={colors.primary}
+          fg={colors['primary-foreground']}
+        />
+      ),
+      error: ({ text1 }: ToastConfigParams<Record<string, never>>) => (
+        <ThemedToast
+          text1={text1}
+          bg={colors.destructive}
+          fg={colors['destructive-foreground']}
+        />
+      ),
+      info: ({ text1 }: ToastConfigParams<Record<string, never>>) => (
+        <ThemedToast text1={text1} bg={colors.card} fg={colors.foreground} />
+      ),
+    }),
+    [colors]
+  );
+};
 
 export interface JamFooterProps {
   chatOpen: boolean;
@@ -44,6 +100,13 @@ export const useFooterControls = () => {
   const { t } = useTranslation();
   const room = useRoomContext();
   const participants = useParticipants();
+
+  // Stable identity: the footer controls hook lists showToast in an effect
+  // deps array, and an inline lambda would tear that effect down every render.
+  // Waiting-room joins are neutral info on native.
+  const showToast = useCallback((text1: string) => {
+    Toast.show({ type: 'info', text1 });
+  }, []);
 
   const confirmStopRecording = () =>
     new Promise<boolean>((resolve) => {
@@ -67,6 +130,7 @@ export const useFooterControls = () => {
     confirmStopRecording,
     onSuccess: (text1) => Toast.show({ type: 'success', text1 }),
     onError: (text1) => Toast.show({ type: 'error', text1 }),
+    showToast,
   });
 };
 

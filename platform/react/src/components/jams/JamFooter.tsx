@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   useParticipants,
   useRoomContext,
@@ -60,7 +60,20 @@ const useFooterControls = () => {
   const serverInfo = useServerInfo();
   const { client } = useOpenpeeps();
   const participants = useParticipants();
-  const { success: toastSuccess, error: toastError } = useToast();
+  const {
+    success: toastSuccess,
+    error: toastError,
+    info: toastInfo,
+  } = useToast();
+
+  // Waiting-room joins are neutral info (distinct from recording feedback,
+  // which stays success-colored via onSuccess). Stable identity: the hook
+  // lists showToast in an effect deps array, so an inline lambda would tear
+  // that effect down every render.
+  const showToast = useCallback(
+    (message: string) => toastInfo(message),
+    [toastInfo],
+  );
 
   // Entering the jam room is a strong signal the user wants live updates, so
   // opportunistically register push notifications, mirroring the Svelte
@@ -76,6 +89,7 @@ const useFooterControls = () => {
     confirmStopRecording: () => window.confirm(t('jams.recording.stopConfirm')),
     onSuccess: toastSuccess,
     onError: toastError,
+    showToast,
   });
 
   return { t, room, ...controls };
