@@ -5,6 +5,7 @@ import {
   MicOff,
   Search,
   UserRoundCheck,
+  UserRoundX,
   WifiOff,
   X,
 } from 'lucide-react';
@@ -15,6 +16,7 @@ import type { Participant } from 'livekit-client';
 import { Button, Input } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
 import { useJamPeople } from '../../hooks/jams/useJamPeople';
+import { useToast } from '../layout/ToastProvider';
 import { Avatar } from '../profile';
 import { parseParticipantMetadata } from './jamEventActions';
 import { useConnectionLost } from './useParticipantConnection';
@@ -76,13 +78,14 @@ function JamParticipantRow({
 
 /**
  * In-room participants list with mic / raised-hand / moderator indicators, plus
- * a moderator-only waiting-room admit section. Mirrors the Svelte
- * `PeopleDrawer` (which folds in `JamWaitingCard`).
+ * a moderator-only waiting-room section with admit and reject. Mirrors the
+ * Svelte `PeopleDrawer` (which folds in `JamWaitingCard`).
  */
 export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
   const t = useT();
   const room = useRoomContext();
   const participants = useParticipants();
+  const { success: toastSuccess, error: toastError } = useToast();
   const {
     isModerator,
     hasWaitingRoom,
@@ -93,10 +96,33 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
     listedParticipants,
     waitingProfiles,
     admittingId,
+    rejectingId,
     admit,
-  } = useJamPeople({ room, participants });
+    reject,
+  } = useJamPeople({
+    room,
+    participants,
+    onActionSuccess: toastSuccess,
+    onActionError: toastError,
+  });
 
   if (!open) return null;
+
+  // Resolve the waiting-room action labels once and reuse them for both the
+  // button title and its text, so each string lives in one place (the title
+  // is the busy variant while the action is in flight).
+  const admitLabel = t('jams.waitingRoom.admitParticipant', {
+    defaultValue: 'Admit',
+  });
+  const admittingLabel = t('jams.waitingRoom.admitting', {
+    defaultValue: 'Admitting…',
+  });
+  const rejectLabel = t('jams.waitingRoom.rejectParticipant', {
+    defaultValue: 'Reject',
+  });
+  const rejectingLabel = t('jams.waitingRoom.rejecting', {
+    defaultValue: 'Rejecting…',
+  });
 
   return (
     <div className="bg-surface text-foreground absolute right-0 top-0 z-30 flex h-full w-full flex-col gap-3 overflow-hidden rounded md:relative md:z-auto md:w-80">
@@ -175,17 +201,38 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
                       {waitingRoomEntryName(profile)}
                     </span>
                   </div>
-                  <Button
-                    variant="outline"
-                    compact
-                    action={() => admit(profile)}
-                    disabled={admittingId === profile.id}
-                    title={t('jams.waitingRoom.admitParticipant', {
-                      defaultValue: 'Admit',
-                    })}
-                  >
-                    <UserRoundCheck className="size-4" />
-                  </Button>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <Button
+                      variant="outline"
+                      compact
+                      action={() => admit(profile)}
+                      disabled={
+                        admittingId === profile.id || rejectingId === profile.id
+                      }
+                      title={
+                        admittingId === profile.id ? admittingLabel : admitLabel
+                      }
+                    >
+                      <UserRoundCheck className="size-4" />
+                      {admitLabel}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      compact
+                      action={() => reject(profile)}
+                      disabled={
+                        admittingId === profile.id || rejectingId === profile.id
+                      }
+                      title={
+                        rejectingId === profile.id
+                          ? rejectingLabel
+                          : rejectLabel
+                      }
+                    >
+                      <UserRoundX className="size-4" />
+                      {rejectLabel}
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>

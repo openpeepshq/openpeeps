@@ -597,6 +597,15 @@ export type JamWaitingProfile = {
   displayName?: string;
 };
 
+/** The waiting-room join stream emits either the admittance token or a denial. */
+export const jamWaitingRoomJoinEventSchema = z.union([
+  jamTokenResponseSchema,
+  z.object({ denied: z.literal(true) }),
+]);
+export type JamWaitingRoomJoinEvent = z.infer<
+  typeof jamWaitingRoomJoinEventSchema
+>;
+
 export interface Credentials {
   token: string;
 }

@@ -1,5 +1,5 @@
 import { endpoint, z } from '#lib/endpoint';
-import { notFound, forbidden } from '#lib/errors';
+import { authNeeded, forbidden, notFound } from '#lib/errors';
 import { canModerateJam, parseOccurrenceQuery } from '@openpeepshq/common/lib';
 import { acceptFromWaitingRoom, findJamEvent } from '@openpeepshq/core/jams';
 import { ensureLocalProfile } from '#lib/auth';
@@ -18,6 +18,7 @@ export const Output = successResponseSchema;
 
 export const Error = {
   404: notFound(),
+  401: authNeeded(),
   403: forbidden(),
 };
 

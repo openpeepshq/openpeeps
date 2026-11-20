@@ -1030,7 +1030,8 @@
       "requestToJoin": "Beitritt anfragen",
       "ctaJoin": "Beitreten",
       "ctaStart": "Starten",
-      "waitingForModerator": "Warten auf einen Moderator, der Sie einlässt"
+      "waitingForModerator": "Warten auf einen Moderator, der Sie einlässt",
+      "rejected": "Der Moderator hat Ihre Beitrittsanfrage abgelehnt"
     },
     "start": {
       "submit": "Jam starten",

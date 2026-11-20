@@ -43,7 +43,9 @@ services:
   redis:
     image: redis:alpine
     # Match CI: ephemeral cache/queue; avoid MISCONF when disk is tight.
-    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    # KEA enables keyspace notifications for the jams waiting-room watch
+    # streams (admit/reject), matching the dev and prod compose stacks.
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--notify-keyspace-events", "KEA"]
 
   mailpit:
     image: axllent/mailpit:v1.21

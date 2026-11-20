@@ -50,10 +50,11 @@ export const useJamParticipantMute = ({
   };
 };
 
-/** Joins automatically once a moderator admits us from the waiting room. */
+/** Joins once a moderator admits us, or reports a rejection. */
 export const useJoinWaitingRoomToken = (
   onJoin: (params: JamJoinParams) => void,
   onError?: (error: SseError | undefined) => void,
+  onDenied?: () => void,
 ) => {
   const { jamPost, occurrence } = useJamContext();
   const { openpeepsApi } = useOpenpeeps();
@@ -78,7 +79,12 @@ export const useJoinWaitingRoomToken = (
   );
 
   useEffect(() => {
-    if (tokenResponse?.token && tokenResponse.livekitUrl) {
+    if (!tokenResponse) return;
+    if ('denied' in tokenResponse) {
+      onDenied?.();
+      return;
+    }
+    if (tokenResponse.token && tokenResponse.livekitUrl) {
       // Re-join is a no-op on the server (the room stores one entry per
       // profile id), so a render-cycled onJoin identity cannot corrupt the
       // queue — but the token response itself must still be fresh.
@@ -88,5 +94,5 @@ export const useJoinWaitingRoomToken = (
         choices: { audioEnabled: true, videoEnabled: true },
       });
     }
-  }, [tokenResponse, onJoin]);
+  }, [tokenResponse, onJoin, onDenied]);
 };

@@ -92,6 +92,23 @@ jam UI under `platform/react/src/components/jams/`.
   `read` on `profiles:*` (the latter is what lets an admitted guest publish
   chat). See `createSignedGuestPass` in
   `platform/core/src/accessTokens/tokens.ts`.
+- **Denial is a stream event, not an error status.** `POST …/waiting-room/:profileId/reject`
+  removes the queue entry, writes the profile id to the denial key
+  (`jams:denied:*`, `DENIAL_TTL_SEC` = 10 min), and wakes the guest's open
+  join stream, which emits `{ denied: true }` on the same `200` stream that
+  would otherwise deliver the token. The denial only outlives the current join
+  attempt: a new `joinWaitingRoom` request clears a prior denial and re-queues
+  the guest, and `clearJamAdmittance` (jam close) deletes the key entirely.
+  The watch also re-checks the decision keys on a bounded interval
+  (`ADMITTANCE_FALLBACK_POLL_MS` × `ADMITTANCE_FALLBACK_POLLS` = 500 ms × 40,
+  ~20 s after subscribing) alongside the `__keyspace@0__` subscription, so a
+  missed keyspace event cannot strand a guest or hang the stream.
+  Operationally, a Redis that does not emit keyspace notifications (i.e.
+  started without `--notify-keyspace-events KEA`, as set on the CI integration
+  jobs in `.forgejo/workflows/build.yaml` and in
+  `platform/tests/docker-compose.integration.yml`) still works, but decisions
+  only reach the guest via that ~20 s fallback poll — the keyspace fast path
+  never fires on such a Redis.
 
 ### SSE (narrow streams + session foreground channel)
 

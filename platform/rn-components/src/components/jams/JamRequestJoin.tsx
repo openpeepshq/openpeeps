@@ -16,8 +16,10 @@ export interface JamRequestJoinProps {
 
 const JamWaitingRoomListener = ({
   onJoin,
+  onDenied,
 }: {
   onJoin: JamRequestJoinProps['onJoin'];
+  onDenied: () => void;
 }) => {
   const { t } = useTranslation();
   const [error, setError] = useState<string | null>(null);
@@ -33,13 +35,17 @@ const JamWaitingRoomListener = ({
     [onJoin]
   );
 
-  useJoinWaitingRoomToken(joinAndClearError, (e?: SseError) => {
-    // Reuse the shared key→message mapping (`errorKey ?? key`, translate
-    // `error.*` keys). The SSE path passes an empty fallback so a keyless,
-    // message-less error renders nothing rather than a generic "Error".
-    const message = apiErrorMessage(e, t, '');
-    setError(message.length > 0 ? message : null);
-  });
+  useJoinWaitingRoomToken(
+    joinAndClearError,
+    (e?: SseError) => {
+      // Reuse the shared key→message mapping (`errorKey ?? key`, translate
+      // `error.*` keys). The SSE path passes an empty fallback so a keyless,
+      // message-less error renders nothing rather than a generic "Error".
+      const message = apiErrorMessage(e, t, '');
+      setError(message.length > 0 ? message : null);
+    },
+    onDenied
+  );
 
   return error ? (
     <ThemedText className="text-center text-sm text-destructive">
@@ -50,23 +56,33 @@ const JamWaitingRoomListener = ({
 
 export const JamRequestJoin = ({ onJoin }: JamRequestJoinProps) => {
   const { t } = useTranslation();
-  const [requested, setRequested] = useState(false);
+  const [phase, setPhase] = useState<'idle' | 'waiting' | 'denied'>('idle');
 
   return (
     <View className="w-full flex-1 items-center justify-center gap-4 p-4">
-      {requested ? (
+      {phase === 'waiting' ? (
         <>
-          <JamWaitingRoomListener onJoin={onJoin} />
+          <JamWaitingRoomListener
+            onJoin={onJoin}
+            onDenied={() => setPhase('denied')}
+          />
           <ThemedText className="text-center text-sm text-muted-foreground">
             {t('jams.join.waitingForModerator')}
           </ThemedText>
         </>
       ) : (
-        <Button onPress={() => setRequested(true)}>
-          <ThemedText className="text-primary-foreground">
-            {t('jams.join.requestToJoin')}
-          </ThemedText>
-        </Button>
+        <>
+          {phase === 'denied' ? (
+            <ThemedText className="text-center text-sm text-muted-foreground">
+              {t('jams.join.rejected')}
+            </ThemedText>
+          ) : null}
+          <Button onPress={() => setPhase('waiting')}>
+            <ThemedText className="text-primary-foreground">
+              {t('jams.join.requestToJoin')}
+            </ThemedText>
+          </Button>
+        </>
       )}
     </View>
   );

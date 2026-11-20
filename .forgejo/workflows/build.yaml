@@ -347,7 +347,8 @@ jobs:
         image: redis:alpine
         # Ephemeral CI cache/queue: skip RDB so a full runner disk cannot
         # trip stop-writes-on-bgsave-error and break session/SSO writes.
-        cmd: ["redis-server", "--save", "", "--appendonly", "no"]
+        # KEA: match dev/prod compose stacks for keyspace-driven flows.
+        cmd: ["redis-server", "--save", "", "--appendonly", "no", "--notify-keyspace-events", "KEA"]
       mailpit:
         image: axllent/mailpit:v1.21
         # Image HEALTHCHECK stays "starting" for 15s; act waits that out
@@ -471,7 +472,8 @@ jobs:
           POSTGRES_DB: openpeeps
       redis:
         image: redis:alpine
-        cmd: ["redis-server", "--save", "", "--appendonly", "no"]
+        # KEA: match dev/prod compose stacks for keyspace-driven flows.
+        cmd: ["redis-server", "--save", "", "--appendonly", "no", "--notify-keyspace-events", "KEA"]
       mailpit:
         image: axllent/mailpit:v1.21
         options: --no-healthcheck
@@ -605,7 +607,8 @@ jobs:
           POSTGRES_DB: openpeeps
       redis:
         image: redis:alpine
-        cmd: ["redis-server", "--save", "", "--appendonly", "no"]
+        # KEA: match dev/prod compose stacks for keyspace-driven flows.
+        cmd: ["redis-server", "--save", "", "--appendonly", "no", "--notify-keyspace-events", "KEA"]
       mailpit:
         image: axllent/mailpit:v1.21
         options: --no-healthcheck
@@ -739,7 +742,10 @@ jobs:
         image: redis:alpine
         # Ephemeral CI cache/queue: skip RDB so a full runner disk cannot
         # trip stop-writes-on-bgsave-error and break session/SSO writes.
-        cmd: ["redis-server", "--save", "", "--appendonly", "no"]
+        # KEA enables keyspace notifications, which the jams waiting-room
+        # admit/reject watch streams subscribe to via __keyspace@0__
+        # channels, matching the dev and prod compose stacks.
+        cmd: ["redis-server", "--save", "", "--appendonly", "no", "--notify-keyspace-events", "KEA"]
       mailpit:
         image: axllent/mailpit:v1.21
         options: --no-healthcheck
