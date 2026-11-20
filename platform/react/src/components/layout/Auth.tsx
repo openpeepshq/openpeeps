@@ -8,8 +8,10 @@ import { useCurrentProfileSettings } from './IdentityContext';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useCredentialsStore } from '../../contexts/credentialsStore';
 import { useHasAuthToken } from '../../contexts/openpeeps/hooks/useHasAuthToken';
+import { hrefOfWelcome } from '../../navigation/targets';
+import { sanitizeRedirect } from '../../lib/sanitizeRedirect';
 
-const HOME_HREF = '/feeds/local';
+const HOME_HREF = hrefOfWelcome;
 
 export interface AuthLayoutProps {
   description?: ReactNode;
@@ -74,13 +76,13 @@ export function AuthLayout({
       if (stripeEnabled && paymentQuery?.isSuccess) {
         if (isStripeActive(paymentQuery.data)) {
           if (cancelled) return;
-          if (hasPayment) go('/welcome');
+          if (hasPayment) go(HOME_HREF);
           else if (
             !profileQuery?.isFetching &&
             profileQuery?.isSuccess &&
             profileQuery.data?.type === 'local'
           ) {
-            go(redirectTo || HOME_HREF);
+            go(sanitizeRedirect(redirectTo ?? '') ?? HOME_HREF);
           }
         }
       } else if (
@@ -89,7 +91,7 @@ export function AuthLayout({
         profileQuery.data?.type === 'local'
       ) {
         if (cancelled) return;
-        go(redirectTo || HOME_HREF);
+        go(sanitizeRedirect(redirectTo ?? '') ?? HOME_HREF);
       }
     })();
     return () => {

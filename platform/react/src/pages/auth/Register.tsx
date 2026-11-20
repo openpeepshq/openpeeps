@@ -26,7 +26,7 @@ import {
   Link,
   Toast,
 } from '@openpeepshq/react-ui';
-import { useT, useOpenpeeps } from '../../index';
+import { useT, useOpenpeeps, useHrefOf } from '../../index';
 import { AuthLayout, useServerInfo, useToast } from '../../components';
 import type { TFunction } from 'i18next';
 
@@ -92,6 +92,7 @@ const registerErrorCopy = (raw: string, t: TFunction) => {
 export function Register({ invite = false }: RegisterProps) {
   const t = useT();
   const navigate = useNavigate();
+  const hrefOf = useHrefOf();
   const [searchParams] = useSearchParams();
   const { openpeepsApi } = useOpenpeeps();
   const createCheckout = openpeepsApi.createCheckoutAction();
@@ -168,7 +169,7 @@ export function Register({ invite = false }: RegisterProps) {
           return;
         }
       }
-      navigate('/welcome');
+      navigate(hrefOf({ type: 'welcome' }));
     } catch (err) {
       setError(registerErrorCopy((err as Error).message, t));
     }
@@ -423,13 +424,19 @@ export function Register({ invite = false }: RegisterProps) {
             {t('auth.register.alreadyHaveAccount', {
               defaultValue: 'Already have an account?',
             })}{' '}
-            <Link action="/auth/login" className="text-sm">
+            <Link
+              action={hrefOf({ type: 'auth', mode: 'login' })}
+              className="text-sm"
+            >
               {t('auth.register.signIn', { defaultValue: 'Sign In' })}
             </Link>
           </span>
-          <RouterLink to="/feeds/local" className="op-anchor text-sm">
-            {t('auth.register.seeCommunityFeed', {
-              defaultValue: 'See community feed',
+          <RouterLink
+            to={hrefOf({ type: 'welcome' })}
+            className="op-anchor text-sm"
+          >
+            {t('auth.register.exploreCommunity', {
+              defaultValue: 'Explore the community',
             })}
           </RouterLink>
         </div>
@@ -439,7 +446,7 @@ export function Register({ invite = false }: RegisterProps) {
             {t('auth.register.alreadyHaveAccount', {
               defaultValue: 'Already have an account?',
             })}{' '}
-            <Link action="/auth/login" className="text-sm">
+            <Link action={hrefOf({ type: 'auth', mode: 'login' })}>
               {t('auth.register.signIn', { defaultValue: 'Sign In' })}
             </Link>
           </span>

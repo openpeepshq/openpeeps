@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { useT, useOpenpeeps } from '../../index';
+import { useT, useOpenpeeps, useHrefOf } from '../../index';
 import { AuthLayout, useToast } from '../../components';
 
 /**
@@ -12,6 +12,7 @@ import { AuthLayout, useToast } from '../../components';
 export function ValidateEmail() {
   const t = useT();
   const navigate = useNavigate();
+  const hrefOf = useHrefOf();
   const [searchParams] = useSearchParams();
   const { success, error: toastError } = useToast();
   const { client } = useOpenpeeps();
@@ -54,12 +55,21 @@ export function ValidateEmail() {
               'Your email is now verified. You may fully participate in the community.',
           }),
         );
-        navigate('/');
+        navigate(hrefOf({ type: 'welcome' }));
       } catch {
         fail();
       }
     })();
-  }, [searchParams, navigate, success, toastError, t, client, queryClient]);
+  }, [
+    searchParams,
+    navigate,
+    success,
+    toastError,
+    t,
+    client,
+    queryClient,
+    hrefOf,
+  ]);
 
   return (
     <AuthLayout navigate={(url) => void navigate(url)} noRedirect>

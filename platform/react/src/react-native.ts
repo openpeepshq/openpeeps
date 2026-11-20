@@ -41,6 +41,7 @@ export {
 
 export * from './hooks';
 export { useDefaultVisibility } from './components/post/visibility';
+export { useHasAuthToken } from './contexts/openpeeps';
 export {
   IdentityContext,
   useIdentity,

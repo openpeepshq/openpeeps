@@ -1,5 +1,6 @@
 import {
   encodeNavRedirect,
+  hrefOfWelcome,
   type Navigator,
   type NavTarget,
 } from '@openpeepshq/react';
@@ -16,7 +17,7 @@ export const createWebNavigator = (): Navigator => ({
       case 'home':
         return '/';
       case 'welcome':
-        return '/welcome';
+        return hrefOfWelcome;
       case 'explore':
         return '/explore';
       case 'feed':
@@ -120,8 +121,9 @@ export const createWebNavigator = (): Navigator => ({
       case 'path':
         return target.path;
       default: {
-        const _exhaustive: never = target;
-        return _exhaustive;
+        // Exhaustiveness guard (mirrors the native navigator's): adding a
+        // NavTarget without a web mapping fails the typecheck here.
+        return target satisfies never;
       }
     }
   },

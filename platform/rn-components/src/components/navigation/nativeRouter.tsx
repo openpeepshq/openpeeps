@@ -230,7 +230,9 @@ export const navigateToTarget = (target: NavTarget) => {
       }
       break;
     default:
-      break;
+      // Exhaustiveness guard (mirrors the web navigator's): adding a
+      // NavTarget without a native mapping fails the typecheck here.
+      throw target satisfies never;
   }
 };
 
@@ -241,10 +243,18 @@ export const useNativeRouterAdapter = (): RouterAdapter =>
       searchParams: new URLSearchParams(),
       // Native has no URL bar to keep in sync, so there is no query to write.
       setSearchParams: () => {},
-      hrefOf: () => '',
+      hrefOf: (target: NavTarget): string => {
+        throw new Error(
+          `hrefOf('${target.type}') has no native mapping — native targets navigate directly (navigateToTarget), they have no hrefs.`
+        );
+      },
       match: () => null,
       navigate: (target) => {
-        if (typeof target === 'string') return;
+        if (typeof target === 'string') {
+          throw new Error(
+            'navigate(string) has no native mapping — pass a NavTarget so navigateToTarget can route it.'
+          );
+        }
         navigateToTarget(target);
       },
       back: () => {

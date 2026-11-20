@@ -1,6 +1,6 @@
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { Link } from '@openpeepshq/react-ui';
-import { useT } from '../index';
+import { useT, useHrefOf } from '../index';
 import { AuthLayout } from '../components';
 import { useCommunityInfoPages } from '../hooks';
 
@@ -9,6 +9,7 @@ import { Markdown } from '../lib/Markdown';
 export function About() {
   const t = useT();
   const navigate = useNavigate();
+  const hrefOf = useHrefOf();
   const {
     communityName,
     aboutPage,
@@ -40,8 +41,13 @@ export function About() {
           )}
           {publicContent && (
             <span>
-              <RouterLink to="/feeds/local" className="op-anchor text-sm">
-                See community feed
+              <RouterLink
+                to={hrefOf({ type: 'welcome' })}
+                className="op-anchor text-sm"
+              >
+                {t('auth.register.exploreCommunity', {
+                  defaultValue: 'Explore the community',
+                })}
               </RouterLink>
             </span>
           )}
