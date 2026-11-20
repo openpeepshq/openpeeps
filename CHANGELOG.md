@@ -5,12 +5,14 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **skills**: add generated-at line to milestone stats
+- **jams**: show observer presence indicator to participants
+- **rn-components**: consolidate the mobile layout onto the web layout
 - **skills**: link each needs-human gate to its milestone filter
 - show post edit history on web and mobile
 - **federation**: publish discoverable flag for opted-out profiles (Option 1)
 - **theme**: add configurable Jam Lobby background image
 - **resources**: single image per pick so the crop dialog always shows
-- **rn-components**: consolidate the mobile layout onto the web layout
 - **i18n**: share 4+ strings under common keys without deleting aliases
 - **rn-components**: make the Jam URL on the single event page tappable
 - **theme**: preview light and dark mode colors with contrast check
@@ -25,6 +27,13 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **analytics**: scope active members to live local profiles across card and series
+- **composer**: keep typed text when switching composer type
+- **deps**: refresh stale lockfile resolutions to patched transitive versions
+- **rn**: keep action buttons on screen in overflow-prone rows
+- **jams**: signed-out visitors stuck in waiting room
+- **rn-components**: mount-gate ReactionsModal + RepostModal, fix i18n keys
+- **skills**: stop the gate-link loop from clobbering the milestone API url
 - **skills**: retry the milestone description write on transient HTTP errors
 - **server,react,rn,core,common**: date-range event feed for the calendar (issue #2128)
 - **posts**: count only visible text toward the 500-character note limit
@@ -103,6 +112,8 @@ Changelog for OpenPeeps
 
 ### Documentation
 
+- **agents**: add terminal discipline rules to prevent stuck runs
+- **agents**: document worktree install rules for dependency changes
 - **flow**: let review push test/doc/quality/dependency-only rounds straight back to implement
 - **agents**: require a CI-fix loop — a run never finishes with red CI
 - **agents**: require terse action comments and label-change explanations
