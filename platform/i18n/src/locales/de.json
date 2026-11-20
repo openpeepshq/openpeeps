@@ -460,13 +460,6 @@
         "placeholder": "Was möchten Sie mitteilen?"
       }
     },
-    "copyPostLink": {
-      "submit": "Link kopieren",
-      "success": "Kopieren erfolgreich",
-      "successMessage": "Beitragslink in die Zwischenablage kopiert",
-      "errorMessage": "Profillink konnte nicht kopiert werden",
-      "error": "Fehler beim Kopieren"
-    },
     "event": {
       "attendees": "Teilnehmende",
       "online": "Online",
@@ -495,8 +488,10 @@
       "sendInMessage": "In einer Nachricht senden",
       "otherOptions": "Weitere Optionen",
       "copyLink": "Link kopieren",
+      "copyLinkModalTitle": "Beitragslink teilen",
       "linkCopied": "Link kopiert",
       "copyFailed": "Link konnte nicht kopiert werden",
+      "shareFailed": "Beitrag konnte nicht geteilt werden",
       "systemShare": "Teilen über…",
       "downloadCalendarIcs": "Zum Kalender hinzufügen",
       "downloadCalendarIcsTitle": ".ics-Datei herunterladen"

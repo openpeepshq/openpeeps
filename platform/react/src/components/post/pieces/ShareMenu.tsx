@@ -1,12 +1,19 @@
 import { Calendar, Copy, Repeat2, Send, Share } from 'lucide-react';
 import type { PublicPost } from '@openpeepshq/common/types';
+import { isPubliclyShareable } from '@openpeepshq/common/lib';
 import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
   PopupMenu,
   PopupMenuButton,
   PopupSection,
   PopupSeparator,
   type PopupMenuProps,
 } from '@openpeepshq/react-ui';
+import { useState } from 'react';
 import { useT } from '../../../i18n';
 import {
   postPublicPath,
@@ -31,17 +38,18 @@ const absolutePostUrl = (post: PublicPost) => {
     : path;
 };
 
-export function ShareMenu({
+export const ShareMenu = ({
   post,
   menuButton,
   variant = 'outline',
   className,
   text,
-}: ShareMenuProps) {
+}: ShareMenuProps) => {
   const t = useT();
   const { success, error: toastError } = useToast();
   const { openCreateConversation } = useCreateNewConversation();
   const postUrl = absolutePostUrl(post);
+  const [copyModalOpen, setCopyModalOpen] = useState(false);
   const { signedIn, isEvent, repost, eventIcsFile } = useShareMenu(
     post,
     postUrl,
@@ -50,6 +58,12 @@ export function ShareMenu({
   // in the menu either way.
   const canSystemShare =
     typeof navigator !== 'undefined' && typeof navigator.share === 'function';
+  // Repost/DM are valid for any post the viewer can see; handing the link to
+  // the outside world only makes sense for publicly readable posts.
+  const externallyShareable = isPubliclyShareable(post);
+  // A signed-out viewer of a non-public, non-event post would get an empty
+  // menu — hide the whole affordance instead (review round 5, S1).
+  const menuAvailable = isEvent || externallyShareable || signedIn;
 
   const downloadEventIcs = () => {
     const file = eventIcsFile();
@@ -82,81 +96,135 @@ export function ShareMenu({
     try {
       await navigator.share({ url: postUrl });
     } catch (err) {
+      // A user-dismissed sheet is not an error; anything else (e.g. a
+      // permission denial in embeds) must not vanish silently.
       if (err instanceof DOMException && err.name === 'AbortError') return;
+      toastError(
+        t('posts.shareMenu.shareFailed', {
+          defaultValue: "Couldn't share the post",
+        }),
+      );
     }
   };
 
+  if (!menuAvailable) return null;
+
   return (
-    <PopupMenu
-      menuButton={menuButton ?? <Share className="size-4" />}
-      title={t('posts.shareMenu.title', { defaultValue: 'Share' })}
-      variant={variant === 'unstyled' ? undefined : variant}
-      className={className}
-      text={text}
-    >
-      {signedIn ? (
-        <>
-          <PopupSection
-            title={t('posts.shareMenu.shareOnCommunity', {
-              defaultValue: 'Share on community',
-            })}
-          />
+    <>
+      <PopupMenu
+        menuButton={menuButton ?? <Share className="size-4" />}
+        title={t('posts.shareMenu.title', { defaultValue: 'Share' })}
+        variant={variant === 'unstyled' ? undefined : variant}
+        className={className}
+        text={text}
+      >
+        {signedIn ? (
+          <>
+            <PopupSection
+              title={t('posts.shareMenu.shareOnCommunity', {
+                defaultValue: 'Share on community',
+              })}
+            />
+            <PopupMenuButton
+              title={t('posts.shareMenu.repostToFeed', {
+                defaultValue: 'Repost',
+              })}
+              text={t('posts.shareMenu.repostToFeed', {
+                defaultValue: 'Repost',
+              })}
+              icon={Repeat2}
+              action={repost}
+            />
+            <PopupMenuButton
+              title={t('posts.shareMenu.sendInMessage', {
+                defaultValue: 'Send in message',
+              })}
+              text={t('posts.shareMenu.sendInMessage', {
+                defaultValue: 'Send in message',
+              })}
+              icon={Send}
+              action={() => openCreateConversation({ message: postUrl })}
+            />
+          </>
+        ) : null}
+        {signedIn && (isEvent || externallyShareable) ? (
+          <>
+            <PopupSeparator />
+            <PopupSection
+              title={t('posts.shareMenu.otherOptions', {
+                defaultValue: 'Other options',
+              })}
+            />
+          </>
+        ) : null}
+        {isEvent ? (
           <PopupMenuButton
-            title={t('posts.shareMenu.repostToFeed', {
-              defaultValue: 'Repost',
+            title={t('posts.shareMenu.downloadCalendarIcsTitle', {
+              defaultValue: 'Download calendar file',
             })}
-            text={t('posts.shareMenu.repostToFeed', { defaultValue: 'Repost' })}
-            icon={Repeat2}
-            action={repost}
+            text={t('posts.shareMenu.downloadCalendarIcs', {
+              defaultValue: 'Add to calendar (.ics)',
+            })}
+            icon={Calendar}
+            action={downloadEventIcs}
           />
-          <PopupMenuButton
-            title={t('posts.shareMenu.sendInMessage', {
-              defaultValue: 'Send in message',
+        ) : null}
+        {externallyShareable ? (
+          <>
+            {canSystemShare ? (
+              <PopupMenuButton
+                title={t('posts.shareMenu.systemShare', {
+                  defaultValue: 'Share via…',
+                })}
+                text={t('posts.shareMenu.systemShare', {
+                  defaultValue: 'Share via…',
+                })}
+                icon={Share}
+                action={() => void systemShare()}
+              />
+            ) : null}
+            <PopupMenuButton
+              title={t('posts.shareMenu.copyLink', {
+                defaultValue: 'Copy link',
+              })}
+              text={t('posts.shareMenu.copyLink', {
+                defaultValue: 'Copy link',
+              })}
+              icon={Copy}
+              action={
+                canSystemShare
+                  ? () => void copyLink()
+                  : () => setCopyModalOpen(true)
+              }
+            />
+          </>
+        ) : null}
+      </PopupMenu>
+      <Dialog open={copyModalOpen} onOpenChange={setCopyModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {t('posts.shareMenu.copyLinkModalTitle', {
+                defaultValue: 'Share post link',
+              })}
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-muted-foreground break-all text-sm">{postUrl}</p>
+          <DialogActions
+            cancelLabel={t('common.actions.cancel', {
+              defaultValue: 'Cancel',
             })}
-            text={t('posts.shareMenu.sendInMessage', {
-              defaultValue: 'Send in message',
+            onCancel={() => setCopyModalOpen(false)}
+            actionLabel={t('posts.shareMenu.copyLink', {
+              defaultValue: 'Copy link',
             })}
-            icon={Send}
-            action={() => openCreateConversation({ message: postUrl })}
+            onAction={() => {
+              void copyLink();
+              setCopyModalOpen(false);
+            }}
           />
-          <PopupSeparator />
-          <PopupSection
-            title={t('posts.shareMenu.otherOptions', {
-              defaultValue: 'Other options',
-            })}
-          />
-        </>
-      ) : null}
-      {isEvent ? (
-        <PopupMenuButton
-          title={t('posts.shareMenu.downloadCalendarIcsTitle', {
-            defaultValue: 'Download calendar file',
-          })}
-          text={t('posts.shareMenu.downloadCalendarIcs', {
-            defaultValue: 'Add to calendar (.ics)',
-          })}
-          icon={Calendar}
-          action={downloadEventIcs}
-        />
-      ) : null}
-      {canSystemShare ? (
-        <PopupMenuButton
-          title={t('posts.shareMenu.systemShare', {
-            defaultValue: 'Share via…',
-          })}
-          text={t('posts.shareMenu.systemShare', {
-            defaultValue: 'Share via…',
-          })}
-          icon={Share}
-          action={() => void systemShare()}
-        />
-      ) : null}
-      <PopupMenuButton
-        title={t('posts.shareMenu.copyLink', { defaultValue: 'Copy link' })}
-        text={t('posts.shareMenu.copyLink', { defaultValue: 'Copy link' })}
-        icon={Copy}
-        action={() => void copyLink()}
-      />
-    </PopupMenu>
+        </DialogContent>
+      </Dialog>
+    </>
   );
-}
+};

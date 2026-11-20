@@ -476,13 +476,6 @@
         "placeholder": "What is on your mind?"
       }
     },
-    "copyPostLink": {
-      "submit": "Copy Link",
-      "success": "Copy success",
-      "successMessage": "post link copied to clipboard",
-      "errorMessage": "Failed to copy profile link",
-      "error": "Copy error"
-    },
     "event": {
       "attendees": "Attendees",
       "online": "Online",
@@ -511,8 +504,10 @@
       "sendInMessage": "Send in a message",
       "otherOptions": "Other options",
       "copyLink": "Copy link",
+      "copyLinkModalTitle": "Share post link",
       "linkCopied": "Link copied",
       "copyFailed": "Couldn't copy the link",
+      "shareFailed": "Couldn't share the post",
       "systemShare": "Share via…",
       "downloadCalendarIcs": "Add to Calendar",
       "downloadCalendarIcsTitle": "Download .ics file"

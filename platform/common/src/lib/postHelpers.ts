@@ -851,6 +851,16 @@ export const toHiddenPost = <
 export const isHiddenPost = (post: { hidden?: boolean }): boolean =>
   !!post.hidden;
 
+/**
+ * Only posts with `visibility === 'public'` are considered worth handing to
+ * the outside world. `withPublicPostReadScopes` additionally grants anonymous
+ * read to some `group` posts, but sharing a group post to an anonymous
+ * audience is consciously out of scope here.
+ */
+export const isPubliclyShareable = (post: {
+  visibility: VisibilityType;
+}): boolean => post.visibility === 'public';
+
 export const participantIds = (
   post: Pick<PublicPost, 'audience' | 'profile'> & { creatorId?: string },
 ): Set<string> => {

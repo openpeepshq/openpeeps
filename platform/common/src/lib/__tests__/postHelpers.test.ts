@@ -37,7 +37,9 @@ import {
   postHasEditHistory,
   postEditVersions,
   postEditVersionKind,
+  isPubliclyShareable,
 } from '../postHelpers';
+import { visibilityTypeValues } from '../../types';
 import { groupCapabilityTemplates } from '../groupHelpers';
 import {
   getJamUrl,
@@ -1651,6 +1653,19 @@ describe('postHelpers', () => {
         ),
       ).toEqual([]);
       expect(hidden.entries).toHaveLength(1);
+    });
+  });
+
+  describe('isPubliclyShareable', () => {
+    it.each(visibilityTypeValues.filter((v) => v !== 'public'))(
+      'is false for %s',
+      (visibility) => {
+        expect(isPubliclyShareable({ visibility })).toBe(false);
+      },
+    );
+
+    it('is true for public', () => {
+      expect(isPubliclyShareable({ visibility: 'public' })).toBe(true);
     });
   });
 });
