@@ -32,6 +32,7 @@ export * from './skeleton';
 export * from './svg-image';
 export * from './switch';
 export * from './tabs';
+export * from './unread-badge';
 
 // @rn-primitives select — renamed to avoid clashing with custom/common/select
 export {

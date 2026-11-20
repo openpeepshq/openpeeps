@@ -29,10 +29,11 @@ import {
   LibraryIcon,
 } from '../../icons/index';
 import { ThemedText } from '../../ui/themed-text';
+import { UnreadBadge } from '../../ui/unread-badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../ui/tooltip';
 import { useWindowSize } from '../../../hooks/helper';
 import { toAbsoluteMediaUrl } from '../../../lib/media-url';
-import { formatBadgeCount, getTheme } from '@openpeepshq/common';
+import { getTheme } from '@openpeepshq/common';
 import { buildMainNavItems, useOpenpeeps } from '@openpeepshq/react';
 import { useTranslation } from 'react-i18next';
 import { ProfileAvatar } from '../../profile/Avatar';
@@ -238,13 +239,7 @@ export const SideMenu = ({
                         {t(item.labelKey)}
                       </ThemedText>
                     </View>
-                    {(menuUnreadCounts[item.id] ?? 0) > 0 ? (
-                      <View className="bg-destructive size-5 min-w-5 items-center justify-center rounded-full px-1">
-                        <ThemedText className="text-xs font-semibold text-destructive-foreground">
-                          {formatBadgeCount(menuUnreadCounts[item.id] ?? 0)}
-                        </ThemedText>
-                      </View>
-                    ) : null}
+                    <UnreadBadge count={menuUnreadCounts[item.id] ?? 0} />
                   </View>
                 </SideMenuNavButton>
               );
