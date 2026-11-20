@@ -234,6 +234,16 @@ overrides:
   # on @hono/node-server is not force-pinned. Force 2.1.9 — inside the
   # parent's declared range, clears both advisories.
   "@modelcontextprotocol/node>@hono/node-server": "2.1.9"
+  # esbuild 0.18.20 (dev-only: drizzle-kit 0.31.11 -> @esbuild-kit/esm-loader ->
+  # @esbuild-kit/core-utils, both deprecated in favor of tsx) carries
+  # GHSA-67mh-4wv8-2f99 (moderate, dev-server proxy request/response exfil,
+  # fixed >=0.25.0 — the 0.24.x line ends at 0.24.2, which is still
+  # vulnerable). No 0.18.x patch exists; the only consumer is
+  # @esbuild-kit/core-utils, so scope the override to that parent. The tree
+  # already resolves 0.25.12 for drizzle-kit's own direct esbuild dependency,
+  # so 0.25.12 is the natural target, and drizzle-kit generate runs clean
+  # through the overridden binary.
+  "@esbuild-kit/core-utils>esbuild": "0.25.12"
 
 allowBuilds:
   "@evilmartians/lefthook": true

@@ -983,6 +983,7 @@ jobs:
           git branch main origin/main
           node scripts/check-branch.mjs
           node scripts/check-pr-references.mjs
+          node scripts/check-esbuild-patch.mjs
 
   publish-packages:
     runs-on: docker

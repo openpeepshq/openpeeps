@@ -280,15 +280,16 @@ On push (`.forgejo/workflows/build.yaml`), for feature branches:
 1. Build and push Docker image
 2. Run Playwright integration tests against that image
 3. Tag/deploy image (`deploy-docker`)
-4. Run `node scripts/check-branch.mjs` and `node scripts/check-pr-references.mjs`
-   (`commit-check` job; skipped on `main`, `staging`, `stable`, and `weblate`)
+4. Run `node scripts/check-branch.mjs`, `node scripts/check-pr-references.mjs`,
+   and `node scripts/check-esbuild-patch.mjs` (`commit-check` job; skipped on
+   `main`, `staging`, `stable`, and `weblate`)
 5. `i18n-check`: `node scripts/check-i18n-parity.mjs --strict` (en↔de parity)
 6. `lint`: `pnpm install --frozen-lockfile` → `pnpm exec prettier --check .`
    → `pnpm run -r lint`
 7. `publish-gate`: `node scripts/check-publish-gate.mjs --package <p>` for
    every published package whose `package.json` version changed
 
-Your local runs of `check-branch.mjs`, `check-pr-references.mjs`, the
-i18n scripts, `prettier --check .`, the per-package typechecks and
-`pnpm install --frozen-lockfile` mirror steps 4–7 (see
-[Verifying the implementation round](#verifying-the-implementation-round-before-pushing)).
+Your local runs of `check-branch.mjs`, `check-pr-references.mjs`,
+`check-esbuild-patch.mjs`, the i18n scripts, `prettier --check .`, the
+per-package typechecks and `pnpm install --frozen-lockfile` mirror steps 4–7
+(see [Verifying the implementation round](#verifying-the-implementation-round-before-pushing)).
