@@ -2,6 +2,7 @@ import * as React from 'react';
 import {
   Dimensions,
   Pressable,
+  ScrollView,
   type StyleProp,
   StyleSheet,
   Text,
@@ -36,6 +37,90 @@ const DropdownContext = React.createContext<DropdownContextType>({
 export type DropdownMenuRef = {
   close: () => void;
 };
+
+export type MenuTriggerLayout = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+const MENU_MARGIN = 8;
+/** Never clamp the menu below two or so items — a taller menu scrolls. */
+const MIN_MENU_HEIGHT = 120;
+const MENU_WIDTH = 200;
+
+export interface MenuPlacementInput {
+  triggerLayout: MenuTriggerLayout;
+  screenHeight: number;
+  screenWidth: number;
+  menuWidth?: number;
+  sideOffset?: number;
+  side?: 'top' | 'bottom';
+  align?: 'start' | 'end' | 'center';
+  margin?: number;
+}
+
+export interface MenuPlacement {
+  left: number;
+  top?: number;
+  bottom?: number;
+  maxHeight: number;
+  effectiveSide: 'top' | 'bottom';
+}
+
+/**
+ * Computes the absolute placement of a `DropdownMenuContent` for a trigger.
+ *
+ * A menu that would open below the trigger flips above it when there is less
+ * room below than above (Radix-style collision handling, computed from the
+ * trigger position — no content measurement). An explicit `side="top"` is
+ * never flipped back down. The menu is capped at the viewport space on its
+ * chosen side (`maxHeight`) so an overlong menu scrolls instead of leaving
+ * the viewport unreachable.
+ */
+export function computeMenuPlacement({
+  triggerLayout,
+  screenHeight,
+  screenWidth,
+  menuWidth = MENU_WIDTH,
+  sideOffset = 4,
+  side = 'bottom',
+  align = 'end',
+  margin = MENU_MARGIN,
+}: MenuPlacementInput): MenuPlacement {
+  let left: number;
+  if (align === 'end') {
+    left = triggerLayout.x + triggerLayout.width - menuWidth;
+  } else if (align === 'start') {
+    left = triggerLayout.x;
+  } else {
+    left = triggerLayout.x + triggerLayout.width / 2 - menuWidth / 2;
+  }
+  left = Math.max(margin, Math.min(left, screenWidth - menuWidth - margin));
+
+  const spaceBelow =
+    screenHeight - triggerLayout.y - triggerLayout.height - sideOffset - margin;
+  const spaceAbove = triggerLayout.y - sideOffset - margin;
+
+  const effectiveSide: 'top' | 'bottom' =
+    side === 'top' || spaceBelow >= spaceAbove ? side : 'top';
+
+  if (effectiveSide === 'top') {
+    return {
+      left,
+      bottom: screenHeight - triggerLayout.y + sideOffset,
+      maxHeight: Math.max(spaceAbove, MIN_MENU_HEIGHT),
+      effectiveSide: 'top',
+    };
+  }
+  return {
+    left,
+    top: triggerLayout.y + triggerLayout.height + sideOffset,
+    maxHeight: Math.max(spaceBelow, MIN_MENU_HEIGHT),
+    effectiveSide: 'bottom',
+  };
+}
 
 const DropdownMenu = React.forwardRef<
   DropdownMenuRef,
@@ -102,6 +187,11 @@ const DropdownMenuTrigger = ({
   const { setOpen, open, setTriggerLayout } = React.useContext(DropdownContext);
   const ref = React.useRef<View>(null);
 
+  // The trigger must be re-measured on *every* open. Placement is computed
+  // from the trigger's window position (see computeMenuPlacement), and that
+  // position changes whenever the trigger scrolls. Caching the last
+  // measurement would leave a menu placed at the stale trigger location, so
+  // always take a fresh measureInWindow here.
   const handlePress = React.useCallback(() => {
     ref.current?.measureInWindow((x, y, width, height) => {
       setTriggerLayout({ x, y, width, height });
@@ -145,25 +235,17 @@ const DropdownMenuContent = ({
     React.useContext(DropdownContext);
   const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
-  const menuWidth = 200;
-
   if (!open || !triggerLayout) return null;
 
-  let left: number;
-  if (align === 'end') {
-    left = triggerLayout.x + triggerLayout.width - menuWidth;
-  } else if (align === 'start') {
-    left = triggerLayout.x;
-  } else {
-    left = triggerLayout.x + triggerLayout.width / 2 - menuWidth / 2;
-  }
-  left = Math.max(8, Math.min(left, screenWidth - menuWidth - 8));
-  const vertical =
-    side === 'top'
-      ? { bottom: screenHeight - triggerLayout.y + sideOffset }
-      : { top: triggerLayout.y + triggerLayout.height + sideOffset };
-
-  if (!triggerLayout && !open) return null;
+  const { effectiveSide: _effectiveSide, ...placementStyle } =
+    computeMenuPlacement({
+      triggerLayout,
+      screenHeight,
+      screenWidth,
+      sideOffset,
+      align,
+      side,
+    });
 
   return (
     <Portal name={portalName}>
@@ -177,11 +259,16 @@ const DropdownMenuContent = ({
         className={`p-4 ${className}`}
         style={[
           styles.content,
-          { ...vertical, left, width: menuWidth },
+          { ...placementStyle, width: MENU_WIDTH },
           !open && styles.hidden,
         ]}
       >
-        {children}
+        <ScrollView
+          style={{ maxHeight: placementStyle.maxHeight }}
+          contentContainerStyle={{ flexGrow: 0 }}
+        >
+          {children}
+        </ScrollView>
       </ThemedView>
     </Portal>
   );
@@ -298,6 +385,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     borderRadius: 8,
     borderWidth: 1,
+    overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
@@ -332,6 +420,7 @@ const styles = StyleSheet.create({
 });
 
 export {
+  DropdownContext,
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
