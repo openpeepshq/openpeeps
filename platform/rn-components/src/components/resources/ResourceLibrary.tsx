@@ -74,9 +74,9 @@ const Tree = ({
                 }`}
               />
             </Pressable>
-            <Pressable onPress={() => onSelect(node.path)}>
+            <Pressable className="flex-1" onPress={() => onSelect(node.path)}>
               <ThemedText
-                className={`text-sm ${
+                className={`shrink text-sm ${
                   isSelected
                     ? 'font-semibold text-foreground'
                     : 'text-muted-foreground'
@@ -268,12 +268,17 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
             </Pressable>
             {library.pathPrefix.length > 0 ? (
               <>
-                <ThemedText className="text-sm text-muted-foreground">
+                <ThemedText className="shrink-0 text-sm text-muted-foreground">
                   /
                 </ThemedText>
-                <ThemedText className="text-sm text-muted-foreground">
-                  {library.pathPrefix.join(' / ')}
-                </ThemedText>
+                <View className="flex-1">
+                  <ThemedText
+                    className="shrink text-sm text-muted-foreground"
+                    numberOfLines={1}
+                  >
+                    {library.pathPrefix.join(' / ')}
+                  </ThemedText>
+                </View>
               </>
             ) : null}
             <Pressable

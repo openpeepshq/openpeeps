@@ -80,7 +80,7 @@ const Tree = ({
             </button>
             <button
               type="button"
-              className={`text-sm ${
+              className={`text-sm min-w-0 flex-1 break-words text-left ${
                 isSelected
                   ? 'font-semibold'
                   : 'text-muted-foreground hover:text-foreground'
@@ -313,7 +313,7 @@ export const ResourceLibrary = ({ groupId }: ResourceLibraryProps) => {
             {library.pathPrefix.length > 0 ? (
               <>
                 <span className="text-muted-foreground">/</span>
-                <span className="text-muted-foreground">
+                <span className="text-muted-foreground min-w-0 truncate">
                   {library.pathPrefix.join(' / ')}
                 </span>
               </>

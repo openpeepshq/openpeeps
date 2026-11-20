@@ -96,8 +96,16 @@ jest.mock('../custom/common', () => ({
 }));
 
 jest.mock('../ui/themed-text', () => ({
-  ThemedText: (props: { children?: unknown }) =>
-    React.createElement('ThemedText', null, props.children),
+  ThemedText: (props: {
+    children?: unknown;
+    className?: string;
+    numberOfLines?: number;
+  }) =>
+    React.createElement(
+      'ThemedText',
+      { className: props.className, numberOfLines: props.numberOfLines },
+      props.children
+    ),
 }));
 
 jest.mock('../post/VideoPlayOverlay', () => ({
@@ -188,18 +196,33 @@ const linkPost = resourcePost({
   url: 'https://example.com/docs',
 });
 
-const renderCard = (post: ResourceCardProps['post']) => {
+const renderCard = (
+  post: ResourceCardProps['post'],
+  layout: 'card' | 'list' = 'list'
+) => {
   let tree: ReturnType<typeof ReactTestRenderer.create>;
   ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
       React.createElement(ResourceCard, {
         post,
-        layout: 'list' as const,
+        layout,
       })
     );
   });
   return tree;
 };
+
+// A single unbroken word: on RN a Text won't shrink by default, so the
+// category line needs `shrink` + `numberOfLines` to stay inside the card
+// (issue #2174, mirrored from the web break-words fix).
+const LONG_CATEGORY = 'a'.repeat(200);
+
+const longCategoryPost = resourcePost({
+  title: 'Long path',
+  resourceKind: 'link',
+  url: 'https://example.com/docs',
+  categoryPath: ['Root', LONG_CATEGORY],
+});
 
 // The bookmark button is also a Pressable; it renders disabled for the
 // anonymous profile the mock returns, so enabled Pressables are the
@@ -271,4 +294,25 @@ describe('ResourceCard list-layout actions', () => {
     expect(actionTexts(tree)).not.toContain('Download');
     tree.unmount();
   });
+});
+
+describe('ResourceCard long category path (issue #2174)', () => {
+  it.each(['card', 'list'] as const)(
+    'constrains the category line to two shrinkable lines in the %s layout',
+    (layout) => {
+      const tree = renderCard(longCategoryPost, layout);
+
+      const pathText = tree.root
+        .findAllByType('ThemedText')
+        .find(
+          (node: { props: { children?: unknown } }) =>
+            typeof node.props.children === 'string' &&
+            node.props.children.includes(LONG_CATEGORY)
+        );
+      expect(pathText).toBeTruthy();
+      expect(pathText!.props.className).toContain('shrink');
+      expect(pathText!.props.numberOfLines).toBe(2);
+      tree.unmount();
+    }
+  );
 });

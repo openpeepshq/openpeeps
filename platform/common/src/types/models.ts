@@ -584,6 +584,9 @@ export type Article = z.infer<typeof articleSchema>;
 /** Resource titles are library headings, so they stay much shorter than the description. */
 export const RESOURCE_TITLE_MAX_LENGTH = 200;
 
+/** Category (folder) names render inline in cards, trees and breadcrumbs; keep them bounded so a very long name cannot blow out those layouts. */
+export const RESOURCE_CATEGORY_NAME_MAX_LENGTH = 120;
+
 export const resourcePostSchema = noteBaseSchema
   .extend({
     type: z.literal('resource'),

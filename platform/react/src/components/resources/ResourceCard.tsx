@@ -339,7 +339,7 @@ export const ResourceCard = ({
         <div className="min-w-0 flex-1">
           <h3 className="text-lg font-semibold">{resource.title}</h3>
           {resource.categoryPath?.length ? (
-            <p className="text-muted-foreground text-xs">
+            <p className="text-muted-foreground break-words text-xs">
               {resource.categoryPath.join(' / ')}
             </p>
           ) : null}
@@ -438,7 +438,7 @@ export const ResourceCard = ({
 
       <h3 className="text-lg font-semibold">{resource.title}</h3>
       {resource.categoryPath?.length ? (
-        <p className="text-muted-foreground text-xs">
+        <p className="text-muted-foreground break-words text-xs">
           {resource.categoryPath.join(' / ')}
         </p>
       ) : null}

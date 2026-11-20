@@ -211,7 +211,10 @@ export const ResourceCard = ({
             {resource.title}
           </ThemedText>
           {resource.categoryPath?.length ? (
-            <ThemedText className="text-xs text-muted-foreground">
+            <ThemedText
+              className="shrink text-xs text-muted-foreground"
+              numberOfLines={2}
+            >
               {resource.categoryPath.join(' / ')}
             </ThemedText>
           ) : null}
@@ -330,7 +333,10 @@ export const ResourceCard = ({
         {resource.title}
       </ThemedText>
       {resource.categoryPath?.length ? (
-        <ThemedText className="text-xs text-muted-foreground">
+        <ThemedText
+          className="shrink text-xs text-muted-foreground"
+          numberOfLines={2}
+        >
           {resource.categoryPath.join(' / ')}
         </ThemedText>
       ) : null}

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import {
+  RESOURCE_CATEGORY_NAME_MAX_LENGTH,
   RESOURCE_TITLE_MAX_LENGTH,
   visibilityTypeValues,
   type MediaAttachmentData,
@@ -7,7 +8,7 @@ import {
   type VisibilityType,
 } from '../types/models';
 
-export { RESOURCE_TITLE_MAX_LENGTH };
+export { RESOURCE_CATEGORY_NAME_MAX_LENGTH, RESOURCE_TITLE_MAX_LENGTH };
 
 /** Matches `resourcePostSchema.url` (`z.url()`), after trimming. */
 const resourceUrlSchema = z.url();
