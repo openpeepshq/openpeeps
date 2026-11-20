@@ -4,7 +4,6 @@ import {
   FlatList,
   Keyboard,
   KeyboardAvoidingView,
-  Platform,
   Pressable,
   View,
 } from 'react-native';
@@ -55,13 +54,14 @@ const JamChatDrawerBody = ({
 }: JamChatDrawerProps) => {
   const { t } = useTranslation();
   const participants = useParticipants();
-  const isIos = Platform.OS === 'ios';
-  // The offset is the screen-Y of the KAV's parent (the drawer root): the
-  // screen's safe-area view pads it by insets.top. The title bar and the
-  // gap-3 are siblings above the KAV in that parent — part of the KAV's own
-  // frame — so do not add them to the offset. The body only renders where a
-  // provider has settled non-null insets (the wrapper's decision), so the
-  // read below is plain.
+  // The offset is the screen-Y of the KAV's parent — the JamDrawer root,
+  // inside the shell's content area, which the screen's safe-area view pads
+  // by insets.top (on both platforms). The KAV measures the keyboard in
+  // screen space but its own frame is parent-relative. The title bar and
+  // gap-3 are siblings above the KAV in that parent, so they sit inside it
+  // and do not shift its screen-Y — correctly excluded from the offset.
+  // The body only renders where a provider has settled non-null insets, so
+  // the read below is plain.
   const keyboardVerticalOffset = React.useContext(SafeAreaInsetsContext)!.top;
   const {
     messages,
@@ -85,16 +85,17 @@ const JamChatDrawerBody = ({
     return () => clearTimeout(timeout);
   }, [open, messages.length]);
 
-  // Re-pin the newest message on keyboardDidShow (the base-sheet.tsx
-  // pattern); iOS-only — Android keyboard avoidance is the host's
-  // adjustResize, so no JS re-pin there.
+  // Re-pin the newest message when the keyboard shows (the base-sheet.tsx
+  // pattern). Cross-platform: the KAV's 'padding' reflow lands after the
+  // keyboard animation, so the re-pin then settles the newest message above
+  // the composer. Skipped when readOnly (no composer to re-pin against).
   useEffect(() => {
-    if (!open || readOnly || !isIos) return;
+    if (!open || readOnly) return;
     const sub = Keyboard.addListener('keyboardDidShow', () =>
       listRef.current?.scrollToEnd({ animated: true })
     );
     return () => sub.remove();
-  }, [open, readOnly, isIos]);
+  }, [open, readOnly]);
 
   const handleSendMessage = async () => {
     if (!(await send())) return;
@@ -107,16 +108,18 @@ const JamChatDrawerBody = ({
 
   return (
     <JamDrawer title={t('jams.drawer.chatTitle')} onClose={onClose}>
-      {/* KeyboardAvoidingView is a no-op on Android — keyboard avoidance
-          there relies on the host app's windowSoftInputMode. The example
-          app ships adjustResize; the shipping host is confirmed separately
-          (replan §6). Keeping the KAV disabled on Android avoids a
-          double-shrink flash next to the OS resize. */}
+      {/* Keyboard avoidance is the component's own job on both platforms so
+          it does not depend on the host app's windowSoftInputMode — the
+          shipping host does not resize, and leaving the KAV disabled there
+          left the keyboard covering the chat (the QA retest on the shipping
+          build found the keyboard still covers the chat).
+          'padding' is the validated iOS mechanism; it is host-independent
+          and self-correcting (the KAV measures the real overlap, so it adds
+          ~0 when a host already resizes — no double-shrink). */}
       <KeyboardAvoidingView
         className="flex-1"
-        behavior={isIos ? 'padding' : undefined}
+        behavior="padding"
         keyboardVerticalOffset={keyboardVerticalOffset}
-        enabled={isIos}
       >
         {/* flex-1 is load-bearing here — without it FlatList sizes to
             content and does not fill the remaining KAV space. */}
