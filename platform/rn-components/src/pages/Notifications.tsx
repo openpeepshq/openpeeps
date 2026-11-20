@@ -1,6 +1,6 @@
 import React from 'react';
 import { ThemedView } from '../components/ui/themed-view';
-import { useOpenpeeps } from '@openpeepshq/react';
+import { useNotificationFeedFilter, useOpenpeeps } from '@openpeepshq/react';
 import { useSetPageHeader } from '../components/layout';
 import { useTranslation } from 'react-i18next';
 import {
@@ -12,8 +12,10 @@ import { useNotificationBadgeReset } from '../hooks/use-notification-badge-reset
 export const Notifications = () => {
   const { openpeepsApi } = useOpenpeeps();
   const { t } = useTranslation();
+  const { excludeTypes } = useNotificationFeedFilter();
   const query = openpeepsApi.useCurrentProfileNotifications({
     limit: 15,
+    excludeTypes,
   });
   const notificationStats = openpeepsApi.useCurrentProfileNotificationStats();
 

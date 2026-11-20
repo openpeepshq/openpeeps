@@ -1,4 +1,4 @@
-import { eq, sql } from 'drizzle-orm';
+import { eq, notInArray, sql } from 'drizzle-orm';
 import { notifications } from '../schema/documents';
 import { pgSql, type SqlFilter } from './types';
 
@@ -12,4 +12,16 @@ export const notificationFilters = {
   unseen: (): SqlFilter => pgSql(eq(seenExpr, false)),
 
   unread: (): SqlFilter => pgSql(eq(readExpr, false)),
+
+  /**
+   * `type` lives in the JSONB body (not a column), so this is a raw-SQL
+   * filter — the same `pgSql` escape hatch the feed's `excludeTypes` filter
+   * uses. Excludes notifications of the given types (e.g. the feed's hidden
+   * types, so "mark all as seen" only covers what is visible). Like
+   * `postFilters.notCreatorIn`, an empty list is a no-op filter.
+   */
+  typesNotIn: (types: string[]): SqlFilter | undefined =>
+    types.length
+      ? pgSql(notInArray(sql`${notifications.body} ->> 'type'`, types))
+      : undefined,
 };

@@ -1,6 +1,7 @@
 import { endpoint, z } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
 import {
+  excludeTypesQuerySchema,
   type PublicNotification,
   publicNotificationSchema,
 } from '@openpeepshq/common/types';
@@ -17,6 +18,8 @@ export const Error = {
 export const Query = z.object({
   limit: z.coerce.number().optional(),
   start: z.string().optional(),
+  /** Comma-separated types excluded from the feed (client joins the list). */
+  excludeTypes: excludeTypesQuerySchema,
 });
 
 export const apiEndpoint = endpoint({ Output, Error, Query }).handle(
