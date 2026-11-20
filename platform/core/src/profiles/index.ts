@@ -14,8 +14,10 @@ export {
   getProfile,
   getPublicProfile,
   getProfiles,
+  getLocalProfileByHandle,
   clearProfileCache,
 } from './cache';
+export { registerAutoFollowHandler } from './autoFollow';
 export {
   areBlocked,
   hasBlockAmong,

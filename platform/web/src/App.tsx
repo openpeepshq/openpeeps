@@ -110,6 +110,7 @@ import {
   AdminConfigEditor,
   AdminConfigurationI18n,
   AdminConfigurationCommunityAccess,
+  AdminConfigurationCommunityAutoFollow,
   AdminConfigurationCommunityInfo,
   AdminConfigurationCommunityLinks,
   CommunityMarkdownPage,
@@ -372,6 +373,7 @@ const Admin = {
     I18n: AdminConfigurationI18n,
     Community: AdminConfigurationCommunity,
     CommunityAccess: AdminConfigurationCommunityAccess,
+    CommunityAutoFollow: AdminConfigurationCommunityAutoFollow,
     CommunityInfo: AdminConfigurationCommunityInfo,
     CommunityLanguage: AdminConfigurationCommunityLanguage,
     CommunityTimezone: AdminConfigurationCommunityTimezone,
@@ -808,6 +810,10 @@ function AppShell() {
                       <Route
                         path="/admin/configuration/community/access"
                         element={<Admin.Config.CommunityAccess />}
+                      />
+                      <Route
+                        path="/admin/configuration/community/auto-follow"
+                        element={<Admin.Config.CommunityAutoFollow />}
                       />
                       <Route
                         path="/admin/configuration/community/language"

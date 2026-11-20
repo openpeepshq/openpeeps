@@ -15,6 +15,11 @@ export function AdminConfigurationCommunity() {
         action="/admin/configuration/community/access"
       />
       <ConfigMenuButton
+        translationPrefix="configuration.community.autoFollow"
+        action="/admin/configuration/community/auto-follow"
+        testId="admin-community-autofollow"
+      />
+      <ConfigMenuButton
         translationPrefix="configuration.community.favicons"
         action="/admin/configuration/community/favicons"
       />
