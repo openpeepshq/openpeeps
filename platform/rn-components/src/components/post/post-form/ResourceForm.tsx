@@ -229,7 +229,7 @@ export const ResourceForm = ({
                 className="items-center rounded-md border border-input px-3 py-2"
               >
                 <ThemedText>
-                  {t('resources.form.addMedia', { defaultValue: 'Add files' })}
+                  {t('resources.form.addMedia', { defaultValue: 'Add file' })}
                 </ThemedText>
               </Pressable>
             ) : null}
