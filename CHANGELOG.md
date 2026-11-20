@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **events**: server-side ICS feed with per-profile subscription tokens
 - **share**: gate external share actions on public posts
 - **skills**: add generated-at line to milestone stats
 - **jams**: show observer presence indicator to participants
