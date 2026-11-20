@@ -1,11 +1,13 @@
 import {
   Account,
+  AuthorizationData,
   FollowData,
   GuestPassRequest,
   Profile,
   ProfileData,
   ProfileWithMeta,
   Role,
+  Scope,
 } from '@openpeepshq/common/types';
 import { profilesMapping } from './mapping';
 import { allpeepDb } from '../db';
@@ -18,14 +20,21 @@ import {
   roleUnassigner,
 } from './helpers';
 import { hub } from '../events';
-import { randomString } from '@openpeepshq/common/lib';
+import {
+  checkProfileCapabilities,
+  isBlockedPair,
+  randomString,
+} from '@openpeepshq/common/lib';
+import { capabilitiesConfig } from '../config';
 import { deleteAccessTokensForProfile } from '../accessTokens/helpers';
 import {
   profilesCache,
   getProfile,
   getPublicProfile,
+  getLocalProfileByHandle,
   clearProfileCache,
 } from './cache';
+import { logger } from '../log';
 import { accountsCache } from '../accounts/cache';
 import { assertProfileCapacity } from './capacity';
 import {
@@ -134,6 +143,91 @@ export const follow = async (
     await hub.emit('followCreated', follower, followed);
   }
   await Promise.all([clearProfileCache(follower), clearProfileCache(followed)]);
+};
+
+const log = logger('openpeeps:auto-follow');
+
+const adminAllScope: Scope = {
+  scopeLevel: 'admin',
+  resource: { type: '*', id: '*' },
+};
+
+/**
+ * Normalizes a configured auto-follow handle: strips a leading `@` and
+ * surrounding whitespace. Both the save-time validation (server PATCH
+ * backstop) and the follow resolution (auto-follow queue) must use this
+ * shared form so the two paths cannot drift apart.
+ */
+export const normalizeAutoFollowHandle = (rawHandle: string): string =>
+  rawHandle.replace(/^@/, '').trim();
+
+/**
+ * Whether `follower` may follow `target` under the same rules as
+ * `followProfileHandler`. Callers acting on behalf of a request pass the
+ * request's `authData` so its scopes are honored; queue callers omit it and
+ * are treated like in-app web session tokens (which always carry the
+ * `admin * *` scope). Restricted access tokens never reach this path — only
+ * `followProfileHandler` carries a token, and it passes the request's
+ * `authData` through — so the synthesized-scope shortcut must not be copied
+ * onto a token-bearing caller.
+ */
+export const canFollowProfile = async (
+  follower: ProfileWithMeta,
+  target: ProfileWithMeta,
+  authData?: AuthorizationData,
+): Promise<{ success: boolean; missingCapabilities: string[] }> => {
+  const { success, missingCapabilities } = checkProfileCapabilities(
+    {
+      profile: follower,
+      scopes: authData?.scopes ?? [adminAllScope],
+    },
+    ['core-profiles-follow'],
+    target,
+    await capabilitiesConfig(),
+  );
+  return { success, missingCapabilities };
+};
+
+/**
+ * Makes a profile follow the community's designated accounts (community
+ * config `content.autoFollow`, by handle). Local, resolvable handles only.
+ * Skips the profile itself, blocked pairs, and profiles the follower may
+ * not follow; one failing follow never blocks the rest.
+ */
+export const followDesignatedProfiles = async (
+  profile: ProfileWithMeta,
+  handles: string[],
+) => {
+  for (const rawHandle of handles) {
+    const handle = normalizeAutoFollowHandle(rawHandle);
+    if (!handle || handle === profile.handle) continue;
+    try {
+      const target = await getLocalProfileByHandle(handle);
+      if (!target) {
+        log.warn(`auto-follow target not found on this instance: ${handle}`);
+        continue;
+      }
+      if (isBlockedPair(profile, target.id)) {
+        log.warn(
+          `auto-follow skipped, blocked pair: ${profile.handle} <-> ${handle}`,
+        );
+        continue;
+      }
+      const { success, missingCapabilities } = await canFollowProfile(
+        profile,
+        target,
+      );
+      if (!success) {
+        log.warn(
+          `auto-follow skipped, missing capabilities ${missingCapabilities.join(', ')}: ${profile.handle} -> ${handle}`,
+        );
+        continue;
+      }
+      await follow(profile, target, { reblogs: true, notify: false });
+    } catch (error) {
+      log.error(`auto-follow failed for ${handle}`, error);
+    }
+  }
 };
 
 export const unfollow = async (follower: Profile, followed: Profile) => {

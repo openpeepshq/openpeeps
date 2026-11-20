@@ -3,6 +3,7 @@ import { hub, onceWorker } from '@openpeepshq/core/events';
 import { queues } from '@openpeepshq/core/jobs';
 import { sendEmailQueue } from '@openpeepshq/core/email';
 import { onceQueue } from '@openpeepshq/core/events';
+import { registerAutoFollowHandler } from '@openpeepshq/core/profiles';
 import {
   ensureMediaGarbageCollectionSchedule,
   ensureStreamingCleanupSchedule,
@@ -170,6 +171,8 @@ export const start = async () => {
   await registerDefaultNotifications();
   console.log('Registering RSVP confirmation email handler...');
   registerRsvpConfirmationEmail();
+  console.log('Registering auto-follow handler...');
+  registerAutoFollowHandler();
   console.log('Registering streaming prewarm handlers...');
   registerStreamingPrewarmHandlers();
   console.log('Setting up queues ...');

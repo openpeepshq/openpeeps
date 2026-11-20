@@ -1,6 +1,7 @@
 import { Profile, ProfileWithMeta } from '@openpeepshq/common/types';
 import { createCache } from 'cache-manager';
 import { allpeepDb } from '../db';
+import { config } from '../config';
 import { profilesMapping, publicProfilesMapping } from './mapping';
 import { loadBlockIds } from './blocks';
 
@@ -96,6 +97,24 @@ export const getProfileByHandle = async (
       )
       .then(withBlockIds),
   );
+
+/** Local handle lookup scoped to the instance's default domain. */
+export const getLocalProfileByHandle = async (
+  handle: string,
+): Promise<ProfileWithMeta | undefined> => {
+  const { activityPub } = await config();
+  return allpeepDb()
+    .then(({ db }) =>
+      profilesMapping.findOneBy(db, {
+        matches: {
+          handle,
+          type: 'local',
+          activityPub: { domain: activityPub.defaultDomain },
+        },
+      }),
+    )
+    .then(withBlockIds);
+};
 
 export const getProfiles = async (ids: string[]): Promise<ProfileWithMeta[]> =>
   profilesCache

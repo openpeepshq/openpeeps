@@ -2287,6 +2287,12 @@
         "description": "Steuern Sie, wer Ihrer Community beitreten kann und wer sie sehen kann",
         "updated": "Zugangseinstellungen aktualisiert"
       },
+      "autoFollow": {
+        "title": "Automatisch gefolgte Konten",
+        "description": "Wählen Sie, welche lokalen Konten neue Mitglieder automatisch bei der Registrierung folgen",
+        "field": "Automatisch gefolgte Konten",
+        "fieldDescription": "Neue Mitglieder folgen diesen Konten bei der Registrierung. Es können nur lokale Konten ausgewählt werden."
+      },
       "publicContent": {
         "title": "Öffentliche Inhalte",
         "description": "Besuchern erlauben, öffentliche Beiträge ohne Konto zu lesen"

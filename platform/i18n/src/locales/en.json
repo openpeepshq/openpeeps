@@ -2336,6 +2336,12 @@
         "description": "Control who can join your community and who can see it",
         "updated": "Access settings updated"
       },
+      "autoFollow": {
+        "title": "Auto-follow accounts",
+        "description": "Choose which local accounts new members follow automatically when they sign up",
+        "field": "Auto-follow accounts",
+        "fieldDescription": "New members are made to follow these accounts when they sign up. Only local accounts can be designated."
+      },
       "publicContent": {
         "title": "Public content",
         "description": "Allow visitors to read public posts without an account"

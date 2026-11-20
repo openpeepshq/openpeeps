@@ -408,6 +408,10 @@ export const communityConfigSchemaFactory = (_sanitize?: boolean) =>
       codeOfConduct: z.string().optional(),
       welcomeEmail: z.string().optional(),
       pinnedPost: z.string().optional(),
+      /** Local handles new members are made to follow on registration.
+       *  Admin-managed via Community → Auto-follow accounts; only resolvable
+       *  local profiles may be designated (federated handles are rejected). */
+      autoFollow: z.string().array().optional(),
     }),
     settings: z.object({
       openRegistrations: z.boolean(),

@@ -303,6 +303,7 @@ jobs:
           pnpm --filter @openpeepshq/common
           --filter @openpeepshq/core
           --filter @openpeepshq/react
+          --filter @openpeepshq/server
           exec vitest run
       - name: Run rn-components tests
         # jest (ts-jest) needs no build step; keeps the rn-components suite
