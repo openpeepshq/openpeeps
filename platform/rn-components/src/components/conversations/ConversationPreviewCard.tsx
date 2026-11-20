@@ -3,13 +3,13 @@ import React, { useCallback, useRef, useState } from 'react';
 import { UpdatingDate } from '../custom/date/updating-date';
 import { OpenpeepsMarkdown } from '../markdown/OpenpeepsMarkdown';
 import {
-  formatBadgeCount,
   isConversationLeavePost,
   profileName,
   truncateText,
   type PublicPost,
 } from '@openpeepshq/common';
 import { Text } from '../ui/text';
+import { UnreadBadge } from '../ui/unread-badge';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import {
   DropdownMenu,
@@ -92,11 +92,7 @@ export const ConversationPreviewCard = ({
                 {truncateText(title, 20)}
               </Text>
               {unreadCount > 0 ? (
-                <View className="bg-destructive size-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1">
-                  <Text className="text-xs font-semibold text-destructive-foreground">
-                    {formatBadgeCount(unreadCount)}
-                  </Text>
-                </View>
+                <UnreadBadge count={unreadCount} className="shrink-0" />
               ) : null}
             </View>
           </View>

@@ -1,9 +1,10 @@
 import { Pressable, View } from 'react-native';
 import React from 'react';
-import { formatBadgeCount, GroupWithMeta } from '@openpeepshq/common';
+import { GroupWithMeta } from '@openpeepshq/common';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { ThemedText } from '../ui/themed-text';
+import { UnreadBadge } from '../ui/unread-badge';
 import { Button } from '../ui/button';
 import { UsersIcon } from '../icons/index';
 import { useTranslation } from 'react-i18next';
@@ -53,11 +54,7 @@ export const GroupCard = ({
               {group.displayName || '-'}
             </ThemedText>
             {unreadCount > 0 ? (
-              <View className="bg-destructive size-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1">
-                <ThemedText className="text-xs font-semibold text-destructive-foreground">
-                  {formatBadgeCount(unreadCount)}
-                </ThemedText>
-              </View>
+              <UnreadBadge count={unreadCount} className="shrink-0" />
             ) : null}
           </View>
           <View className="flex-row gap-x-3 mt-2 items-center">
