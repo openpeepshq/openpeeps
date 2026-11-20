@@ -13,9 +13,9 @@ const ownerLogin = {
 const fixture = (name: string): string =>
   path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures', name);
 
-// The hidden image/video file input used by the resource form's Add files button.
+// The hidden image/video file input used by the resource form's file-add input.
 const IMAGE_INPUT = 'input[type="file"][accept="image/*,video/*,.mkv"]';
-// The hidden audio file input used by the resource form's Add files button.
+// The hidden audio file input used by the resource form's file-add input.
 const AUDIO_INPUT = 'input[type="file"][accept^="audio/*"]';
 
 const signIn = async (page: Page, token: string) => {

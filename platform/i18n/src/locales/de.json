@@ -3730,7 +3730,7 @@
       "kind": "Typ",
       "urlRequired": "URL (Erforderlich)",
       "urlPlaceholder": "https://example.com",
-      "addMedia": "Dateien hinzufügen",
+      "addMedia": "Datei hinzufügen",
       "descriptionPlaceholder": "Beschreiben Sie diese Ressource",
       "tags": "Schlagwörter",
       "tagsPlaceholder": "Schlagwörter hinzufügen, dann Enter drücken",

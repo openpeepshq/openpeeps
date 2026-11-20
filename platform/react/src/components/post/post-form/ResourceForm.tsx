@@ -231,7 +231,7 @@ export const ResourceForm = ({
                 action={kindActions[resource.resourceKind]}
               >
                 {t('resources.form.addMedia', {
-                  defaultValue: 'Add files',
+                  defaultValue: 'Add file',
                 })}
               </Button>
             ) : null}
