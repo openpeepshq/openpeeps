@@ -1,5 +1,5 @@
 import { endpoint, z } from '#lib/endpoint';
-import { forbidden } from '#lib/errors';
+import { forbidden, notFound } from '#lib/errors';
 import { jamEventSchema } from '@openpeepshq/common/types';
 import { ensureLocalProfile } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
@@ -8,7 +8,6 @@ import {
   listAttendance,
   listParticipantIds,
 } from '@openpeepshq/core/jams';
-import { notFound } from '#lib/helpers';
 import { jamFromEvent } from '@openpeepshq/common/lib';
 
 export const Output = jamEventSchema.array();
@@ -18,6 +17,7 @@ export const Param = z.object({
 
 export const Error = {
   403: forbidden(),
+  404: notFound(),
 };
 
 export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
@@ -27,7 +27,7 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
     const jamEvent = await findJamEvent(input.eventId);
 
     if (!jamEvent) {
-      throw notFound('Jam not found');
+      throw notFound('Jam');
     }
 
     const jam = jamFromEvent(jamEvent);

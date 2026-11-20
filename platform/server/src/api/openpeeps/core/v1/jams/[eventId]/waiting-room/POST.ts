@@ -29,6 +29,7 @@ export const Query = z.object({
 export const Error = {
   403: forbidden(),
   401: authNeeded(),
+  404: notFound(),
 };
 
 export const apiEndpoint = endpoint({ Param, Query, Stream, Error }).handle(

@@ -10,8 +10,11 @@ export const Output = groupMemberSchema.array();
 export const Param = z.object({
   groupId: z.string(),
 });
+export const Error = {
+  404: notFound(),
+};
 
-export const apiEndpoint = endpoint({ Param, Output }).handle(
+export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
   async (params, event: RequestEvent) => {
     const group = await findGroup(params.groupId);
 
