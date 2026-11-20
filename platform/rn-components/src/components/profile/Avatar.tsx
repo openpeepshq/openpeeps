@@ -55,8 +55,27 @@ export const ProfileAvatar = ({
     !deleted && profile?.avatar ? { uri: svgCoverSrc(profile.avatar) } : null;
 
   const hue = hueFromHandle(profile?.handle ?? '');
-  const backgroundColor =
-    !deleted && !avatarSource ? initialsBackground(hue, isDark) : undefined;
+  const initialsBg = !deleted ? initialsBackground(hue, isDark) : undefined;
+
+  // The initials tile is the underlay behind both image branches (absolutely
+  // positioned to fill the avatar box): while a remote/SVG avatar is still
+  // downloading — or permanently, when the media cache cannot produce the
+  // file — it is the visible content, and it doubles as the standalone
+  // content for no-avatar profiles. Either way every row carries sized,
+  // centered content (issue #1666).
+  const initialsTile = (
+    <View
+      className={cn(
+        'absolute inset-0 flex items-center justify-center',
+        roundedClass
+      )}
+      style={{ backgroundColor: initialsBg }}
+    >
+      <Text className="text-foreground font-medium" style={{ fontSize }}>
+        {getInitials(profile?.displayName, profile?.handle)}
+      </Text>
+    </View>
+  );
 
   const rootClassName = cn(
     'border border-muted-foreground overflow-hidden',
@@ -71,27 +90,26 @@ export const ProfileAvatar = ({
         className={rootClassName}
         style={{ width: px, height: px }}
       >
-        <View
-          className={cn(
-            'flex h-full w-full items-center justify-center',
-            roundedClass
-          )}
-          style={{ backgroundColor }}
-        >
-          {deleted ? (
+        {deleted ? (
+          <View
+            className={cn(
+              'flex h-full w-full items-center justify-center',
+              roundedClass
+            )}
+          >
             <UserXIcon size={iconSize} className="text-muted-foreground" />
-          ) : (
-            <Text className="text-foreground font-medium" style={{ fontSize }}>
-              {getInitials(profile?.displayName, profile?.handle)}
-            </Text>
-          )}
-        </View>
+          </View>
+        ) : (
+          initialsTile
+        )}
       </Avatar>
     );
   }
 
-  // RN Image cannot decode SVG: render via SvgImage, which ignores the
-  // #svgView fragment and applies cover natively via preserveAspectRatio.
+  // The image branches render the initials tile underneath the image: while
+  // the media cache is still downloading (or an SVG has not reached the
+  // decode-ready state) the avatar shows the same tile as no-avatar
+  // profiles, so rows always carry sized, centered content (issue #1666).
   if (isSvg) {
     return (
       <Avatar
@@ -99,6 +117,7 @@ export const ProfileAvatar = ({
         className={rootClassName}
         style={{ width: px, height: px }}
       >
+        {initialsTile}
         <SvgImage
           uri={avatarSource.uri}
           className={cn('h-full w-full', roundedClass)}
@@ -114,6 +133,7 @@ export const ProfileAvatar = ({
       className={rootClassName}
       style={{ width: px, height: px }}
     >
+      {initialsTile}
       <AvatarImage
         source={avatarSource}
         className={cn('h-full w-full', roundedClass)}

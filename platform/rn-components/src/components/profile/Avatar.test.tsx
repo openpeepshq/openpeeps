@@ -15,11 +15,43 @@
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 
+// Mocked element types, shared with the jest.mock factories below so tests can
+// assert tree order by reference instead of by string name. The tile's style
+// (backgroundColor / fontSize) is forwarded so the underlay's actual styling
+// can be pinned, not just its presence and tree position.
+const MockView = (props: {
+  children?: unknown;
+  className?: string;
+  style?: unknown;
+}) =>
+  React.createElement(
+    'View',
+    { className: props.className, style: props.style },
+    props.children
+  );
+const MockText = (props: {
+  children?: unknown;
+  className?: string;
+  style?: unknown;
+}) =>
+  React.createElement(
+    'Text',
+    { className: props.className, style: props.style },
+    props.children
+  );
+const MockAvatar = (props: { children?: unknown; className?: string }) =>
+  React.createElement('Avatar', { className: props.className }, props.children);
+const MockAvatarImage = (props: { source?: unknown; className?: string }) =>
+  React.createElement('AvatarImage', { source: props.source });
+const MockSvgImage = (props: { uri?: string; className?: string }) =>
+  React.createElement('SvgImage', {
+    uri: props.uri,
+    className: props.className,
+  });
+
 jest.mock('react-native', () => ({
-  View: (props: { children?: unknown; className?: string }) =>
-    React.createElement('View', { className: props.className }, props.children),
-  Text: (props: { children?: unknown; className?: string }) =>
-    React.createElement('Text', { className: props.className }, props.children),
+  View: MockView,
+  Text: MockText,
 }));
 
 jest.mock('react-i18next', () => ({
@@ -47,23 +79,13 @@ jest.mock('../../theme/OpenPeepsThemeProvider', () => ({
 }));
 
 jest.mock('../ui/avatar', () => ({
-  Avatar: (props: { children?: unknown; className?: string }) =>
-    React.createElement(
-      'Avatar',
-      { className: props.className },
-      props.children
-    ),
+  Avatar: MockAvatar,
   AvatarFallback: () => null,
-  AvatarImage: (props: { source?: unknown; className?: string }) =>
-    React.createElement('AvatarImage', { source: props.source }),
+  AvatarImage: MockAvatarImage,
 }));
 
 jest.mock('../ui/svg-image', () => ({
-  SvgImage: (props: { uri?: string; className?: string }) =>
-    React.createElement('SvgImage', {
-      uri: props.uri,
-      className: props.className,
-    }),
+  SvgImage: MockSvgImage,
 }));
 
 jest.mock('../icons/index', () => ({
@@ -143,5 +165,68 @@ describe('ProfileAvatar SVG path selection (issue #1666 round-2 plan step 2)', (
       .map((node: { props: { children?: unknown } }) => node.props.children)
       .find((child) => typeof child === 'string');
     expect(initials).toBe('AL');
+  });
+
+  it('renders the initials tile under the SVG image (issue #1666 round-3)', () => {
+    // Both children must render simultaneously, with the tile first in tree
+    // order so a loaded SvgImage paints over it (a re-order, or a condition
+    // that hides the image, must fail this test).
+    const tree = renderAvatar({
+      ...baseProfile,
+      avatar: 'https://cdn.example/avatars/ada.svg',
+    });
+    const avatar = tree.root.findByType('Avatar');
+    const initials = tree.root
+      .findAllByType('Text')
+      .map((node: { props: { children?: unknown } }) => node.props.children)
+      .find((child) => typeof child === 'string');
+    expect(initials).toBe('AL');
+    expect(avatar.findAllByType(MockSvgImage)).toHaveLength(1);
+    const childTypes = avatar.children.map(
+      (child: { type?: unknown }) => child.type
+    );
+    expect(childTypes[0]).toBe(MockView);
+    expect(childTypes[childTypes.length - 1]).toBe(MockSvgImage);
+  });
+
+  it('renders the initials tile under the raster image (issue #1666 round-3)', () => {
+    // Both children must render simultaneously, with the tile first in tree
+    // order so a loaded AvatarImage paints over it (a re-order, or a
+    // condition that hides the image, must fail this test).
+    const tree = renderAvatar({
+      ...baseProfile,
+      avatar: 'https://cdn.example/avatars/ada.png',
+    });
+    const avatar = tree.root.findByType('Avatar');
+    const initials = tree.root
+      .findAllByType('Text')
+      .map((node: { props: { children?: unknown } }) => node.props.children)
+      .find((child) => typeof child === 'string');
+    expect(initials).toBe('AL');
+    expect(avatar.findAllByType(MockAvatarImage)).toHaveLength(1);
+    const childTypes = avatar.children.map(
+      (child: { type?: unknown }) => child.type
+    );
+    expect(childTypes[0]).toBe(MockView);
+    expect(childTypes[childTypes.length - 1]).toBe(MockAvatarImage);
+  });
+
+  it('pins the underlay style: tile background from initialsBackground and size-derived fontSize (issue #1666 round-20 #1)', () => {
+    // The loading-gap symptom is invisible-if-unstyled: a refactor that drops
+    // the tile's style must fail here. size-10 → 40dp → fontSize 15, and the
+    // background is the real initialsBackground output for the mocked hue.
+    const tree = renderAvatar({
+      ...baseProfile,
+      avatar: 'https://cdn.example/avatars/ada.png',
+    });
+    const tile = tree.root
+      .findAllByType(MockView)
+      .find((node) => typeof node.props.style?.backgroundColor === 'string');
+    expect(tile.props.style.backgroundColor).toBe('rgb(20, 20, 20)');
+    // The tile's single child is the initials Text (not an array).
+    const text = Array.isArray(tile.props.children)
+      ? tile.props.children[0]
+      : tile.props.children;
+    expect(text.props.style.fontSize).toBe(15);
   });
 });
