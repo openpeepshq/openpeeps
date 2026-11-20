@@ -18,8 +18,9 @@ import { JamFooter } from './JamFooter';
 import { JamPeopleDrawer } from './JamPeopleDrawer';
 import {
   JamNetworkQuality,
-  JamObserverIndicator,
+  JamObserverBanner,
   JamRecordingIndicator,
+  JamsBannerStack,
 } from './JamRoomIndicators';
 import { JamVideoLayout } from './JamVideoLayout';
 import { useJamLocalSettings } from './jamLocalSettings';
@@ -94,9 +95,11 @@ function JamParticipantConferenceInner() {
 
   return (
     <div className="bg-background relative flex h-full min-h-0 w-full flex-col overflow-hidden overscroll-none">
-      <JamNetworkQuality />
-      <JamRecordingIndicator />
-      <JamObserverIndicator />
+      <JamsBannerStack>
+        <JamNetworkQuality />
+        <JamObserverBanner />
+        <JamRecordingIndicator />
+      </JamsBannerStack>
       <div className="relative flex min-h-0 w-full flex-1 overflow-hidden p-2">
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <div className="flex flex-shrink-0 items-center md:hidden landscape:hidden">

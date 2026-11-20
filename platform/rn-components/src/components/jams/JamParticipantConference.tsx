@@ -24,8 +24,9 @@ import { JamFooter, type JamFooterProps } from './JamFooter';
 import { JamPeopleDrawer } from './JamPeopleDrawer';
 import {
   JamNetworkQuality,
-  JamObserverIndicator,
+  JamObserverBanner,
   JamRecordingIndicator,
+  JamsBannerStack,
 } from './JamRoomIndicators';
 import { JamVideoLayout } from './JamVideoLayout';
 
@@ -94,9 +95,11 @@ const JamParticipantConferenceInner = () => {
 
   return (
     <View className="relative flex-1 overflow-hidden bg-background">
-      <JamNetworkQuality />
-      <JamRecordingIndicator />
-      <JamObserverIndicator />
+      <JamsBannerStack>
+        <JamNetworkQuality />
+        <JamObserverBanner />
+        <JamRecordingIndicator />
+      </JamsBannerStack>
       <View className="relative min-h-0 w-full flex-1 overflow-hidden p-2">
         <View className="min-h-0 flex-1 overflow-hidden">
           <View className="shrink-0 flex-row items-center">

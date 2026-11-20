@@ -15,7 +15,12 @@ export { JamFooter } from './JamFooter';
 export { JamVideoLayout } from './JamVideoLayout';
 export { JamCallParticipant } from './JamCallParticipant';
 export { JamPeopleDrawer } from './JamPeopleDrawer';
-export { JamRecordingIndicator, JamNetworkQuality } from './JamRoomIndicators';
+export {
+  JamRecordingIndicator,
+  JamNetworkQuality,
+  JamObserverBanner,
+  JamsBannerStack,
+} from './JamRoomIndicators';
 export { JamChatDrawer } from './JamChatDrawer';
 export { JamDetailsDrawer } from './JamDetailsDrawer';
 export { JamEventsProvider, useJamEventsContext } from './JamEventsContext';

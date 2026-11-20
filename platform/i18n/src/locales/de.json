@@ -1129,7 +1129,8 @@
       "inJam": "IM JAM",
       "inWaitingRoom": "IM WARTERAUM",
       "noParticipants": "Keine Teilnehmenden gefunden",
-      "connectionLost": "Verbindung unterbrochen"
+      "connectionLost": "Verbindung unterbrochen",
+      "observers": "BEOBACHTER"
     },
     "debug": {
       "audioLevelLabel": "Audiopegel",
@@ -1167,8 +1168,11 @@
       "dismiss": "Schließen"
     },
     "observers": {
-      "present_one": "{{count}} externe Sitzung ist mit dieser Jam verbunden",
-      "present_other": "{{count}} externe Sitzungen sind mit dieser Jam verbunden"
+      "connected_one": "{{count}} externer Beobachter ist mit dieser Jam verbunden",
+      "connected_other": "{{count}} externe Beobachter sind mit dieser Jam verbunden",
+      "count_one": "{{count}} externer Beobachter",
+      "count_other": "{{count}} externe Beobachter",
+      "dismiss": "Schließen"
     },
     "screenShare": {
       "stopTitle": "Bildschirmfreigabe beenden",
