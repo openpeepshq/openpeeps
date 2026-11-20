@@ -18,6 +18,7 @@ const shardGroups = [
   ['email-push/test.ts', 'ui/test.ts'],
   [
     'ui/event-creation.test.ts',
+    'api/openpeeps/core/v1/events/test.ts',
     'api/openpeeps/core/v1/plugins/test.ts',
     'api/openpeeps/core/v1/posts/test.ts',
     'api/test.ts',

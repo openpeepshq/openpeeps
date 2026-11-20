@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **events**: server-side ICS feed with per-profile subscription tokens
 - **notifications**: per-type filter for the notifications feed
 - **jams**: stack jam banners through a shared container
 - **profiles**: make new members auto-follow designated local accounts

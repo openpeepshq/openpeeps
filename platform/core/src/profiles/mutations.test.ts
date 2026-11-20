@@ -5,8 +5,19 @@ import type {
   ProfileWithMeta,
 } from '@openpeepshq/common/types';
 
-vi.mock('./mapping', () => ({ profilesMapping: {} }));
-vi.mock('../db', () => ({ allpeepDb: vi.fn(async () => ({ db: {} })) }));
+vi.mock('./mapping', () => ({
+  profilesMapping: {
+    delete: vi.fn(async () => undefined),
+    deleteRelations: vi.fn(async () => undefined),
+  },
+}));
+vi.mock('../db', () => ({
+  allpeepDb: vi.fn(async () => ({ db: {} })),
+  collectionInfos: {
+    profilesCollection: {},
+    followsCollection: {},
+  },
+}));
 vi.mock('./helpers', () => ({
   followConnector: vi.fn(),
   followDisconnector: vi.fn(),
@@ -23,8 +34,11 @@ vi.mock('../config', () => ({
 vi.mock('../accessTokens/helpers', () => ({
   deleteAccessTokensForProfile: vi.fn(),
 }));
+vi.mock('../calendarFeedTokens', () => ({
+  revokeAllCalendarFeedTokens: vi.fn(async () => 0),
+}));
 vi.mock('./cache', () => ({
-  profilesCache: {},
+  profilesCache: { del: vi.fn(async () => undefined) },
   getProfile: vi.fn(),
   getPublicProfile: vi.fn(),
   clearProfileCache: vi.fn(),
@@ -41,15 +55,19 @@ vi.mock('./blocks', () => ({
 vi.mock('../federation/identity', () => ({ localActorScalars: vi.fn() }));
 
 import { followConnector, followFinder } from './helpers';
-import { getLocalProfileByHandle, getProfile } from './cache';
+import { getLocalProfileByHandle, getProfile, profilesCache } from './cache';
 import { hub } from '../events';
 import { capabilitiesConfig, communityConfig } from '../config';
 import {
   canFollowProfile,
+  deleteProfile,
   followDesignatedProfiles,
   normalizeAutoFollowHandle,
 } from './mutations';
 import { registerAutoFollowHandler } from './autoFollow';
+import { profilesMapping } from './mapping';
+import { deleteAccessTokensForProfile } from '../accessTokens/helpers';
+import { revokeAllCalendarFeedTokens } from '../calendarFeedTokens';
 
 const db = {};
 
@@ -262,5 +280,37 @@ describe('registerAutoFollowHandler', () => {
 
     expect(getLocalProfileByHandle).not.toHaveBeenCalled();
     expect(followConnector).not.toHaveBeenCalled();
+  });
+});
+
+// deleteProfile's observable behavior is the side-effect chain: access-token
+// cleanup, calendar-feed-token revocation (the `calendar_feed_tokens` table
+// has no FK to profiles, so nothing cascades — this test pins that the
+// revocation exists and runs after the access-token cleanup), and the
+// mapping delete. The fake profile carries no controls/follows so the
+// cache-cleanup branches stay no-ops.
+describe('deleteProfile', () => {
+  beforeEach(() => {
+    vi.mocked(profilesMapping.delete).mockClear();
+    vi.mocked(profilesMapping.deleteRelations).mockClear();
+    vi.mocked(deleteAccessTokensForProfile).mockClear();
+    vi.mocked(revokeAllCalendarFeedTokens).mockClear();
+    vi.mocked(profilesCache.del).mockClear();
+    vi.mocked(getProfile).mockReset();
+    vi.mocked(getProfile).mockResolvedValue({ id: 'profile-1' } as never);
+  });
+
+  it('revokes the calendar feed tokens after the access-token cleanup', async () => {
+    await deleteProfile('profile-1');
+
+    expect(deleteAccessTokensForProfile).toHaveBeenCalledTimes(1);
+    expect(revokeAllCalendarFeedTokens).toHaveBeenCalledTimes(1);
+    expect(revokeAllCalendarFeedTokens).toHaveBeenCalledWith('profile-1');
+    // The feed-token rows would otherwise keep resolving until expiry:
+    // revocation must run, and only after the access-token cleanup.
+    expect(
+      revokeAllCalendarFeedTokens.mock.invocationCallOrder[0],
+    ).toBeGreaterThan(deleteAccessTokensForProfile.mock.invocationCallOrder[0]);
+    expect(profilesMapping.delete).toHaveBeenCalledWith({}, 'profile-1');
   });
 });

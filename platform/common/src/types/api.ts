@@ -580,6 +580,16 @@ export const jamTokenResponseSchema = tokenResponseSchema.extend({
 });
 export type JamTokenResponse = z.infer<typeof jamTokenResponseSchema>;
 
+// The calendar-feed mint returns no `checkoutUrl`; a dedicated shape keeps
+// the endpoint's contract exact.
+export const calendarFeedTokenResponseSchema = z.object({
+  success: z.literal(true),
+  token: z.string(),
+});
+export type CalendarFeedTokenResponse = z.infer<
+  typeof calendarFeedTokenResponseSchema
+>;
+
 /**
  * Waiting-room entry as stored in Redis and streamed to moderators: the
  * profile's `displayName` (or `handle` when absent) keyed by `profile.id`.

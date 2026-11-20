@@ -35,6 +35,7 @@ import {
   clearProfileCache,
 } from './cache';
 import { logger } from '../log';
+import { revokeAllCalendarFeedTokens } from '../calendarFeedTokens';
 import { accountsCache } from '../accounts/cache';
 import { assertProfileCapacity } from './capacity';
 import {
@@ -128,6 +129,10 @@ export const deleteProfile = async (profileId: string) => {
 
   await profilesCache.del(profileId);
   await deleteAccessTokensForProfile(db, profileId);
+  // ICS feed tokens are keyed by profileId without an FK, so profile
+  // deletion cannot cascade them — revoke explicitly, mirroring the
+  // access-token cleanup above.
+  await revokeAllCalendarFeedTokens(profileId);
   return profilesMapping.delete(db, profileId);
 };
 
