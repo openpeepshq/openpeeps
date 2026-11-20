@@ -156,22 +156,21 @@ export const ConversationsIndex: React.FC<MessagesProps> = ({ navigation }) => {
               </View>
             )}
             {!isLoading &&
-              conversations?.map((conversation, idx) => (
-                <ConversationPreviewCard
-                  key={idx}
-                  conversation={conversation}
-                  unreadCount={
-                    conversation[0]?.id
-                      ? (unseenByConversation[conversation[0].id] ?? 0)
-                      : 0
-                  }
-                  onPress={() =>
-                    navigation.navigate('Conversation', {
-                      id: conversation[0]?.id,
-                    })
-                  }
-                />
-              ))}
+              conversations?.map((conversation) => {
+                // The first post identifies the thread (matches the web list).
+                const first = conversation[0];
+                if (!first) return null;
+                return (
+                  <ConversationPreviewCard
+                    key={first.id}
+                    conversation={conversation}
+                    unreadCount={unseenByConversation[first.id] ?? 0}
+                    onPress={() =>
+                      navigation.navigate('Conversation', { id: first.id })
+                    }
+                  />
+                );
+              })}
           </>
         )}
       </KeyboardAwareScrollView>
