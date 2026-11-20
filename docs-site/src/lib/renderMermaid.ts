@@ -6,6 +6,8 @@ export const renderMermaidBlocks = async (root: HTMLElement): Promise<void> => {
     return;
   }
 
+  // mermaid 12 emits ES2024, which moves the browser-support floor to
+  // Safari 17.4+ (accepted with the 12.3.0 bump).
   const { default: mermaid } = await import('mermaid');
   mermaid.initialize({
     startOnLoad: false,

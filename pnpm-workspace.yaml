@@ -257,6 +257,14 @@ overrides:
   # scoped via @tailwindcss/typography>postcss-selector-parser so only this
   # pin is affected.
   "@tailwindcss/typography>postcss-selector-parser": "6.1.5"
+  # katex 0.18.11 (the version mermaid 12.3.0's ^0.18.0 resolves to) is
+  # npm-deprecated ("Accidentally published with breaking changes. Use 0.19.0
+  # instead.") — 0.19.0/0.19.1 shipped 40 min apart / 3 weeks later with the
+  # same ^15.0.0 commander dep and are the non-deprecated line. Scoped to
+  # mermaid so only its katex leg moves; re-check if mermaid is bumped past
+  # 12.3.0 and a newer line declares katex ^0.19 itself (the override would go
+  # stale, not break).
+  "mermaid>katex": "^0.19.1"
 
 allowBuilds:
   "@evilmartians/lefthook": true
