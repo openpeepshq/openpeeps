@@ -107,7 +107,7 @@ luck. The commands need no Docker, no database, no backing services.
 
 | Gate (CI job)   | Command to run locally before push                                                                                                                |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| commit-check    | `node scripts/check-branch.mjs && node scripts/check-pr-references.mjs`                                                                           |
+| commit-check    | `node scripts/check-branch.mjs && node scripts/check-pr-references.mjs && node scripts/check-esbuild-patch.mjs`                                   |
 | lint (prettier) | `pnpm exec prettier --check .` at repo root — CI is NOT scoped per-package                                                                        |
 | lint (eslint)   | `pnpm run -r lint`                                                                                                                                |
 | i18n-check      | `node scripts/check-i18n-parity.mjs --strict` (only if locale files changed)                                                                      |

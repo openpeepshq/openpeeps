@@ -130,6 +130,7 @@ Changelog for OpenPeeps
 
 ### Chores
 
+- **deps**: override esbuild to 0.25.12 in the @esbuild-kit chain
 - **deps**: update @release-it/conventional-changelog to 12.0.2 in rn-components
 - **deps**: add override for @hono/node-server to 1.19.19
 - **deps**: update drizzle-kit to 0.31.11 in core

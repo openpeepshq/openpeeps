@@ -265,7 +265,16 @@ overrides:
   # 12.3.0 and a newer line declares katex ^0.19 itself (the override would go
   # stale, not break).
   "mermaid>katex": "^0.19.1"
-
+  # esbuild 0.18.20 (dev-only: drizzle-kit 0.31.11 -> @esbuild-kit/esm-loader ->
+  # @esbuild-kit/core-utils, both deprecated in favor of tsx) carries
+  # GHSA-67mh-4wv8-2f99 (moderate, dev-server proxy request/response exfil,
+  # fixed >=0.25.0 — the 0.24.x line ends at 0.24.2, which is still
+  # vulnerable). No 0.18.x patch exists; the only consumer is
+  # @esbuild-kit/core-utils, so scope the override to that parent. The tree
+  # already resolves 0.25.12 for drizzle-kit's own direct esbuild dependency,
+  # so 0.25.12 is the natural target, and drizzle-kit generate runs clean
+  # through the overridden binary.
+  "@esbuild-kit/core-utils>esbuild": "0.25.12"
 allowBuilds:
   "@evilmartians/lefthook": true
   "@firebase/util": true
