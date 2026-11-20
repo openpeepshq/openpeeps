@@ -62,6 +62,7 @@ jest.mock('@openpeepshq/common/lib', () => ({
   // Mirrored from platform/common/src/lib/resources.ts — the built
   // package ships ESM which Jest's node transform doesn't cover.
   categoryPathKey: (path: readonly string[]): string => JSON.stringify(path),
+  RESOURCE_CATEGORY_NAME_MAX_LENGTH: 120,
   RESOURCE_KINDS: ['video', 'file', 'gallery', 'audio', 'link'],
 }));
 
@@ -79,8 +80,16 @@ jest.mock('../ui/loading-spinner', () => ({
 }));
 
 jest.mock('../ui/themed-text', () => ({
-  ThemedText: (props: { children?: unknown }) =>
-    React.createElement('ThemedText', null, props.children),
+  ThemedText: (props: {
+    children?: unknown;
+    className?: string;
+    numberOfLines?: number;
+  }) =>
+    React.createElement(
+      'ThemedText',
+      { className: props.className, numberOfLines: props.numberOfLines },
+      props.children
+    ),
 }));
 
 jest.mock('../icons', () => ({
@@ -255,6 +264,35 @@ describe('ResourceLibrary folder tree collision (issue #2148)', () => {
 
     const setPathPrefix = mockLibrary.setPathPrefix as jest.Mock;
     expect(setPathPrefix).toHaveBeenCalledWith(['[TEST] A/B']);
+  });
+});
+
+describe('ResourceLibrary breadcrumb long path (issue #2174)', () => {
+  it('constrains the breadcrumb to a single shrinkable line', () => {
+    mockTranslations = {};
+    // A non-empty pathPrefix so the breadcrumb path span renders.
+    mockLibrary = {
+      ...libraryFor([slashPost]),
+      pathPrefix: ['[TEST] A/B'],
+      hierarchy: false,
+    };
+
+    const tree = render(
+      React.createElement(ResourceLibrary, {
+        groupId: 'g1',
+      } as ResourceLibraryProps)
+    );
+
+    const crumb = tree.root
+      .findAllByType('ThemedText')
+      .find(
+        (node: { props: { children?: unknown } }) =>
+          typeof node.props.children === 'string' &&
+          node.props.children.includes('[TEST] A/B')
+      );
+    expect(crumb).toBeTruthy();
+    expect(crumb!.props.className).toContain('shrink');
+    expect(crumb!.props.numberOfLines).toBe(1);
   });
 });
 

@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import type { CategoryNode } from '@openpeepshq/common/lib';
-import { categoryPathKey } from '@openpeepshq/common/lib';
+import {
+  RESOURCE_CATEGORY_NAME_MAX_LENGTH,
+  categoryPathKey,
+} from '@openpeepshq/common/lib';
 import { Input } from '../ui/input';
 import { ThemedText } from '../ui/themed-text';
 import { useTranslation } from 'react-i18next';
@@ -76,6 +79,7 @@ export const CategoryPathPicker = ({
         <Input
           value={level}
           onChangeText={setLevel}
+          maxLength={RESOURCE_CATEGORY_NAME_MAX_LENGTH}
           placeholder={t('resources.form.addLevel', {
             defaultValue: 'Add a folder',
           })}
@@ -83,7 +87,9 @@ export const CategoryPathPicker = ({
         <Pressable
           className="border-border rounded-md border bg-background px-3 py-1.5"
           onPress={() => {
-            const name = level.trim();
+            const name = level
+              .trim()
+              .slice(0, RESOURCE_CATEGORY_NAME_MAX_LENGTH);
             if (!name) return;
             onChange([...path, name]);
             setLevel('');

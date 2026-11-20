@@ -71,6 +71,23 @@ const filePost = (): PublicPost =>
     },
   }) as PublicPost;
 
+// A single unbroken word: wrapping is the only way to keep it inside its
+// container, so the render sites need break-words/shrink (issue #2174).
+const LONG_CATEGORY = 'a'.repeat(200);
+
+const longCategoryPost = (id: string): PublicPost =>
+  ({
+    id,
+    type: 'resource',
+    data: {
+      type: 'resource',
+      title: 'Long path',
+      resourceKind: 'link',
+      url: 'https://example.com',
+      categoryPath: ['Root', LONG_CATEGORY],
+    },
+  }) as PublicPost;
+
 describe('ResourceCard', () => {
   let root: Root | undefined;
   let container: HTMLDivElement | undefined;
@@ -130,4 +147,28 @@ describe('ResourceCard', () => {
     expect(container.textContent).toContain('report.pdf');
     expect(container.textContent).toContain('2.4 MB');
   });
+
+  it.each(['card', 'list'] as const)(
+    'wraps an unbreakable category path in the %s layout',
+    async (layout) => {
+      container = document.createElement('div');
+      document.body.appendChild(container);
+      root = createRoot(container);
+
+      await act(async () => {
+        root?.render(
+          createElement(ResourceCard, {
+            post: longCategoryPost(`post-${layout}`),
+            layout,
+          }),
+        );
+      });
+
+      const pathText = [...container.querySelectorAll('p')].find((p) =>
+        p.textContent?.includes(LONG_CATEGORY),
+      );
+      expect(pathText).toBeTruthy();
+      expect(pathText?.className).toContain('break-words');
+    },
+  );
 });

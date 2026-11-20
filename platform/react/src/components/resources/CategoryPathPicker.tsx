@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import type { CategoryNode } from '@openpeepshq/common/lib';
 import { Button, Input } from '@openpeepshq/react-ui';
-import { categoryPathKey } from '@openpeepshq/common/lib';
+import {
+  RESOURCE_CATEGORY_NAME_MAX_LENGTH,
+  categoryPathKey,
+} from '@openpeepshq/common/lib';
 import { useT } from '../../i18n';
 
 export interface CategoryPathPickerProps {
@@ -56,7 +59,7 @@ export const CategoryPathPicker = ({
 
   return (
     <div className="space-y-2">
-      <p className="text-muted-foreground text-sm">
+      <p className="text-muted-foreground break-words text-sm">
         {path.length
           ? path.join(' / ')
           : t('resources.form.uncategorized', {
@@ -70,6 +73,7 @@ export const CategoryPathPicker = ({
         <Input
           value={level}
           onChange={(event) => setLevel(event.target.value)}
+          maxLength={RESOURCE_CATEGORY_NAME_MAX_LENGTH}
           placeholder={t('resources.form.addLevel', {
             defaultValue: 'Add a folder',
           })}
@@ -77,7 +81,9 @@ export const CategoryPathPicker = ({
         <Button
           variant="outline"
           action={() => {
-            const name = level.trim();
+            const name = level
+              .trim()
+              .slice(0, RESOURCE_CATEGORY_NAME_MAX_LENGTH);
             if (!name) return;
             onChange([...path, name]);
             setLevel('');

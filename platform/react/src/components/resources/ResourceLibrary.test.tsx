@@ -282,5 +282,24 @@ describe('ResourceLibrary URL filters', () => {
 
       expect(nameButton(container, 'B(1)')).toBeTruthy();
     });
+
+    it('truncates a long breadcrumb path so the tree toggle keeps its place', async () => {
+      const container = renderLibrary();
+      await showTree(container);
+
+      const slashNode = nameButton(container, '[TEST] A/B(1)');
+      await act(async () => {
+        slashNode?.click();
+      });
+
+      // The selected path renders in the breadcrumb; it must be a truncating,
+      // min-w-0 span so a long path can't push the ml-auto toggle off-screen.
+      const crumb = [...container.querySelectorAll('span')].find((span) =>
+        span.textContent?.includes('[TEST] A/B'),
+      );
+      expect(crumb).toBeTruthy();
+      expect(crumb?.className).toContain('truncate');
+      expect(crumb?.className).toContain('min-w-0');
+    });
   });
 });
