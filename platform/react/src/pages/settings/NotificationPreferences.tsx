@@ -15,7 +15,7 @@ import {
   type PushSubscriptionError,
 } from '../../index';
 import { useServerInfo } from '../../components';
-import { Button, Toast } from '@openpeepshq/react-ui';
+import { Button, LoadingSpinner, Toast } from '@openpeepshq/react-ui';
 import { useNotificationPreferences } from '../../hooks';
 
 interface NotificationSettingProps {
@@ -235,6 +235,9 @@ export function NotificationPreferences() {
     status,
     clearStatus,
     dirty,
+    settingsLoading,
+    settingsError,
+    retrySettings,
   } = useNotificationPreferences({
     ensurePush: vapidKey
       ? async () => {
@@ -252,7 +255,33 @@ export function NotificationPreferences() {
     }),
   );
 
-  if (!me) return null;
+  if (!me || settingsLoading) {
+    return (
+      <div className="text-muted-foreground mt-5 flex h-32 items-center justify-center text-sm">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (settingsError) {
+    return (
+      <div className="mr-4 mt-5 space-y-3 p-4">
+        <p className="text-error text-sm">
+          {t('settings.notifications.loadError', {
+            defaultValue: 'Could not load your notification preferences.',
+          })}
+        </p>
+        <Button
+          variant="outline"
+          size="sm"
+          data-testid="settings-retry-button"
+          action={retrySettings}
+        >
+          {t('settings.notifications.retry', { defaultValue: 'Retry' })}
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <section className="mr-4 mt-5 p-4">
@@ -283,44 +312,48 @@ export function NotificationPreferences() {
         </Toast>
       ) : null}
 
-      {dirty ? (
-        // Sticky so the save control stays reachable when the form is
-        // longer than the viewport (the "where do I save this?" gap).
-        <div
-          data-testid="settings-unsaved-bar"
-          className="border-border bg-surface sticky bottom-0 z-10 mt-4 flex items-center justify-between gap-4 rounded-t-lg border-t p-3 shadow-lg"
-        >
-          <p className="text-sm font-medium">
+      <NotificationSaveBar dirty={dirty} saving={saving} onSave={save} />
+    </section>
+  );
+}
+
+/** Persistent sticky save bar for the notification preferences page. */
+function NotificationSaveBar({
+  dirty,
+  saving,
+  onSave,
+}: {
+  dirty: boolean;
+  saving: boolean;
+  onSave: () => void;
+}) {
+  const t = useT();
+  return (
+    <div
+      className="sticky bottom-0 -mx-4 -mb-4 border-t bg-surface px-4 py-3"
+      role="status"
+    >
+      <div className="flex items-center justify-between">
+        {dirty ? (
+          <p className="text-sm text-muted-foreground">
             {t('settings.notifications.unsavedChanges', {
               defaultValue: 'You have unsaved changes.',
             })}
           </p>
-          <Button
-            variant="default"
-            action={save}
-            disabled={saving}
-            data-testid="settings-save-button"
-          >
-            {saving
-              ? t('common.submitting', { defaultValue: 'Submitting…' })
-              : t('common.submit', { defaultValue: 'Submit' })}
-          </Button>
-        </div>
-      ) : (
-        <div className="pt-3">
-          <Button
-            variant="default"
-            className="w-full"
-            action={save}
-            disabled={saving}
-            data-testid="settings-save-button"
-          >
-            {saving
-              ? t('common.submitting', { defaultValue: 'Submitting…' })
-              : t('common.submit', { defaultValue: 'Submit' })}
-          </Button>
-        </div>
-      )}
-    </section>
+        ) : (
+          <span />
+        )}
+        <Button
+          variant="default"
+          action={onSave}
+          disabled={saving || !dirty}
+          data-testid="settings-save-button"
+        >
+          {saving
+            ? t('common.submitting', { defaultValue: 'Submitting…' })
+            : t('common.submit', { defaultValue: 'Submit' })}
+        </Button>
+      </div>
+    </div>
   );
 }

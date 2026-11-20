@@ -2765,8 +2765,10 @@
       "inApp": "In-App Notifications",
       "push": "Push Notifications",
       "email": "Email Notifications",
-      "updateSuccess": "Community settings updated",
+      "updateSuccess": "Notification settings updated.",
       "unsavedChanges": "You have unsaved changes.",
+      "loadError": "Could not load your notification preferences.",
+      "retry": "Retry",
       "description": "Manage your notification preferences",
       "types": {
         "reply": {
