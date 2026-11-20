@@ -5,9 +5,14 @@ import type { Participant } from 'livekit-client';
 import { useTranslation } from 'react-i18next';
 import { profileName, waitingRoomEntryName } from '@openpeepshq/common/lib';
 import type { JamWaitingProfile } from '@openpeepshq/common';
-import { parseParticipantMetadata, useJamPeople } from '@openpeepshq/react';
+import {
+  parseParticipantMetadata,
+  useJamExternalSessions,
+  useJamPeople,
+} from '@openpeepshq/react';
 import {
   AudioLinesIcon,
+  EyeOnIcon,
   HandIcon,
   MicIcon,
   MicOffIcon,
@@ -87,13 +92,36 @@ const JamParticipantRow = ({
 };
 
 /**
+ * "Observers" section: hidden external sessions (observer links,
+ * recording/RTMP egress) never appear as rows in "In jam", so their presence
+ * is reported as a labeled count. Persists after the banner is dismissed.
+ */
+const JamObserversSection = ({ count }: { count: number }) => {
+  const { t } = useTranslation();
+  if (count <= 0) return null;
+  return (
+    <View>
+      <SectionHeading>{t('jams.people.observers')}</SectionHeading>
+      <View className="mt-1 flex-row items-center gap-2">
+        <EyeOnIcon size={16} className="shrink-0 text-muted-foreground" />
+        <ThemedText numberOfLines={1} className="shrink text-sm">
+          {t('jams.observers.count', { count })}
+        </ThemedText>
+      </View>
+    </View>
+  );
+};
+
+/**
  * In-room participants list with mic / raised-hand / moderator indicators,
- * plus a moderator-only waiting-room admit section.
+ * plus a moderator-only waiting-room admit section and the hidden
+ * external-session count.
  */
 export const JamPeopleDrawer = ({ open, onClose }: JamPeopleDrawerProps) => {
   const { t } = useTranslation();
   const room = useRoomContext();
   const participants = useParticipants();
+  const externalSessions = useJamExternalSessions();
   const {
     isModerator,
     hasWaitingRoom,
@@ -148,6 +176,8 @@ export const JamPeopleDrawer = ({ open, onClose }: JamPeopleDrawerProps) => {
             ) : null}
           </View>
         </View>
+
+        <JamObserversSection count={externalSessions} />
 
         {isModerator && hasWaitingRoom && waitingProfiles.length > 0 ? (
           <View>

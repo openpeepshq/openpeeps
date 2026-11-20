@@ -1134,7 +1134,8 @@
       "inJam": "IN JAM",
       "inWaitingRoom": "IN WAITING ROOM",
       "noParticipants": "No participants found",
-      "connectionLost": "Connection lost"
+      "connectionLost": "Connection lost",
+      "observers": "OBSERVERS"
     },
     "debug": {
       "audioLevelLabel": "Audio Level",
@@ -1172,8 +1173,11 @@
       "dismiss": "Dismiss"
     },
     "observers": {
-      "present_one": "{{count}} external session is connected to this jam",
-      "present_other": "{{count}} external sessions are connected to this jam"
+      "connected_one": "{{count}} external observer is connected to this jam",
+      "connected_other": "{{count}} external observers are connected to this jam",
+      "count_one": "{{count}} external observer",
+      "count_other": "{{count}} external observers",
+      "dismiss": "Dismiss"
     },
     "screenShare": {
       "stopTitle": "Stop Screen sharing",

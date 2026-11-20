@@ -1,5 +1,6 @@
 import {
   AudioLines,
+  Eye,
   Hand,
   Mic,
   MicOff,
@@ -17,6 +18,7 @@ import { useT } from '../../i18n';
 import { useJamPeople } from '../../hooks/jams/useJamPeople';
 import { Avatar } from '../profile';
 import { parseParticipantMetadata } from './jamEventActions';
+import { useJamExternalSessions } from './useJamExternalSessions';
 import { useConnectionLost } from './useParticipantConnection';
 
 export interface JamPeopleDrawerProps {
@@ -75,14 +77,39 @@ function JamParticipantRow({
 }
 
 /**
- * In-room participants list with mic / raised-hand / moderator indicators, plus
- * a moderator-only waiting-room admit section. Mirrors the Svelte
- * `PeopleDrawer` (which folds in `JamWaitingCard`).
+ * "Observers" section: hidden external sessions (observer links,
+ * recording/RTMP egress) never appear as rows in "In jam", so their presence
+ * is reported as a labeled count. Persists after the banner is dismissed.
+ */
+function JamObserversSection({ count }: { count: number }) {
+  const t = useT();
+  if (count <= 0) return null;
+  return (
+    <div>
+      <h4 className="text-muted-foreground text-xs font-semibold uppercase">
+        {t('jams.people.observers', { defaultValue: 'Observers' })}
+      </h4>
+      <div className="mt-1 flex min-w-0 items-center gap-2">
+        <Eye className="text-muted-foreground size-4 shrink-0" />
+        <span className="truncate text-sm">
+          {t('jams.observers.count', { count })}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * In-room participants list with mic / raised-hand / moderator indicators,
+ * plus a moderator-only waiting-room admit section and the hidden
+ * external-session count. Mirrors the Svelte `PeopleDrawer` (which folds in
+ * `JamWaitingCard`).
  */
 export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
   const t = useT();
   const room = useRoomContext();
   const participants = useParticipants();
+  const externalSessions = useJamExternalSessions();
   const {
     isModerator,
     hasWaitingRoom,
@@ -155,6 +182,8 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
             ) : null}
           </div>
         </div>
+
+        <JamObserversSection count={externalSessions} />
 
         {isModerator && hasWaitingRoom && waitingProfiles.length > 0 ? (
           <div>
