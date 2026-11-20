@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **jams**: toast moderators when someone joins the waiting room
 - **share**: gate external share actions on public posts
 - **skills**: add generated-at line to milestone stats
 - **jams**: show observer presence indicator to participants

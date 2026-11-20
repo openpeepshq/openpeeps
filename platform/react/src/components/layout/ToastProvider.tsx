@@ -28,6 +28,7 @@ interface ToastContextValue {
   error: (message: string) => void;
   /** Number of currently visible toasts (overlays can stack below the toast corner). */
   count: number;
+  info: (message: string) => void;
 }
 
 const ToastContext = createContext<ToastContextValue | null>(null);
@@ -66,9 +67,14 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     [toast],
   );
 
+  const info = useCallback(
+    (message: string) => toast(message, { variant: 'info' }),
+    [toast],
+  );
+
   return (
     <ToastContext.Provider
-      value={{ toast, success, error, count: toasts.length }}
+      value={{ toast, success, error, info, count: toasts.length }}
     >
       {children}
       {toasts.length > 0 ? (
