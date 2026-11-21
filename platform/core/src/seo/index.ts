@@ -72,9 +72,10 @@ const excerpt = (value: string | undefined, fallback: string): string => {
  *  their own, so they are covered by the post paths.
  *
  *  Profiles are opt-in: a crawled profile page is cached by search engines long
- *  after the member leaves. `listProfiles` applies no privacy filter — it is the
- *  same list `/members` shows — so enabling this exposes exactly the profiles an
- *  anonymous visitor can already browse.
+ *  after the member leaves. The sitemap uses the same directory view
+ *  (`directoryView`) as the anonymous `/members` list, so enabling this exposes
+ *  exactly the profiles an anonymous visitor can already browse — never ones
+ *  that opted out of the directory.
  */
 export const crawlableEntries = async ({
   indexProfiles,
@@ -84,7 +85,9 @@ export const crawlableEntries = async ({
   const [posts, groups, profiles] = await Promise.all([
     listPosts(ANONYMOUS, { limit: PER_KIND_LIMIT }),
     listGroups(ANONYMOUS),
-    indexProfiles ? listProfiles() : Promise.resolve([]),
+    indexProfiles
+      ? listProfiles(undefined, { directoryView: true })
+      : Promise.resolve([]),
   ]);
 
   const entities = [

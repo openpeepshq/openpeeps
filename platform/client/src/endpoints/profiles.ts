@@ -120,7 +120,11 @@ export const profiles = (
     ),
   },
 
-  list: allpeepNoPayloadEndpoint<PublicProfile[]>(rawClient, '/profiles'),
+  list: allpeepNoPayloadEndpoint<
+    PublicProfile[],
+    undefined,
+    { directory?: 'true' }
+  >(rawClient, '/profiles'),
   findById: allpeepNoPayloadEndpoint<PublicProfile, { id: string }>(
     rawClient,
     '/profiles/:id',

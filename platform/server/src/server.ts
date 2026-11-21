@@ -147,7 +147,14 @@ const startServer = async () => {
 
   // Eager glob: each route module is imported synchronously here so any
   // load-time errors surface during boot with a useful stack trace.
-  const eagerModules = import.meta.glob('./api/**/*.ts', { eager: true });
+  // Only route-module filenames are matched (HTTP verbs + `middleware`), which
+  // is exactly what @riddl/core registers. This deliberately excludes colocated
+  // `*.test.ts` files: the Vite SSR build inlines every glob match, and a test
+  // module's top-level `vi.mock()` throws outside a Vitest run, crashing boot.
+  const eagerModules = import.meta.glob(
+    './api/**/{GET,POST,PUT,DELETE,PATCH,OPTIONS,middleware}.ts',
+    { eager: true },
+  );
   log.info(`Loaded ${Object.keys(eagerModules).length} route module(s).`);
 
   const openpeepsApi = await api({

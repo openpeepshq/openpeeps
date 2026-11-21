@@ -30,7 +30,7 @@ type DirectoryProps = CompositeScreenProps<
 export const Members: React.FC<DirectoryProps> = ({ navigation }) => {
   const { t } = useTranslation();
   const { openpeepsApi, currentProfile } = useOpenpeeps();
-  const { data: profiles, isLoading } = openpeepsApi.useProfiles();
+  const { data: profiles, isLoading } = openpeepsApi.useProfiles(true);
   const [filteredProfiles, setFilteredProfiles] = React.useState(profiles);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [isSearchButtonClicked, setIsSearchButtonClicked] =

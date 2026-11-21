@@ -40,7 +40,7 @@ type ChronologicalQuery<T> = UseInfiniteQueryResult<
 >;
 
 export type ProfileHooks = {
-  useProfiles: () => Query<PublicProfile[]>;
+  useProfiles: (directory?: boolean) => Query<PublicProfile[]>;
   useProfile: (id: string) => Query<PublicProfile>;
   useProfileByHandle: (handle: string) => Query<PublicProfile>;
   useProfileFollowers: (id: string) => Query<PublicProfile[]>;
@@ -107,7 +107,10 @@ export const profileHooks = (
   client: OpenpeepsClient,
   setCurrentProfile: (profile: ProfileWithMeta | undefined) => void,
 ): ProfileHooks => ({
-  useProfiles: () => apiHook(client.profiles.list),
+  useProfiles: (directory = false) =>
+    apiHook(client.profiles.list, {
+      queryParams: directory ? { directory: 'true' } : undefined,
+    }),
   useProfile: (id: string) =>
     apiHook(client.profiles.findById, { pathParams: { id } }),
   useProfileByHandle: (handle: string) =>
