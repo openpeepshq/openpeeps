@@ -257,6 +257,15 @@ overrides:
   # scoped via @tailwindcss/typography>postcss-selector-parser so only this
   # pin is affected.
   "@tailwindcss/typography>postcss-selector-parser": "6.1.5"
+  # esbuild GHSA-67mh-4wv8-2f99 (moderate; dev-server proxy, fixed >=0.25.0 —
+  # the 0.24.x line ends at 0.24.2, which is still vulnerable). Only leg:
+  # drizzle-kit@0.31.11 -> @esbuild-kit/esm-loader -> @esbuild-kit/core-utils
+  # -> esbuild@0.18.20 (deprecated @esbuild-kit chain, dev-only; no 0.18.x
+  # patch exists). Scoped to the core-utils parent so only that leg is
+  # re-pointed. Force 0.25.12 — the esbuild drizzle-kit already resolves for
+  # its own direct dependency, so the chain shares one binary. Verified
+  # clean: `drizzle-kit generate` runs through the overridden esbuild.
+  "@esbuild-kit/core-utils>esbuild": "0.25.12"
 
 allowBuilds:
   "@evilmartians/lefthook": true
