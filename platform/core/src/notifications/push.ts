@@ -20,7 +20,8 @@ import {
 } from '../pushSubscriptions';
 import { getNotificationStats } from './finders';
 import { ApnsClient, Notification as IOSPushNotification } from 'apns2';
-import firebase from 'firebase-admin';
+import { getApps } from 'firebase-admin/app';
+import { getMessaging } from 'firebase-admin/messaging';
 import { jwtUtil } from '../jwt';
 import { uuidv7 } from 'uuidv7';
 
@@ -200,7 +201,7 @@ const sendAppFCMPushNotifications = async (
 
   const serializedPayload = JSON.stringify(payload);
   const tokens = subscriptions.map((sub) => sub.fcmToken);
-  if (firebase.apps.length === 0) {
+  if (getApps().length === 0) {
     for (const subscription of subscriptions) {
       await logFailure(
         jobLog,
@@ -220,10 +221,10 @@ const sendAppFCMPushNotifications = async (
   }
 
   let result: Awaited<
-    ReturnType<ReturnType<typeof firebase.messaging>['sendEachForMulticast']>
+    ReturnType<ReturnType<typeof getMessaging>['sendEachForMulticast']>
   >;
   try {
-    result = await firebase.messaging().sendEachForMulticast({
+    result = await getMessaging().sendEachForMulticast({
       tokens,
       data: { payload: serializedPayload },
       apns: {

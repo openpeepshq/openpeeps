@@ -17,8 +17,8 @@ See `platform/README.md` for the full package inventory.
 
 ## Prerequisites
 
-1. Node.js 24.x (Node 20.19+ also works for development with Node <22 only
-   where dependencies don't require newer engines).
+1. Node.js 24.x (development requires Node 22+, matching the
+   `engines` floor — firebase-admin 14's FCM stack requires Node >=22).
 2. `ffmpeg` — on macOS: `brew update && brew install ffmpeg`.
 3. `poppler` (its `pdftoppm` binary) — on macOS: `brew install poppler`;
    on Debian/Ubuntu: `apt-get install poppler-utils`. Rasterizes PDF first
