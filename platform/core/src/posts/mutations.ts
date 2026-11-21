@@ -7,6 +7,7 @@ import {
   Profile,
   ProfileWithMeta,
   ReactionData,
+  Role,
   RSVP,
   RsvpRequest,
   RsvpResponse,
@@ -60,6 +61,7 @@ import {
   rsvpCancelNotice,
   rsvpTargetsPastEvent,
   sameRecurrenceId,
+  withoutCommunityJamNotifyEveryone,
 } from '@openpeepshq/common/lib';
 import { forbidden, notFound, unprocessableRequest } from '../errors';
 import { areBlocked, hasBlockAmong } from '../profiles/blocks';
@@ -79,7 +81,10 @@ import { localObjectScalars } from '../federation/identity';
 
 export const createPost = async (
   data: PostDataUnion,
-  profile: Profile,
+  // Roles are present on server callers (`ensureLocalProfile`) and drive the
+  // broadcast-flag capability check; internal callers pass a plain Profile,
+  // for which the flag is stripped rather than broadcast.
+  profile: Profile & { roles?: Role[] },
   postData: PostData,
   relations: {
     inReplyToId?: string | null;
@@ -93,7 +98,6 @@ export const createPost = async (
   }
 
   const { db } = await allpeepDb();
-
   const repostedPost = relations.repostId
     ? await postsMapping.find(db, relations.repostId)
     : undefined;
@@ -133,6 +137,18 @@ export const createPost = async (
   // (which only include public/local) never surface them incorrectly.
   if (group) {
     postData = { ...postData, visibility: 'group' };
+  }
+  // The broadcast flag survives only on community-wide posts created by a
+  // profile that can announce (same rule as the announce endpoint). Key off
+  // the post's own final visibility — the same field the notification handler
+  // reads — so a payload carrying `visibility: 'public'` plus a group can
+  // never keep a flag the jam-start path would treat as instance-wide.
+  if (data.type === 'event') {
+    data = withoutCommunityJamNotifyEveryone(
+      data,
+      postData.visibility,
+      profile.roles,
+    );
   }
   const hashtags = extractHashtags(data);
   const id = uuidv7();
@@ -220,12 +236,18 @@ export const createPost = async (
 
 export const updatePost = async (
   post: PostWithMeta,
-  profile: Profile,
+  profile: Profile & { roles?: Role[] },
   data: PostDataUnion,
 ) => {
   const previousEvent = post.data?.type === 'event' ? post.data : undefined;
   const normalized =
-    data.type === 'event' ? normalizeEventDataForSave(data) : data;
+    data.type === 'event'
+      ? withoutCommunityJamNotifyEveryone(
+          normalizeEventDataForSave(data),
+          post.visibility,
+          profile.roles,
+        )
+      : data;
   const dataForDb =
     normalized.type === 'event'
       ? eventDataForDbUpdate(previousEvent, normalized)

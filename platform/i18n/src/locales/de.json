@@ -911,9 +911,9 @@
           "all": "Alle",
           "allDescription": "Jeder Beitrag und jede Mitgliedschaftsänderung, entsprechend Ihren Kontoeinstellungen.",
           "mostRelevant": "Am relevantesten",
-          "mostRelevantDescription": "Beiträge von Personen, denen Sie folgen.",
+          "mostRelevantDescription": "Beiträge von Personen, denen Sie folgen, plus Benachrichtigungen über den Jam-Start für Veranstaltungen, auf die Sie „Ja“ oder „Vielleicht“ geantwortet haben.",
           "off": "Aus",
-          "offDescription": "Keine Beiträge oder Mitgliedschaftsänderungen aus dieser Gruppe."
+          "offDescription": "Keine Beiträge, Mitgliedschaftsänderungen oder Jam-Start-Benachrichtigungen aus dieser Gruppe."
         },
         "saved": "Gruppenbenachrichtigungen wurden aktualisiert.",
         "loadError": "Benachrichtigungseinstellungen konnten nicht geladen werden."
@@ -3140,6 +3140,8 @@
       "jamModerators": "Jam-Moderatoren (optional).",
       "jamWaitingRoom": "Warteraum",
       "jamWaitingRoomDescription": "Nur genehmigte Benutzer können beitreten",
+      "jamNotifyEveryone": "Alle benachrichtigen, wenn der Jam startet",
+      "jamNotifyEveryoneDescription": "Alle Mitglieder der Community erhalten eine Benachrichtigung, wenn der Jam startet.",
       "timezoneSearch": "Zeitzone suchen",
       "visibilityNotChangeable": "Hinweis: Die Sichtbarkeit der Veranstaltung kann nach der Veröffentlichung nicht mehr geändert werden. Stellen Sie sicher, dass Sie die richtigen Personen oder die richtige Gruppe hinzufügen.",
       "jamModeratorsDescription": "Klicken Sie, um Jam-Moderatoren auszuwählen",

@@ -344,7 +344,12 @@ export const EventForm = ({
 
         <SectionTitle>{t('events.form.location')}</SectionTitle>
 
-        <EventTypeSwitcher event={event} isEdit={isEdit} onChange={setEvent} />
+        <EventTypeSwitcher
+          event={event}
+          isEdit={isEdit}
+          onChange={setEvent}
+          visibility={postData.visibility}
+        />
 
         <SectionTitle>{t('events.form.people')}</SectionTitle>
 

@@ -13,12 +13,17 @@ import {
   PublicProfile,
   PublicRsvp,
   Question,
+  Role,
   RSVP,
   Thread,
   VisibilityType,
   visibilityTypeValues,
 } from '../types';
 import { canModerateJam } from './jamHelpers';
+import {
+  canAnnouncePosts,
+  isCommunityWideVisibility,
+} from './capabilitiesHelpers';
 import {
   defaultRsvpRecurrenceId,
   effectiveEventTimes,
@@ -562,6 +567,35 @@ export const withoutEventMaxAttendees = <T extends Event>(event: T): T => {
   const { maxAttendees: _, waitlistOfferMinutes: __, ...rest } = event;
   return rest as T;
 };
+
+/** A community-wide jam only broadcasts when the creator opted in. */
+export const withoutJamNotifyEveryone = <T extends Event>(event: T): T => {
+  if (!event.jam?.notifyEveryone) return event;
+  return { ...event, jam: { ...event.jam, notifyEveryone: undefined } } as T;
+};
+
+/**
+ * Broadcast requires community-wide visibility AND the announce capability
+ * (same rule as `POST /admin/posts/:postId/announce`); other visibilities or
+ * roles drop the flag. The capability check matters because the save path is
+ * reachable without the UI toggle: a plain member's role wildcard-matches
+ * `core-posts-create-*`, so a crafted API payload could otherwise plant the
+ * flag and blast the whole instance.
+ *
+ * Exported (rather than kept module-local) because `@openpeepshq/core`'s
+ * `createPost`/`updatePost` mutations apply it on the server-side save path;
+ * it is not a general-purpose utility — unlike `withoutJamNotifyEveryone` and
+ * `withoutEventMaxAttendees`, it takes the creator's roles in addition to the
+ * event.
+ */
+export const withoutCommunityJamNotifyEveryone = <T extends Event>(
+  event: T,
+  visibility: string | undefined,
+  roles?: Role[],
+): T =>
+  isCommunityWideVisibility(visibility) && canAnnouncePosts(roles)
+    ? event
+    : withoutJamNotifyEveryone(event);
 
 export const normalizeEventDataForSave = <T extends Event>(event: T): T => {
   const { maxAttendees } = event;

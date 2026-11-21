@@ -32,8 +32,10 @@ export function CreateNewJamModal({ onClose }: CreateNewJamModalProps) {
     selectedGroupName,
     selectedModerators,
     directAudience,
+    canNotify,
     patchEvent,
     setWaitingRoom,
+    setNotifyEveryone,
     handleModeratorsChange,
     applyAudience,
     handleCreate,
@@ -114,6 +116,25 @@ export function CreateNewJamModal({ onClose }: CreateNewJamModalProps) {
                 </span>
               </span>
             </label>
+
+            {canNotify ? (
+              <label className="flex items-start gap-2">
+                <input
+                  type="checkbox"
+                  className="mt-1"
+                  checked={event.jam?.notifyEveryone ?? false}
+                  onChange={(e) => setNotifyEveryone(e.target.checked)}
+                />
+                <span className="flex flex-col">
+                  <span className="text-sm">
+                    {t('events.form.jamNotifyEveryone')}
+                  </span>
+                  <span className="text-muted-foreground text-xs">
+                    {t('events.form.jamNotifyEveryoneDescription')}
+                  </span>
+                </span>
+              </label>
+            ) : null}
 
             <div className="space-y-2">
               <Label>{t('events.form.jamModerators')}</Label>

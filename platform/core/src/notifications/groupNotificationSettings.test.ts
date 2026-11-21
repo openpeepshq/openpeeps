@@ -49,6 +49,16 @@ describe('group notification levels', () => {
     }
   });
 
+  it('lets the jamStarted handler apply its own RSVP relevance at mostRelevant', () => {
+    expect(
+      allowsGroupNotification({
+        level: 'mostRelevant',
+        type: 'jamStarted',
+        followsAuthor: false,
+      }),
+    ).toBe(true);
+  });
+
   it('keeps posts from followed people when the group is set to most relevant', () => {
     expect(
       allowsGroupNotification({

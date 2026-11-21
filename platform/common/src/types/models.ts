@@ -380,6 +380,8 @@ export const jamDataSchema = z
     maxPresenters: z.number().int().positive().optional(),
     maxAudience: z.number().int().positive().optional(),
     waitingRoom: z.boolean().optional(),
+    /** Opt-in broadcast to the whole community when the jam starts. */
+    notifyEveryone: z.boolean().optional(),
   })
   .openapi('Jam');
 

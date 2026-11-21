@@ -990,9 +990,9 @@
           "all": "All",
           "allDescription": "Every post and membership change, using your account notification settings.",
           "mostRelevant": "Most relevant",
-          "mostRelevantDescription": "Posts from people you follow.",
+          "mostRelevantDescription": "Posts from people you follow, plus jam-start alerts for events you RSVP'd yes or maybe.",
           "off": "Off",
-          "offDescription": "No posts or membership changes from this group."
+          "offDescription": "No posts, membership changes, or jam-start alerts from this group."
         },
         "saved": "Group notification settings updated.",
         "loadError": "Could not load notification settings."
@@ -3145,6 +3145,8 @@
       "jamModerators": "Jam moderators (optional).",
       "jamWaitingRoom": "Waiting Room",
       "jamWaitingRoomDescription": "Only approved users can join",
+      "jamNotifyEveryone": "Notify everyone when the jam starts",
+      "jamNotifyEveryoneDescription": "Every member of the community gets a notification when the jam starts.",
       "timezoneSearch": "Search for a timezone",
       "visibilityNotChangeable": "Note:  The event visibility cannot be changed once the event is published.  Make sure you're adding the right people or group.",
       "jamModeratorsDescription": "Click to select Jam moderators",

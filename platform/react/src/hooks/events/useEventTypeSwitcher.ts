@@ -119,9 +119,18 @@ export const useEventTypeSwitcher = ({
     });
   };
 
+  // Both jam setters intentionally omit a `livekitEnabled` guard: the toggle is
+  // UI-only (the checkboxes render `disabled={!livekitEnabled}`), so a saved
+  // `jam` object keeps working when LiveKit is turned back on. Enforcing the
+  // gate in the setters instead would be a behavior change for every consumer.
   const setWaitingRoom = (waitingRoom: boolean) => {
     if (!event.jam) return;
     onChange({ ...event, jam: { ...event.jam, waitingRoom } });
+  };
+
+  const setNotifyEveryone = (notifyEveryone: boolean) => {
+    if (!event.jam) return;
+    onChange({ ...event, jam: { ...event.jam, notifyEveryone } });
   };
 
   const setUrl = (url: string) => onChange({ ...event, url });
@@ -152,6 +161,7 @@ export const useEventTypeSwitcher = ({
     moderatorProfiles,
     setModerators,
     setWaitingRoom,
+    setNotifyEveryone,
     setUrl,
     setPhysicalLocation,
   };

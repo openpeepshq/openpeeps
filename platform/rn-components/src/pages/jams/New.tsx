@@ -26,8 +26,10 @@ export const NewJam: React.FC<NewJamProps> = ({ navigation }) => {
     submitting,
     error,
     selectedModerators,
+    canNotify,
     patchEvent,
     setWaitingRoom,
+    setNotifyEveryone,
     handleModeratorsChange,
     applyAudience,
     handleCreate,
@@ -94,6 +96,25 @@ export const NewJam: React.FC<NewJamProps> = ({ navigation }) => {
             </ThemedText>
           </View>
         </View>
+
+        {canNotify ? (
+          <View className="gap-1">
+            <View className="flex-row items-start gap-2">
+              <View className="pt-0.5">
+                <Checkbox
+                  checked={event.jam?.notifyEveryone ?? false}
+                  onCheckedChange={setNotifyEveryone}
+                />
+              </View>
+              <ThemedText className="text-sm">
+                {t('events.form.jamNotifyEveryone')}
+              </ThemedText>
+            </View>
+            <ThemedText className="text-xs text-muted-foreground pl-6">
+              {t('events.form.jamNotifyEveryoneDescription')}
+            </ThemedText>
+          </View>
+        ) : null}
 
         <View className="gap-2">
           <Label nativeID="jam-moderators">

@@ -40,8 +40,9 @@ const optionDescriptionKey: Record<GroupNotificationLevel, string> = {
 
 const optionDescriptionDefault: Record<GroupNotificationLevel, string> = {
   all: 'Every post and membership change, using your account notification settings.',
-  mostRelevant: 'Posts from people you follow.',
-  off: 'No posts or membership changes from this group.',
+  mostRelevant:
+    "Posts from people you follow, plus jam-start alerts for events you RSVP'd yes or maybe.",
+  off: 'No posts, membership changes, or jam-start alerts from this group.',
 };
 
 export function GroupNotificationSettingsModal({

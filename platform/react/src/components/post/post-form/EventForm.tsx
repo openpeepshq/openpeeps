@@ -369,7 +369,12 @@ export const EventForm = ({
           {t('events.form.location', { defaultValue: 'Location' })}
         </h2>
 
-        <EventTypeSwitcher event={event} isEdit={isEdit} onChange={setEvent} />
+        <EventTypeSwitcher
+          event={event}
+          isEdit={isEdit}
+          onChange={setEvent}
+          visibility={postData.visibility}
+        />
 
         <h2 className="text-lg">
           {t('events.form.people', { defaultValue: 'People' })}

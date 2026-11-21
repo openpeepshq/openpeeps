@@ -2,7 +2,15 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { Event, Location } from '@openpeepshq/common';
-import { useEventTypeSwitcher, useLocationSearch } from '@openpeepshq/react';
+import {
+  canAnnouncePosts,
+  isCommunityWideVisibility,
+} from '@openpeepshq/common';
+import {
+  useAuthData,
+  useEventTypeSwitcher,
+  useLocationSearch,
+} from '@openpeepshq/react';
 import { Checkbox } from '../../ui/checkbox';
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
@@ -17,6 +25,8 @@ export interface EventTypeSwitcherProps {
   event: Event;
   isEdit?: boolean;
   onChange: (event: Event) => void;
+  /** Post visibility; gates the community-wide "notify everyone" opt-in. */
+  visibility?: string;
 }
 
 const SimpleLocationInput = ({
@@ -67,8 +77,13 @@ export const EventTypeSwitcher = ({
   event,
   isEdit = false,
   onChange,
+  visibility,
 }: EventTypeSwitcherProps) => {
   const { t } = useTranslation();
+  const authData = useAuthData();
+  const canNotify =
+    canAnnouncePosts(authData.profile?.roles) &&
+    isCommunityWideVisibility(visibility);
   const {
     eventFormat,
     formats,
@@ -77,6 +92,7 @@ export const EventTypeSwitcher = ({
     moderatorProfiles,
     setModerators,
     setWaitingRoom,
+    setNotifyEveryone,
     setUrl,
     setPhysicalLocation,
   } = useEventTypeSwitcher({ event, isEdit, onChange, origin: BASE_URL ?? '' });
@@ -157,6 +173,25 @@ export const EventTypeSwitcher = ({
               {t('events.form.jamWaitingRoom')}
             </ThemedText>
           </View>
+          {canNotify ? (
+            <View className="gap-1">
+              <View className="flex-row items-start gap-2">
+                <View className="pt-0.5">
+                  <Checkbox
+                    checked={event.jam?.notifyEveryone ?? false}
+                    disabled={!livekitEnabled}
+                    onCheckedChange={setNotifyEveryone}
+                  />
+                </View>
+                <ThemedText className="text-sm">
+                  {t('events.form.jamNotifyEveryone')}
+                </ThemedText>
+              </View>
+              <ThemedText className="text-xs text-muted-foreground pl-6">
+                {t('events.form.jamNotifyEveryoneDescription')}
+              </ThemedText>
+            </View>
+          ) : null}
         </>
       ) : null}
     </View>

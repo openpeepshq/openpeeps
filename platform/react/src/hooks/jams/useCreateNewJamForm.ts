@@ -5,7 +5,11 @@ import type {
   PostCreationData,
   PublicProfile,
 } from '@openpeepshq/common/types';
-import { hasAdminSidebarAccess } from '@openpeepshq/common/lib';
+import {
+  canAnnouncePosts,
+  hasAdminSidebarAccess,
+  isCommunityWideVisibility,
+} from '@openpeepshq/common/lib';
 import { eventSanitizer, useNewPostStores } from '../../stores';
 import { useNavigate } from '../../contexts/router';
 import { useOpenpeeps } from '../../contexts/openpeeps';
@@ -49,6 +53,9 @@ export const useCreateNewJamForm = ({ onClose }: UseCreateNewJamFormArgs) => {
   const profilesQuery = openpeepsApi.useProfiles();
   const event = postData.data as Event;
   const isAdmin = hasAdminSidebarAccess(me?.roles ?? []);
+  const canNotify =
+    canAnnouncePosts(authData.profile?.roles) &&
+    isCommunityWideVisibility(postData.visibility);
 
   const audienceChoices = useMemo(
     () =>
@@ -111,6 +118,11 @@ export const useCreateNewJamForm = ({ onClose }: UseCreateNewJamFormArgs) => {
     patchEvent({ jam: { ...event.jam, waitingRoom } });
   };
 
+  const setNotifyEveryone = (notifyEveryone: boolean) => {
+    if (!event.jam) return;
+    patchEvent({ jam: { ...event.jam, notifyEveryone } });
+  };
+
   const applyAudience = (settings: AudienceSetting) =>
     setPostData((prev) => applyAudienceSetting(prev, settings, me));
 
@@ -171,8 +183,10 @@ export const useCreateNewJamForm = ({ onClose }: UseCreateNewJamFormArgs) => {
     selectedGroupName,
     selectedModerators,
     directAudience,
+    canNotify,
     patchEvent,
     setWaitingRoom,
+    setNotifyEveryone,
     handleModeratorsChange,
     applyAudience,
     handleCreate,
