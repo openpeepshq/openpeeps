@@ -249,6 +249,14 @@ overrides:
   # on @hono/node-server is not force-pinned. Force 2.1.9 — inside the
   # parent's declared range, clears both advisories.
   "@modelcontextprotocol/node>@hono/node-server": "2.1.9"
+  # @tailwindcss/typography@0.5.20 (direct dep of web + docs-site) pins
+  # postcss-selector-parser at exactly 6.0.10, which carries GHSA-rj75-hqrm-r3gf
+  # (moderate — quadratic-complexity flat-selector parsing DoS, patched
+  # >=6.1.5). The tree already resolves 6.1.5 for tailwindcss and
+  # postcss-nested, so force the same patched 6.1.5 onto the typography leg;
+  # scoped via @tailwindcss/typography>postcss-selector-parser so only this
+  # pin is affected.
+  "@tailwindcss/typography>postcss-selector-parser": "6.1.5"
 
 allowBuilds:
   "@evilmartians/lefthook": true
