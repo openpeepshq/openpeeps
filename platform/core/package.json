@@ -10,7 +10,7 @@
     "@openpeepshq/fetch-client": "workspace:^",
     "@openpeepshq/geocoder": "workspace:^",
     "@openpeepshq/i18n": "workspace:^",
-    "@sentry/node": "^9.13.0",
+    "@sentry/node": "^10.78.0",
     "apns2": "^12.2.0",
     "archiver": "^7.0.1",
     "bcrypt": "^5.1.1",

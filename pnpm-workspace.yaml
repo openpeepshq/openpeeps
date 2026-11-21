@@ -303,6 +303,23 @@ overrides:
   # the vulnerable range so the already-patched mermaid copy stays untouched.
   "uuid@<11.1.1": "11.1.1"
 
+  # @sentry/node@10.x (platform/core, #2250) vendors its own DB
+  # instrumentations, which still emit the db.user span attribute
+  # unconditionally (GHSA-qqmp-wf37-98f9's behavior; pnpm audit cannot see
+  # it because the copies ship inside the audited-clean package). Chosen
+  # posture: core's Sentry init filters them out of the default set —
+  # `withoutVendoredDbIntegrations` in src/sentry/index.ts — so db.user is
+  # never emitted; sentry.test.ts pins that with a regression test and a
+  # canary that resolves the vendored path from the installed package —
+  # that resolved path, not directory names quoted in comments, is the
+  # source of truth for the layout.
+  # Merge-order note (#2250/#2262 vs #2251/#2263): the
+  # `@fedify/fedify>@opentelemetry/sdk-metrics` override added to this file
+  # by #2263 and this PR's pnpm-lock.yaml rewrite overlap. Whichever of the
+  # two PRs merges second must regenerate the lockfile and re-run the
+  # standard gates (pnpm audit + frozen-lockfile install + the lockfile
+  # grep) on the merged head instead of hand-resolving the conflicting
+  # lockfile hunks.
 allowBuilds:
   "@evilmartians/lefthook": true
   "@firebase/util": true

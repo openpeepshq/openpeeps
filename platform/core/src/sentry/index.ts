@@ -56,6 +56,61 @@ export const resolveSentryEnvironment = (explicit?: string): string => {
   return 'local';
 };
 
+/**
+ * Integration names of `@sentry/node@10.x`'s vendored DB instrumentations
+ * (the SDK vendors its own copies; 9.x's standalone
+ * `@opentelemetry/instrumentation-*` packages left the tree). They emit the
+ * `db.user` span attribute unconditionally — GHSA-qqmp-wf37-98f9's behavior,
+ * invisible to `pnpm audit` because the copies live inside the audited-clean
+ * package. The only one that can ever match a module in this repo is
+ * Postgres (drizzle/pg); the rest are inert here, but they are dropped
+ * together so this list stays the complete set of vendored `db.user`
+ * emitters.
+ *
+ * Trade-off (documented decision): the filter matches on the integration
+ * `name`, and the SDK's `filterDuplicates` resolves duplicate integrations by
+ * name too. A future *user-supplied* integration that happens to be named
+ * exactly `Postgres`/`Mysql`/`Mysql2`/`Tedious`/`Knex` would therefore also
+ * be dropped from the final set. That is accepted: the five names are the
+ * SDK's own vendored names, so a user integration carrying one would collide
+ * with the vendored copy anyway, and dropping both is the safe outcome.
+ *
+ * Layout provenance: this list is pinned by the canary in
+ * `sentry.test.ts`, which resolves the vendored-instrumentation path from the
+ * installed `@sentry/node` package — that resolved path, not any directory
+ * names quoted in comments, is the source of truth for the layout.
+ */
+export const VENDORED_DB_INTEGRATION_NAMES = [
+  'Postgres',
+  'Mysql',
+  'Mysql2',
+  'Tedious',
+  'Knex',
+] as const;
+
+/**
+ * The callable shape `initSentry` passes to `Sentry.init`'s `integrations`
+ * option: a function that maps the SDK's own auto-detected default list to a
+ * filtered subset. The function form is load-bearing — a callable *replaces*
+ * the default set entirely, whereas the array form *keeps* the defaults and
+ * overlays by name (which would re-admit the five DB integrations).
+ */
+export type SentryDefaultIntegrations = (
+  integrations: ReturnType<typeof Sentry.getAutoPerformanceIntegrations>,
+) => ReturnType<typeof Sentry.getAutoPerformanceIntegrations>;
+
+/**
+ * Removes the vendored DB integrations (see
+ * `VENDORED_DB_INTEGRATION_NAMES`) from the SDK default set so no `db.user`
+ * attribute is emitted. Wired into `Sentry.init` below as the callable form.
+ */
+export const withoutVendoredDbIntegrations: SentryDefaultIntegrations = (
+  integrations,
+) =>
+  integrations.filter(
+    (i) => !VENDORED_DB_INTEGRATION_NAMES.some((n) => i.name === n),
+  );
+
 /** Re-apply community tags on the current isolation scope (per-request). */
 export const applyCommunitySentryTags = () => {
   if (communityHostname) {
@@ -123,6 +178,7 @@ export const initSentry = (options: SentryInitOptions = {}) => {
     tracesSampleRate: Number.isFinite(tracesSampleRate)
       ? tracesSampleRate
       : 0.1,
+    integrations: withoutVendoredDbIntegrations,
   });
 
   if (communityHostname) {
