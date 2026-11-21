@@ -61,9 +61,12 @@ overrides:
   # patch/minor-level, mostly dev tooling) ---
 
   # brace-expansion: ReDoS family (18 advisories, patched >=1.1.12/1.1.21,
-  # >=2.1.5/2.1.7, >=5.0.6/5.0.12). Consumers are minimatch@3/8/9 (majors 1/2)
-  # and minimatch@10.2.5 (major 5); all declare caret ranges, so pinning the
-  # latest of each major stays in-range.
+  # >=2.1.5/2.1.7, >=5.0.6/5.0.12). In-tree consumers after the minimatch
+  # sweep below: minimatch@3.1.5 (major 1, declares ^1.1.7) and minimatch
+  # 11.x (major 5, declares ^5.0.12) — both caret, so pinning the latest of
+  # each major stays in-range. The 2.x pin's only consumers (minimatch 8/9)
+  # left the tree with the sweep; it stays so a future 2.x resolution cannot
+  # re-introduce a vulnerable release.
   "brace-expansion@1": "1.1.22"
   "brace-expansion@2": "2.1.8"
   "brace-expansion@>=3 <5": "5.0.13"
@@ -72,13 +75,25 @@ overrides:
   # and cosmiconfig@8/9 + @istanbuljs/load-nyc-config (4.x line) — all caret.
   "js-yaml@<4": "3.15.2"
   "js-yaml@>=4": "4.3.2"
-  # minimatch: ReDoS family (10 advisories, patched >=3.1.4, >=8.0.6, >=9.0.7,
-  # and >=11.0.1 for the 7.x-10.x line — so pin 11.x for those consumers,
-  # in-range via their loose carets).
+  # minimatch: two advisory families. ReDoS (patched >=3.1.4, >=8.0.6, >=9.0.7)
+  # and GHSA-g3hv-75wg-m249 — globparts amplification DoS, vulnerable
+  # >=7.0.0 <11.0.1 (moderate; patched 11.0.1). No release in the 7.x-10.x
+  # lines is patched, and no affected consumer declares a range that includes
+  # 11.x (glob 9: ^8.0.2, glob 10: ^9.0.4, typescript-estree: ^10.2.2,
+  # api-extractor: 10.2.3, @vue/language-core: ^9.0.3), so an in-range upgrade
+  # is impossible — the cross-major override to the patched line (11.0.9,
+  # latest 11.x) is the only tree-wide fix. The earlier 8.0.7/9.0.9 pins were
+  # themselves inside the vulnerable range. Consumers are lint/build tooling
+  # (glob 9 via babel-plugin-module-resolver, glob 10 via sucrase,
+  # typescript-estree, @eslint/config-array, @vue/language-core, api-extractor)
+  # plus one runtime-reachable leg — glob 10 via archiver-utils (platform/core
+  # uses archiver at runtime) — though minimatch itself never ships in bundles.
+  # The 11.x API surface used by those call sites was verified compatible. The
+  # 3.x line (consumers glob 7/8, eslint-plugin-react, filelist, readdir-glob,
+  # test-exclude) sits below the advisory's >=7 floor and keeps its patched
+  # 3.1.5 pin.
   "minimatch@<7": "3.1.5"
-  "minimatch@>=7 <9": "8.0.7"
-  "minimatch@>=9 <11": "9.0.9"
-  "minimatch@>=11": "11.0.8"
+  "minimatch@>=7": "11.0.9"
   # fast-uri: 10 advisories (patched >=3.1.9), only consumer ajv@8.20.0 (^3.0.1).
   "fast-uri@<4": "3.1.9"
   # hono: 10 advisories (patched >=4.13.16), consumers @modelcontextprotocol/node
