@@ -257,6 +257,13 @@ overrides:
   # scoped via @tailwindcss/typography>postcss-selector-parser so only this
   # pin is affected.
   "@tailwindcss/typography>postcss-selector-parser": "6.1.5"
+  # @sentry/node@10.x (platform/core, #2250) vendors its own DB
+  # instrumentations, which still emit the db.user span attribute
+  # unconditionally (GHSA-qqmp-wf37-98f9's behavior; pnpm audit cannot see
+  # it because the copies ship inside the audited-clean package). Chosen
+  # posture: core's Sentry init filters them out of the default set —
+  # `withoutVendoredDbIntegrations` in src/sentry/index.ts — so db.user is
+  # never emitted; sentry.test.ts pins that with a regression test.
 
 allowBuilds:
   "@evilmartians/lefthook": true

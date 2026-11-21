@@ -56,6 +56,41 @@ export const resolveSentryEnvironment = (explicit?: string): string => {
   return 'local';
 };
 
+/**
+ * Integration names of `@sentry/node@10.x`'s vendored DB instrumentations
+ * (the SDK vendors its own copies; 9.x's standalone
+ * `@opentelemetry/instrumentation-*` packages left the tree). They emit the
+ * `db.user` span attribute unconditionally — GHSA-qqmp-wf37-98f9's behavior,
+ * invisible to `pnpm audit` because the copies live inside the audited-clean
+ * package. The only one that can ever match a module in this repo is
+ * Postgres (drizzle/pg); the rest are inert here, but they are dropped
+ * together so this list stays the complete set of vendored `db.user`
+ * emitters.
+ */
+export const VENDORED_DB_INTEGRATION_NAMES = [
+  'Postgres',
+  'Mysql',
+  'Mysql2',
+  'Tedious',
+  'Knex',
+] as const;
+
+export type SentryDefaultIntegrations = ReturnType<
+  typeof Sentry.getAutoPerformanceIntegrations
+>;
+
+/**
+ * Removes the vendored DB integrations (see
+ * `VENDORED_DB_INTEGRATION_NAMES`) from the SDK default set so no `db.user`
+ * attribute is emitted. Wired into `Sentry.init` below.
+ */
+export const withoutVendoredDbIntegrations = (
+  integrations: SentryDefaultIntegrations,
+): SentryDefaultIntegrations =>
+  integrations.filter(
+    (i) => !VENDORED_DB_INTEGRATION_NAMES.some((n) => i.name === n),
+  );
+
 /** Re-apply community tags on the current isolation scope (per-request). */
 export const applyCommunitySentryTags = () => {
   if (communityHostname) {
@@ -123,6 +158,7 @@ export const initSentry = (options: SentryInitOptions = {}) => {
     tracesSampleRate: Number.isFinite(tracesSampleRate)
       ? tracesSampleRate
       : 0.1,
+    integrations: withoutVendoredDbIntegrations,
   });
 
   if (communityHostname) {
