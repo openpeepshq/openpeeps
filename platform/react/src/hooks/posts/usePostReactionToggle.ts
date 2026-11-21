@@ -1,7 +1,10 @@
 import { useContext, useMemo } from 'react';
 import { QueryClientContext } from '@tanstack/react-query';
 import type { PublicPost } from '@openpeepshq/common/types';
-import { getPostActionAvailability } from '@openpeepshq/common';
+import {
+  AP_LIKE_REACTION,
+  getPostActionAvailability,
+} from '@openpeepshq/common';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import {
   useAuthData,
@@ -28,21 +31,54 @@ export const usePostReactionToggle = (post: PublicPost) => {
     id: post.id,
   } as never);
 
-  const iReacted = useMemo(
-    () => !!post.reactions?.some((r) => r.profile.id === me?.id),
-    [post.reactions, me?.id],
-  );
-
   const { canReact } = useMemo(
     () => getPostActionAvailability(authData, post, capabilities),
     [authData, post, capabilities],
   );
 
-  const toggleReaction = async () => {
-    if (iReacted) {
-      await retractReaction(undefined);
+  const myReactionEmojis = useMemo(
+    () =>
+      post.reactions
+        ?.filter((r) => r.profile.id === me?.id)
+        .map((r) => r.reaction) ?? [],
+    [post.reactions, me?.id],
+  );
+
+  /** The profile attached the default 👍 — drives the thumbs-up button's
+   * highlight. A post the profile only ❤️'d (or otherwise reacted to) is not
+   * "liked", so the 👍 control stays unhighlighted for those. */
+  const iReacted = useMemo(
+    () => myReactionEmojis.includes(AP_LIKE_REACTION),
+    [myReactionEmojis],
+  );
+
+  /**
+   * The profile attached any reaction to this post. Kept separate from
+   * `iReacted` because an attached reaction stays usable even after the
+   * community's allowed set removes it (orphaned reactions remain visible and
+   * retractable), so "can still interact" is based on any attached reaction,
+   * not just 👍.
+   */
+  const hasAttachedReaction = myReactionEmojis.length > 0;
+
+  /**
+   * Toggle a reaction. With `reaction` (the picker) this toggles exactly that
+   * emoji. Without it it toggles the legacy like (👍), so it can never
+   * accidentally remove a different emoji.
+   *
+   * A failed op is swallowed, not rejected: the call sites fire the promise
+   * as `void toggleReaction(…)`, and a mid-session change to the community's
+   * allowed set (e.g. `error.reactionNotAllowed`) or a concurrent retract is
+   * benign — no local state changed, so the post's reaction rows (including
+   * the orphan row) self-heal on the next refetch.
+   */
+  const toggleReaction = async (reaction?: string) => {
+    const emoji = reaction ?? AP_LIKE_REACTION;
+    const already = myReactionEmojis.includes(emoji);
+    if (already) {
+      await retractReaction({ reaction: emoji }).catch(() => {});
     } else if (canReact) {
-      await reactToPost({ reaction: '👍' });
+      await reactToPost({ reaction: emoji }).catch(() => {});
     } else {
       return;
     }
@@ -54,7 +90,8 @@ export const usePostReactionToggle = (post: PublicPost) => {
   return {
     me,
     iReacted,
-    canReact: canReact || iReacted,
+    myReactions: myReactionEmojis,
+    canReact: canReact || hasAttachedReaction,
     toggleReaction,
   };
 };

@@ -5,7 +5,7 @@ import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
 import { isEndBeforeStart } from '../lib/eventTime';
 import { hasVisibleText, postContentWithinBudget } from '../lib/contentLength';
 import { groupRelationships } from './capabilities';
-import { capabilitiesSchema } from './config';
+import { capabilitiesSchema, reactionEmojiSchema } from './config';
 import {
   HANDLE_RESERVED_MESSAGE,
   additionalForbiddenHandlesSchema,
@@ -914,13 +914,47 @@ export const pushSubscriptionSchema = z.discriminatedUnion('type', [
   modelSchema(pushSubscriptionWebhookDataSchema),
 ]);
 export type PushSubscription = z.infer<typeof pushSubscriptionSchema>;
-export const reactionTypeSchema = z.enum(['👍']);
+/** Curated default reactions: the set that applies when a community has not
+ * configured its own via the community config (`content.allowedReactions`). */
+export const REACTION_TYPES = [
+  '👍',
+  '👎',
+  '❤️',
+  '😂',
+  '😮',
+  '😢',
+  '🎉',
+] as const;
+
+/**
+ * A reaction value. Communities can allow any emoji (see
+ * `content.allowedReactions` in the community config), so the wire schema is a
+ * validated emoji string rather than the curated enum; the write path enforces
+ * the community's configured set.
+ */
+export type ReactionEmoji = z.infer<typeof reactionEmojiSchema>;
 
 export const reactionDataSchema = z.object({
-  reaction: reactionTypeSchema,
+  reaction: reactionEmojiSchema,
 });
 export type ReactionData = z.infer<typeof reactionDataSchema>;
 export type Reaction = Model<ReactionData>;
+
+/**
+ * The set of reactions a community allows on posts. A configured list (from
+ * `communityConfig.content.allowedReactions`) wins; an absent/empty one falls
+ * back to the curated defaults.
+ */
+export const resolveAllowedReactions = (
+  config?: { content?: { allowedReactions?: readonly string[] } } | null,
+): readonly string[] => {
+  const configured = (config?.content?.allowedReactions ?? [])
+    .filter((emoji): emoji is string => typeof emoji === 'string')
+    .map((emoji) => emoji.trim())
+    .filter((emoji) => emoji.length > 0);
+  const unique = [...new Set(configured)];
+  return unique.length > 0 ? unique : REACTION_TYPES;
+};
 
 export const mentionDataSchema = z.object({
   text: z.string().optional(),
@@ -995,7 +1029,7 @@ export const jamEventDataSchema = z.object({
   ]),
   profileId: z.string(),
   content: z.string().optional(),
-  reaction: reactionTypeSchema.optional(),
+  reaction: reactionEmojiSchema.optional(),
   recurrenceId: eventIsoDatetimeSchema.optional(),
 });
 

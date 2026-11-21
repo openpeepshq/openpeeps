@@ -20,7 +20,8 @@ export const useFeedPostActions = (post: PublicPost) => {
   const { openpeepsApi } = useOpenpeeps();
   const openReply = useReplyOpener();
   const repostsQuery = openpeepsApi.useCurrentProfileReposts();
-  const { iReacted, canReact, toggleReaction } = usePostReactionToggle(post);
+  const { iReacted, canReact, toggleReaction, myReactions } =
+    usePostReactionToggle(post);
 
   const repostPost = openpeepsApi.repostPostAction({ id: post.id } as never);
   const deletePost = openpeepsApi.deletePostAction({ id: post.id } as never);
@@ -60,6 +61,7 @@ export const useFeedPostActions = (post: PublicPost) => {
     me,
     myRepost,
     iReacted,
+    myReactions,
     canReply,
     canRepost: canRepost || !!myRepost,
     canReact,

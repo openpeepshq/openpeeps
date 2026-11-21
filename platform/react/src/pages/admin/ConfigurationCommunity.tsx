@@ -52,6 +52,11 @@ export function AdminConfigurationCommunity() {
         testId="admin-community-forbidden-usernames"
       />
       <ConfigMenuButton
+        translationPrefix="configuration.community.reactions"
+        action="/admin/configuration/community/reactions"
+        testId="admin-community-reactions"
+      />
+      <ConfigMenuButton
         translationPrefix="configuration.community.roles"
         action="/admin/configuration/community/roles"
       />

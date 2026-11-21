@@ -37,6 +37,11 @@ const PACKAGES = {
   'fetch-client': 'libraries/fetch-client',
   greenscreen: 'libraries/greenscreen',
   'react-ui': 'libraries/react-ui',
+  // core and i18n are intentionally not in this map: both lack a per-package
+  // `typecheck` script (the gate's first step) and their packed source is a
+  // `dist/` build, so adding them here would fail on missing typecheck and
+  // scan build artifacts. The CI publish job ships them on version bumps
+  // without this gate — a known coverage gap, tracked as a separate item.
 };
 
 const FILTER = {
@@ -121,7 +126,30 @@ for (const [name, rel] of Object.entries(selected)) {
     );
     continue;
   }
-  const [manifest] = JSON.parse(pack.stdout);
+  // `npm pack --dry-run --json` emits different shapes across npm majors, so
+  // normalize to one manifest and let the gate run locally regardless of the
+  // installed npm:
+  //   - an array of package manifests (npm v10)
+  //   - a single manifest object with a `files` array (npm v6/v7 dry-run)
+  //   - a single object keyed by package name whose first value carries the
+  //     `files` array (npm v12+, e.g. {"@openpeepshq/common": { files: [...] }})
+  const parsedPack = JSON.parse(pack.stdout);
+  const packCandidates = Array.isArray(parsedPack)
+    ? parsedPack
+    : typeof parsedPack === 'object' && parsedPack !== null && parsedPack.files
+      ? [parsedPack]
+      : Object.values(parsedPack);
+  const manifest = packCandidates.find(
+    (candidate) => candidate && Array.isArray(candidate.files),
+  );
+  if (!manifest) {
+    fail(
+      `[${name}] could not read a file list from npm pack --json output (expected an array of manifests, a manifest with "files", or a name-keyed object with a "files" array): ${String(
+        parsedPack,
+      ).slice(0, 200)}`,
+    );
+    continue;
+  }
   const files = manifest.files.filter((file) => SOURCE_RE.test(file.path));
   const aliases = [];
   const namespaces = [];

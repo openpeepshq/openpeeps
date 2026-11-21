@@ -58,12 +58,42 @@ const rejectEmptyProfileFieldKeys = (config: unknown) => {
   }
 };
 
+export const normalizeAllowedReactions = (config: unknown) => {
+  if (!config || typeof config !== 'object') return;
+  const content = (config as { content?: { allowedReactions?: unknown } })
+    .content;
+  if (!content || content.allowedReactions === undefined) return;
+  const parsed = z.array(z.string()).safeParse(content.allowedReactions);
+  if (!parsed.success) {
+    throw badRequest('Post reactions must be a list of emojis');
+  }
+  // Reject an over-long emoji rather than silently dropping it: like the
+  // >64 list cap below, silent data loss on a public endpoint is worse than
+  // a loud 400 the caller can act on.
+  if (parsed.data.some((emoji) => emoji.trim().length > 32)) {
+    throw badRequest('Post reactions must each be at most 32 characters');
+  }
+  // Trim, drop empties, dedupe, and bound the list size.
+  const cleaned = [
+    ...new Set(
+      parsed.data
+        .map((emoji) => emoji.trim())
+        .filter((emoji) => emoji.length > 0),
+    ),
+  ];
+  if (cleaned.length > 64) {
+    throw badRequest('Post reactions must contain at most 64 emojis');
+  }
+  content.allowedReactions = cleaned;
+};
+
 export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
   async (input, event) => {
     await ensureRoleCapabilities(event, ['core-config-update']);
     const { config, name, namespace } = input;
     rejectEmptyProfileFieldKeys(config);
     normalizeAdditionalForbiddenHandles(config);
+    normalizeAllowedReactions(config);
     // Admin UI/CLI send sparse patches (e.g. only info.tagLine). Merge into the
     // stored overrides so unrelated keys like theme are preserved.
     await updateConfigValues(config, namespace, name);

@@ -470,6 +470,7 @@
       "seeThread": "Thread anzeigen",
       "seeEvent": "Veranstaltung ansehen",
       "react": "Reagieren",
+      "orphanedReaction": "Nicht mehr erlaubt — zum Entfernen tippen",
       "reply": "Antworten",
       "repost": "Repost"
     },
@@ -2227,6 +2228,21 @@
         "duplicate": "Dieser Benutzername steht bereits auf der Liste.",
         "builtInError": "Integrierte Benutzernamen sind immer reserviert und können nicht geändert werden."
       },
+      "reactions": {
+        "title": "Post-Reaktionen",
+        "description": "Wählen Sie aus, welche Emojis Mitglieder an Beiträge anfügen können, im Feed und in Direct Messages. Lassen Sie die Liste leer, um den Standardsatz zu verwenden.",
+        "custom": "Diese Community verwendet einen eigenen Reaktionssatz.",
+        "defaultsInUse": "Standardreaktionssatz in Gebrauch:",
+        "emptyList": "Keine eigenen Emojis hinzugefügt.",
+        "add": "Emoji hinzufügen",
+        "remove": "Entfernen",
+        "empty": "Geben Sie ein Emoji ein.",
+        "tooLong": "Dieses Emoji ist zu lang.",
+        "duplicate": "Dieses Emoji steht bereits auf der Liste.",
+        "tooMany": "Verwenden Sie höchstens 64 Emojis.",
+        "save": "Reaktionen speichern",
+        "reset": "Auf Standard zurücksetzen"
+      },
       "roles": {
         "title": "Rollen und Berechtigungen",
         "description": "Richten Sie die Funktionen und Berechtigungen ein, die jeder Rolle innerhalb der Community zur Verfügung stehen"
@@ -3831,6 +3847,7 @@
     "rsvpRemoved": "Der Organisator hat Sie von dieser Veranstaltung entfernt.",
     "rsvpRemovedForbidden": "Nur der Organisator kann Teilnehmer entfernen.",
     "cannotInteractBlocked": "Sie können mit diesem Profil nicht interagieren.",
+    "reactionNotAllowed": "Diese Reaktion ist in dieser Community nicht erlaubt.",
     "emailAlreadyTaken": "Diese E-Mail wird bereits verwendet.",
     "postCreateForbidden": "Sie haben keine Berechtigung, diese Art von Beitrag hier zu erstellen.",
     "postDeleted": "Dieser Beitrag ist nicht mehr verfügbar.",

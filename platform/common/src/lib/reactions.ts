@@ -1,6 +1,16 @@
 export const AP_LIKE_REACTION = '👍';
 export const AP_DISLIKE_REACTION = '👎';
 
+/**
+ * Whether a logged reaction value is usable: a non-empty emoji string.
+ * The community may configure a custom allowed set, so this no longer
+ * restricts to the curated defaults — it only guards against malformed/empty
+ * entries so response validation cannot fail on legacy logs. Reactions that
+ * were attached before being removed from the configured set still pass.
+ */
+export const isReactionType = (reaction: string): boolean =>
+  typeof reaction === 'string' && reaction.trim().length > 0;
+
 export const activityPubActivityForReaction = (
   reaction: string,
 ): 'Like' | 'Dislike' | null => {

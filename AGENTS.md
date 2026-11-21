@@ -116,6 +116,13 @@ luck. The commands need no Docker, no database, no backing services.
 | test-unit       | `pnpm --filter @openpeepshq/<pkg> exec vitest run` per touched package (rn-components uses jest: `pnpm --filter @openpeepshq/rn-components test`) |
 | typecheck       | `pnpm --filter <pkg> typecheck` for touched packages and their dependents (build `common` → `core` first)                                         |
 
+Note on the publish-gate row: `core` and `i18n` are published to npm as well,
+but are intentionally not gated by `scripts/check-publish-gate.mjs` — they have
+no per-package `typecheck` script (the gate's first step) and their packed
+source is a `dist/` build, so adding them would fail on both. The CI publish
+job ships them on version bumps without the gate; closing that coverage gap is
+tracked as a separate item.
+
 Rules behind the gates, each tied to a real failure class:
 
 - **Exactly one commit, at every push.** Every pushed state of a PR branch must

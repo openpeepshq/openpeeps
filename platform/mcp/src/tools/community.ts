@@ -1,10 +1,13 @@
 import { McpServer } from '@modelcontextprotocol/server';
 import { openpeepsClient } from '@openpeepshq/client';
 import {
+  AP_LIKE_REACTION,
+  REACTION_TYPES,
   applySimpleGroupTemplate,
   defaultSimpleGroupTemplate,
   federatedHandleSchema,
   postDataUnionSchema,
+  reactionEmojiSchema,
 } from '@openpeepshq/common';
 import * as z from '@openpeepshq/common/zod';
 import { runTool, unwrap } from '../result.js';
@@ -461,15 +464,19 @@ export const registerCommunityTools = (
   register(
     'react',
     {
-      description: 'React to a post. The only supported reaction is 👍.',
+      description: `React to a post with an emoji. The community's admin configures the allowed set (defaults to ${REACTION_TYPES.join(' ')}); passing an emoji outside it is rejected with \`error.reactionNotAllowed\`.`,
       inputSchema: z.object({
         id: z.string().uuid(),
+        reaction: reactionEmojiSchema.optional(),
       }),
     },
-    async ({ id }) =>
+    async ({ id, reaction }) =>
       runTool(() =>
         unwrap(
-          client.posts.react({ reaction: '👍' }, { pathParameters: { id } }),
+          client.posts.react(
+            { reaction: reaction ?? AP_LIKE_REACTION },
+            { pathParameters: { id } },
+          ),
         ),
       ),
   );
@@ -477,14 +484,20 @@ export const registerCommunityTools = (
   register(
     'unreact',
     {
-      description: 'Remove your reaction from a post.',
+      description: `Remove one of your reactions from a post. The community's admin configures the allowed set (defaults to ${REACTION_TYPES.join(' ')}); pass the emoji you attached.`,
       inputSchema: z.object({
         id: z.string().uuid(),
+        reaction: reactionEmojiSchema.optional(),
       }),
     },
-    async ({ id }) =>
+    async ({ id, reaction }) =>
       runTool(() =>
-        unwrap(client.posts.retractReaction({ pathParameters: { id } })),
+        unwrap(
+          client.posts.retractReaction(
+            { reaction: reaction ?? AP_LIKE_REACTION },
+            { pathParameters: { id } },
+          ),
+        ),
       ),
   );
 

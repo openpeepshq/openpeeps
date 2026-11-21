@@ -46,7 +46,6 @@ import { findOrCreateHashtag } from '../hashtags';
 import { hub } from '../events';
 import { listUnseenGroupPostIds } from './unseenCounts';
 import {
-  AP_LIKE_REACTION,
   canManageEventRsvps,
   capacityRsvpDecision,
   eventDataForDbUpdate,
@@ -279,8 +278,19 @@ export const reactToPost = async (
   post: PostWithMeta,
   profile: Profile,
   data: ReactionData,
-) =>
-  allpeepDb().then(({ db }) =>
+) => {
+  // Idempotency: one reaction per emoji per profile. Tapping the same emoji
+  // twice (a second tab, a stale client, a client retry) must be a no-op —
+  // otherwise the entry is stored twice and each row fires `reactionCreated`,
+  // so the author gets a duplicate notification per extra tap. `post.reactions`
+  // is the latest-entry-per-(profile, emoji) view, already deduplicated.
+  const alreadyReacted = post.reactions.some(
+    (reaction) =>
+      reaction.profile.id === profile.id && reaction.reaction === data.reaction,
+  );
+  if (alreadyReacted) return;
+
+  return allpeepDb().then(({ db }) =>
     entryConnector(db, profile, post, {
       type: 'reaction',
       data: { reaction: data.reaction },
@@ -291,12 +301,17 @@ export const reactToPost = async (
       }),
     ),
   );
+};
 
-export const retractReaction = async (post: PostWithMeta, profile: Profile) =>
+export const retractReaction = async (
+  post: PostWithMeta,
+  profile: Profile,
+  data: ReactionData,
+) =>
   allpeepDb().then(({ db }) =>
     entryConnector(db, profile, post, {
       type: 'unreaction',
-      data: { reaction: AP_LIKE_REACTION },
+      data: { reaction: data.reaction },
     }),
   );
 

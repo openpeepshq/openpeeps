@@ -117,6 +117,7 @@ import {
   AdminConfigurationCommunityTheme,
   AdminConfigurationCommunityProfileFields,
   AdminConfigurationCommunityForbiddenUsernames,
+  AdminConfigurationCommunityReactions,
   AdminConfigurationCommunityRoles,
   AdminGroupMembers,
   AdminReports,
@@ -379,6 +380,7 @@ const Admin = {
     CommunityFavicons: AdminConfigurationCommunityFavicons,
     CommunityProfileFields: AdminConfigurationCommunityProfileFields,
     CommunityForbiddenUsernames: AdminConfigurationCommunityForbiddenUsernames,
+    CommunityReactions: AdminConfigurationCommunityReactions,
     CommunityAboutPage: () => (
       <CommunityMarkdownPage
         path={['content', 'aboutPage']}
@@ -832,6 +834,10 @@ function AppShell() {
                       <Route
                         path="/admin/configuration/community/forbidden-usernames"
                         element={<Admin.Config.CommunityForbiddenUsernames />}
+                      />
+                      <Route
+                        path="/admin/configuration/community/reactions"
+                        element={<Admin.Config.CommunityReactions />}
                       />
                       <Route
                         path="/admin/configuration/community/about-page"

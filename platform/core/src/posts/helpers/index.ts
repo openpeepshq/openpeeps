@@ -34,10 +34,10 @@ import type { PgQueryResult } from '../../db/pg/map/types';
 import { capabilitiesConfig } from '../../config';
 import { canReadPost } from './filters';
 import {
-  AP_LIKE_REACTION,
   currentReactionsFromEntries,
   isBlockedPair,
   isReactionHistoryEntry,
+  isReactionType,
   matchMentionHandles,
   normalizePostDataFromDb,
   toHiddenPost,
@@ -238,8 +238,12 @@ export const transformPost = async (
   const entries = allEntries.filter(
     (entry) => !isReactionHistoryEntry(entry.type),
   ) as EntryWithProfile[];
+  // Legacy logs can carry malformed/empty reactions, so drop anything
+  // unusable before it can fail response validation. Reactions attached
+  // before a community removed them from its configured set (orphans) are
+  // intentionally kept — only new reactions are constrained by the write path.
   const reactions: ReactionProfile[] = currentReactionsFromEntries(allEntries)
-    .filter((item) => item.reaction === AP_LIKE_REACTION)
+    .filter((item) => isReactionType(item.reaction))
     // Privacy boundary: hide reactions from blocked pairs (either direction),
     // mirroring how blocked creators are tombstoned via withBlockTombstone.
     .filter(
@@ -247,7 +251,7 @@ export const transformPost = async (
         !currentProfile || !isBlockedPair(currentProfile, item.profile.id),
     )
     .map((item) => ({
-      reaction: AP_LIKE_REACTION,
+      reaction: item.reaction as ReactionProfile['reaction'],
       profile: item.profile as ProfileWithMeta,
     }));
   const reposts = await leanRepostsFromWrappers(post.reposts);
