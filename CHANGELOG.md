@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **share**: gate external share actions on public posts
 - **skills**: add generated-at line to milestone stats
 - **jams**: show observer presence indicator to participants
 - **rn-components**: consolidate the mobile layout onto the web layout
@@ -27,6 +28,11 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **rn-components**: re-render jam tiles when a remote video track swaps
+- **rn-components**: keep jam chat above the soft keyboard
+- **rn-components**: single-line picker rows with visible selection tint + a11y + SVG avatar (issue #1666)
+- **conversations**: repair the archived conversations query (recursive CTE, text-cast joins)
+- **events**: apply the active tab window to the calendar grid
 - **analytics**: scope active members to live local profiles across card and series
 - **composer**: keep typed text when switching composer type
 - **deps**: refresh stale lockfile resolutions to patched transitive versions
