@@ -27,7 +27,7 @@ description: >-
 
 ## Prerequisites
 
-1. Node.js 24.x (Node 20.19+ works for development)
+1. Node.js 24.x (development requires Node 24+, matching the `engines` floor — firebase-admin 14's always-on `@firebase/database-compat` dependency declares Node >=24.12)
 2. `pnpm@11.1.3` — `npm i -g pnpm@11.1.3`
 3. `ffmpeg` — required for media processing
 4. Docker — for Postgres, Redis, and Mailpit in local dev

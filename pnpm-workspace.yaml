@@ -125,14 +125,6 @@ overrides:
   # ranges (^4.7.9 / ^4.7.7) already allow 4.7.10; the lockfile is stale.
   # Patch-level, dev-only.
   handlebars: "4.7.10"
-  # form-data 2.5.3 (pulled by @types/request via retry-request /
-  # google-gax / firebase-admin chain in platform/core) carries 2 advisories:
-  # GHSA-fjxv-7rqg-78g4 (critical, unsafe random in boundary selection, >=2.5.4)
-  # and GHSA-hmw2-7cc7-3qxx (high, CRLF injection via unescaped multipart fields,
-  # >=2.5.6). Force 2.5.6 — in-range for @types/request's ^2.5.0 peer. Scoped
-  # override via @types/request>form-data keeps it from affecting the jsdom
-  # form-data@4.0.0 instance.
-  "@types/request>form-data": "2.5.6"
   # ical-generator (platform/common) declares moment as an optional peer
   # (>= 2.29.0), and react-native-calendars (platform/rn-components) depends on
   # moment ^2.29.4; the tree-wide hoisted 2.30.1 fills both and carries
@@ -225,8 +217,13 @@ overrides:
   "vite@>=7 <7.3.7": "7.3.8"
   # google-auth-library/gtoken pin jws ^4.0.0 (HMAC verify flaw, no patch in 4.0.0)
   "jws@4": "4.0.1"
-  # firebase-admin>jsonwebtoken pins jws ^3.2.2 (HMAC verify flaw, patched 3.2.3;
-  # jsonwebtoken 9.0.3 already moved to jws ^4.0.1 but firebase-admin 13 resolves 9.0.2)
+  # jsonwebtoken 9.0.2 — the version firebase-admin resolves (declares
+  # jws ^3.2.2); the v13-era google-auth-library/gtoken leg also matched,
+  # but that instance left the tree in this PR (gtoken: zero lockfile
+  # occurrences). google-auth-library@11.3.4 declares jws directly too,
+  # but its ^4.0.0 range resolves to 4.0.1 — the jws@4 pin, not this one.
+  # HMAC verify flaw, patched 3.2.3; jsonwebtoken 9.0.3 already moved to
+  # jws ^4.0.1 but firebase-admin resolves 9.0.2
   "jws@<3.2.3": "3.2.3"
   # firebase-admin>busboy chain (3 advisories: 2 high DoS + CRLF moderate)
   "@fastify/busboy@<3.2.2": "3.2.5"

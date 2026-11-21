@@ -20,7 +20,8 @@ import {
 } from '../pushSubscriptions';
 import { getNotificationStats } from './finders';
 import { ApnsClient, Notification as IOSPushNotification } from 'apns2';
-import firebase from 'firebase-admin';
+import { getApps } from 'firebase-admin/app';
+import { getMessaging } from 'firebase-admin/messaging';
 import { jwtUtil } from '../jwt';
 import { uuidv7 } from 'uuidv7';
 
@@ -44,6 +45,11 @@ const describeSubscription = (subscription: PushSubscription): string => {
       return `web sub=${subscription.id} endpoint=${host}`;
     }
     case 'webhook':
+      // Intentionally prints the full URL: the webhook endpoint is the
+      // subscriber's own configured destination (their choice to expose), and
+      // shortening it would make delivery-failure logs impossible to
+      // correlate. The apn/fcm tokens below stay shortened because they are
+      // device credentials, not user-configured endpoints.
       return `webhook sub=${subscription.id} url=${subscription.url}`;
     case 'apn':
       return `apn sub=${subscription.id} token=${shorten(subscription.apnToken)}`;
@@ -200,7 +206,7 @@ const sendAppFCMPushNotifications = async (
 
   const serializedPayload = JSON.stringify(payload);
   const tokens = subscriptions.map((sub) => sub.fcmToken);
-  if (firebase.apps.length === 0) {
+  if (getApps().length === 0) {
     for (const subscription of subscriptions) {
       await logFailure(
         jobLog,
@@ -220,10 +226,10 @@ const sendAppFCMPushNotifications = async (
   }
 
   let result: Awaited<
-    ReturnType<ReturnType<typeof firebase.messaging>['sendEachForMulticast']>
+    ReturnType<ReturnType<typeof getMessaging>['sendEachForMulticast']>
   >;
   try {
-    result = await firebase.messaging().sendEachForMulticast({
+    result = await getMessaging().sendEachForMulticast({
       tokens,
       data: { payload: serializedPayload },
       apns: {
@@ -250,6 +256,11 @@ const sendAppFCMPushNotifications = async (
     return;
   }
 
+  // v14 surfaces per-token failures as `response.error` objects (firebase#3140).
+  // No extra v14-specific error mapping is intentionally added here:
+  // `formatErrorDetail` (jobLog) already extracts `code`/`statusCode`/`reason`
+  // from whatever error shape arrives, so v14's error codes reach the job log
+  // pre-formatted.
   for (let i = 0; i < result.responses.length; i++) {
     const response = result.responses[i];
     const subscription = subscriptions[i];
