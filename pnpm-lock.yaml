@@ -1679,6 +1679,9 @@ importers:
       '@openpeepshq/cli':
         specifier: workspace:^
         version: link:../cli
+      '@openpeepshq/common':
+        specifier: workspace:^
+        version: link:../common
       '@openpeepshq/core':
         specifier: workspace:^
         version: link:../core

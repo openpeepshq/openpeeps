@@ -11,6 +11,10 @@ vi.mock('../../../i18n', () => ({
 
 const state = {
   signedIn: true,
+  isPublicPostGroup: false,
+  canRepostToCommunity: false,
+  navigations: [] as string[],
+  repost: (() => {}) as unknown as (...args: unknown[]) => Promise<unknown>,
   toasts: [] as { type: string; message: string }[],
 };
 
@@ -19,11 +23,16 @@ vi.mock('../../../hooks/posts/useShareMenu', () => ({
   useShareMenu: () => ({
     signedIn: state.signedIn,
     isEvent: false,
-    repost: () => {},
+    isPublicPostGroup: state.isPublicPostGroup,
+    canRepostToCommunity: state.canRepostToCommunity,
+    repost: state.repost,
     eventIcsFile: () => null,
   }),
 }));
 
+vi.mock('../../../contexts/router', () => ({
+  useNavigate: () => (path: string) => state.navigations.push(path),
+}));
 vi.mock('../../conversations/CreateNewConversationContext', () => ({
   useCreateNewConversation: () => ({
     openCreateConversation: () => {},
@@ -110,6 +119,10 @@ describe('ShareMenu', () => {
       globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
     ).IS_REACT_ACT_ENVIRONMENT = true;
     state.signedIn = true;
+    state.isPublicPostGroup = false;
+    state.canRepostToCommunity = false;
+    state.navigations = [];
+    state.repost = () => Promise.resolve({ id: 'repost-1' });
     state.toasts = [];
   });
 
@@ -206,5 +219,44 @@ describe('ShareMenu', () => {
     // The affordance is removed entirely rather than opening an empty
     // dropdown: no button, no menu.
     expect(container!.innerHTML).toBe('');
+  });
+
+  it('drives the community republish branch: label, success toast, navigate (round-6 S3)', async () => {
+    // The mocked hook carries the full gate shape the PR's branch reads:
+    // public group + both eligibility gates -> "Repost to community".
+    state.isPublicPostGroup = true;
+    state.canRepostToCommunity = true;
+    state.repost = () => Promise.resolve({ id: 'repost-42' });
+    render(PRIVATE_POST);
+    const html = container!.innerHTML;
+    expect(html).toContain('Repost to community');
+    expect(html).not.toContain('>Repost<');
+
+    const repostButton = [...container!.querySelectorAll('button')].find((b) =>
+      b.textContent?.includes('Repost to community'),
+    );
+    expect(repostButton).toBeTruthy();
+    await click(repostButton!);
+
+    expect(state.toasts).toEqual([
+      { type: 'success', message: 'Shared to the community' },
+    ]);
+    expect(state.navigations).toEqual(['/posts/repost-42']);
+  });
+
+  it('toasts an error and does not navigate when the community republish fails (round-6 S5)', async () => {
+    state.isPublicPostGroup = true;
+    state.canRepostToCommunity = true;
+    state.repost = () => Promise.reject(new Error('403'));
+    render(PRIVATE_POST);
+    const repostButton = [...container!.querySelectorAll('button')].find((b) =>
+      b.textContent?.includes('Repost to community'),
+    );
+    await click(repostButton!);
+
+    expect(state.toasts).toEqual([
+      { type: 'error', message: "Couldn't share to the community" },
+    ]);
+    expect(state.navigations).toEqual([]);
   });
 });

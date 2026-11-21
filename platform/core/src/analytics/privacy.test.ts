@@ -13,6 +13,16 @@ describe('isPublicAnalyticsGroup', () => {
   it('treats missing capabilities as private', () => {
     expect(isPublicAnalyticsGroup({})).toBe(false);
   });
+
+  it('treats an explicit remove as private', () => {
+    expect(
+      isPublicAnalyticsGroup({
+        capabilities: {
+          none: { add: ['core-groups-read'], remove: ['core-groups-read'] },
+        },
+      }),
+    ).toBe(false);
+  });
 });
 
 describe('isAnalyticsTopPostEligible', () => {

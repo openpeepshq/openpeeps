@@ -175,11 +175,20 @@ export const canRemoveMember = (
     ),
   ).success;
 
-export const isGroupDiscoverable = (group: GroupWithMeta) =>
+/**
+ * A group is public when role `none` (non-members) can read it
+ * (`core-groups-read`). Single source of truth for this predicate — the
+ * capability check is add/remove- and wildcard-aware, so analytics, SEO and
+ * server-side eligibility checks all agree on the answer.
+ */
+export const isPublicGroup = (group: GroupWithMeta) =>
   checkCapabilities(
     ['core-groups-read'],
     getGroupCapabilitiesByRoles(['none'], group),
   ).success;
+
+/** Backwards-compatible alias for {@link isPublicGroup}. */
+export const isGroupDiscoverable = isPublicGroup;
 
 /** Posts are only readable by explicit group members (not public/local). */
 export const hasMemberOnlyPostsVisibility = (

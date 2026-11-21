@@ -21,6 +21,7 @@ import {
 } from '../../../hooks/posts/useShareMenu';
 import { useCreateNewConversation } from '../../conversations/CreateNewConversationContext';
 import { useToast } from '../../layout/ToastProvider';
+import { useNavigate } from '../../../contexts/router';
 
 export interface ShareMenuProps {
   post: PublicPost;
@@ -48,12 +49,58 @@ export const ShareMenu = ({
   const t = useT();
   const { success, error: toastError } = useToast();
   const { openCreateConversation } = useCreateNewConversation();
+  const navigate = useNavigate();
   const postUrl = absolutePostUrl(post);
   const [copyModalOpen, setCopyModalOpen] = useState(false);
-  const { signedIn, isEvent, repost, eventIcsFile } = useShareMenu(
-    post,
-    postUrl,
-  );
+  const {
+    signedIn,
+    isEvent,
+    isPublicPostGroup,
+    canRepostToCommunity,
+    repost,
+    eventIcsFile,
+  } = useShareMenu(post, postUrl);
+
+  // Republishing a public-group post lands in the community feed; the same
+  // endpoint keeps a private-group/direct repost inside its original audience.
+  // The hook carries both gates the endpoint enforces on the republish path
+  // (the type-scoped group create capability on the source group plus the
+  // public-note write path), so the item is only offered when the caller can
+  // actually perform it (issue #654).
+  const repostToCommunity = isPublicPostGroup && canRepostToCommunity;
+  const repostAction = async () => {
+    try {
+      const created = await repost();
+      if (repostToCommunity) {
+        // Surface the new community post (issue #654): confirm with a toast and
+        // navigate to the republished public note the endpoint returned.
+        success(
+          t('posts.shareMenu.repostToCommunitySuccess', {
+            defaultValue: 'Shared to the community',
+          }),
+        );
+        navigate(`/posts/${created.id}`);
+      }
+    } catch {
+      // This menu owns the failure path (review round 6, item 5): the
+      // community path toasts, non-community reposts keep their prior silent
+      // handling. The error is deliberately not rethrown — the menu button
+      // invokes the action fire-and-forget, so rethrowing would surface as an
+      // unhandled promise rejection.
+      if (repostToCommunity) {
+        toastError(
+          t('posts.shareMenu.repostToCommunityError', {
+            defaultValue: "Couldn't share to the community",
+          }),
+        );
+      }
+    }
+  };
+  const repostLabel = repostToCommunity
+    ? t('posts.shareMenu.repostToCommunity', {
+        defaultValue: 'Repost to community',
+      })
+    : t('posts.shareMenu.repostToFeed', { defaultValue: 'Repost' });
   // Feature-detect. Desktop browsers often have no Web Share API; copy stays
   // in the menu either way.
   const canSystemShare =
@@ -126,14 +173,10 @@ export const ShareMenu = ({
               })}
             />
             <PopupMenuButton
-              title={t('posts.shareMenu.repostToFeed', {
-                defaultValue: 'Repost',
-              })}
-              text={t('posts.shareMenu.repostToFeed', {
-                defaultValue: 'Repost',
-              })}
+              title={repostLabel}
+              text={repostLabel}
               icon={Repeat2}
-              action={repost}
+              action={repostAction}
             />
             <PopupMenuButton
               title={t('posts.shareMenu.sendInMessage', {

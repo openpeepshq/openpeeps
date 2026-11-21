@@ -656,7 +656,10 @@ test.describe('creating events', () => {
           .getByRole('button', { name: new RegExp(`@${handle}\\b`) })
           .click();
       }
-      await picker.getByRole('button', { name: 'OK' }).click();
+      // `exact: true` — the picker's confirm button is labeled exactly "OK"
+      // (i18n `profile.selector.confirm`); a substring match also hits any
+      // invited-member row whose random handle happens to contain "ok".
+      await picker.getByRole('button', { name: 'OK', exact: true }).click();
       await expect(picker).toBeHidden();
       await confirmAudience(page);
 

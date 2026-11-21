@@ -335,7 +335,7 @@ type Mutators = {
   unbookmark: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
   seen: OpenpeepsPayloadEndpoint<SuccessResponse, PostsSeenRequest>;
   seenByGroup: OpenpeepsNoPayloadEndpoint<SuccessResponse, { groupId: string }>;
-  repost: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
+  repost: OpenpeepsNoPayloadEndpoint<PublicPost, { id: string }>;
   vote: OpenpeepsPayloadEndpoint<
     SuccessResponse,
     { selection: number[] },
@@ -393,7 +393,7 @@ const mutators = (rawClient: FetchClient): Mutators => ({
     '/posts/seen/by-group/:groupId',
     'post',
   ),
-  repost: allpeepNoPayloadEndpoint<SuccessResponse, { id: string }>(
+  repost: allpeepNoPayloadEndpoint<PublicPost, { id: string }>(
     rawClient,
     '/posts/:id/reposts',
     'post',

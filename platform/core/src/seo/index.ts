@@ -1,4 +1,5 @@
 import type { AuthorizationData } from '@openpeepshq/common/types';
+import { isPublicGroup } from '@openpeepshq/common/lib';
 import { capabilitiesConfig } from '../config';
 import { findGroupByHandle, listGroups } from '../groups';
 import { findPost, listPosts } from '../posts';
@@ -148,10 +149,14 @@ const resolveMeta = async (
 
   if (route.kind === 'group') {
     const group = await findGroupByHandle(route.handle);
-    // Groups have no visibility column; this mirrors
-    // `groupFilters.publiclyReadable()`, which reads the same capability.
-    if (!group?.capabilities?.none?.add?.includes('core-groups-read'))
-      return { meta: null };
+    // Groups have no visibility column; `isPublicGroup` (shared in common) is
+    // the add/remove- and wildcard-aware public check. Known divergence
+    // (review round 7, S6): the SQL list filter
+    // `groupFilters.publiclyReadable()` is not remove-aware (it only checks
+    // `none.add`), so for a remove-wins public group the sitemap list path
+    // and this check can disagree — the list path is a separate behavior
+    // decision and is intentionally left as-is.
+    if (!group || !isPublicGroup(group)) return { meta: null };
     const groupTitle = group.displayName || `@${group.handle}`;
     return {
       meta: {

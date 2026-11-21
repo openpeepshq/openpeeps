@@ -1,3 +1,4 @@
+import { groupCapabilityTemplates } from '@openpeepshq/common/lib';
 import { expect, test } from '@playwright/test';
 import {
   apiHeaders,
@@ -48,6 +49,27 @@ const memberCaps = {
       'core-groups-addMember',
       'core-groups-removeMember',
       'core-groups-changeMemberRole',
+    ],
+  },
+  owner: { add: ['core-posts-*', 'core-groups-*'] },
+};
+
+// The canonical public-group capability set, so the repost tests exercise the
+// exact configuration a real public group gets (role `none` can read the group
+// and join). Driven from the shared template rather than re-specified here to
+// avoid drift from `groupCapabilityTemplates.publicGroup`.
+const publicGroupCaps = groupCapabilityTemplates.publicGroup.capabilities;
+
+const privateGroupCaps = {
+  local: {
+    add: [
+      'core-groups-read',
+      'core-posts-read',
+      'core-groups-join',
+      'core-posts-react',
+      'core-posts-reply',
+      'core-posts-rsvp',
+      'core-posts-vote',
     ],
   },
   owner: { add: ['core-posts-*', 'core-groups-*'] },
@@ -242,6 +264,330 @@ test.describe('API coverage gaps', () => {
     expect(reposts.ok()).toBeTruthy();
     const list = await reposts.json();
     expect(Array.isArray(list) ? list.length : 0).toBeGreaterThan(0);
+  });
+
+  test('reposting a public-group post republishes to the community feed', async ({
+    request,
+  }) => {
+    const { token: ownerToken } = await loginUser(
+      request,
+      owner.email,
+      owner.password,
+    );
+    const handle = uniqueHandle('pub');
+    const group = await createGroup(request, ownerToken, {
+      handle,
+      displayName: `Public ${handle}`.slice(0, 30),
+      capabilities: publicGroupCaps,
+    });
+
+    const note = await createNote(
+      request,
+      ownerToken,
+      `Public group post ${uniqueHandle('pg')}`,
+      { groupId: group.id },
+    );
+
+    const repost = await request.post(
+      `/api/openpeeps/core/v1/posts/${note.id}/reposts`,
+      {
+        headers: apiHeaders(ownerToken),
+        data: {},
+      },
+    );
+    expect(repost.ok(), await repost.text()).toBeTruthy();
+    const body = (await repost.json()) as { visibility?: string };
+    expect(body.visibility).toBe('public');
+  });
+
+  test('republishing a public-group post records no repost relation or notification', async ({
+    request,
+  }) => {
+    const { token: ownerToken } = await loginUser(
+      request,
+      owner.email,
+      owner.password,
+    );
+    const handle = uniqueHandle('pubn');
+    const group = await createGroup(request, ownerToken, {
+      handle,
+      displayName: `Public ${handle}`.slice(0, 30),
+      capabilities: publicGroupCaps,
+    });
+
+    const note = await createNote(
+      request,
+      ownerToken,
+      `Public group post ${uniqueHandle('pg')}`,
+      { groupId: group.id },
+    );
+
+    // A second, member-role user reposts so the source author is the
+    // notification recipient.
+    const { token: memberToken } = await registerMember(request);
+
+    // Join the group so the group-scoped `core-posts-create-note` check passes.
+    const join = await request.post(
+      `/api/openpeeps/core/v1/groups/${group.id}/join`,
+      { headers: apiHeaders(memberToken), data: {} },
+    );
+    expect(join.ok(), await join.text()).toBeTruthy();
+
+    const repost = await request.post(
+      `/api/openpeeps/core/v1/posts/${note.id}/reposts`,
+      {
+        headers: apiHeaders(memberToken),
+        data: {},
+      },
+    );
+    expect(repost.ok(), await repost.text()).toBeTruthy();
+    const body = (await repost.json()) as {
+      id: string;
+      visibility?: string;
+      repost?: unknown;
+      data?: { content?: string };
+    };
+    expect(body.visibility).toBe('public');
+    // Link-only republish: the note carries the canonical source URL (with the
+    // group handle attributed in the content) and deliberately no repost edge.
+    expect(body.repost ?? null).toBeNull();
+    expect(body.data?.content ?? '').toContain(`/posts/${note.id}`);
+
+    // Because no repost relation is recorded, the source author is never
+    // notified. This pins the deliberate design (a product decision, not an
+    // oversight): extend this assertion to expect a `repost` notification if
+    // the design ever records the edge. A repost notification would carry the
+    // republished note (id = body.id) as its post, so filter on that — robust
+    // to the owner account sharing notifications across tests in this file.
+    const notifications = await request.get(
+      `/api/openpeeps/core/v1/profiles/current/notifications?limit=100`,
+      { headers: apiHeaders(ownerToken) },
+    );
+    expect(notifications.ok(), await notifications.text()).toBeTruthy();
+    const items = (await notifications.json()) as Array<{
+      type: string;
+      post?: { id: string } | null;
+    }>;
+    expect(
+      items.filter((n) => n.type === 'repost' && n.post?.id === body.id).length,
+    ).toBe(0);
+  });
+
+  test('republish attribution does not mention a profile whose handle collides with the group (S1)', async ({
+    request,
+  }) => {
+    // Group and profile handles live in separate namespaces, but a profile
+    // may legally reuse a group's handle. The old `From @<handle>:` prefix
+    // parsed as a mention (`@<handle>` + `:` is exactly the mention regex's
+    // shape), which would notify that profile for every republish. The
+    // `@`-less attribution must create no mention edge and no notification.
+    const { token: ownerToken } = await loginUser(
+      request,
+      owner.email,
+      owner.password,
+    );
+    const handle = uniqueHandle('pubc');
+    const group = await createGroup(request, ownerToken, {
+      handle,
+      displayName: `Public ${handle}`.slice(0, 30),
+      capabilities: publicGroupCaps,
+    });
+
+    const note = await createNote(
+      request,
+      ownerToken,
+      `Public group post ${uniqueHandle('pg')}`,
+      { groupId: group.id },
+    );
+
+    // A profile whose handle collides with the source group's handle.
+    const collidingEmail = `collide-${handle}@openpeeps.test`;
+    const { token: collidingToken } = await registerUser(request, {
+      handle,
+      email: collidingEmail,
+      password: 'testtest12',
+    });
+
+    const { token: memberToken } = await registerMember(request);
+    const join = await request.post(
+      `/api/openpeeps/core/v1/groups/${group.id}/join`,
+      { headers: apiHeaders(memberToken), data: {} },
+    );
+    expect(join.ok(), await join.text()).toBeTruthy();
+
+    const repost = await request.post(
+      `/api/openpeeps/core/v1/posts/${note.id}/reposts`,
+      { headers: apiHeaders(memberToken), data: {} },
+    );
+    expect(repost.ok(), await repost.text()).toBeTruthy();
+    const body = (await repost.json()) as {
+      id: string;
+      data?: { content?: string };
+    };
+
+    // The attribution keeps the group handle but drops the `@`, so the
+    // content extracts no mention.
+    expect(body.data?.content ?? '').toContain(`From ${handle}:`);
+    expect(body.data?.content ?? '').not.toContain(`@${handle}`);
+
+    // No mention edge pointing at the colliding profile: read the
+    // republished post back and assert none of its mentions resolve to the
+    // colliding handle.
+    const created = await request.get(
+      `/api/openpeeps/core/v1/posts/${body.id}`,
+      { headers: apiHeaders(collidingToken) },
+    );
+    expect(created.ok(), await created.text()).toBeTruthy();
+    const createdPost = (await created.json()) as {
+      mentions?: Array<{ data?: { text?: string }; profile?: { handle?: string } }>;
+    };
+    expect(
+      (createdPost.mentions ?? []).some((m) => m.profile?.handle === handle),
+    ).toBe(false);
+
+    // And no notification of any kind for the colliding profile referencing
+    // the republished post.
+    const notifications = await request.get(
+      `/api/openpeeps/core/v1/profiles/current/notifications?limit=100`,
+      { headers: apiHeaders(collidingToken) },
+    );
+    expect(notifications.ok(), await notifications.text()).toBeTruthy();
+    const items = (await notifications.json()) as Array<{
+      type: string;
+      post?: { id: string } | null;
+    }>;
+    expect(items.filter((n) => n.post?.id === body.id).length).toBe(0);
+  });
+
+  test('republished note appears in the local feed for a non-member viewer', async ({
+    request,
+  }) => {
+    const { token: ownerToken } = await loginUser(
+      request,
+      owner.email,
+      owner.password,
+    );
+    const handle = uniqueHandle('pubf');
+    const group = await createGroup(request, ownerToken, {
+      handle,
+      displayName: `Public ${handle}`.slice(0, 30),
+      capabilities: publicGroupCaps,
+    });
+
+    const note = await createNote(
+      request,
+      ownerToken,
+      `Public group post ${uniqueHandle('pg')}`,
+      { groupId: group.id },
+    );
+
+    const repost = await request.post(
+      `/api/openpeeps/core/v1/posts/${note.id}/reposts`,
+      {
+        headers: apiHeaders(ownerToken),
+        data: {},
+      },
+    );
+    expect(repost.ok(), await repost.text()).toBeTruthy();
+    const body = (await repost.json()) as { id?: string };
+    expect(body.id).toBeTruthy();
+
+    // The outcome the issue asks for: the republished public note is
+    // readable by someone outside the group. Read the created post's own
+    // endpoint with a separate non-member account instead of scanning a feed
+    // page — the assertion then pins the outcome itself rather than the
+    // layout of a page (review round 6, item 8).
+    const { token: readerToken } = await registerMember(request);
+    const read = await request.get(`/api/openpeeps/core/v1/posts/${body.id}`, {
+      headers: apiHeaders(readerToken),
+    });
+    expect(read.ok(), await read.text()).toBeTruthy();
+    const readBack = (await read.json()) as {
+      id?: string;
+      visibility?: string;
+    };
+    expect(readBack.id).toBe(body.id);
+    expect(readBack.visibility).toBe('public');
+  });
+
+  test('non-member cannot republish a public-group post (403, no post created)', async ({
+    request,
+  }) => {
+    const { token: ownerToken } = await loginUser(
+      request,
+      owner.email,
+      owner.password,
+    );
+    const handle = uniqueHandle('pubx');
+    const group = await createGroup(request, ownerToken, {
+      handle,
+      displayName: `Public ${handle}`.slice(0, 30),
+      capabilities: publicGroupCaps,
+    });
+
+    const note = await createNote(
+      request,
+      ownerToken,
+      `Public group post ${uniqueHandle('pg')}`,
+      { groupId: group.id },
+    );
+
+    // Signed-in member of the community, but NOT a member of the source
+    // group: the group-scoped `core-posts-create-note` gate must fail the
+    // republish with 403 and create nothing.
+    const { token: outsiderToken } = await registerMember(request);
+
+    const repost = await request.post(
+      `/api/openpeeps/core/v1/posts/${note.id}/reposts`,
+      {
+        headers: apiHeaders(outsiderToken),
+        data: {},
+      },
+    );
+    expect(repost.status()).toBe(403);
+
+    // Nothing was created: the source still has zero reposts.
+    const reposts = await request.get(
+      `/api/openpeeps/core/v1/posts/${note.id}/reposts`,
+      { headers: apiHeaders(ownerToken) },
+    );
+    expect(reposts.ok(), await reposts.text()).toBeTruthy();
+    const list = (await reposts.json()) as unknown[];
+    expect(list.length).toBe(0);
+  });
+
+  test('reposting a private-group post stays in the group', async ({
+    request,
+  }) => {
+    const { token: ownerToken } = await loginUser(
+      request,
+      owner.email,
+      owner.password,
+    );
+    const handle = uniqueHandle('prv');
+    const group = await createGroup(request, ownerToken, {
+      handle,
+      displayName: `Private ${handle}`.slice(0, 30),
+      capabilities: privateGroupCaps,
+    });
+
+    const note = await createNote(
+      request,
+      ownerToken,
+      `Private group post ${uniqueHandle('pg')}`,
+      { groupId: group.id },
+    );
+
+    const repost = await request.post(
+      `/api/openpeeps/core/v1/posts/${note.id}/reposts`,
+      {
+        headers: apiHeaders(ownerToken),
+        data: {},
+      },
+    );
+    expect(repost.ok(), await repost.text()).toBeTruthy();
+    const body = (await repost.json()) as { visibility?: string };
+    expect(body.visibility).toBe('group');
   });
 
   test('search posts finds created content', async ({ request }) => {

@@ -1,4 +1,4 @@
-import { buildEventIcs } from '@openpeepshq/common/lib';
+import { buildEventIcs, postCanonicalUrl } from '@openpeepshq/common/lib';
 import type {
   EmailAttachment,
   ExpandedNotification,
@@ -32,7 +32,9 @@ export const eventIcsEmailAttachment = (
   if (!post) return undefined;
 
   const ics = buildEventIcs(post, {
-    postUrl: `${rootUrl}/posts/${post.id}`,
+    // `postCanonicalUrl` is the shared post-link format, so the calendar
+    // file's link stays in sync with republished-repost note content.
+    postUrl: postCanonicalUrl(rootUrl, post.id),
   });
   if (!ics) return undefined;
 

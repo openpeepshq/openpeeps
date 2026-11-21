@@ -9,6 +9,7 @@ import {
   canAddMember,
   canRemoveMember,
   isGroupDiscoverable,
+  isPublicGroup,
   groupCapabilityTemplates,
   hasMemberOnlyPostsVisibility,
   groupRoleChangeBlocked,
@@ -259,6 +260,32 @@ describe('groupHelpers', () => {
       };
       const result = isGroupDiscoverable(nonDiscoverableGroup);
       expect(result).toBe(false);
+    });
+  });
+
+  describe('isPublicGroup', () => {
+    it('should return true when none can read the group', () => {
+      expect(isPublicGroup(mockGroupWithMeta)).toBe(true);
+    });
+
+    it('should return false when none is not granted read', () => {
+      const privateGroup = {
+        ...mockGroupWithMeta,
+        capabilities: {
+          none: { add: [], remove: [] },
+        },
+      };
+      expect(isPublicGroup(privateGroup)).toBe(false);
+    });
+
+    it('should return false when read is removed even if added', () => {
+      const removedGroup = {
+        ...mockGroupWithMeta,
+        capabilities: {
+          none: { add: ['core-groups-read'], remove: ['core-groups-read'] },
+        },
+      };
+      expect(isPublicGroup(removedGroup)).toBe(false);
     });
   });
 

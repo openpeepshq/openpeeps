@@ -38,9 +38,12 @@ import {
   postEditVersions,
   postEditVersionKind,
   isPubliclyShareable,
+  postCanonicalUrl,
+  republishContent,
 } from '../postHelpers';
 import { visibilityTypeValues } from '../../types';
 import { groupCapabilityTemplates } from '../groupHelpers';
+import { matchMentionHandles } from '../markdownHelpers';
 import {
   getJamUrl,
   jamFromEvent,
@@ -1667,5 +1670,66 @@ describe('postHelpers', () => {
     it('is true for public', () => {
       expect(isPubliclyShareable({ visibility: 'public' })).toBe(true);
     });
+  });
+});
+
+describe('postCanonicalUrl', () => {
+  it('builds the canonical absolute post link from a server root', () => {
+    expect(postCanonicalUrl('https://community.example', 'post-123')).toBe(
+      'https://community.example/posts/post-123',
+    );
+  });
+
+  // The republished-repost note content and the notification ICS attachment
+  // both build their post links through this helper, so they must produce the
+  // identical format (issue #654, S4 regression guard).
+  it('matches the link format the notification ICS attachment uses', () => {
+    const rootUrl = 'https://community.example';
+    const postId = '019f3e5e-b11f-7e8a-b3ca-a9cc0c77a5e7';
+    const notificationLink = `${rootUrl}/posts/${postId}`;
+    expect(postCanonicalUrl(rootUrl, postId)).toBe(notificationLink);
+  });
+});
+
+describe('republishContent', () => {
+  const rootUrl = 'https://community.example';
+  const postId = '019f3e5e-b11f-7e8a-b3ca-a9cc0c77a5e7';
+
+  it('links to the source post with no attribution when there is no handle', () => {
+    expect(republishContent(rootUrl, postId)).toBe(
+      `${rootUrl}/posts/${postId}`,
+    );
+  });
+
+  it('attributes the source group handle', () => {
+    expect(republishContent(rootUrl, postId, 'openpeeps')).toBe(
+      `From openpeeps:\n${rootUrl}/posts/${postId}`,
+    );
+  });
+
+  // The endpoint builds the republished note through this same helper, so its
+  // link must match the notification ICS link format (issue #654, S4 guard).
+  it('builds its link through postCanonicalUrl like the notification ICS', () => {
+    const [attribution, ...rest] = republishContent(
+      rootUrl,
+      postId,
+      'openpeeps',
+    ).split('\n');
+    expect(attribution).toBe('From openpeeps:');
+    expect(rest.join('\n')).toBe(postCanonicalUrl(rootUrl, postId));
+  });
+
+  // Review round 7, S1: the attribution must not parse as a profile mention.
+  // `matchMentionHandles` matches `@<handle>` when preceded by whitespace (or
+  // start) and followed by `:` — exactly the old `From @handle:` shape, which
+  // would mention (and notify) any profile whose handle collides with the
+  // source group's. The `@`-less prefix extracts nothing.
+  it('writes the attribution without the @ so it extracts no mention', () => {
+    expect(matchMentionHandles(republishContent(rootUrl, postId, 'openpeeps')))
+      .toEqual([]);
+    // The old shape this replaces did extract the handle:
+    expect(
+      matchMentionHandles(`From @openpeeps:\n${postCanonicalUrl(rootUrl, postId)}`),
+    ).toEqual(['openpeeps']);
   });
 });

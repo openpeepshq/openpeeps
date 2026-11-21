@@ -19,6 +19,18 @@ import Toast from 'react-native-toast-message';
 
 let mockSignedIn = true;
 
+// Full hook shape (review round 7, S4): the previous mock omitted
+// `isPublicPostGroup`/`canRepostToCommunity`, which rendered `undefined` and
+// made the community-repost branch in the component untestable.
+let mockShareMenu = {
+  signedIn: true,
+  isEvent: false,
+  isPublicPostGroup: false,
+  canRepostToCommunity: false,
+  repost: jest.fn(),
+  eventIcsFile: () => null,
+};
+
 jest.mock('react-native', () => ({
   Share: { share: jest.fn() },
 }));
@@ -60,7 +72,9 @@ jest.mock('@openpeepshq/react', () => ({
   postPublicPath: (post: { id: string }) => `/posts/${post.id}`,
   useShareMenu: () => ({
     signedIn: mockSignedIn,
-    isEvent: false,
+    isEvent: mockShareMenu.isEvent,
+    isPublicPostGroup: mockShareMenu.isPublicPostGroup,
+    canRepostToCommunity: mockShareMenu.canRepostToCommunity,
     repost: jest.fn(),
     eventIcsFile: () => null,
   }),
@@ -140,8 +154,40 @@ const render = (post: unknown) => {
 
 beforeEach(() => {
   mockSignedIn = true;
+  mockShareMenu = {
+    signedIn: true,
+    isEvent: false,
+    isPublicPostGroup: false,
+    canRepostToCommunity: false,
+    repost: jest.fn(),
+    eventIcsFile: () => null,
+  };
   (Toast.show as jest.Mock).mockClear();
   (Clipboard.setString as jest.Mock).mockClear();
+});
+
+// Issue #654: the in-community repost item is labelled "Repost to community"
+// only when the post is a public-group post AND the hook's community gate
+// passes; otherwise it falls back to the plain "Repost" label.
+test('public-group post that passes the community gate shows "Repost to community" (#654 S4)', () => {
+  mockShareMenu.isPublicPostGroup = true;
+  mockShareMenu.canRepostToCommunity = true;
+  const tree = render({ id: 'post-1', visibility: 'public' });
+  const json = tree.toJSON();
+  expect(findByTestID(json, 'menu-Repost to community')).toBeTruthy();
+  expect(findByTestID(json, 'menu-Repost')).toBeUndefined();
+  expect(findByTestID(json, 'menu-Copy link')).toBeTruthy();
+  tree.unmount();
+});
+
+test('public-group post that fails the community gate keeps the plain "Repost" label (#654 S4)', () => {
+  mockShareMenu.isPublicPostGroup = true;
+  mockShareMenu.canRepostToCommunity = false;
+  const tree = render({ id: 'post-1', visibility: 'public' });
+  const json = tree.toJSON();
+  expect(findByTestID(json, 'menu-Repost to community')).toBeUndefined();
+  expect(findByTestID(json, 'menu-Repost')).toBeTruthy();
+  tree.unmount();
 });
 
 test('public post: external items, in-community items, and the section header render', () => {

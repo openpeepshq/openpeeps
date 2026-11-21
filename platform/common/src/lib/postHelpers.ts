@@ -39,6 +39,41 @@ import { scopeMatches } from './scopeHelpers';
 import { countBy, dateSorter, groupBy, transformValues } from './utils';
 import { truncateText } from './text';
 
+/**
+ * Canonical absolute URL for a post under a server root, e.g.
+ * `https://community.example/posts/<id>`. Single source of truth for the
+ * post-link format: it is used both by the republished-repost note content
+ * (public-group repost, issue #654) and by notification email/ICS links, so
+ * the two cannot silently diverge.
+ */
+export const postCanonicalUrl = (rootUrl: string, postId: string) =>
+  `${rootUrl}/posts/${postId}`;
+
+/**
+ * Note content for a public-group repost republished to the community feed
+ * (issue #654): the canonical link to the source post, prefixed with the
+ * source group handle when present. Pure so the endpoint and its tests share
+ * the exact builder — and stay in lockstep with the notification link format,
+ * since both route through {@link postCanonicalUrl}.
+ *
+ * The handle is written **without** the `@` (review round 7, S1): the note
+ * content runs through `resolveMentionsForPost` → `matchMentionHandles` in
+ * `createPost`, and `@<handle>:` (whitespace before, `:` after) is exactly
+ * the shape that regex matches — so the attributed prefix would create a
+ * mention edge (and a "mentioned you" notification) for any profile whose
+ * handle collides with the source group's. Group and profile handles live in
+ * separate namespaces, but the collision is legal and the notification would
+ * be wrong.
+ */
+export const republishContent = (
+  rootUrl: string,
+  postId: string,
+  groupHandle?: string,
+) => {
+  const url = postCanonicalUrl(rootUrl, postId);
+  return groupHandle ? `From ${groupHandle}:\n${url}` : url;
+};
+
 const buildThread = (rootPost: PublicPost, postList: PublicPost[]): Thread => ({
   ...rootPost,
   children: postList
