@@ -190,11 +190,34 @@ overrides:
   "browserslist@<4.28.7": "4.28.7"
   # markdown-it@10 -> 14.3.3 (5 advisories) + its linkify-it@2.2.0 (2 high quadratic DoS)
   "linkify-it@<5.0.2": "5.0.2"
-  # glob 7/8/9/10.x (CLI cmd injection high + AbortSignal bypass moderate)
+  # glob 7/8 (CLI cmd injection high, fixed in 7.2.3 / 8.1.0).
   "glob@7": "7.2.3"
   "glob@8": "8.1.0"
-  "glob@>=9 <10": "9.3.5"
-  "glob@>=10 <10.5": "10.5.0"
+  # glob >=9 <14.0.2: AbortSignal cancellation bypass (GHSA-3g3m-2fjr-6pw4,
+  # moderate) — the 9.3.5 / 10.5.0 pins from the wave-3 batch are themselves
+  # vulnerable (advisory range is >=9.0.0 <=14.0.1). The only patched line is
+  # 14.x (first 14.0.2). Three consumers of glob 9/10, all dev/build tooling
+  # plus archiver's server-side zip path:
+  #   - archiver-utils 5.0.2 (wants glob ^10.0.0; archiver ^7, platform/core): glob.sync
+  #   - sucrase 3.35.0 (wants glob ^10.3.10; tailwindcss ^3, dev tooling): glob.glob
+  #   - babel-plugin-module-resolver 5.0.2 (wants glob ^9.3.3; react-native-builder-bob dev tooling):
+  #     _interopRequireDefault(require('glob')).default — glob >=10 (CJS) sets
+  #     __esModule: true but exports no default, so the plugin's glob call
+  #     sites (normalizeRoot: hasMagic/sync) crash with "Cannot read properties
+  #     of undefined" if reached. normalizeRoot calls hasMagic on every
+  #     non-empty `root` entry (the glob.sync branch only runs on magic
+  #     paths), so under 14.0.6 any `root` option — glob-magic or plain —
+  #     crashes, not just magic ones; no first-party config passes `root`
+  #     (bob's generated config passes only `alias`), and the `root`
+  #     regression guard in
+  #     platform/rn-components/src/lib/moduleResolverRootGuard.test.ts keeps
+  #     it that way. The 9.3.5 resolved for that consumer before the override
+  #     does export `default`, so this one consumer is a behavior-visible
+  #     change on a latent path, not a no-op.
+  # The two named call sites (glob.sync, glob.glob) use the stable named v8+
+  # API that is unchanged through 14.x, so 14.0.6 (latest 14.x) resolves
+  # cleanly.
+  "glob@>=9 <14.0.2": "14.0.6"
   # picomatch 2.3.1 / 4.0.2 (ReDoS high + method injection moderate)
   "picomatch@>=2 <2.3.2": "2.3.2"
   "picomatch@>=4 <4.0.4": "4.0.4"
