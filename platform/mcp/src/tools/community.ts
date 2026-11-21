@@ -2,9 +2,11 @@ import { McpServer } from '@modelcontextprotocol/server';
 import { openpeepsClient } from '@openpeepshq/client';
 import {
   applySimpleGroupTemplate,
+  AP_LIKE_REACTION,
   defaultSimpleGroupTemplate,
   federatedHandleSchema,
   postDataUnionSchema,
+  reactionTypeSchema,
 } from '@openpeepshq/common';
 import * as z from '@openpeepshq/common/zod';
 import { runTool, unwrap } from '../result.js';
@@ -461,15 +463,20 @@ export const registerCommunityTools = (
   register(
     'react',
     {
-      description: 'React to a post. The only supported reaction is 👍.',
+      description:
+        'React to a post with one of the curated reactions (defaults to 👍).',
       inputSchema: z.object({
         id: z.string().uuid(),
+        reaction: reactionTypeSchema.optional(),
       }),
     },
-    async ({ id }) =>
+    async ({ id, reaction }) =>
       runTool(() =>
         unwrap(
-          client.posts.react({ reaction: '👍' }, { pathParameters: { id } }),
+          client.posts.react(
+            { reaction: reaction ?? AP_LIKE_REACTION },
+            { pathParameters: { id } },
+          ),
         ),
       ),
   );
@@ -477,14 +484,21 @@ export const registerCommunityTools = (
   register(
     'unreact',
     {
-      description: 'Remove your reaction from a post.',
+      description:
+        'Remove your reaction from a post (defaults to the plain like).',
       inputSchema: z.object({
         id: z.string().uuid(),
+        reaction: reactionTypeSchema.optional(),
       }),
     },
-    async ({ id }) =>
+    async ({ id, reaction }) =>
       runTool(() =>
-        unwrap(client.posts.retractReaction({ pathParameters: { id } })),
+        unwrap(
+          client.posts.retractReaction({
+            pathParameters: { id },
+            queryParameters: reaction ? { reaction } : undefined,
+          }),
+        ),
       ),
   );
 

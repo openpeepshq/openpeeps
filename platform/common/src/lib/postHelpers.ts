@@ -771,10 +771,10 @@ export type PostActionAvailability = {
 };
 
 /**
- * Whether Reply / Repost / Like should look live. Non-members of a group
+ * Whether Reply / Repost / React should look live. Non-members of a group
  * post stay fully disabled (existing feed rule). Each action also follows
  * the capability the matching write endpoint actually checks: feed replies
- * and reposts need create-*, likes need core-posts-react.
+ * and reposts need create-*, reactions need core-posts-react.
  */
 export const getPostActionAvailability = (
   authData: AuthorizationData,

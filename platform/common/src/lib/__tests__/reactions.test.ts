@@ -1,17 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  AP_LIKE_REACTION,
-  activityPubActivityForReaction,
-  currentReactionsFromEntries,
-} from '../reactions';
-
-describe('activityPubActivityForReaction', () => {
-  it('maps only thumbs up and down', () => {
-    expect(activityPubActivityForReaction('👍')).toBe('Like');
-    expect(activityPubActivityForReaction('👎')).toBe('Dislike');
-    expect(activityPubActivityForReaction('❤️')).toBeNull();
-  });
-});
+import { currentReactionsFromEntries } from '../reactions';
 
 describe('currentReactionsFromEntries', () => {
   const profileA = { id: 'a' };
@@ -43,16 +31,46 @@ describe('currentReactionsFromEntries', () => {
       {
         type: 'reaction',
         createdAt: '2026-01-01T00:00:00.000Z',
-        data: { reaction: AP_LIKE_REACTION },
+        data: { reaction: '👍' },
         profile: profileB,
       },
       {
         type: 'unreaction',
         createdAt: '2026-01-01T00:02:00.000Z',
-        data: { reaction: AP_LIKE_REACTION },
+        data: { reaction: '👍' },
         profile: profileB,
       },
     ]);
     expect(current).toEqual([]);
+  });
+
+  it('sorts unsorted entries so the chronologically latest wins dedup', () => {
+    // Feed newest-first so the only thing that can preserve "latest wins" is
+    // the ascending sort (the DM retraction decision in usePostReactions rests
+    // on this order surviving). Without the sort, the stale 👍 entry (first in
+    // the array) would win dedup and the current ❤️ would be dropped.
+    const current = currentReactionsFromEntries([
+      {
+        type: 'unreaction',
+        createdAt: '2026-01-01T00:02:00.000Z',
+        data: { reaction: '👍' },
+        profile: profileA,
+      },
+      {
+        type: 'reaction',
+        createdAt: '2026-01-01T00:01:00.000Z',
+        data: { reaction: '❤️' },
+        profile: profileA,
+      },
+      {
+        type: 'reaction',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        data: { reaction: '👍' },
+        profile: profileA,
+      },
+    ]);
+    // Ascending order is what survives: the unreaction (latest) clears the 👍,
+    // the ❤️ (mid, and still active) remains.
+    expect(current).toEqual([{ reaction: '❤️', profile: profileA }]);
   });
 });

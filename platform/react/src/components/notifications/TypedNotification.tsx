@@ -8,7 +8,7 @@ import {
   Users,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { profileName, groupName } from '@openpeepshq/common';
+import { profileName, groupName, AP_LIKE_REACTION } from '@openpeepshq/common';
 import {
   isRsvpCancelNotice,
   isWaitlistOfferNotice,
@@ -97,7 +97,10 @@ function ReactionNotification({
 }) {
   const t = useT();
   const profile = notification.senderProfile!;
-  const reaction = (notification.data as { reaction?: string })?.reaction;
+  // Render the stored reaction (parity with the RN Reaction notification);
+  // fall back to the legacy plain like for old notifications without one.
+  const reaction =
+    (notification.data as { reaction?: string })?.reaction ?? AP_LIKE_REACTION;
   return (
     <NotificationWrapper
       profile={profile}

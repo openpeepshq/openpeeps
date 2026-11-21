@@ -41,6 +41,7 @@ export {
 export type { UseJamParticipantMuteArgs } from './jams/useJamParticipant';
 export { useFeedPostActions } from './posts/useFeedPostActions';
 export { usePostReactionToggle } from './posts/usePostReactionToggle';
+export { usePostReactions } from './posts/usePostReactions';
 export {
   feedPostPresentation,
   useFeedPostPresentation,

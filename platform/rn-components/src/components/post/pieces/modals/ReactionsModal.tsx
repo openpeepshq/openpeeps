@@ -29,7 +29,7 @@ export const ReactionsModal = ({
         </ThemedText>
         {reactions.map(({ reaction, profile }) => (
           <ProfileWithActionCard
-            key={profile.id}
+            key={`${profile.id}-${reaction}`}
             profile={profile}
             leading={<ThemedText>{reaction}</ThemedText>}
           />

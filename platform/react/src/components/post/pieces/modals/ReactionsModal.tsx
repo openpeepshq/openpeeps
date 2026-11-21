@@ -32,7 +32,7 @@ export function ReactionsModal({
         <article className="pb-3">
           {reactions.map(({ reaction, profile }) => (
             <ProfileWithActionCard
-              key={profile.id}
+              key={`${profile.id}-${reaction}`}
               profile={profile}
               leading={<span>{reaction}</span>}
             />

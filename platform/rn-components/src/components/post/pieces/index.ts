@@ -18,6 +18,7 @@ export * from './PostActions';
 export * from './PostInfoHeader';
 export * from './PostMenu';
 export * from './PostReactionHeader';
+export * from './ReactionPicker';
 export * from './ShareMenu';
 export * from './UnreadPostIndicator';
 export * from './VideoPlayer';

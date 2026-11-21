@@ -1,13 +1,13 @@
-export const AP_LIKE_REACTION = '👍';
-export const AP_DISLIKE_REACTION = '👎';
+import { REACTION_TYPES, type ReactionData } from '../types';
 
-export const activityPubActivityForReaction = (
+/** The legacy plain like a bodyless DELETE retracts for pre-picker clients. */
+export const AP_LIKE_REACTION = REACTION_TYPES[0];
+
+/** Whether a logged reaction value is one of the curated post reactions. */
+export const isReactionType = (
   reaction: string,
-): 'Like' | 'Dislike' | null => {
-  if (reaction === AP_LIKE_REACTION) return 'Like';
-  if (reaction === AP_DISLIKE_REACTION) return 'Dislike';
-  return null;
-};
+): reaction is ReactionData['reaction'] =>
+  (REACTION_TYPES as readonly string[]).includes(reaction);
 
 export type ReactionLogEntry = {
   type: string;
