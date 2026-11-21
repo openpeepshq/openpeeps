@@ -187,7 +187,7 @@ const ScreenSharingLayout = ({
   const videoTrack = isTrackReference(screenShareTrack)
     ? screenShareTrack.publication.track
     : undefined;
-  const mediaStreamEpoch = useLateTrackMediaStream(videoTrack);
+  const { remountKey } = useLateTrackMediaStream(videoTrack);
 
   return (
     <View className="size-full gap-2">
@@ -199,7 +199,7 @@ const ScreenSharingLayout = ({
         <View className="relative min-h-0 w-full flex-1 overflow-hidden rounded-xl border border-border">
           {videoTrack ? (
             <VideoTrack
-              key={`${videoTrack.sid}-${mediaStreamEpoch}`}
+              key={`${videoTrack.sid}-${remountKey}`}
               trackRef={screenShareTrack as TrackReference}
               style={StyleSheet.absoluteFill}
               objectFit="contain"
