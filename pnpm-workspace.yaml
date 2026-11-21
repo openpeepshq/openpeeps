@@ -302,6 +302,19 @@ overrides:
   # index.js) so require("uuid") in the google stack keeps working. Scoped to
   # the vulnerable range so the already-patched mermaid copy stays untouched.
   "uuid@<11.1.1": "11.1.1"
+  # @fedify/fedify (platform/server) pins @opentelemetry/sdk-metrics at exactly
+  # 2.7.1, which resolves @opentelemetry/core@2.7.1 (GHSA-8988-4f7v-96qf
+  # moderate: unbounded memory allocation in W3C Baggage propagation, patched
+  # >=2.8.0). Bumping @fedify/* to 2.4.6 does not clear it — 2.4.6's published
+  # manifest pins the same sdk-metrics 2.7.1, so the override is the fix and
+  # the bump is only for peer alignment. sdk-metrics@2.12.0 declares
+  # core@2.12.0 + resources@2.12.0 (already in the tree via fedify's
+  # sdk-trace-base@2.12.0 leg) and peers @opentelemetry/api >=1.9.0 <1.10.0
+  # (fedify declares ~1.9.1), so it adds one resolution and removes the
+  # 2.7.1 core/resources legs entirely. Parent-scoped: fedify is the only
+  # consumer of sdk-metrics in the tree (@fedify/express / @fedify/postgres
+  # declare no OTel deps), and a scoped key leaves future consumers free.
+  "@fedify/fedify>@opentelemetry/sdk-metrics": "2.12.0"
 
   # @sentry/node@10.x (platform/core, #2250) vendors its own DB
   # instrumentations, which still emit the db.user span attribute
@@ -338,17 +351,21 @@ allowBuilds:
 # Supply-chain policy: keep newly published versions (any version whose
 # publish time is newer than this window, in minutes) out of resolution.
 # Fresh resolutions read this from pnpm-workspace.yaml at install time
-# (pnpm 11 does not record minimumReleaseAge* in the lockfile). The exclude
-# below whitelists the security override's target package so a freshly
+# (pnpm 11 does not record minimumReleaseAge* in the lockfile). The excludes
+# below whitelist the security overrides' target packages so a freshly
 # published patched release can resolve inside the window — the alternative
 # is staying on the vulnerable pin until the package is 24h old.
 #
-# Maintenance rule: the exclude is a name-only pattern (all versions of
-# @hono/node-server, not just 2.1.9), so when the override target above is
-# re-pointed at a future patched release — e.g. a 2.1.10 fixing a new
-# advisory — no change to this list is needed: the name-only pattern covers
-# the new version and, if it published inside the 24h window, resolves
-# immediately instead of hard-failing under the strict age policy.
+# Maintenance rule: the excludes are name-only patterns (all versions of the
+# security-override targets — @hono/node-server, @opentelemetry/sdk-metrics —
+# and of the lockstep-versioned OTel legs any sdk-metrics re-point resolves
+# alongside it — @opentelemetry/core, @opentelemetry/resources — not just the
+# currently pinned ones), so when an override target above is re-pointed at a
+# future patched release — e.g. a @hono/node-server 2.1.10 or an
+# @opentelemetry/sdk-metrics 2.12.2 fixing a new advisory — no change to this
+# list is needed: the name-only patterns cover the new versions and, if they
+# published inside the 24h window, resolve immediately instead of hard-failing
+# under the strict age policy.
 minimumReleaseAge: 1440
 
 minimumReleaseAgeExclude:
@@ -357,3 +374,6 @@ minimumReleaseAgeExclude:
   # re-pointed at a future patched release, the name-only pattern lets it
   # resolve immediately even if it publishes inside the 24h window.
   - uuid
+  - '@opentelemetry/sdk-metrics'
+  - '@opentelemetry/core'
+  - '@opentelemetry/resources'

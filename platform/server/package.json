@@ -20,9 +20,9 @@
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^8.5.0",
-    "@fedify/express": "^2.3.6",
-    "@fedify/fedify": "^2.3.6",
-    "@fedify/postgres": "^2.3.6",
+    "@fedify/express": "^2.4.6",
+    "@fedify/fedify": "^2.4.6",
+    "@fedify/postgres": "^2.4.6",
     "@js-temporal/polyfill": "^0.5.1",
     "@openpeepshq/cli": "workspace:^",
     "@openpeepshq/common": "workspace:^",
@@ -65,6 +65,7 @@
     "vite": "^7.3.5",
     "vite-node": "^6.0.0",
     "vitest": "^4.1.12",
+    "yaml": "^2.9.1",
     "@eslint/js": "^9.17.0"
   }
 }

@@ -292,6 +292,15 @@ jobs:
           apk add --no-cache python3 make g++ imagemagick libheif poppler-utils
           corepack enable
           pnpm install
+      - name: Run server otelOverride test
+        # Fail-fast CI gate for the #2251 fedify sdk-metrics override: it
+        # parses pnpm-workspace.yaml + pnpm-lock.yaml only, so it needs no
+        # build step and no Postgres/Redis, and signals early on lockfile
+        # changes ahead of the package build and full server unit suite
+        # that follow.
+        run: >
+          pnpm --filter @openpeepshq/server
+          exec vitest run src/lib/__tests__/otelOverride.test.ts
       - name: Build packages needed by unit tests
         run: >
           pnpm --filter @openpeepshq/common...
