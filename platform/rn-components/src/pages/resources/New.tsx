@@ -3,7 +3,9 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 import { useNewResource } from '@openpeepshq/react';
-import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
+import { useSetPageHeader } from '../../components/layout';
+import { Button } from '../../components/ui/button';
+import { ThemedText } from '../../components/ui/themed-text';
 import { ThemedView } from '../../components/ui/themed-view';
 import { MainScreenProps } from '../../components/navigation/types/index';
 import { ResourceForm } from '../../components/post/index';
@@ -29,18 +31,46 @@ export const NewResource: React.FC<NewResourceProps> = () => {
     clearError();
   }, [error, clearError]);
 
+  // Direct messages can't be drafts (error.draftNotDirect). A derived boolean
+  // keeps `headerActions` referentially stable — using `postData` directly
+  // would re-fire useSetPageHeader on every keystroke.
+  const isDirect = postData.visibility === 'direct';
+
+  const headerActions = React.useMemo(
+    () => (
+      <>
+        <Button
+          variant="ghost"
+          className="mr-1"
+          testID="resources-save-draft"
+          onPress={() => submit(true)}
+          disabled={submitting || !canSubmit || isDirect}
+        >
+          <ThemedText>
+            {t('posts.create.saveDraft', { defaultValue: 'Save draft' })}
+          </ThemedText>
+        </Button>
+        <Button
+          onPress={() => submit()}
+          disabled={submitting || !canSubmit}
+          testID="resources-submit"
+        >
+          <ThemedText className="text-primary-foreground font-semibold">
+            {submitting
+              ? t('common.submitting', { defaultValue: 'Submitting…' })
+              : t('resources.create.title', {
+                  defaultValue: 'Create resource',
+                })}
+          </ThemedText>
+        </Button>
+      </>
+    ),
+    [canSubmit, submit, submitting, isDirect, t]
+  );
+
   useSetPageHeader(
     t('resources.new', { defaultValue: 'New resource' }),
-    <HeaderActionButton
-      title={
-        submitting
-          ? t('common.submitting', { defaultValue: 'Submitting…' })
-          : t('resources.create.title', { defaultValue: 'Create resource' })
-      }
-      onPress={() => void submit()}
-      disabled={submitting || !canSubmit}
-      loading={submitting}
-    />
+    headerActions
   );
 
   return (

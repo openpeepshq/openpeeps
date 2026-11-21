@@ -39,6 +39,8 @@ export const navigateToTarget = (target: NavTarget) => {
           screen: 'TabNavigator',
           params: { screen: 'Bookmarks' },
         });
+      } else if (target.type === 'feed' && target.feed === 'drafts') {
+        go('Main', { screen: 'Drafts' });
       } else {
         go('Main', { screen: 'TabNavigator', params: { screen: 'Home' } });
       }

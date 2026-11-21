@@ -1,11 +1,13 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useT, useSetPageHeader } from '../../index';
 import { useNewEvent } from '../../hooks/events/useEventComposer';
+import { useToast } from '../../components/layout/ToastProvider';
 import { EventForm } from '../../components';
 import { Button, Toast } from '@openpeepshq/react-ui';
 
 export function NewEvent() {
   const t = useT();
+  const { success: toastSuccess } = useToast();
   const {
     postData,
     setPostData,
@@ -20,22 +22,50 @@ export function NewEvent() {
     submit,
   } = useNewEvent();
 
+  // Stable across renders so `headerActions` keeps its identity; an unstable
+  // dep would re-fire useSetPageHeader every render and re-render the page.
+  const saveDraft = useCallback(async () => {
+    const savedAsDraft = await submit(true);
+    if (savedAsDraft) {
+      toastSuccess(
+        t('posts.create.draftSavedToast', { defaultValue: 'Draft saved' }),
+      );
+    }
+  }, [submit, toastSuccess, t]);
+
+  // Direct messages can't be drafts (error.draftNotDirect), so the
+  // Save-draft button is disabled for them. A derived boolean keeps
+  // `headerActions` stable — using `postData` directly would re-fire
+  // useSetPageHeader on every keystroke.
+  const isDirect = postData?.visibility === 'direct';
+
   const headerActions = useMemo(() => {
     if (!canCreate) return null;
     return (
-      <Button
-        title={t('events.create.title', { defaultValue: 'Create Event' })}
-        variant="default"
-        action={submit}
-        disabled={submitting || !canSubmit}
-        data-testid="events-create-submit"
-      >
-        {submitting
-          ? t('common.submitting', { defaultValue: 'Creating…' })
-          : t('events.create.title', { defaultValue: 'Create Event' })}
-      </Button>
+      <>
+        <Button
+          title={t('posts.create.saveDraft', { defaultValue: 'Save draft' })}
+          variant="ghost"
+          action={saveDraft}
+          disabled={submitting || !canSubmit || isDirect}
+          data-testid="events-save-draft"
+        >
+          {t('posts.create.saveDraft', { defaultValue: 'Save draft' })}
+        </Button>
+        <Button
+          title={t('events.create.title', { defaultValue: 'Create Event' })}
+          variant="default"
+          action={submit}
+          disabled={submitting || !canSubmit}
+          data-testid="events-create-submit"
+        >
+          {submitting
+            ? t('common.submitting', { defaultValue: 'Creating…' })
+            : t('events.create.title', { defaultValue: 'Create Event' })}
+        </Button>
+      </>
     );
-  }, [canCreate, canSubmit, submit, submitting, t]);
+  }, [canCreate, canSubmit, saveDraft, submitting, isDirect, t]);
 
   useSetPageHeader(
     t('events.create.title', { defaultValue: 'Create Event' }),

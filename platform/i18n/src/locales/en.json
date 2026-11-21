@@ -188,7 +188,8 @@
       "plugins": "Configure installed plugins",
       "configuration": "Edit site configuration",
       "diagnostics": "View system diagnostics",
-      "database": "Open database administration tools"
+      "database": "Open database administration tools",
+      "drafts": "View your unpublished posts"
     }
   },
   "profile": {
@@ -365,6 +366,8 @@
     "create": {
       "title": "Create Post",
       "submit": "Post",
+      "saveDraft": "Save draft",
+      "draftSavedToast": "Draft saved",
       "error": "Failed to create post",
       "errorGeneric": "An error occurred while creating the post",
       "loading": "Creating post…",
@@ -412,7 +415,10 @@
     "menu": {
       "title": "Post menu",
       "reposts": "Reposts",
-      "reactions": "Reactions"
+      "reactions": "Reactions",
+      "publish": "Publish",
+      "publishDisabled": "Publish (not allowed)",
+      "cannotPublishDraft": "You no longer have permission to post at this draft's visibility, so it can't be published. Change the visibility or ask an admin."
     },
     "reactionsModal": {
       "title": "Reactions",
@@ -2544,7 +2550,8 @@
       "groups": "Groups",
       "members": "Members",
       "events": "Events",
-      "bookmarks": "Bookmarks"
+      "bookmarks": "Bookmarks",
+      "drafts": "Drafts"
     },
     "submit": "Submit",
     "listEditor": {
@@ -3801,7 +3808,13 @@
     "pollClosed": "This poll has ended.",
     "invalidPollVote": "Invalid poll vote.",
     "unprocessableRequest": "Invalid request",
-    "roleExists": "A role with this key already exists."
+    "roleExists": "A role with this key already exists.",
+    "draftNotReply": "Replies cannot be saved as drafts.",
+    "draftNotRepost": "Reposts cannot be saved as drafts.",
+    "draftNotDirect": "Direct messages cannot be saved as drafts.",
+    "notDraftOwner": "Only the author can publish or edit this draft.",
+    "alreadyPublished": "This draft has already been published.",
+    "postNotPublished": "This post has not been published yet."
   },
   "infos": {
     "emailNotVerified": {
@@ -3908,6 +3921,11 @@
         "title": "Access tokens",
         "description": "Who can manage a service token depending on their relationship to the token owner."
       }
+    }
+  },
+  "feeds": {
+    "drafts": {
+      "filter": "Filter your drafts…"
     }
   }
 }

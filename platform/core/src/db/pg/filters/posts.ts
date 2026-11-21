@@ -4,6 +4,7 @@ import {
   eq,
   inArray,
   isNotNull,
+  isNull,
   ne,
   notInArray,
   or,
@@ -58,6 +59,12 @@ export const postFilters = {
   hasJam: (): SqlFilter => pgSql(isNotNull(sql`${posts.body}->'jam'`)),
 
   creatorId: (id: string): SqlFilter => pgSql(eq(posts.creatorId, id)),
+
+  /** Published posts only — the default gate that keeps drafts out of feeds. */
+  published: (): SqlFilter => pgSql(isNotNull(posts.publishedAt)),
+
+  /** Unpublished drafts — used by the drafts finder to opt back in. */
+  drafts: (): SqlFilter => pgSql(isNull(posts.publishedAt)),
 
   notCreatorIn: (ids: string[]): SqlFilter | undefined =>
     ids.length ? pgSql(notInArray(posts.creatorId, ids)) : undefined,

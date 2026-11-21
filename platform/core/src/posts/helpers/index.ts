@@ -282,6 +282,8 @@ export const transformPost = async (
   ).filter((reply) => !!reply.profile);
   return {
     ...post,
+    publishedAt: post.publishedAt ?? undefined,
+    isDraft: post.publishedAt == null,
     data: post.data ? normalizePostDataFromDb(post.data) : post.data,
     seen: currentProfile ? post.seen : undefined,
     replyTo: post.replyTo

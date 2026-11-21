@@ -18,6 +18,8 @@ import Toast from 'react-native-toast-message';
 // --- shared mutable state read by the module mocks (mock* = hoisting-safe) --
 let mockProfile: { id: string; displayName?: string; handle?: string } | null =
   { id: 'u-1', displayName: 'Me', handle: 'me', following: [] };
+// Draft publish gating (PostMenu's `canCreatePostTypeIgnoringScopes`).
+let mockCanCreateDraft = true;
 const mockClient = {
   posts: { deletePost: jest.fn(), pinPost: jest.fn() },
   profiles: { followProfile: jest.fn() },
@@ -55,6 +57,9 @@ jest.mock('react-i18next', () => ({
 
 // --- openpeeps context -----------------------------------------------------
 jest.mock('@openpeepshq/react', () => ({
+  // PostMenu imports `apiErrorMessage` from this module for the draft
+  // publish error toast.
+  apiErrorMessage: (err: unknown) => String(err),
   useOpenpeeps: () => ({
     currentProfile: mockProfile,
     openpeepsApi: {
@@ -72,6 +77,8 @@ jest.mock('@openpeepshq/react', () => ({
       unfollowProfileAction: () =>
         jest.fn().mockResolvedValue({ success: true }),
       admin: { pinPostGloballyAction: () => jest.fn() },
+      // PostMenu builds the draft Publish mutation unconditionally.
+      publishPostAction: () => jest.fn().mockResolvedValue({ id: 'post-1' }),
     },
     client: mockClient,
   }),
@@ -177,10 +184,15 @@ jest.mock('../../ui/index', () => {
       text?: string;
       action?: unknown;
       onPress?: () => void;
+      disabled?: boolean;
     }) =>
       React.createElement('View', {
         testID: `menu-${props.text}`,
-        onPress: typeof props.action === 'function' ? props.action : undefined,
+        disabled: props.disabled,
+        onPress:
+          typeof props.action === 'function' && !props.disabled
+            ? props.action
+            : undefined,
       }),
     PopupSeparator: () => null,
     Avatar: () => null,
@@ -192,6 +204,7 @@ jest.mock('../../ui/index', () => {
 jest.mock('@openpeepshq/common', () => ({
   checkGroupCapabilities: () => ({}),
   checkRoleCapabilities: () => ({}),
+  canCreatePostTypeIgnoringScopes: () => mockCanCreateDraft,
 }));
 jest.mock('@openpeepshq/common/lib', () => ({
   checkRoleCapabilities: () => ({}),
@@ -254,6 +267,7 @@ function render(): ReactTestRenderer.ReactTestRenderer {
 
 beforeEach(() => {
   mockProfile = { id: 'u-1', displayName: 'Me', handle: 'me', following: [] };
+  mockCanCreateDraft = true;
   mountedReactions.length = 0;
   mountedReposts.length = 0;
   (Toast.show as jest.Mock).mockClear();
@@ -330,4 +344,49 @@ test('5. follow/unfollow toasts render the shared profile.follow.* keys (#2110)'
   );
   tree.unmount();
   tree2.unmount();
+});
+
+// Draft publish (#382): offered only for a draft, enabled when the author
+// can still post at the draft's visibility, success/error toasts wired.
+test('6. draft post: Publish action toasts success; blocked visibility disables it', async () => {
+  const draftPost = {
+    ...BASE_POST,
+    isDraft: true,
+    profile: { id: 'u-1', displayName: 'Me' },
+  };
+  let tree!: ReactTestRenderer.ReactTestRenderer;
+  ReactTestRenderer.act(() => {
+    tree = ReactTestRenderer.create(
+      <PostMenu post={draftPost as never} deleteCallback={jest.fn()} />
+    );
+  });
+
+  // A non-draft post never offers the action.
+  const baseTree = render();
+  expect(findByTestID(baseTree.toJSON(), 'menu-Publish')).toBeUndefined();
+
+  const publishItem = findByTestID(tree.toJSON(), 'menu-Publish');
+  expect(publishItem).toBeDefined();
+  expect(publishItem?.props?.disabled).toBe(false);
+  await ReactTestRenderer.act(async () => {
+    await (publishItem?.props?.onPress as () => Promise<void>)();
+  });
+  expect(Toast.show).toHaveBeenCalledWith(
+    expect.objectContaining({ text1: 'posts.create.successToast' })
+  );
+  tree.unmount();
+  baseTree.unmount();
+
+  // Lost permission to post at the draft's visibility -> disabled + warning
+  // (the button keeps its `text`, only the title flips to the warning).
+  mockCanCreateDraft = false;
+  ReactTestRenderer.act(() => {
+    tree = ReactTestRenderer.create(
+      <PostMenu post={draftPost as never} deleteCallback={jest.fn()} />
+    );
+  });
+  const blockedItem = findByTestID(tree.toJSON(), 'menu-Publish');
+  expect(blockedItem).toBeDefined();
+  expect(blockedItem?.props?.disabled).toBe(true);
+  tree.unmount();
 });

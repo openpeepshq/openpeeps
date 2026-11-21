@@ -742,8 +742,9 @@ export const canCreatePostType = (
  * Scope-free variant of {@link canCreatePostType}: may this profile create a
  * post of `type` in any of `visibilities`, judging capabilities only. Token
  * scopes load after the first paint in the clients, so gating UI on them would
- * flash a denial for allowed users; the create endpoints still enforce
- * scopes.
+ * flash a denial for allowed users; the create and publish endpoints still
+ * enforce scopes (publishing a draft goes through `core-posts-update`, the
+ * same capability-based scope-checked path as creation).
  */
 export const canCreatePostTypeIgnoringScopes = (
   authData: AuthorizationData,

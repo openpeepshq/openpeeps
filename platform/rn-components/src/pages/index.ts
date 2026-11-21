@@ -48,6 +48,7 @@ export { Notifications } from './Notifications';
 export { Tags } from './Tags';
 export { Explore } from './Explore';
 export { FeedsBookmarks } from './feeds/Bookmarks';
+export { FeedsDrafts } from './feeds/Drafts';
 export { ArticlesIndex } from './articles/Index';
 export { ResourcesIndex } from './resources/Index';
 export { NewResource } from './resources/New';

@@ -1,4 +1,4 @@
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNotNull, sql } from 'drizzle-orm';
 import type { PgDb } from '../client';
 import { posts } from '../schema/documents';
 import { entries, postSeen } from '../schema/edges';
@@ -25,6 +25,7 @@ export const profileDerived = {
         and(
           eq(postsTable.creatorId as never, doc.id as string),
           sql`${postsTable.deletedAt} IS NULL`,
+          isNotNull(posts.publishedAt),
         ),
       );
     return (rows[0] as { count?: number } | undefined)?.count ?? 0;

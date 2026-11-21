@@ -45,6 +45,7 @@ import {
   Mic,
   MicOff,
   Film,
+  Feather,
   Plus,
   ChevronRight,
   ChartColumn,
@@ -269,6 +270,7 @@ export const GlobeIcon = iconWithClassName(Globe);
 export const ScrollTextIcon = iconWithClassName(ScrollText);
 export const LibraryIcon = iconWithClassName(Library);
 export const BookmarkIcon = iconWithClassName(Bookmark);
+export const FeatherIcon = iconWithClassName(Feather);
 export const BookmarkMinusIcon = iconWithClassName(BookmarkMinus);
 export const BookmarkPlusIcon = iconWithClassName(BookmarkPlus);
 export const PaperclipIcon = iconWithClassName(Paperclip);

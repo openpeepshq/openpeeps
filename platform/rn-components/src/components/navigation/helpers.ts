@@ -95,6 +95,9 @@ export const buildGoto =
       case 'bookmarks':
         tabs('Bookmarks');
         break;
+      case 'drafts':
+        navigation.navigate('Drafts');
+        break;
       default:
         tabs('Home');
     }

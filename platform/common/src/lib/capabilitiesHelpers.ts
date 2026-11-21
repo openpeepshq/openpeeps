@@ -349,8 +349,23 @@ export const getPostCapabilities = (
   authData: AuthorizationData,
   post: PublicPost,
   config: CapabilitiesConfig,
-): Capabilities =>
-  mergeCapabilities([
+): Capabilities => {
+  // Drafts are visible to the creator only. The profile `self` relationship is
+  // the single source that grants post caps to the author, so for a draft we
+  // drop every other source (visibility, post relationships, group) to keep
+  // the draft away from local users, audience, group members, etc. `isDraft`
+  // is an explicit flag (default false), so a post that merely lacks
+  // `publishedAt` is not mistaken for a draft. Pinned in
+  // `capabilitiesHelpers.test.ts` ("grants draft post capabilities to the
+  // author solely via the self relationship").
+  if (post.isDraft === true) {
+    return getConfigCapabilities(
+      'profile',
+      getProfileRelationships(authData, post.profile),
+      config,
+    );
+  }
+  return mergeCapabilities([
     getPostVisibilityCapabilities(post, authData.profile),
     getConfigCapabilities('post', getPostRelationships(authData, post), config),
     getConfigCapabilities(
@@ -360,6 +375,7 @@ export const getPostCapabilities = (
     ),
     getGroupCapabilities(authData, post.group),
   ]);
+};
 
 const getReportCapabilities = (
   authData: AuthorizationData,

@@ -41,7 +41,7 @@ export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
       throw badRequest('invalidCategoryPath');
     }
     const object = postDataSchema.parse({ ...input, creatorId: profile.id });
-    const { inReplyToId, mentions, groupId, audience } = input;
+    const { inReplyToId, mentions, groupId, audience, draft } = input;
 
     if (postData.type !== object.type) {
       object.type = postData.type;
@@ -63,6 +63,7 @@ export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
       mentions,
       groupId,
       audience,
+      draft,
     }).catch(rethrowIfOpenpeepsError);
   },
 );

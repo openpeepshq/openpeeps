@@ -13,6 +13,7 @@ export interface PopupMenuButtonProps {
   compact?: boolean;
   title?: string;
   textSlot?: React.ReactNode;
+  disabled?: boolean;
 }
 
 const baseClass =
@@ -27,6 +28,7 @@ export function PopupMenuButton({
   compact = false,
   title = '',
   textSlot,
+  disabled = false,
 }: PopupMenuButtonProps) {
   const [isLoading, setIsLoading] = React.useState(false);
   const actionName = title || text;
@@ -79,7 +81,7 @@ export function PopupMenuButton({
       type="button"
       title={title || undefined}
       aria-label={compact ? actionName || undefined : undefined}
-      disabled={isLoading}
+      disabled={disabled || isLoading}
       className={cn(
         baseClass,
         danger && 'text-error',

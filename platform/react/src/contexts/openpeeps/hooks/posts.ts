@@ -327,6 +327,7 @@ type PostFinders = {
   useBookmarkedPosts: (
     props?: ChronologicalInfiniteQueryParams,
   ) => PostsInfiniteHook;
+  useMyDrafts: (pageSize?: number) => EventFeedHook;
   usePost: (id: string) => PostQueryHook<PublicPost>;
   usePostContext: (id: string) => PostQueryHook<PostContext>;
   usePostReposts: (id: string) => PostQueryHook<PublicPost[]>;
@@ -369,6 +370,11 @@ const postFinders = (client: OpenpeepsClient): PostFinders => ({
     infiniteChronologicalQueryApiHook(client.posts.listBookmarks, {
       queryParams: withFeedLimit(props),
     }) as PostsInfiniteHook,
+  useMyDrafts: (pageSize = DEFAULT_FEED_LIMIT) =>
+    infiniteOffsetQueryApiHook(client.posts.listDrafts, {
+      pageSize,
+      queryParams: { limit: pageSize },
+    }) as EventFeedHook,
   usePost: (id) =>
     apiHook(client.posts.findById, {
       pathParams: { id },
@@ -405,6 +411,7 @@ const postMutators = (client: OpenpeepsClient) => ({
     ['posts'],
     ['profiles', 'current', 'bookmarkedIds'],
   ]),
+  publishPostAction: noPayloadMutation(client.posts.publish, [['posts']]),
   markPostsSeenAction: payloadPostsReadMutation(client.posts.seen),
   markGroupPostsSeenAction: noPayloadPostsReadMutation(
     client.posts.seenByGroup,

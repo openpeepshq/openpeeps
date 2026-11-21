@@ -41,6 +41,7 @@ import {
   NewResource,
   EditResource,
   EventsMy,
+  FeedsDrafts,
   About,
   CodeOfConduct,
 } from '../../pages';
@@ -168,6 +169,7 @@ export const MainNavigator = () => {
       <Stack.Screen name="NewResource" component={NewResource} />
       <Stack.Screen name="EditResource" component={EditResource} />
       <Stack.Screen name="MyEvents" component={EventsMy} />
+      <Stack.Screen name="Drafts" component={FeedsDrafts} />
       <Stack.Screen name="About" component={About} />
       <Stack.Screen name="CodeOfConduct" component={CodeOfConduct} />
       <Stack.Screen name="VideoPlayer" component={VideoPlayer} />

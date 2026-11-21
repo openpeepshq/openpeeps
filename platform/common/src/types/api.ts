@@ -207,6 +207,10 @@ const publicReplyPostObject = z.object({
   seen: z.boolean().optional(),
   inReplyToId: z.string().optional().nullable(),
   hidden: z.boolean().optional(),
+  /** ISO publish timestamp. Absent/undefined while the post is a draft. */
+  publishedAt: z.string().datetime().optional().nullable(),
+  /** True while the post is an unpublished draft (visible to the creator only). */
+  isDraft: z.boolean().optional(),
 });
 export const publicReplyPostSchema = publicReplyPostObject.extend({
   replyTo: publicReplyPostObject.optional().nullable(),
@@ -860,6 +864,8 @@ export const postCreationDataSchema = z.object({
    * strips it.
    */
   questionDraft: questionSchema.partial().optional(),
+  /** Save as an unpublished draft instead of publishing (default: publish). */
+  draft: z.boolean().optional(),
 });
 
 export type PostCreationData = z.infer<typeof postCreationDataSchema>;

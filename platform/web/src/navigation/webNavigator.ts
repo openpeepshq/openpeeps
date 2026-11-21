@@ -134,6 +134,7 @@ export const createWebNavigator = (): Navigator => ({
     if (pathname === '/feeds/my') return { type: 'feed', feed: 'my' };
     if (pathname === '/feeds/bookmarks')
       return { type: 'feed', feed: 'bookmarks' };
+    if (pathname === '/feeds/drafts') return { type: 'feed', feed: 'drafts' };
     if (pathname === '/notifications') return { type: 'notifications' };
     if (pathname === '/groups') return { type: 'groups' };
     if (pathname === '/groups/new') return { type: 'groups', view: 'new' };

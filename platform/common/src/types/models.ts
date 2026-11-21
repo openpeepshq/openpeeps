@@ -705,6 +705,8 @@ export const postDataSchema = z.object({
   capabilitiesNeeded: z.string().array().optional(),
   data: postDataUnionSchema.optional(),
   creatorId: z.string(),
+  /** ISO publish timestamp; null/absent while the post is a draft. */
+  publishedAt: z.string().datetime().optional().nullable(),
 });
 export type PostData = z.infer<typeof postDataSchema>;
 export const postSchema = modelSchema(postDataSchema);

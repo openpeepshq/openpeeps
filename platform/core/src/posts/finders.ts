@@ -95,6 +95,24 @@ export const findPost = async (
     .then((post) => hideBlockedAuthorPost(post, profile));
 };
 
+/** The author's unpublished drafts, newest first. */
+export const listMyDrafts = async (
+  profile: ProfileWithMeta,
+  options: { limit?: number; offset?: number } = {},
+): Promise<PostWithMeta[]> => {
+  const { limit = 100, offset = 0 } = options;
+  const mapping = postsMappingForProfile(profile)
+    .removeDefaultFilter()
+    .filter(postFilters.drafts())
+    .filter(postFilters.creatorId(profile.id))
+    .sort(sorts.updatedAtDesc);
+  return toFilteredPostsList(mapping, {
+    authData: { profile, scopes: [] },
+    limit,
+    offset,
+  });
+};
+
 /** Lean post load for capability checks (no nested reply/repost). */
 export const findPostsForAuth = async (
   ids: string[],

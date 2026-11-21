@@ -14,6 +14,7 @@ import { useT } from '../../i18n/context';
 import { useCurrentProfile } from '../../components/layout/IdentityContext';
 import { useServerInfo } from '../../components/server-data';
 import { defaultNewArticle, getNewPostStores } from '../../stores';
+import { apiErrorMessage } from '../../lib/apiErrorMessage';
 
 export const useNewArticle = () => {
   const t = useT();
@@ -50,44 +51,56 @@ export const useNewArticle = () => {
     stores.article = data;
   };
 
-  const submit = useCallback(async () => {
-    setError(null);
-    if (!article?.title?.trim()) {
-      setError(
-        t('articles.validation.titleRequired', {
-          defaultValue: 'Title is required',
-        }),
-      );
-      return;
-    }
-    if (postData.visibility === 'direct' && !postData.audience?.length) {
-      setError('Choose at least one recipient for a direct article.');
-      return;
-    }
-    setSubmitting(true);
-    try {
-      const created = await createPost({ ...postData, type: 'article' });
-      if (notify && showNotify && created.id) {
-        await announcePost({ id: created.id });
+  const submit = useCallback(
+    async (saveAsDraft = false) => {
+      setError(null);
+      if (!article?.title?.trim()) {
+        setError(
+          t('articles.validation.titleRequired', {
+            defaultValue: 'Title is required',
+          }),
+        );
+        return;
       }
-      stores.resetNewArticleState();
-      navigate({ type: 'post', id: created.id });
-    } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setSubmitting(false);
-    }
-  }, [
-    announcePost,
-    article,
-    createPost,
-    navigate,
-    notify,
-    postData,
-    showNotify,
-    stores,
-    t,
-  ]);
+      if (postData.visibility === 'direct' && !postData.audience?.length) {
+        setError('Choose at least one recipient for a direct article.');
+        return;
+      }
+      setSubmitting(true);
+      try {
+        const created = await createPost({
+          ...postData,
+          type: 'article',
+          draft: saveAsDraft || undefined,
+        });
+        if (saveAsDraft) {
+          stores.resetNewArticleState();
+          navigate({ type: 'feed', feed: 'drafts' });
+          return;
+        }
+        if (notify && showNotify && created.id) {
+          await announcePost({ id: created.id });
+        }
+        stores.resetNewArticleState();
+        navigate({ type: 'post', id: created.id });
+      } catch (err) {
+        setError(apiErrorMessage(err, t));
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [
+      announcePost,
+      article,
+      createPost,
+      navigate,
+      notify,
+      postData,
+      showNotify,
+      stores,
+      t,
+    ],
+  );
 
   return {
     postData,
@@ -104,6 +117,7 @@ export const useNewArticle = () => {
 };
 
 export const useEditArticle = (articleId: string) => {
+  const t = useT();
   const navigate = useNavigate();
   const { openpeepsApi } = useOpenpeeps();
   const postQuery = openpeepsApi.usePost(articleId);
@@ -136,11 +150,11 @@ export const useEditArticle = (articleId: string) => {
       await updatePost(article as PostDataUnion);
       navigate({ type: 'post', id: articleId });
     } catch (err) {
-      setError((err as Error).message);
+      setError(apiErrorMessage(err, t));
     } finally {
       setSubmitting(false);
     }
-  }, [articleId, navigate, postData, updatePost]);
+  }, [articleId, navigate, postData, updatePost, t]);
 
   return {
     postQuery,

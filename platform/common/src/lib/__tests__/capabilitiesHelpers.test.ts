@@ -1099,6 +1099,99 @@ describe('capabilitiesHelpers', () => {
       );
       expect(checkCapabilities(['core-posts-delete'], caps).success).toBe(true);
     });
+
+    it('grants draft post capabilities to the author solely via the self relationship', () => {
+      // A public draft must not inherit `public` visibility read caps: the
+      // only surviving source is the profile `self` relationship grant. The
+      // self config here mirrors the real default (self grants all post
+      // caps). `profile.id` must equal the auth profile id for `self`.
+      const draftConfig = {
+        ...mockCapabilitiesConfig,
+        profile: {
+          ...mockCapabilitiesConfig.profile,
+          self: { add: ['core-posts-read', 'core-posts-update'], remove: [] },
+        },
+      };
+      const caps = getPostCapabilities(
+        authData(),
+        {
+          ...mockPost,
+          visibility: 'public',
+          group: null,
+          profile: { id: mockProfile.id },
+          isDraft: true,
+        },
+        draftConfig,
+      );
+      expect(checkCapabilities(['core-posts-read'], caps).success).toBe(true);
+      expect(checkCapabilities(['core-posts-update'], caps).success).toBe(true);
+      // No public-visibility read cap and no post-relationship caps.
+      expect(caps.add).not.toContain('post-none');
+      expect(caps.add).not.toContain('post-self');
+      expect(caps.add).not.toContain('post-local');
+    });
+
+    it('denies drafts to everyone who is not the author', () => {
+      const otherUser = {
+        ...mockProfile,
+        id: 'profile2',
+      } as ProfileWithMeta;
+      // A plain member viewing a draft of someone else.
+      const caps = getPostCapabilities(
+        authData({ profile: otherUser }),
+        {
+          ...mockPost,
+          visibility: 'public',
+          group: null,
+          profile: mockPublicProfile,
+          isDraft: true,
+        },
+        mockCapabilitiesConfig,
+      );
+      expect(checkCapabilities(['core-posts-read'], caps).success).toBe(false);
+      expect(checkCapabilities(['core-posts-update'], caps).success).toBe(
+        false,
+      );
+      // Even an instance admin sees nothing (no self relationship).
+      const instanceAdmin = {
+        ...otherUser,
+        roles: [
+          {
+            ...mockRoles[0],
+            capabilities: { add: ['core-posts-*'], remove: [] },
+          },
+        ],
+      } as ProfileWithMeta;
+      const adminCaps = getPostCapabilities(
+        authData({ profile: instanceAdmin }),
+        {
+          ...mockPost,
+          visibility: 'public',
+          group: null,
+          profile: mockPublicProfile,
+          isDraft: true,
+        },
+        mockCapabilitiesConfig,
+      );
+      expect(checkCapabilities(['core-posts-read'], adminCaps).success).toBe(
+        false,
+      );
+      // Anonymous also gets nothing.
+      const anonCaps = getPostCapabilities(
+        authData({ profile: undefined }),
+        {
+          ...mockPost,
+          visibility: 'public',
+          group: null,
+          profile: mockPublicProfile,
+          isDraft: true,
+        },
+        mockCapabilitiesConfig,
+      );
+      expect(checkCapabilities(['core-posts-read'], anonCaps).success).toBe(
+        false,
+      );
+    });
   });
 
   describe('checkProfileCapabilities', () => {

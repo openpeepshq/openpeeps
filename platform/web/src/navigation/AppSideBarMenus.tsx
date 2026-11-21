@@ -12,6 +12,7 @@ import {
   ChartLine,
   ChevronDown,
   DatabaseBackup,
+  Feather,
   Images,
   Database,
   Home,
@@ -292,6 +293,13 @@ export function AppSideBarMainMenu() {
           tooltip={t('navigation.tooltips.bookmarks')}
         >
           {t('common.entities.bookmarks')}
+        </NavItem>
+        <NavItem
+          to={href({ type: 'feed', feed: 'drafts' })}
+          icon={Feather}
+          tooltip={t('navigation.tooltips.drafts')}
+        >
+          {t('common.entities.drafts')}
         </NavItem>
         <NavItem
           to={href({ type: 'settings' })}

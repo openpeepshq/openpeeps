@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import {
+  AlertTriangle,
   BookmarkMinus,
   BookmarkPlus,
   FlagIcon,
@@ -7,11 +8,13 @@ import {
   Pencil,
   Pin,
   Repeat2,
+  Send,
   ThumbsUp,
   Trash,
 } from 'lucide-react';
 import type { PublicPost } from '@openpeepshq/common/types';
 import {
+  canCreatePostTypeIgnoringScopes,
   checkGroupCapabilities,
   checkPostCapabilities,
   checkRoleCapabilities,
@@ -66,6 +69,7 @@ export function PostMenu({ post, deleteCallback }: PostMenuProps) {
   });
   const bookmarkPost = openpeepsApi.bookmarkPostAction({ id: post.id });
   const unbookmarkPost = openpeepsApi.unbookmarkPostAction({ id: post.id });
+  const publishPost = openpeepsApi.publishPostAction({ id: post.id });
   const updateGroup = openpeepsApi.updateGroupAction({
     id: post.group?.id ?? '',
   });
@@ -79,6 +83,15 @@ export function PostMenu({ post, deleteCallback }: PostMenuProps) {
     serverInfo.communityConfig?.content?.pinnedPost === post.id;
   const pinnedInGroup = post.group?.pinnedPostId === post.id;
   const pinnedOnProfile = me?.pinnedPostId === post.id;
+
+  // Q4: a draft keeps its intended visibility. If the author no longer has
+  // permission to create a post at that visibility, publishing is blocked —
+  // the menu disables Publish and shows a warning instead. Scopes are checked
+  // server-side at publish time, so the UI gate uses the scope-free variant.
+  const isDraft = post.isDraft === true;
+  const canPublishDraft = isDraft
+    ? canCreatePostTypeIgnoringScopes(authData, post.type, [post.visibility])
+    : true;
 
   const canPinToGroup = useMemo(
     () =>
@@ -287,6 +300,37 @@ export function PostMenu({ post, deleteCallback }: PostMenuProps) {
               icon={Pencil}
               action={handleEditPost}
             />
+            {isDraft ? (
+              <>
+                {!canPublishDraft ? (
+                  <div className="flex items-start gap-2 rounded-button p-2 text-sm">
+                    <AlertTriangle className="text-error mt-0.5 size-4 shrink-0" />
+                    <span className="text-muted-foreground">
+                      {t('posts.menu.cannotPublishDraft', {
+                        defaultValue:
+                          'You no longer have permission to post at this draft’s visibility, so it can’t be published. Change the visibility or ask an admin.',
+                      })}
+                    </span>
+                  </div>
+                ) : null}
+                <PopupMenuButton
+                  title={
+                    canPublishDraft
+                      ? t('posts.menu.publish', { defaultValue: 'Publish' })
+                      : t('posts.menu.publishDisabled', {
+                          defaultValue: 'Publish (not allowed)',
+                        })
+                  }
+                  text={t('posts.menu.publish', { defaultValue: 'Publish' })}
+                  icon={Send}
+                  disabled={!canPublishDraft}
+                  action={async () => {
+                    if (!canPublishDraft) return;
+                    await publishPost(undefined);
+                  }}
+                />
+              </>
+            ) : null}
           </>
         ) : null}
         {canDeletePost ? (

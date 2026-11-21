@@ -12,10 +12,14 @@ import {
   Repeat2Icon,
   ThumbsUpIcon,
   HistoryIcon,
+  FeatherIcon,
 } from '../../icons/index';
 import { PopupMenu, PopupMenuButton, PopupSeparator } from '../../ui';
-import { useOpenpeeps } from '@openpeepshq/react';
-import { checkGroupCapabilities } from '@openpeepshq/common';
+import { useOpenpeeps, apiErrorMessage } from '@openpeepshq/react';
+import {
+  canCreatePostTypeIgnoringScopes,
+  checkGroupCapabilities,
+} from '@openpeepshq/common';
 import {
   checkRoleCapabilities,
   postHasEditHistory,
@@ -81,6 +85,20 @@ export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
   );
   const pinnedGlobally =
     serverInfo?.communityConfig?.content?.pinnedPost === post.id;
+
+  // Drafts keep their intended visibility. If the author no longer has
+  // permission to create a post at that visibility, publishing is blocked —
+  // the menu disables Publish and shows a warning. Scopes are checked
+  // server-side at publish time, so the UI gate uses the scope-free variant.
+  const isDraft = post.isDraft === true;
+  const canPublishDraft = isDraft
+    ? canCreatePostTypeIgnoringScopes(
+        { profile: currentProfile, scopes: [] },
+        post.type,
+        [post.visibility]
+      )
+    : true;
+  const [isPublishingDraft, setIsPublishingDraft] = React.useState(false);
   const { data: bookmarkedIdsStore, refetch: refetchBookmarkedIds } =
     openpeepsApi.useCurrentProfileBookmarkedIds();
 
@@ -92,6 +110,7 @@ export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
     id: bookmarkPostId,
   });
   const deletePost = openpeepsApi.deletePostAction({ id: post.id });
+  const publishPost = openpeepsApi.publishPostAction({ id: post.id });
   const updateGroup = openpeepsApi.updateGroupAction({
     id: post.group?.id ?? '',
   });
@@ -131,6 +150,26 @@ export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
         });
       }
     });
+  };
+
+  const handlePublishDraft = async () => {
+    if (isPublishingDraft) return;
+    setIsPublishingDraft(true);
+    try {
+      const res = await publishPost(undefined);
+      if (res) {
+        Toast.show({ type: 'success', text1: t('posts.create.successToast') });
+      } else {
+        Toast.show({ type: 'error', text1: t('posts.create.errorGeneric') });
+      }
+    } catch (err) {
+      Toast.show({
+        type: 'error',
+        text1: apiErrorMessage(err, t),
+      });
+    } finally {
+      setIsPublishingDraft(false);
+    }
   };
 
   const handleFollow = async () => {
@@ -376,6 +415,22 @@ export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
                 openEditPost(post);
               }}
             />
+            {isDraft ? (
+              <PopupMenuButton
+                title={
+                  canPublishDraft
+                    ? t('posts.menu.publish', { defaultValue: 'Publish' })
+                    : t('posts.menu.publishDisabled', {
+                        defaultValue: 'Publish (not allowed)',
+                      })
+                }
+                text={t('posts.menu.publish', { defaultValue: 'Publish' })}
+                icon={FeatherIcon}
+                disabled={!canPublishDraft || isPublishingDraft}
+                action={handlePublishDraft}
+                closeOnPress={false}
+              />
+            ) : null}
           </>
         ) : null}
 
