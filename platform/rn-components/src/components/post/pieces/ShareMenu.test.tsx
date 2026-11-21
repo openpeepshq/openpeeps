@@ -18,6 +18,8 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import Toast from 'react-native-toast-message';
 
 let mockSignedIn = true;
+let mockShareIntoGroup: jest.Mock = jest.fn();
+let mockSendToConversation: jest.Mock = jest.fn();
 
 jest.mock('react-native', () => ({
   Share: { share: jest.fn() },
@@ -62,6 +64,8 @@ jest.mock('@openpeepshq/react', () => ({
     signedIn: mockSignedIn,
     isEvent: false,
     repost: jest.fn(),
+    shareIntoGroup: mockShareIntoGroup,
+    sendToConversation: mockSendToConversation,
     eventIcsFile: () => null,
   }),
 }));
@@ -69,9 +73,11 @@ jest.mock('@openpeepshq/react', () => ({
 jest.mock('../../icons/index', () => ({
   CalendarIcon: () => null,
   CopyIcon: () => null,
+  MessageCircleIcon: () => null,
   Repeat2Icon: () => null,
   SendIcon: () => null,
   ShareIcon: () => null,
+  UsersIcon: () => null,
 }));
 
 jest.mock('../../ui', () => {
@@ -99,6 +105,23 @@ jest.mock('../../../stores/useNewConversationStore', () => ({
     selector({ setContt: jest.fn() }),
 }));
 
+jest.mock('./modals/index', () => {
+  const React = require('react');
+  return {
+    // The real modals pull in @gorhom/bottom-sheet (→ react-native-gesture-handler),
+    // whose native module is absent from the node jest env. Render a stub the
+    // tests can assert against so we can confirm the pickers open on tap.
+    ShareIntoGroupModal: (props: { open?: boolean }) =>
+      props.open
+        ? React.createElement('View', { testID: 'share-into-group-modal' })
+        : null,
+    SendToConversationModal: (props: { open?: boolean }) =>
+      props.open
+        ? React.createElement('View', { testID: 'send-to-conversation-modal' })
+        : null,
+  };
+});
+
 import { ShareMenu } from './ShareMenu';
 
 type TreeNode = {
@@ -109,22 +132,34 @@ type TreeNode = {
 
 function collectText(node: unknown, out: string[] = []): string[] {
   if (node === null || typeof node !== 'object') return out;
-  const n = node as TreeNode;
-  for (const c of n.children || []) {
-    if (typeof c === 'string') out.push(c);
-    else if (c) collectText(c, out);
+  const nodes = Array.isArray(node) ? node : [node];
+  for (const entry of nodes) {
+    if (typeof entry === 'string') {
+      out.push(entry);
+      continue;
+    }
+    if (!entry) continue;
+    const n = entry as TreeNode;
+    for (const c of n.children || []) {
+      if (typeof c === 'string') out.push(c);
+      else if (c) collectText(c, out);
+    }
   }
   return out;
 }
 
 function findByTestID(json: unknown, testID: string): TreeNode | undefined {
   if (json === null || typeof json !== 'object') return undefined;
-  const node = json as TreeNode;
-  if (node.props?.testID === testID) return node;
-  for (const c of node.children || []) {
-    if (typeof c !== 'string' && c !== null) {
-      const found = findByTestID(c, testID);
-      if (found) return found;
+  const nodes = Array.isArray(json) ? json : [json];
+  for (const entry of nodes) {
+    if (typeof entry === 'string' || entry === null) continue;
+    const node = entry as TreeNode;
+    if (node.props?.testID === testID) return node;
+    for (const c of node.children || []) {
+      if (typeof c !== 'string' && c !== null) {
+        const found = findByTestID(c, testID);
+        if (found) return found;
+      }
     }
   }
   return undefined;
@@ -142,6 +177,8 @@ beforeEach(() => {
   mockSignedIn = true;
   (Toast.show as jest.Mock).mockClear();
   (Clipboard.setString as jest.Mock).mockClear();
+  mockShareIntoGroup.mockClear();
+  mockSendToConversation.mockClear();
 });
 
 test('public post: external items, in-community items, and the section header render', () => {
@@ -151,6 +188,8 @@ test('public post: external items, in-community items, and the section header re
   expect(findByTestID(json, 'menu-Share via…')).toBeTruthy();
   expect(findByTestID(json, 'menu-Repost')).toBeTruthy();
   expect(findByTestID(json, 'menu-Send in message')).toBeTruthy();
+  expect(findByTestID(json, 'menu-Share into group…')).toBeTruthy();
+  expect(findByTestID(json, 'menu-Send to conversation…')).toBeTruthy();
   expect(collectText(json)).toContain('Other options');
   tree.unmount();
 });
@@ -162,6 +201,11 @@ test('private post: external items and the orphaned section header are gone, rep
   expect(findByTestID(json, 'menu-Share via…')).toBeUndefined();
   expect(findByTestID(json, 'menu-Repost')).toBeTruthy();
   expect(findByTestID(json, 'menu-Send in message')).toBeTruthy();
+  // Group sharing is gated on publicly shareable sources on both platforms
+  // (the server drops the source audience on group-targeted reposts);
+  // DM-thread sharing stays available for private posts.
+  expect(findByTestID(json, 'menu-Share into group…')).toBeUndefined();
+  expect(findByTestID(json, 'menu-Send to conversation…')).toBeTruthy();
   expect(collectText(json)).not.toContain('Other options');
   tree.unmount();
 });
@@ -202,8 +246,32 @@ test('signed-out viewer of a public post sees only external items, no in-communi
   expect(findByTestID(json, 'menu-Share via…')).toBeTruthy();
   expect(findByTestID(json, 'menu-Repost')).toBeUndefined();
   expect(findByTestID(json, 'menu-Send in message')).toBeUndefined();
+  expect(findByTestID(json, 'menu-Share into group…')).toBeUndefined();
+  expect(findByTestID(json, 'menu-Send to conversation…')).toBeUndefined();
   // No orphaned "Other options" header with nothing above it.
   expect(collectText(json)).not.toContain('Other options');
+  tree.unmount();
+});
+
+test('tap "Share into group…" opens the group picker (#1851)', () => {
+  const tree = render({ id: 'post-1', visibility: 'public' });
+  const item = findByTestID(tree.toJSON(), 'menu-Share into group…');
+  ReactTestRenderer.act(() => {
+    (item?.props?.onPress as () => void)();
+  });
+  expect(findByTestID(tree.toJSON(), 'share-into-group-modal')).toBeTruthy();
+  tree.unmount();
+});
+
+test('tap "Send to conversation…" opens the conversation picker (#1851)', () => {
+  const tree = render({ id: 'post-1', visibility: 'public' });
+  const item = findByTestID(tree.toJSON(), 'menu-Send to conversation…');
+  ReactTestRenderer.act(() => {
+    (item?.props?.onPress as () => void)();
+  });
+  expect(
+    findByTestID(tree.toJSON(), 'send-to-conversation-modal')
+  ).toBeTruthy();
   tree.unmount();
 });
 

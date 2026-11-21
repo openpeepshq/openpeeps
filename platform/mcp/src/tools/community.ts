@@ -523,7 +523,9 @@ export const registerCommunityTools = (
       }),
     },
     async ({ id }) =>
-      runTool(() => unwrap(client.posts.repost({ pathParameters: { id } }))),
+      runTool(() =>
+        unwrap(client.posts.repost({}, { pathParameters: { id } })),
+      ),
   );
 
   register(

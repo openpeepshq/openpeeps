@@ -510,7 +510,15 @@
       "shareFailed": "Couldn't share the post",
       "systemShare": "Share via…",
       "downloadCalendarIcs": "Add to Calendar",
-      "downloadCalendarIcsTitle": "Download .ics file"
+      "downloadCalendarIcsTitle": "Download .ics file",
+      "shareIntoGroup": "Share into group…",
+      "shareIntoGroupPickerTitle": "Share into a group",
+      "noShareableGroups": "You can't post to any group",
+      "sharedIntoGroup": "Shared into {{name}}",
+      "sendToConversation": "Send to conversation…",
+      "sendToConversationPickerTitle": "Send to a conversation",
+      "noConversations": "You don't have any conversations yet",
+      "sentToConversation": "Sent to {{name}}"
     },
     "gallery": {
       "previous": "Previous",

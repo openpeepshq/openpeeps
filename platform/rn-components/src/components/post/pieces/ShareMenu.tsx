@@ -1,4 +1,4 @@
-import React, { type ReactNode } from 'react';
+import React, { useState, type ReactNode } from 'react';
 import { Share } from 'react-native';
 import RNFS from 'react-native-fs';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -12,9 +12,11 @@ import { postPublicPath, useShareMenu } from '@openpeepshq/react';
 import {
   CalendarIcon,
   CopyIcon,
+  MessageCircleIcon,
   Repeat2Icon,
   SendIcon,
   ShareIcon,
+  UsersIcon,
 } from '../../icons/index';
 import {
   PopupMenu,
@@ -25,6 +27,7 @@ import {
 import { MainStackParamList } from '../../navigation/types/index';
 import { BASE_URL } from '../../../lib/constants';
 import { useNewConversationStore } from '../../../stores/useNewConversationStore';
+import { SendToConversationModal, ShareIntoGroupModal } from './modals/index';
 
 export interface ShareMenuProps {
   post: PublicPost;
@@ -37,10 +40,16 @@ export const ShareMenu = ({ post, menuButton }: ShareMenuProps) => {
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const setDraftMessage = useNewConversationStore((s) => s.setContt);
   const postUrl = `${BASE_URL}${postPublicPath(post)}`;
-  const { signedIn, isEvent, repost, eventIcsFile } = useShareMenu(
-    post,
-    postUrl
-  );
+  const [groupPickerOpen, setGroupPickerOpen] = useState(false);
+  const [conversationPickerOpen, setConversationPickerOpen] = useState(false);
+  const {
+    signedIn,
+    isEvent,
+    repost,
+    shareIntoGroup,
+    sendToConversation,
+    eventIcsFile,
+  } = useShareMenu(post, postUrl);
   // Repost/DM are valid for any post the viewer can see; handing the link to
   // the outside world only makes sense for publicly readable posts.
   const externallyShareable = isPubliclyShareable(post);
@@ -119,6 +128,28 @@ export const ShareMenu = ({ post, menuButton }: ShareMenuProps) => {
                 navigation.navigate('SelectPrivateMessageMembers');
               }}
             />
+            {externallyShareable ? (
+              <PopupMenuButton
+                title={t('posts.shareMenu.shareIntoGroup', {
+                  defaultValue: 'Share into group…',
+                })}
+                text={t('posts.shareMenu.shareIntoGroup', {
+                  defaultValue: 'Share into group…',
+                })}
+                icon={UsersIcon as any}
+                action={() => setGroupPickerOpen(true)}
+              />
+            ) : null}
+            <PopupMenuButton
+              title={t('posts.shareMenu.sendToConversation', {
+                defaultValue: 'Send to conversation…',
+              })}
+              text={t('posts.shareMenu.sendToConversation', {
+                defaultValue: 'Send to conversation…',
+              })}
+              icon={MessageCircleIcon as any}
+              action={() => setConversationPickerOpen(true)}
+            />
           </>
         ) : null}
         {signedIn && (isEvent || externallyShareable) ? (
@@ -168,6 +199,20 @@ export const ShareMenu = ({ post, menuButton }: ShareMenuProps) => {
           </>
         ) : null}
       </PopupMenu>
+      {signedIn && groupPickerOpen ? (
+        <ShareIntoGroupModal
+          open
+          onClose={() => setGroupPickerOpen(false)}
+          onShare={shareIntoGroup}
+        />
+      ) : null}
+      {signedIn && conversationPickerOpen ? (
+        <SendToConversationModal
+          open
+          onClose={() => setConversationPickerOpen(false)}
+          onSend={sendToConversation}
+        />
+      ) : null}
     </>
   );
 };

@@ -1,5 +1,5 @@
-import type { Event, PublicPost } from '@openpeepshq/common/types';
-import { buildEventIcs } from '@openpeepshq/common/lib';
+import type { Event, Note, PublicPost } from '@openpeepshq/common/types';
+import { buildEventIcs, isPubliclyShareable } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useCurrentProfile } from '../../components/layout/IdentityContext';
 
@@ -29,10 +29,46 @@ export const useShareMenu = (post: PublicPost, postUrl: string) => {
     return { filename: `${safe}.ics`, content: ics };
   };
 
+  /** Repost to the public feed, or into `groupId` when one is passed. */
+  const repost = (groupId?: string) => repostPost({ groupId });
+
+  /**
+   * Share a post into a group: a lightweight repost duplicate (provenance
+   * `repostId` set, visibility forced `group` server-side). The group copy
+   * carries no content — the source post stays authoritative.
+   */
+  const shareIntoGroup = async (groupId: string) => {
+    await repost(groupId);
+  };
+
+  /**
+   * Send a post as a direct message: a link note (plus an excerpt for
+   * publicly shareable posts) replied into the given conversation. The
+   * server resolves the newest post and inherits the current audience
+   * (excluding any leaver), so only a conversation post id is needed here.
+   */
+  const sendToConversation = async (conversation: PublicPost[]) => {
+    const root = conversation[0];
+    if (!root) return;
+    const data: Note = isPubliclyShareable(post)
+      ? {
+          type: 'note',
+          content: `${postUrl}\n${(post.data as Note).content ?? ''}`.trim(),
+        }
+      : { type: 'note', content: postUrl };
+    await openpeepsApi.createConversationPostAction({ id: root.id })({
+      visibility: 'direct',
+      type: 'note',
+      data,
+    });
+  };
+
   return {
     signedIn: !!me,
     isEvent: post.type === 'event',
-    repost: () => repostPost(undefined),
+    repost,
+    shareIntoGroup,
+    sendToConversation,
     eventIcsFile,
   };
 };

@@ -49,7 +49,7 @@ export const useFeedPostActions = (post: PublicPost) => {
     if (myRepost) {
       await deletePost({ id: myRepost.id } as never);
     } else if (canRepost) {
-      await repostPost(undefined);
+      await repostPost({});
     } else {
       return;
     }

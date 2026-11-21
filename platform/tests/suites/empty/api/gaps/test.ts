@@ -244,6 +244,81 @@ test.describe('API coverage gaps', () => {
     expect(Array.isArray(list) ? list.length : 0).toBeGreaterThan(0);
   });
 
+  test('repost a group post into a second group via groupId (#1851)', async ({
+    request,
+  }) => {
+    const { token } = await loginUser(request, owner.email, owner.password);
+    const sourceHandle = uniqueHandle('gsrc');
+    const targetHandle = uniqueHandle('gtgt');
+    const sourceGroup = await createGroup(request, token, {
+      handle: sourceHandle,
+      displayName: `Source ${sourceHandle}`.slice(0, 30),
+      capabilities: memberCaps,
+    });
+    const targetGroup = await createGroup(request, token, {
+      handle: targetHandle,
+      displayName: `Target ${targetHandle}`.slice(0, 30),
+      capabilities: memberCaps,
+    });
+
+    const source = await request.post('/api/openpeeps/core/v1/posts', {
+      headers: apiHeaders(token),
+      data: {
+        type: 'note',
+        visibility: 'local',
+        groupId: sourceGroup.id,
+        data: { type: 'note', content: `Cross-post me ${targetHandle}` },
+      },
+    });
+    expect(source.ok(), await source.text()).toBeTruthy();
+    const sourcePost = (await source.json()) as {
+      id: string;
+      visibility: string;
+      groupId: string | null;
+    };
+    // Group posts are stored with visibility=group, never the feed visibility.
+    expect(sourcePost.visibility).toBe('group');
+    expect(sourcePost.groupId).toBe(sourceGroup.id);
+
+    // The creator holds the group `owner` role, so `core-posts-create-note`
+    // is granted in the target group.
+    const crossPost = await request.post(
+      `/api/openpeeps/core/v1/posts/${sourcePost.id}/reposts`,
+      {
+        headers: apiHeaders(token),
+        data: { groupId: targetGroup.id },
+      },
+    );
+    expect(crossPost.ok(), await crossPost.text()).toBeTruthy();
+    const posted = (await crossPost.json()) as {
+      id: string;
+      visibility: string;
+      groupId: string | null;
+    };
+    // createPost forces visibility=group for group-linked posts.
+    expect(posted.visibility).toBe('group');
+    expect(posted.groupId).toBe(targetGroup.id);
+    expect(posted.id).not.toBe(sourcePost.id);
+
+    // The cross-post lands on the target group's feed.
+    const targetFeed = await request.get(
+      `/api/openpeeps/core/v1/posts/by-group/${targetGroup.id}?limit=50`,
+      { headers: apiHeaders(token) },
+    );
+    expect(targetFeed.ok(), await targetFeed.text()).toBeTruthy();
+    const feed = (await targetFeed.json()) as Array<{ id: string }>;
+    expect(feed.map((p) => p.id)).toContain(posted.id);
+
+    // Provenance: the source post's repost list includes the cross-post.
+    const reposts = await request.get(
+      `/api/openpeeps/core/v1/posts/${sourcePost.id}/reposts`,
+      { headers: apiHeaders(token) },
+    );
+    expect(reposts.ok(), await reposts.text()).toBeTruthy();
+    const repostList = (await reposts.json()) as Array<{ id: string }>;
+    expect(repostList.map((p) => p.id)).toContain(posted.id);
+  });
+
   test('search posts finds created content', async ({ request }) => {
     const { token } = await loginUser(request, owner.email, owner.password);
     const needle = `searchneedle${uniqueHandle('s')}`;

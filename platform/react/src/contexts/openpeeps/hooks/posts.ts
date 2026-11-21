@@ -409,7 +409,7 @@ const postMutators = (client: OpenpeepsClient) => ({
   markGroupPostsSeenAction: noPayloadPostsReadMutation(
     client.posts.seenByGroup,
   ),
-  repostPostAction: noPayloadMutation(client.posts.repost, [['posts']]),
+  repostPostAction: payloadMutation(client.posts.repost, [['posts']]),
   voteOnPostAction: payloadMutation(client.posts.vote, [['posts']]),
   rsvpToEventAction: payloadMutation(client.posts.rsvp, [['posts'], ['rsvp']]),
   rsvpManageAction: payloadMutation(client.posts.rsvpManage, [
