@@ -19,3 +19,10 @@ export const EVENT_HEADER_ASPECT_RATIO = '16:9';
  * with grey gaps.
  */
 export const PROFILE_GROUP_HEADER_ASPECT_RATIO = '3:1';
+
+/**
+ * Max duration (seconds) of voice notes recorded in the post composers.
+ * Enforced on the client (web modal + RN sheet) and re-checked server-side
+ * during media processing, so it is the single source of truth for the cap.
+ */
+export const VOICE_NOTE_MAX_SECONDS = 90;

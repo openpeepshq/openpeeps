@@ -32,6 +32,9 @@ export const AudioPickerSheet = forwardRef<
   AudioPickerSheetProps
 >(({ onSelect, multiple = true }, ref) => {
   const [selectedAudios, setSelectedAudios] = useState<string[]>([]);
+  // URIs that came from a confirmed recording (not the file picker), so Done
+  // can tell the recorder's .m4a output apart from a picked container.
+  const [recordedUrls, setRecordedUrls] = useState<Set<string>>(new Set());
   const [isMultipleSelect, setIsMultipleSelect] = useState(false);
   const [currentAudioIndex, setCurrentAudioIndex] = useState(0);
   const { t } = useTranslation();
@@ -48,12 +51,13 @@ export const AudioPickerSheet = forwardRef<
 
   const resetStates = () => {
     setSelectedAudios([]);
+    setRecordedUrls(new Set());
     setIsMultipleSelect(false);
     setCurrentAudioIndex(0);
   };
 
   const onConfirm = async () => {
-    const audioAttachments = await Promise.all(
+    const results = await Promise.all(
       selectedAudios.map((media) =>
         uploadMedia({
           mediaUri: media,
@@ -61,10 +65,23 @@ export const AudioPickerSheet = forwardRef<
           type: 'audio',
           usage: 'attachment',
           alt: 'audio',
+          // Recordings are the recorder's own .m4a output; picked files are
+          // not, and their reported name/mimetype must match their bytes.
+          isRecordedAudio: recordedUrls.has(media),
         })
       )
-    ).then((attachments) => attachments.filter(Boolean) as MediaAttachment[]);
-    onSelect(audioAttachments);
+    );
+    const attachments = results.filter(Boolean) as MediaAttachment[];
+    if (results.every((r) => !r)) {
+      // Every upload failed (e.g. the server rejected an over-cap audio):
+      // keep the sheet open with the takes/selection intact so the user can
+      // retry instead of re-recording from scratch.
+      return;
+    }
+    // Partial failure (some uploads succeed): close with the successes and
+    // drop the failed takes — each failure is already reported by the
+    // per-upload error toast in uploadMedia.
+    onSelect(attachments);
     resetStates();
     bottomSheetClose(ref);
   };
@@ -114,8 +131,16 @@ export const AudioPickerSheet = forwardRef<
     );
   };
 
-  const handleRecordComplete = async (url: string) => {
-    setSelectedAudios([...selectedAudios, url]);
+  const handleRecordComplete = async (recordedUri: string) => {
+    // `recordedUri` is the single take the record sheet just confirmed — the
+    // sheet's payload is a bare string, not the picker's `MediaAttachment[]`
+    // selection, so it is kept a distinct identifier from `selectedAudios`.
+    // Single mode replaces (the pick path above does the same), so a second
+    // confirmed recording cannot leave two takes selected with one Done.
+    setSelectedAudios(
+      multiple ? [...selectedAudios, recordedUri] : [recordedUri]
+    );
+    setRecordedUrls((prev) => new Set(prev).add(recordedUri));
     recordAudioSheetRef.current?.close();
   };
 
@@ -155,6 +180,14 @@ export const AudioPickerSheet = forwardRef<
           }}
         >
           <AudioLinesIcon size={16} className="text-foreground" />
+        </Button>
+
+        <Button
+          variant={'ghost'}
+          accessibilityLabel={t('posts.form.voiceNote.recordAudio')}
+          onPress={() => recordAudioSheetRef.current?.present()}
+        >
+          <MicIcon size={16} className="text-foreground" />
         </Button>
 
         <SheetFooter

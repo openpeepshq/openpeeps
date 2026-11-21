@@ -455,6 +455,19 @@
       "addImage": "Medien hinzufügen",
       "addAudio": "Audio hinzufügen",
       "addDocument": "Dokument hinzufügen",
+      "recordVoice": "Sprachnachricht aufnehmen",
+      "voiceNote": {
+        "title": "Sprachnachricht",
+        "start": "Aufnahme starten",
+        "pause": "Pause",
+        "resume": "Fortsetzen",
+        "stop": "Stopp",
+        "reRecord": "Neu aufnehmen",
+        "add": "Zum Beitrag hinzufügen",
+        "micError": "Mikrofon nicht verfügbar oder Zugriff verweigert.",
+        "micFailed": "Aufnahme konnte nicht gestartet werden. Bitte versuchen Sie es erneut.",
+        "recordAudio": "Sprachnachricht für diesen Beitrag aufnehmen"
+      },
       "title": "Neuer Beitrag",
       "note": {
         "placeholder": "Was möchten Sie mitteilen?"
@@ -2561,6 +2574,12 @@
       "required": "Erforderliche Berechtigung wurde nicht erteilt"
     },
     "media": {
+      "audio": {
+        "record": "Audio aufnehmen",
+        "play": "Abspielen",
+        "maxLength": "Bis zu {{seconds}} Sekunden",
+        "whyPermission": "OpenPeeps benötigt Ihr Mikrofon, um eine Sprachnachricht aufzunehmen."
+      },
       "audioPlayer": "Audio-Player",
       "image": {
         "cropTitle": "Bild zuschneiden",
@@ -2572,10 +2591,6 @@
         "recents": "Zuletzt verwendet",
         "recordVideo": "Video aufnehmen",
         "chooseFromLibrary": "Aus Galerie wählen"
-      },
-      "audio": {
-        "record": "Audio aufnehmen",
-        "play": "Audio abspielen"
       },
       "send": "Senden",
       "sending": "Wird gesendet…",

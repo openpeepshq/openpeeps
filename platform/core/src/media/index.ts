@@ -11,7 +11,11 @@ import { createReadStream, createWriteStream } from 'node:fs';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { spawn } from 'node:child_process';
-import { getTheme, randomString } from '@openpeepshq/common/lib';
+import {
+  getTheme,
+  randomString,
+  VOICE_NOTE_MAX_SECONDS,
+} from '@openpeepshq/common/lib';
 import { logger } from '../log';
 import { hub } from '../events';
 
@@ -112,9 +116,53 @@ export const storeFromPath = (
     ),
   );
 
-const transcodeVideo = async (inputPath: string): Promise<string> => {
-  const { size } = await fs.stat(inputPath);
-  const isLargeFile = size > 10 * 1024 * 1024;
+/**
+ * Normalizes any audio upload to MP4/AAC in a temp `.m4a` (a fresh path).
+ * Browsers record webm/ogg, which iOS cannot decode; AAC-in-MP4 plays on
+ * every client, so the uploaded format is never what ships.
+ */
+const transcodeAudio = (inputPath: string): Promise<string> => {
+  const tempOutputPath = join(tmpdir(), `output-${randomString(16)}.m4a`);
+  return new Promise((resolve, reject) => {
+    ffmpeg(inputPath)
+      .noVideo()
+      .outputOptions('-c:a aac')
+      .outputOptions('-b:a 128k')
+      .output(tempOutputPath)
+      .on('end', () => resolve(tempOutputPath))
+      .on('error', (error) =>
+        reject(new Error(`Audio transcode failed: ${error}`)),
+      )
+      .run();
+  });
+};
+
+/**
+ * Probes a file's duration in seconds via ffprobe. Throws `MediaContentError`
+ * when the duration cannot be determined, so an unprobeable file fails closed
+ * as a 400 in the sync upload path (the handler maps `MediaContentError` to
+ * `badRequest`), not as an opaque 500.
+ */
+const probeAudioDuration = (inputPath: string): Promise<number> =>
+  new Promise((resolve, reject) => {
+    ffmpeg.ffprobe(inputPath, (err, metadata) => {
+      const duration = metadata?.format?.duration;
+      if (err || !duration) {
+        reject(
+          new MediaContentError(
+            `Could not probe audio duration: ${err || 'no duration in metadata'}`,
+          ),
+        );
+        return;
+      }
+      resolve(duration);
+    });
+  });
+
+const transcodeVideo = (
+  inputPath: string,
+  isLargeFile: boolean,
+): Promise<string> => {
   const tempOutputPath = join(tmpdir(), `output-${randomString(16)}.mp4`);
 
   const baseOutput = [
@@ -145,9 +193,12 @@ const transcodeVideo = async (inputPath: string): Promise<string> => {
 
 /**
  * Returns the on-disk file to store for the attachment plus its final
- * filename. Videos are transcoded to a temp `.mp4` (a fresh path); everything
- * else is stored as-is (the returned `path` is the input itself).
+ * filename. Videos and non-AAC audio are transcoded to temp files (fresh
+ * paths); everything else is stored as-is (the returned `path` is the input).
  */
+// Container + codec every client can decode: MP4/AAC is native on iOS and
+// Android (react-native-sound) and playable by every browser. Browsers
+// cannot record it directly, so webm/ogg uploads are normalized here.
 export const transcodeIncomingMedia = async (
   type: string,
   inputPath: string,
@@ -155,11 +206,38 @@ export const transcodeIncomingMedia = async (
   sourceMimetype: string,
 ): Promise<MediaFile & { filename: string }> => {
   if (type === 'video') {
+    const { size } = await fs.stat(inputPath);
+    const isLargeFile = size > 10 * 1024 * 1024;
     return {
-      path: await transcodeVideo(inputPath),
+      path: await transcodeVideo(inputPath, isLargeFile),
       filename: path.parse(originalName).name + '.mp4',
       mimetype: 'video/mp4',
     };
+  }
+  if (type === 'audio') {
+    // The voice-note cap is a single source of truth in common; the server
+    // enforces it too so a crafted upload cannot bypass the client cap.
+    //
+    // Boundary: `>` (not `>=`). A client recorder stops at a 90.0 s wall-clock,
+    // but the take it produces probes a fraction of a second *under* 90 (the
+    // last tick never lands), so an honest take comes in below the cap while a
+    // genuinely overshot or crafted upload probes at/above it. Using `>=`
+    // would reject legitimate takes at the boundary. Both the unit suite
+    // (transcodeAudio.test.ts) and the integration suite (a real exactly-at-cap
+    // WAV) pin this `>` so the two layers cannot drift apart.
+    const duration = await probeAudioDuration(inputPath);
+    if (duration > VOICE_NOTE_MAX_SECONDS) {
+      throw new MediaContentError(
+        `Audio exceeds the ${VOICE_NOTE_MAX_SECONDS}s voice-note limit.`,
+      );
+    }
+    if (!['audio/mp4', 'audio/mpeg', 'audio/aac'].includes(sourceMimetype)) {
+      return {
+        path: await transcodeAudio(inputPath),
+        filename: path.parse(originalName).name + '.m4a',
+        mimetype: 'audio/mp4',
+      };
+    }
   }
   return { path: inputPath, filename: originalName, mimetype: sourceMimetype };
 };

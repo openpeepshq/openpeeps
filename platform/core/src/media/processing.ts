@@ -18,6 +18,22 @@ import {
 
 const log = logger('app:media:processing');
 
+/**
+ * Uploads smaller than this are processed synchronously in the request (the
+ * client gets the final attachment, or a 400 if processing rejects it); larger
+ * uploads go to the worker and the client is told "processing" first.
+ *
+ * Voice-note cap interaction: the server-side 90 s cap (VOICE_NOTE_MAX_SECONDS,
+ * enforced in `transcodeIncomingMedia`) only reaches the client as a
+ * fail-closed 400 on this sync path — a bigger upload bypasses the cap until
+ * the worker runs, after the client has already been told the attachment
+ * succeeded. The threshold must therefore stay above a realistic 90 s
+ * voice note so recorded notes take the sync path and the cap can reject them:
+ * a web note recorded at a low bitrate (opus, ~0.4 MB) is well under, and a
+ * high-bitrate AAC take (~128 kbps, ~1.4 MB) is only marginally above. Lowering
+ * this threshold toward typical note sizes would silently weaken that
+ * guarantee, so a change here is not a routine tuning.
+ */
 export const SYNC_PROCESSING_LIMIT = Number(
   process.env.MEDIA_SYNC_PROCESSING_LIMIT || 1024 * 1024,
 );
