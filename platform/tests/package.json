@@ -37,6 +37,7 @@
   "devDependencies": {
     "@livekit/rtc-node": "^0.13.31",
     "@openpeepshq/cli": "workspace:^",
+    "@openpeepshq/common": "workspace:^",
     "@openpeepshq/core": "workspace:^",
     "@playwright/test": "^1.56.1",
     "@types/node": "^24.1.0",

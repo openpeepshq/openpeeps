@@ -14,7 +14,7 @@
     "apns2": "^12.2.0",
     "archiver": "^7.0.1",
     "bcrypt": "^5.1.1",
-    "bullmq": "^5.34.7",
+    "bullmq": "^5.81.5",
     "cache-manager": "^7.2.4",
     "cacheable": "^2.1.1",
     "change-case": "^5.4.4",

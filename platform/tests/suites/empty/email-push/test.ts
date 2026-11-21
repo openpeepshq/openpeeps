@@ -11,6 +11,7 @@ import {
   currentProfile,
   enableEmailNotifications,
   getPublicProfile,
+  getSendEmailQueueStats,
   loginUser,
   queueTestEmail,
   registerUser,
@@ -148,6 +149,56 @@ test.describe('email + push', () => {
     const message = await waitForMail(to, /test email/i);
     expect(message.Subject).toMatch(/test email/i);
     await expectMailContent(message, [/test email/i]);
+  });
+
+  test('send-email queue stats reflect a job that moves through the queue', async ({
+    request,
+  }) => {
+    // Covers the bullmq queue construction + getJobCounts/getFailed
+    // round-trip (queueStats.ts) that the worker and the admin endpoint
+    // both rely on — the only other automated exercise of the queue stack.
+    // Start from a clean Mailpit inbox so the completed delta below is
+    // attributable to exactly the job this test enqueues (and the inbox
+    // stays bounded for the rest of the shard).
+    await clearMailpit();
+    const { token } = await loginUser(request, owner.email, owner.password);
+    const before = await getSendEmailQueueStats(request, token);
+    for (const [key, value] of Object.entries(before.counts)) {
+      expect(Number.isFinite(value), `counts.${key}`).toBeTruthy();
+      expect(value).toBeGreaterThanOrEqual(0);
+    }
+    expect(Array.isArray(before.recentFailures)).toBeTruthy();
+    // getFailed(0, 9) is the other half of the round-trip this test covers:
+    // the endpoint's admin rendering of a failed job. A failed job only
+    // exists when a prior run left one in the (shared) queue, so assert the
+    // element shape conditionally rather than fabricating a failure — when
+    // the red count is nonzero, the rendering must be intact.
+    if (before.recentFailures.length > 0) {
+      const failure = before.recentFailures[0];
+      expect(failure.queue).toBe('send-email');
+      expect(
+        typeof failure.id === 'string' || failure.id === null,
+      ).toBeTruthy();
+      expect(typeof failure.name).toBe('string');
+      expect(typeof failure.failedReason).toBe('string');
+      expect(
+        typeof failure.finishedOn === 'number' || failure.finishedOn === null,
+      ).toBeTruthy();
+    }
+
+    // Enqueue a real job and wait for the worker to consume it (delivered
+    // via Mailpit), then re-snapshot: the completed count must have moved.
+    // Proves the bumped Queue.add -> worker -> getJobCounts flow end-to-end,
+    // not just that the snapshot is well-shaped.
+    const to = `mailpit+${Date.now()}@openpeeps.test`;
+    await queueTestEmail(request, token, to);
+    await waitForMail(to, /test email/i);
+
+    const after = await getSendEmailQueueStats(request, token);
+    expect(
+      after.counts.completed > before.counts.completed,
+      `completed ${before.counts.completed} -> ${after.counts.completed}`,
+    ).toBeTruthy();
   });
 
   test('register delivers welcome and validation emails', async ({

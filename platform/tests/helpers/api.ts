@@ -1,4 +1,5 @@
 import type { APIRequestContext } from '@playwright/test';
+import type { AdminEmailQueueStats } from '@openpeepshq/common/types';
 
 export type TokenResponse = { token: string; success?: boolean };
 
@@ -92,6 +93,23 @@ export const queueTestEmail = async (
     },
   );
   await assertOk(response, 'queueTestEmail');
+};
+
+/**
+ * Sends the admin queue-stats GET and throws on any non-2xx. Typed with the
+ * canonical `AdminEmailQueueStats` (z.infer of `adminEmailQueueStatsSchema`,
+ * the riddl `Output` of the endpoint).
+ */
+export const getSendEmailQueueStats = async (
+  request: APIRequestContext,
+  token: string,
+): Promise<AdminEmailQueueStats> => {
+  const response = await request.get(
+    '/api/openpeeps/core/v1/admin/diagnostics/email/queue-stats',
+    { headers: apiHeaders(token) },
+  );
+  await assertOk(response, 'getSendEmailQueueStats');
+  return (await response.json()) as AdminEmailQueueStats;
 };
 
 export const createWebhookPushSubscription = async (
