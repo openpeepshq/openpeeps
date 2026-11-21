@@ -470,13 +470,14 @@
       "seeThread": "Thread anzeigen",
       "seeEvent": "Veranstaltung ansehen",
       "react": "Reagieren",
+      "closeReactionPicker": "Reaktionen schließen",
       "reply": "Antworten",
       "repost": "Repost"
     },
     "footer": {
       "reply": "Antworten",
       "repost": "Teilen",
-      "like": "Gefällt mir",
+      "react": "Reagieren",
       "share": "Teilen"
     },
     "shareMenu": {

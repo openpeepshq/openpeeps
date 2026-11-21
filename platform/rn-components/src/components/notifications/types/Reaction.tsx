@@ -2,7 +2,7 @@ import { Pressable, View } from 'react-native';
 import React from 'react';
 import { ThemedText } from '../../ui/themed-text';
 import { NotificationWrapper } from '../NotificationWrapper';
-import { PublicNotification } from '@openpeepshq/common';
+import { PublicNotification, AP_LIKE_REACTION } from '@openpeepshq/common';
 import { profileName } from '../../../lib/utils';
 import { useTranslation } from 'react-i18next';
 import { MainStackParamList } from '../../navigation/types/index';
@@ -19,6 +19,10 @@ export const Reaction: React.FC<NotificationTypeProps> = ({ notification }) => {
   const { t } = useTranslation();
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();
+  // Render the stored reaction (parity with the web TypedNotification); fall
+  // back to the legacy plain like for old notifications without a reaction.
+  const reaction =
+    (notification.data as { reaction?: string })?.reaction ?? AP_LIKE_REACTION;
 
   return (
     <NotificationWrapper
@@ -34,7 +38,7 @@ export const Reaction: React.FC<NotificationTypeProps> = ({ notification }) => {
       >
         <View className="flex w-full items-center justify-between">
           <View className="mb-2 flex flex-row items-center gap-2 font-semibold flex-wrap">
-            <ThemedText>👍🏽</ThemedText>
+            <ThemedText>{reaction}</ThemedText>
             <ThemedText>
               {t('notification.reaction.text', {
                 profileName: profileName(profile),

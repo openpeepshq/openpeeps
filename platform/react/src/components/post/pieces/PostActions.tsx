@@ -1,9 +1,9 @@
-import { Reply, Repeat2, Share, ThumbsUp } from 'lucide-react';
+import { Reply, Repeat2, Share } from 'lucide-react';
 import type { PublicPost } from '@openpeepshq/common/types';
 import { Button, cn } from '@openpeepshq/react-ui';
 import { useT } from '../../../i18n';
 import { useFeedPostActions } from '../../../hooks/posts/useFeedPostActions';
-import { postReactionStats } from '../helpers';
+import { ReactionPicker } from './ReactionPicker';
 import { ShareMenu } from './ShareMenu';
 
 export interface PostActionsProps {
@@ -23,6 +23,7 @@ export function PostActions({
     me,
     myRepost,
     iReacted,
+    myReactions,
     canReply,
     canRepost,
     canReact,
@@ -33,7 +34,6 @@ export function PostActions({
 
   const replyActive = !previewMode && canReply;
   const repostActive = !previewMode && canRepost;
-  const reactActive = !previewMode && canReact;
   const shareActive = !previewMode;
 
   // Unstyled buttons skip the shared disabled treatment. Mute them, and let
@@ -48,7 +48,6 @@ export function PostActions({
 
   const replyLabel = t('posts.footer.reply', { defaultValue: 'Reply' });
   const repostLabel = t('posts.footer.repost', { defaultValue: 'Repost' });
-  const likeLabel = t('posts.footer.like', { defaultValue: 'Like' });
   const shareLabel = t('posts.footer.share', { defaultValue: 'Share' });
 
   return (
@@ -90,24 +89,15 @@ export function PostActions({
             <Repeat2 className="h-4 w-4" />
             {compact ? post.repostCount || null : repostLabel}
           </Button>
-          <Button
-            variant="unstyled"
-            className={cn(
-              actionClass(reactActive),
-              iReacted && reactActive && 'text-primary',
-            )}
-            title={t('posts.actions.react', { defaultValue: 'React' })}
-            action={toggleReaction}
-            disabled={!reactActive}
-            spinnerOnlyOnLoading
-          >
-            <ThumbsUp className="h-4 w-4" />
-            {compact
-              ? post.reactions?.length
-                ? ` · ${postReactionStats(post)}`
-                : null
-              : likeLabel}
-          </Button>
+          <ReactionPicker
+            post={post}
+            compact={compact}
+            previewMode={previewMode}
+            myReactions={myReactions}
+            canReact={canReact}
+            iReacted={iReacted}
+            onToggleReaction={(reaction) => void toggleReaction(reaction)}
+          />
         </>
       ) : null}
       <ShareMenu

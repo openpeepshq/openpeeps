@@ -330,7 +330,11 @@ type Mutators = {
     ReactionData,
     { id: string }
   >;
-  retractReaction: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
+  retractReaction: OpenpeepsNoPayloadEndpoint<
+    SuccessResponse,
+    { id: string },
+    { reaction?: string }
+  >;
   bookmark: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
   unbookmark: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
   seen: OpenpeepsPayloadEndpoint<SuccessResponse, PostsSeenRequest>;
@@ -368,11 +372,11 @@ const mutators = (rawClient: FetchClient): Mutators => ({
     rawClient,
     '/posts/:id/react',
   ),
-  retractReaction: allpeepNoPayloadEndpoint<SuccessResponse, { id: string }>(
-    rawClient,
-    '/posts/:id/react',
-    'delete',
-  ),
+  retractReaction: allpeepNoPayloadEndpoint<
+    SuccessResponse,
+    { id: string },
+    { reaction?: string }
+  >(rawClient, '/posts/:id/react', 'delete'),
   bookmark: allpeepNoPayloadEndpoint<SuccessResponse, { id: string }>(
     rawClient,
     '/posts/:id/bookmark',

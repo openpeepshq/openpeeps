@@ -486,13 +486,14 @@
       "seeThread": "See Thread",
       "seeEvent": "View Event",
       "react": "React",
+      "closeReactionPicker": "Close reactions",
       "reply": "Reply",
       "repost": "Repost"
     },
     "footer": {
       "reply": "Reply",
       "repost": "Repost",
-      "like": "Like",
+      "react": "React",
       "share": "Share"
     },
     "shareMenu": {

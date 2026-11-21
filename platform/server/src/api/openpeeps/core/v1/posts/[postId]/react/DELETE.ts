@@ -7,10 +7,21 @@ import {
   findLatestConversationPost,
   retractReaction,
 } from '@openpeepshq/core/posts';
-import { successResponseSchema } from '@openpeepshq/common/types';
+import {
+  reactionTypeSchema,
+  successResponseSchema,
+} from '@openpeepshq/common/types';
+import { AP_LIKE_REACTION } from '@openpeepshq/common';
 
 export const Param = z.object({
   postId: z.string(),
+});
+
+// DELETE carries no body (Riddl's parseBody returns {} for DELETE), so the
+// reaction travels as a query parameter; omitting it retracts the legacy
+// plain like for pre-picker clients.
+export const Query = z.object({
+  reaction: reactionTypeSchema.optional(),
 });
 
 export const Output = successResponseSchema;
@@ -20,7 +31,7 @@ export const Error = {
   404: notFound(),
 };
 
-export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
+export const apiEndpoint = endpoint({ Param, Query, Output, Error }).handle(
   async (input, event: RequestEvent) => {
     const profile = await ensureLocalProfile(event);
 
@@ -44,7 +55,10 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
       }
     }
 
-    await retractReaction(mergedPost, profile);
+    await retractReaction(mergedPost, profile, {
+      // A bodyless DELETE is the pre-picker contract: retract the plain like.
+      reaction: input.reaction ?? AP_LIKE_REACTION,
+    });
 
     return { success: true };
   },

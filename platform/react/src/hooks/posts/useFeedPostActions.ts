@@ -8,10 +8,22 @@ import {
 } from '../../components/layout/IdentityContext';
 import { useCapabilities } from '../../components/server-data';
 import { useReplyOpener } from './replyOpener';
-import { usePostReactionToggle } from './usePostReactionToggle';
+import { usePostReactions } from './usePostReactions';
 
 /**
  * Non-DOM post footer actions (reply / repost / react) for FeedPost and RN.
+ *
+ * Reactions differ from usePostReactionToggle (DM bubble single button): the
+ * footer exposes the curated reaction set — `myReactions` lists the emojis
+ * the current profile attached, and `toggleReaction(reaction)` retracts that
+ * specific emoji via `?reaction=…` or adds it.
+ *
+ * The exposed `canReact` is the trigger's active state, not the raw capability:
+ * it stays `true` when the profile already reacted but lost the
+ * `core-posts-react` capability (left the group, capability revoked), so an
+ * existing reaction can still be retracted from the footer. Adding a new
+ * reaction still requires the raw capability — see `toggleReaction` in
+ * `usePostReactions`.
  */
 export const useFeedPostActions = (post: PublicPost) => {
   const me = useCurrentProfile();
@@ -20,7 +32,7 @@ export const useFeedPostActions = (post: PublicPost) => {
   const { openpeepsApi } = useOpenpeeps();
   const openReply = useReplyOpener();
   const repostsQuery = openpeepsApi.useCurrentProfileReposts();
-  const { iReacted, canReact, toggleReaction } = usePostReactionToggle(post);
+  const reactions = usePostReactions(post);
 
   const repostPost = openpeepsApi.repostPostAction({ id: post.id } as never);
   const deletePost = openpeepsApi.deletePostAction({ id: post.id } as never);
@@ -35,10 +47,15 @@ export const useFeedPostActions = (post: PublicPost) => {
     [repostsQuery.data, post.id],
   );
 
-  const { canReply, canRepost } = useMemo(
+  const { canReply, canRepost: canRepostRaw } = useMemo(
     () => getPostActionAvailability(authData, post, capabilities),
     [authData, post, capabilities],
   );
+  // Un-react-capable trigger state (mirrors usePostReactionToggle): a profile
+  // that already reacted keeps an open picker even after the capability lapses,
+  // so an existing reaction is never stuck from the footer.
+  const canRepost = canRepostRaw || !!myRepost;
+  const canReact = reactions.canReactRaw || reactions.iReacted;
 
   const reply = () => {
     if (!canReply) return;
@@ -59,12 +76,13 @@ export const useFeedPostActions = (post: PublicPost) => {
   return {
     me,
     myRepost,
-    iReacted,
+    iReacted: reactions.iReacted,
+    myReactions: reactions.myReactions,
     canReply,
-    canRepost: canRepost || !!myRepost,
+    canRepost,
     canReact,
     reply,
     toggleRepost,
-    toggleReaction,
+    toggleReaction: reactions.toggleReaction,
   };
 };

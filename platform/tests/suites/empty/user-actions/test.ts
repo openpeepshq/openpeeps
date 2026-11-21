@@ -251,6 +251,94 @@ test.describe('user actions (API)', () => {
     expect(del.ok(), await del.text()).toBeTruthy();
   });
 
+  test('reaction picker: retract removes the picked reaction, not the like', async ({
+    request,
+  }) => {
+    const { token } = await loginUser(request, owner.email, owner.password);
+    const note = await createNote(
+      request,
+      token,
+      `Reaction retract ${uniqueHandle('n')}`,
+    );
+
+    // The like from the picker path...
+    const like = await request.post(
+      `/api/openpeeps/core/v1/posts/${note.id}/react`,
+      {
+        headers: apiHeaders(token),
+        data: { reaction: '👍' },
+      },
+    );
+    expect(like.ok(), await like.text()).toBeTruthy();
+
+    // ...and a second, different reaction.
+    const heart = await request.post(
+      `/api/openpeeps/core/v1/posts/${note.id}/react`,
+      {
+        headers: apiHeaders(token),
+        data: { reaction: '❤️' },
+      },
+    );
+    expect(heart.ok(), await heart.text()).toBeTruthy();
+
+    const listReactions = async () => {
+      const post = await request.get(
+        `/api/openpeeps/core/v1/posts/${note.id}`,
+        { headers: apiHeaders(token) },
+      );
+      expect(post.ok(), await post.text()).toBeTruthy();
+      return (
+        (await post.json()) as { reactions?: Array<{ reaction: string }> }
+      ).reactions?.map((r) => r.reaction);
+    };
+
+    expect(await listReactions()).toEqual(['👍', '❤️']);
+
+    // Retract the heart through the query-parameter contract the picker uses
+    // (DELETE carries no body). Only ❤️ goes; the 👍 stays.
+    const retractHeart = await request.delete(
+      `/api/openpeeps/core/v1/posts/${note.id}/react?reaction=${encodeURIComponent('❤️')}`,
+      { headers: apiHeaders(token) },
+    );
+    expect(retractHeart.ok(), await retractHeart.text()).toBeTruthy();
+    expect(await listReactions()).toEqual(['👍']);
+
+    // The bodyless DELETE keeps retracting the legacy like.
+    const retractLike = await request.delete(
+      `/api/openpeeps/core/v1/posts/${note.id}/react`,
+      { headers: apiHeaders(token) },
+    );
+    expect(retractLike.ok(), await retractLike.text()).toBeTruthy();
+    expect(await listReactions()).toEqual([]);
+  });
+
+  test('rejects off-set reactions on the write path', async ({ request }) => {
+    const { token } = await loginUser(request, owner.email, owner.password);
+    const note = await createNote(
+      request,
+      token,
+      `Off-set reaction ${uniqueHandle('n')}`,
+    );
+
+    // reactionTypeSchema validates at the write edge: an emoji outside the
+    // curated set is a 400, not a silent accept.
+    const invalidPost = await request.post(
+      `/api/openpeeps/core/v1/posts/${note.id}/react`,
+      {
+        headers: apiHeaders(token),
+        data: { reaction: '💖' },
+      },
+    );
+    expect(invalidPost.status()).toBe(400);
+
+    // Same for the query-parameter retract path.
+    const invalidDelete = await request.delete(
+      `/api/openpeeps/core/v1/posts/${note.id}/react?reaction=${encodeURIComponent('👍🏽')}`,
+      { headers: apiHeaders(token) },
+    );
+    expect(invalidDelete.status()).toBe(400);
+  });
+
   test('reply activity bumps the original and latestReplies include nested descendants', async ({
     request,
   }) => {

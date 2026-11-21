@@ -315,7 +315,7 @@ describe('transformPost deleted authors', () => {
     expect(result.latestRepliesHasMore).toBe(true);
   });
 
-  it('hydrates 👍 reactions from entries and hides reaction history', async () => {
+  it('hydrates all reactions from entries and hides reaction history', async () => {
     const post = {
       ...basePost,
       entries: [
@@ -345,7 +345,52 @@ describe('transformPost deleted authors', () => {
     );
     expect(result.reactions).toEqual([
       { reaction: '👍', profile: activeAuthor },
+      { reaction: '👎', profile: activeAuthor },
     ]);
+  });
+
+  it('drops off-set (legacy) reaction values so the public schema stays valid', async () => {
+    // A logged value outside the curated REACTION_TYPES set (e.g. a legacy
+    // skin-tone 👍🏽 or a 💖) must be filtered out before response validation,
+    // while the in-set emoji from the same profile survives.
+    const post = {
+      ...basePost,
+      entries: [
+        ...basePost.entries!,
+        {
+          id: '55555555-5555-4555-8555-555555555555',
+          type: 'reaction',
+          createdAt: '2024-05-01T01:00:00.000Z',
+          updatedAt: '2024-05-01T01:00:00.000Z',
+          data: { reaction: '👍🏽' },
+          profile: { id: activeAuthor.id },
+        },
+        {
+          id: '66666666-6666-4666-8666-666666666666',
+          type: 'reaction',
+          createdAt: '2024-05-01T01:01:00.000Z',
+          updatedAt: '2024-05-01T01:01:00.000Z',
+          data: { reaction: '💖' },
+          profile: { id: activeAuthor.id },
+        },
+        {
+          id: '77777777-7777-4777-8777-777777777777',
+          type: 'reaction',
+          createdAt: '2024-05-01T01:02:00.000Z',
+          updatedAt: '2024-05-01T01:02:00.000Z',
+          data: { reaction: '👍' },
+          profile: { id: activeAuthor.id },
+        },
+      ],
+    } as unknown as DbPost;
+
+    const result = await transformPost(post);
+    expect(result.reactions).toEqual([
+      { reaction: '👍', profile: activeAuthor },
+    ]);
+    expect(
+      result.reactions.some((r) => r.reaction === '👍🏽' || r.reaction === '💖'),
+    ).toBe(false);
   });
 
   describe('reactions vs the viewer blocked set', () => {
