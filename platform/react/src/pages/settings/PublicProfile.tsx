@@ -57,6 +57,7 @@ export function PublicProfileSettings() {
       avatar: me.avatar ?? undefined,
       header: me.header ?? undefined,
       location: me.location,
+      discoverable: me.discoverable,
       fields: fields.length ? fields : undefined,
     });
     setHandleError(null);
@@ -112,6 +113,7 @@ export function PublicProfileSettings() {
           avatar: draft.avatar || null,
           header: draft.header || null,
           location: draft.location?.text ? draft.location : undefined,
+          discoverable: draft.discoverable,
           fields: draft.fields?.filter((f) => f.value.trim()) ?? undefined,
         }),
       );
@@ -254,6 +256,31 @@ export function PublicProfileSettings() {
         value={draft.location}
         onChange={(location) => setDraft((d) => ({ ...d, location }))}
       />
+
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="discoverable"
+            checked={draft.discoverable !== false}
+            onChange={(e) =>
+              setDraft((d) => ({ ...d, discoverable: e.target.checked }))
+            }
+            data-testid="settings-discoverable-input"
+          />
+          <Label htmlFor="discoverable" forCheckbox>
+            {t('profile.form.discoverable', {
+              defaultValue: 'List my profile in the member directory',
+            })}
+          </Label>
+        </div>
+        <p className="text-muted-foreground text-sm">
+          {t('profile.form.discoverableHint', {
+            defaultValue:
+              'When off, your profile is hidden from the member directory, but people can still visit your profile page.',
+          })}
+        </p>
+      </div>
 
       {additionalFieldDefs.map((field, index) => (
         <div key={field.label} className="space-y-2">

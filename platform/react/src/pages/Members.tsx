@@ -13,7 +13,7 @@ export function Members() {
   const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
 
-  const profilesQuery = openpeepsApi.useProfiles();
+  const profilesQuery = openpeepsApi.useProfiles(true);
   const profiles = profilesQuery.data ?? [];
 
   // Mirror SearchAndFilterBar.svelte: only filter on >=3 chars, debounced.

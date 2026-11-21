@@ -8,6 +8,9 @@ const {
   findPost,
   findGroupByHandle,
   findProfileByHandle,
+  listPosts,
+  listGroups,
+  listProfiles,
   capabilitiesConfig,
   redisGet,
   redisSet,
@@ -15,20 +18,23 @@ const {
   findPost: vi.fn(),
   findGroupByHandle: vi.fn(),
   findProfileByHandle: vi.fn(),
+  listPosts: vi.fn(async () => []),
+  listGroups: vi.fn(async () => []),
+  listProfiles: vi.fn(async () => []),
   capabilitiesConfig: vi.fn(),
   redisGet: vi.fn(async () => null),
   redisSet: vi.fn(async () => undefined),
 }));
 
-vi.mock('../posts', () => ({ findPost }));
-vi.mock('../groups', () => ({ findGroupByHandle, listGroups: vi.fn() }));
-vi.mock('../profiles', () => ({ findProfileByHandle, listProfiles: vi.fn() }));
+vi.mock('../posts', () => ({ findPost, listPosts }));
+vi.mock('../groups', () => ({ findGroupByHandle, listGroups }));
+vi.mock('../profiles', () => ({ findProfileByHandle, listProfiles }));
 vi.mock('../config', () => ({ capabilitiesConfig }));
 vi.mock('../redis', () => ({
   getSharedConnection: async () => ({ get: redisGet, set: redisSet }),
 }));
 
-import { spaMetaForPath } from './index';
+import { crawlableEntries, spaMetaForPath } from './index';
 
 /** Capabilities config shape: post caps for local/audience, none for profile. */
 const config = {
@@ -206,5 +212,32 @@ describe('spaMetaForPath (anonymous readability)', () => {
       meta: { title: 'Cached', description: 'From cache' },
     });
     expect(findPost).not.toHaveBeenCalled();
+  });
+});
+
+describe('crawlableEntries (profile sitemap exposure)', () => {
+  beforeEach(() => {
+    vi.mocked(listPosts).mockClear();
+    vi.mocked(listGroups).mockClear();
+    vi.mocked(listProfiles).mockClear();
+  });
+
+  it('queries profiles through the directory view so opted-out profiles stay out of the sitemap', async () => {
+    const entries = await crawlableEntries({ indexProfiles: true });
+    // Exactly one profile-listing call with the exact directory-view args —
+    // an extra call, a dropped viewer/second argument, or any arg drift
+    // (e.g. `{ directoryView: false }`, which would silently re-expose
+    // opted-out profiles in the sitemap) fails this pin.
+    expect(listProfiles).toHaveBeenCalledTimes(1);
+    expect(listProfiles).toHaveBeenCalledWith(undefined, {
+      directoryView: true,
+    });
+    expect(entries).toEqual([{ path: '/' }]);
+  });
+
+  it('never queries profiles when indexing is disabled', async () => {
+    const entries = await crawlableEntries({ indexProfiles: false });
+    expect(listProfiles).not.toHaveBeenCalled();
+    expect(entries).toEqual([{ path: '/' }]);
   });
 });

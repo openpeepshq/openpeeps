@@ -17,7 +17,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 import { Avatar, AvatarImage } from '../ui/avatar';
 import { CachedImage } from '../custom/common/index';
-import { Form, FormField, FormInput, FormTextarea } from '../ui/form';
+import {
+  Form,
+  FormCheckbox,
+  FormField,
+  FormInput,
+  FormTextarea,
+} from '../ui/form';
 import Toast from 'react-native-toast-message';
 import { ImagePickerSheet } from '../custom/index';
 import { CameraIcon, XIcon } from '../icons/index';
@@ -78,6 +84,7 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
         displayName: profileData.displayName || '',
         bio: profileData.bio || '',
         location: (profileData as ProfileData)?.location || { text: '' },
+        discoverable: profileData.discoverable,
         fields: customFields || [],
         handle,
       });
@@ -117,8 +124,7 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
     values.fields = values.fields?.filter((field) => !!field.value);
 
     updateProfileDetails(values)
-      .then(async (response) => {
-        console.log('response', response);
+      .then(async () => {
         Toast.show({
           type: 'success',
           text2: t('profile.edit.success'),
@@ -129,6 +135,14 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
         setNewBackground(undefined);
         await queryClient.invalidateQueries({
           queryKey: ['profile', handle],
+        });
+        // Toggling `discoverable` changes directory membership, so drop the
+        // cached profile lists too (the directory view is keyed
+        // `['profiles', { directory: 'true' }]` and the pickers `['profiles']`);
+        // the `['profiles']` prefix matches both. Without this the RN Members
+        // tab would keep showing the member until its next refetch.
+        await queryClient.invalidateQueries({
+          queryKey: ['profiles'],
         });
         await refetch();
       })
@@ -152,7 +166,6 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
   };
   const handleSubmit = async () => {
     const values = form.getValues();
-    console.log('values', values);
     await onSubmit(values);
   };
 
@@ -346,6 +359,22 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ handle }) => {
                         value={field.value?.text || ''}
                         onChangeText={(text) => field.onChange({ text: text })}
                         className="rounded-md"
+                      />
+                    )}
+                  />
+                </View>
+                <View className="relative w-full">
+                  <FormField
+                    control={form.control}
+                    name="discoverable"
+                    render={({ field }) => (
+                      <FormCheckbox
+                        {...field}
+                        checked={field.value !== false}
+                        onCheckedChange={(checked) => field.onChange(checked)}
+                        custom={false}
+                        label={t('profile.form.discoverable')}
+                        description={t('profile.form.discoverableHint')}
                       />
                     )}
                   />
