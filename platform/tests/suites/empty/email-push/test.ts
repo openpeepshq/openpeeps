@@ -11,6 +11,7 @@ import {
   currentProfile,
   enableEmailNotifications,
   getPublicProfile,
+  getSendEmailQueueStats,
   loginUser,
   queueTestEmail,
   registerUser,
@@ -148,6 +149,19 @@ test.describe('email + push', () => {
     const message = await waitForMail(to, /test email/i);
     expect(message.Subject).toMatch(/test email/i);
     await expectMailContent(message, [/test email/i]);
+  });
+
+  test('send-email queue stats snapshot is produced', async ({ request }) => {
+    // Covers the bullmq queue construction + getJobCounts/getFailed
+    // round-trip (queueStats.ts) that the worker and the admin endpoint
+    // both rely on — the only other automated exercise of the queue stack.
+    const { token } = await loginUser(request, owner.email, owner.password);
+    const stats = await getSendEmailQueueStats(request, token);
+    for (const [key, value] of Object.entries(stats.counts)) {
+      expect(Number.isFinite(value), `counts.${key}`).toBeTruthy();
+      expect(value).toBeGreaterThanOrEqual(0);
+    }
+    expect(Array.isArray(stats.recentFailures)).toBeTruthy();
   });
 
   test('register delivers welcome and validation emails', async ({

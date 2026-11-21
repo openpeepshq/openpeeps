@@ -94,6 +94,36 @@ export const queueTestEmail = async (
   await assertOk(response, 'queueTestEmail');
 };
 
+export type QueueStatsCounts = {
+  waiting: number;
+  active: number;
+  completed: number;
+  failed: number;
+  delayed: number;
+  prioritized: number;
+};
+
+/**
+ * Fetches the send-email queue stats snapshot (see `getSendEmailQueueStats` in
+ * @openpeepshq/core/email). Throws on any non-2xx so a broken bullmq Queue
+ * construction / getJobCounts / getFailed round-trip fails the test.
+ */
+export const getSendEmailQueueStats = async (
+  request: APIRequestContext,
+  token: string,
+): Promise<{ counts: QueueStatsCounts; recentFailures: unknown[] }> => {
+  const response = await request.get(
+    '/api/openpeeps/core/v1/admin/diagnostics/email/queue-stats',
+    { headers: apiHeaders(token) },
+  );
+  await assertOk(response, 'getSendEmailQueueStats');
+  const body = (await response.json()) as {
+    counts: QueueStatsCounts;
+    recentFailures: unknown[];
+  };
+  return body;
+};
+
 export const createWebhookPushSubscription = async (
   request: APIRequestContext,
   token: string,

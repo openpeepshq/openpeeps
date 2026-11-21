@@ -22,7 +22,6 @@
     "@types/node": "^22.10.5",
     "@typescript-eslint/eslint-plugin": "^8.72.0",
     "@typescript-eslint/parser": "^8.72.0",
-    "bullmq": "^5.34.7",
     "eslint": "^10.14.0",
     "concurrently": "^9.2.5",
     "eslint-config-prettier": "^9.1.0",

@@ -131,7 +131,8 @@ const logJobStats = async () => {
   for (const queue of Object.values(queues)) {
     console.log(queue.name);
     for (const failedJob of (await queue.getFailed(0, 5)).filter(
-      (job) => job.finishedOn > new Date().getTime() - 1000 * 60 * 60 * 24 * 7,
+      (job) =>
+        (job.finishedOn ?? 0) > new Date().getTime() - 1000 * 60 * 60 * 24 * 7,
     )) {
       console.log(
         new Date(failedJob.finishedOn || 0).toISOString() +

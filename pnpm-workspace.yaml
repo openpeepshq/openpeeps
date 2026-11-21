@@ -249,6 +249,33 @@ overrides:
   # on @hono/node-server is not force-pinned. Force 2.1.9 — inside the
   # parent's declared range, clears both advisories.
   "@modelcontextprotocol/node>@hono/node-server": "2.1.9"
+  # bullmq 5.81.5 (#2248) declares an OPTIONAL peer `redis >= 5.0.0` (node-
+  # redis); this tree resolves the `redis@4.7.0` the lockfile links against
+  # it, so that peer contract is intentionally left unsatisfied. No override
+  # exists to fix it: every bullmq Queue/Worker in this repo is constructed
+  # with a standalone ioredis connection ({ host, port }, see
+  # platform/core/src/jobs/index.ts), and bullmq reaches for the `redis`
+  # peer only on cluster connection paths — node-redis's createClient
+  # (platform/core/src/redis/connection.ts) is used for cache/pub-sub and is
+  # never handed to bullmq. The integration suite boots the real worker and
+  # asserts the queue-stats snapshot, so the mismatch is runtime-verified.
+  # A node-redis 5.x/6.x bump of platform/core's `redis ^4.7.0` dependency
+  # is the follow-up that would make the contract hold; until then this
+  # lockfile entry (`bullmq@5.81.5(redis@4.7.0)`) is expected, not drift.
+  # GHSA-w5hq-g745-h8pq (moderate, missing buffer bounds check in v3/v5/v6 when
+  # buf is provided): patched only in uuid >= 11.1.1 — no 9.x/10.x fix exists,
+  # so the google stack's declared `^9.x` ranges cannot reach a patched release
+  # and must be forced. The bullmq leg of the finding left with the 5.x
+  # in-major bump (#2248: bullmq 5.x drops the uuid dependency entirely); the
+  # residual leg is firebase-admin -> @google-cloud/{storage,firestore} ->
+  # gaxios 6.7.1 / google-gax 4.6.1 / teeny-request 9.0.0 (all uuid ^9.x).
+  # Force 11.1.1 — the exact version mermaid already resolves in the tree, so
+  # no fresh resolution enters the minimumReleaseAge window. All three
+  # consumers use the stable named-export API (uuid.v4, never the buf argument
+  # the advisory targets), and 11.1.1 ships CJS dists (main ./dist/cjs/
+  # index.js) so require("uuid") in the google stack keeps working. Scoped to
+  # the vulnerable range so the already-patched mermaid copy stays untouched.
+  "uuid@<11.1.1": "11.1.1"
 
 allowBuilds:
   "@evilmartians/lefthook": true
