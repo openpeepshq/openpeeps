@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useT, useOpenpeeps, useSetPageHeader } from '../../index';
 import { useCurrentAccount, useToast } from '../../components';
 import { Button, Input, Label, Toast } from '@openpeepshq/react-ui';
+import { useAccountExport } from '../../hooks/settings/useAccountExport';
+import type { SettingsStatus } from '../../hooks/settings/useTimezonePreference';
 
 export function AccountSettings() {
   const t = useT();
@@ -17,11 +19,20 @@ export function AccountSettings() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [exporting, setExporting] = useState(false);
-  const [status, setStatus] = useState<{
-    type: 'success' | 'error';
-    message: string;
-  } | null>(null);
+  const [status, setStatus] = useState<SettingsStatus>(null);
+  const {
+    exporting,
+    status: exportStatus,
+    startExport,
+    clearExportStatus,
+  } = useAccountExport({ client, t });
+  // The account-update and export flows share one toast slot; show whichever
+  // is active (they are never set together in practice).
+  const toast = status ?? exportStatus;
+  const dismissToast = () => {
+    if (status) setStatus(null);
+    else clearExportStatus();
+  };
 
   const submit = async () => {
     setStatus(null);
@@ -86,35 +97,6 @@ export function AccountSettings() {
       );
     } finally {
       setVerifying(false);
-    }
-  };
-
-  const exportAccount = async () => {
-    setExporting(true);
-    try {
-      const response = await client.accounts.current.export();
-      if (!('data' in response)) {
-        throw new Error('Export failed');
-      }
-      const data = response.data;
-      const blob = new Blob([JSON.stringify(data, null, 2)], {
-        type: 'application/json',
-      });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'openpeeps-account-export.json';
-      link.click();
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      setStatus({
-        type: 'error',
-        message: t('settings.account.exportFailed', {
-          defaultValue: `Failed: ${(err as Error).message}`,
-        }),
-      });
-    } finally {
-      setExporting(false);
     }
   };
 
@@ -222,9 +204,9 @@ export function AccountSettings() {
         />
       </div>
 
-      {status && (
-        <Toast variant={status.type} onDismiss={() => setStatus(null)}>
-          {status.message}
+      {toast && (
+        <Toast variant={toast.type} onDismiss={dismissToast}>
+          {toast.message}
         </Toast>
       )}
 
@@ -243,28 +225,31 @@ export function AccountSettings() {
       <div className="border-border mt-6 border-t pt-4">
         <h3 className="text-sm font-medium">
           {t('settings.account.exportData', {
-            defaultValue: 'Export your data',
+            defaultValue: 'Download my content',
           })}
         </h3>
         <p className="text-muted-foreground mt-1 text-sm">
           {t('settings.account.exportDataDescription', {
-            defaultValue: 'Download a copy of your account and profile data.',
+            defaultValue:
+              'Download a copy of your data: your posts (with their thread context), posts you reacted to, and your profile and media, as a zip archive.',
           })}
         </p>
         <Button
           title={t('settings.account.downloadData', {
-            defaultValue: 'Download my data',
+            defaultValue: 'Download',
           })}
           variant="outline"
-          action={exportAccount}
+          action={startExport}
           loading={exporting}
           className="mt-2"
           data-testid="settings-account-export"
         >
           {exporting
-            ? t('common.downloading', { defaultValue: 'Downloading…' })
+            ? t('settings.account.exportPreparing', {
+                defaultValue: 'Preparing your export…',
+              })
             : t('settings.account.downloadData', {
-                defaultValue: 'Download my data',
+                defaultValue: 'Download',
               })}
         </Button>
       </div>

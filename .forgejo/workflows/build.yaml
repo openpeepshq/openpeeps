@@ -301,6 +301,7 @@ jobs:
       - name: Run unit tests
         run: >
           pnpm --filter @openpeepshq/common
+          --filter @openpeepshq/client
           --filter @openpeepshq/core
           --filter @openpeepshq/react
           exec vitest run

@@ -656,6 +656,9 @@ importers:
       typescript:
         specifier: ^6.0.2
         version: 6.0.3
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@opentelemetry/api@1.9.1)(@types/node@22.19.17)(@vitest/coverage-v8@4.1.12)(@vitest/ui@4.1.12)(jsdom@25.0.1)(vite@7.3.8(@types/node@22.19.17)(jiti@1.21.7)(lightningcss@1.33.0)(terser@5.49.1)(tsx@4.22.4)(yaml@2.9.1))
 
   platform/common:
     dependencies:

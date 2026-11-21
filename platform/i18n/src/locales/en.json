@@ -2745,10 +2745,14 @@
       "updateError": "Update failed: {{error}}",
       "samePasswordError": "New password cannot be the same as the current password",
       "updateFailed": "Password update failed: {{error}}",
-      "exportData": "Export your data",
-      "exportDataDescription": "Download a copy of your account and profile data.",
-      "downloadData": "Download my data",
+      "exportData": "Download my content",
+      "exportDataDescription": "Download a copy of your data: your posts (with their thread context), posts you reacted to, and your profile and media, as a zip archive.",
+      "downloadData": "Download",
       "exportFailed": "Export failed: {{error}}",
+      "exportExpired": "This export has expired. Please start a new one.",
+      "exportNotFound": "This export could not be found. Please start a new one.",
+      "exportPreparing": "Preparing your export…",
+      "exportDownloadFailed": "No app was found to download the file. Please try again.",
       "title": "Account Settings"
     },
     "billing": {

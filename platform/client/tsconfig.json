@@ -15,6 +15,12 @@
     "rootDir": "src",
     "typeRoots": ["src/@types", "node_modules/@types"]
   },
+  "exclude": [
+    "vitest.config.ts",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "dist/**/*"
+  ],
   "tsc-alias": {
     "verbose": false,
     "resolveFullPaths": true,
