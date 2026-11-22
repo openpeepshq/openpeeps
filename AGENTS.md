@@ -191,7 +191,9 @@ is normally symlinked into the worktree so no install is needed.
 - **No PR labels or milestones.** When opening pull requests, do not add labels
   or milestones. Let maintainers apply those manually.
 - **Organization-level labels only.** Never create or use repository-level
-  labels. Use only the labels defined for the openpeeps organization.
+  labels. Use only the labels defined for the openpeeps organization — look
+  up their numeric ids via `GET /orgs/openpeeps/labels` when a call needs
+  them (see [Forgejo label API — how to set labels reliably](#forgejo-label-api--how-to-set-labels-reliably)).
 - **Flow labels belong on the issue, not the PR.** `flow/*` labels are always
   set on the issue an MR references — never on the MR itself. When work moves
   an issue through the flow, update the `flow/*` label on the issue. The full
@@ -420,25 +422,43 @@ plain `in-progress` label alongside its one flow stage label.
 
 1. **Select only unclaimed issues.** A candidate must carry its queue's stage
    label and **not** carry `in-progress`.
-2. **Claim immediately.** As soon as an issue is selected, add `in-progress`
-   (`POST …/issues/{n}/labels`, body `{"labels": ["in-progress"]}`), then
+2. **Claim immediately.** As soon as an issue is selected, add `in-progress`:
+   `GET` the issue, then `PUT …/issues/{n}/labels` (replace-all) with the
+   issue's current label ids plus the org-level id of `in-progress`. Then
    `GET` the issue and verify `in-progress` is present **and** the stage label
    is still there. If a concurrent run took it, drop it and pick the next
    candidate.
 3. **Release on completion.** After the final stage-label change (or merge),
-   remove `in-progress` (`DELETE …/issues/{n}/labels/in-progress`). Never end a
-   finished run with `in-progress` still on the issue.
+   remove `in-progress` via the same `PUT` replace-all without its id. Never
+   end a finished run with `in-progress` still on the issue.
 
 `in-progress` is a claim marker only — it is not a flow stage and never counts
 toward "exactly one flow label". A separate **Stale In-Progress Cleanup**
 automation removes `in-progress` from issues that have had no activity for over
 an hour, so an issue abandoned by a crashed run becomes claimable again.
 
-**Forgejo label API gotchas** (apply to every label operation above): the
-label-add endpoint is ADDITIVE (it appends to the label set, it does not
-replace it); remove labels by NAME, not by id (delete by id returns 422); the
-delete call can return 204 or 404 on success — always GET the issue afterwards
-and verify the final label set.
+**Forgejo label API — how to set labels reliably.** On this instance a label
+name can be defined at more than one level (org and repo), and when that
+happens the name-based endpoints misbehave: a name `POST` can attach the
+wrong level's duplicate instance, and a name `DELETE` can return 204 while a
+second same-named instance stays on the issue (a delete by id also does not
+work — it returns 422 — so id-based removal is not an option either). Treat
+the issue's _label id set_ as the source of truth and never rely on
+name-based add/remove:
+
+- **Read first, then replace.** `GET` the issue, take the current label ids,
+  then `PUT …/issues/{n}/labels` with the full intended set of **numeric
+  ids**. `PUT` is replace-all and atomic, so it adds, removes, and dedupes in
+  one call and cannot leave a stray duplicate behind.
+- **Match by name when computing the set, but send ids.** Decide which label
+  to add/drop by its name in the issue you just read, then translate to the
+  id(s) present (and for an add, the org-level id from
+  `GET /orgs/openpeeps/labels`). If a label's name appears on **more than one
+  id** on the issue, that is a duplicate-instance bug — drop the extra id and
+  surface it in the run summary.
+- **Always `GET` afterwards** and verify the final label set is exactly what
+  you intended (one flow stage, no `in-progress` at the end of a finished
+  run, no same-named duplicates).
 
 ### Automation principles (apply to every flow automation)
 
