@@ -349,10 +349,7 @@ describe('transformPost deleted authors', () => {
     ]);
   });
 
-  it('drops off-set (legacy) reaction values so the public schema stays valid', async () => {
-    // A logged value outside the curated REACTION_TYPES set (e.g. a legacy
-    // skin-tone 👍🏽 or a 💖) must be filtered out before response validation,
-    // while the in-set emoji from the same profile survives.
+  it('keeps an orphaned reaction no longer in the community set (shown as-is)', async () => {
     const post = {
       ...basePost,
       entries: [
@@ -362,15 +359,7 @@ describe('transformPost deleted authors', () => {
           type: 'reaction',
           createdAt: '2024-05-01T01:00:00.000Z',
           updatedAt: '2024-05-01T01:00:00.000Z',
-          data: { reaction: '👍🏽' },
-          profile: { id: activeAuthor.id },
-        },
-        {
-          id: '66666666-6666-4666-8666-666666666666',
-          type: 'reaction',
-          createdAt: '2024-05-01T01:01:00.000Z',
-          updatedAt: '2024-05-01T01:01:00.000Z',
-          data: { reaction: '💖' },
+          data: { reaction: '🐰' },
           profile: { id: activeAuthor.id },
         },
         {
@@ -386,11 +375,39 @@ describe('transformPost deleted authors', () => {
 
     const result = await transformPost(post);
     expect(result.reactions).toEqual([
+      { reaction: '🐰', profile: activeAuthor },
       { reaction: '👍', profile: activeAuthor },
     ]);
-    expect(
-      result.reactions.some((r) => r.reaction === '👍🏽' || r.reaction === '💖'),
-    ).toBe(false);
+  });
+
+  it('drops empty/malformed legacy reactions', async () => {
+    const post = {
+      ...basePost,
+      entries: [
+        ...basePost.entries!,
+        {
+          id: '55555555-5555-4555-8555-555555555555',
+          type: 'reaction',
+          createdAt: '2024-05-01T01:00:00.000Z',
+          updatedAt: '2024-05-01T01:00:00.000Z',
+          data: { reaction: '' },
+          profile: { id: activeAuthor.id },
+        },
+        {
+          id: '88888888-8888-4888-8888-888888888888',
+          type: 'reaction',
+          createdAt: '2024-05-01T01:03:00.000Z',
+          updatedAt: '2024-05-01T01:03:00.000Z',
+          data: { reaction: '🎉' },
+          profile: { id: activeAuthor.id },
+        },
+      ],
+    } as unknown as DbPost;
+
+    const result = await transformPost(post);
+    expect(result.reactions).toEqual([
+      { reaction: '🎉', profile: activeAuthor },
+    ]);
   });
 
   describe('reactions vs the viewer blocked set', () => {

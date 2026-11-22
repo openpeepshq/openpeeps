@@ -13,6 +13,7 @@ import {
   syncEmojiPickerSkinTone,
 } from './reactionEmojis';
 import { useJamReactionPreferences } from './jamReactionPreferences';
+import { ReactionButton } from '../post/pieces/ReactionButton';
 
 export interface JamReactionMenuProps {
   onSelect: (emoji: string) => void | Promise<void>;
@@ -55,7 +56,6 @@ export function JamReactionMenu({
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handlePickerEmojiClick = useCallback(
@@ -128,15 +128,11 @@ export function JamReactionMenu({
           <div className="flex flex-col gap-y-1 md:flex-row md:flex-nowrap md:items-center md:gap-x-1">
             <div className="flex flex-wrap items-center gap-x-1 md:flex-nowrap">
               {defaultEmojis.map((emoji) => (
-                <button
+                <ReactionButton
                   key={emoji}
-                  type="button"
-                  title={emoji}
-                  className="shrink-0 p-2 text-lg"
+                  reaction={emoji}
                   onClick={() => void onSelect(emoji)}
-                >
-                  {emoji}
-                </button>
+                />
               ))}
             </div>
 
@@ -149,15 +145,11 @@ export function JamReactionMenu({
               {recentDisplayEmojis.length > 0 ? (
                 <>
                   {recentDisplayEmojis.map((emoji) => (
-                    <button
+                    <ReactionButton
                       key={emoji}
-                      type="button"
-                      title={emoji}
-                      className="rounded-button shrink-0 p-2 text-lg"
+                      reaction={emoji}
                       onClick={() => void onSelect(emoji)}
-                    >
-                      {emoji}
-                    </button>
+                    />
                   ))}
                   <div
                     className="bg-border-2 mx-1 h-8 w-px shrink-0 self-center"
@@ -166,19 +158,17 @@ export function JamReactionMenu({
                 </>
               ) : null}
 
-              <button
-                type="button"
+              <ReactionButton
+                reaction={selectedSkinToneEmoji}
                 title={t('jams.reactions.skinToneTitle')}
-                className={`rounded-button shrink-0 p-2 text-lg ${showSkinToneSelector ? 'bg-border-2' : ''}`}
+                active={showSkinToneSelector}
                 onClick={() => setShowSkinToneSelector((open) => !open)}
-              >
-                {selectedSkinToneEmoji}
-              </button>
+              />
 
               <button
                 type="button"
                 title={t('jams.reactions.allEmojisTitle')}
-                className="rounded-button shrink-0 p-2"
+                className="shrink-0 rounded-md p-2 hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background"
                 onClick={() => void openAllEmojis()}
               >
                 <SmilePlus className="size-5" />
@@ -193,7 +183,7 @@ export function JamReactionMenu({
                   key={option.tone}
                   type="button"
                   title={t('jams.reactions.skinToneTitle')}
-                  className={`rounded-button p-1 text-lg ${skinTone === option.tone ? 'bg-border-2' : ''}`}
+                  className={`rounded-button p-1 text-lg ${skinTone === option.tone ? 'bg-border' : ''}`}
                   onClick={() => void handleSetSkinTone(option.tone)}
                 >
                   {option.emoji}

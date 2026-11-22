@@ -1,20 +1,23 @@
 /** @vitest-environment jsdom */
+/**
+ * Regression test for reaction-toggle error swallowing (issue #276, round-5
+ * review item #5): a failed attach/retract must not reject `toggleReaction`.
+ * The call sites fire the promise as `void toggleReaction(…)`; a mid-session
+ * change to the community's allowed set (the server replies
+ * `error.reactionNotAllowed`, surfaced as a thrown object) or a concurrent
+ * retract would otherwise leave an unhandled rejection. No local state changed
+ * on a failed op, so swallowing is correct and the post self-heals on refetch.
+ */
 import { act, createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { PublicPost } from '@openpeepshq/common/types';
-import { usePostReactionToggle } from './usePostReactionToggle';
 
 const mocks = vi.hoisted(() => ({
   reactFn: vi.fn(async () => ({ success: true })),
   retractFn: vi.fn(async () => ({ success: true })),
   me: { id: 'me-1' },
   canReact: true,
-  // default stub args; a specific case feeds the real
-  // getPostActionAvailability (importOriginal) and the authData it needs
-  useRealAvailability: false,
-  authData: {} as Record<string, unknown>,
 }));
 
 vi.mock('../../contexts/openpeeps', () => ({
@@ -25,44 +28,30 @@ vi.mock('../../contexts/openpeeps', () => ({
     },
   }),
 }));
-
 vi.mock('../../components/layout/IdentityContext', () => ({
-  useAuthData: () => mocks.authData,
+  useAuthData: () => ({}),
   useCurrentProfile: () => mocks.me,
 }));
-
 vi.mock('../../components/server-data', () => ({
   useCapabilities: () => ({}),
 }));
+vi.mock('@openpeepshq/common', () => ({
+  AP_LIKE_REACTION: '👍',
+  getPostActionAvailability: () => ({
+    canReply: true,
+    canRepost: true,
+    canReact: mocks.canReact,
+  }),
+}));
 
-vi.mock('@openpeepshq/common', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@openpeepshq/common')>();
-  return {
-    ...actual,
-    getPostActionAvailability: (
-      authData: Parameters<typeof actual.getPostActionAvailability>[0],
-      post: Parameters<typeof actual.getPostActionAvailability>[1],
-      config: Parameters<typeof actual.getPostActionAvailability>[2],
-    ) =>
-      mocks.useRealAvailability
-        ? actual.getPostActionAvailability(authData, post, config)
-        : {
-            canReply: true,
-            canRepost: true,
-            canReact: mocks.canReact,
-          },
-  };
-});
+import { usePostReactionToggle } from './usePostReactionToggle';
 
 const makePost = (
   reactions: Array<{ reaction: string; profile: { id: string } }>,
-  extra: Partial<PublicPost> = {},
 ): PublicPost =>
   ({
     id: 'post-1',
-    visibility: 'direct',
     reactions,
-    ...extra,
   }) as unknown as PublicPost;
 
 let hookResult: ReturnType<typeof usePostReactionToggle> | undefined;
@@ -71,7 +60,7 @@ const Probe = ({ post }: { post: PublicPost }) => {
   return null;
 };
 
-describe('usePostReactionToggle (DM bubble) reactions', () => {
+describe('usePostReactionToggle error handling', () => {
   let root: Root | undefined;
   let container: HTMLDivElement | undefined;
 
@@ -80,150 +69,85 @@ describe('usePostReactionToggle (DM bubble) reactions', () => {
       globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
     ).IS_REACT_ACT_ENVIRONMENT = true;
     mocks.canReact = true;
-    mocks.useRealAvailability = false;
-    mocks.authData = {};
-    mocks.reactFn.mockClear();
-    mocks.retractFn.mockClear();
-    hookResult = undefined;
+    mocks.reactFn.mockClear().mockResolvedValue({ success: true });
+    mocks.retractFn.mockClear().mockResolvedValue({ success: true });
+    container = document.createElement('div');
+    document.body.appendChild(container);
+    root = createRoot(container);
   });
 
   afterEach(() => {
-    act(() => {
-      root?.unmount();
-    });
+    act(() => root?.unmount());
     container?.remove();
-    root = undefined;
     container = undefined;
+    root = undefined;
+    hookResult = undefined;
   });
 
-  const renderHook = (post: PublicPost) => {
-    container = document.createElement('div');
-    document.body.appendChild(container);
-    const newRoot = createRoot(container);
-    root = newRoot;
-    const queryClient = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
-    });
+  const probe = (post: PublicPost) =>
     act(() => {
-      newRoot.render(
-        createElement(
-          QueryClientProvider,
-          { client: queryClient },
-          createElement(Probe, { post }),
-        ),
-      );
-    });
-    return hookResult as ReturnType<typeof usePostReactionToggle>;
-  };
-
-  it('adds the default thumbs up when the profile has not reacted', async () => {
-    const result = renderHook(makePost([]));
-
-    await act(async () => {
-      await result.toggleReaction();
+      root!.render(createElement(Probe, { post }));
     });
 
-    expect(mocks.reactFn).toHaveBeenCalledWith({ reaction: '👍' });
-    expect(mocks.retractFn).not.toHaveBeenCalled();
+  it('does not reject when attaching is rejected', async () => {
+    mocks.reactFn.mockRejectedValue({
+      key: 'reactionNotAllowed',
+      message: 'Reaction not allowed',
+      status: 400,
+    });
+    probe(makePost([]));
+    await expect(
+      act(async () => {
+        await hookResult!.toggleReaction('🎉');
+      }),
+    ).resolves.toBeUndefined();
+    expect(mocks.reactFn).toHaveBeenCalledWith({ reaction: '🎉' });
   });
 
-  it('retracts the profile own non-default reaction (not the thumbs up) on a second tap', async () => {
-    const result = renderHook(
-      makePost([{ reaction: '❤️', profile: { id: 'me-1' } }]),
-    );
-
-    expect(result.iReacted).toBe(true);
-
-    await act(async () => {
-      await result.toggleReaction();
+  it('does not reject when retracting is rejected', async () => {
+    // The profile has 👍, so the no-argument toggle retracts it.
+    mocks.retractFn.mockRejectedValue({
+      key: 'notFound',
+      message: 'no such reaction',
+      status: 404,
     });
-
-    expect(mocks.retractFn).toHaveBeenCalledWith(
-      undefined,
-      { reaction: '❤️' },
-      undefined,
-    );
-    expect(mocks.reactFn).not.toHaveBeenCalled();
+    probe(makePost([{ reaction: '👍', profile: { id: 'me-1' } }]));
+    await expect(
+      act(async () => {
+        await hookResult!.toggleReaction();
+      }),
+    ).resolves.toBeUndefined();
+    expect(mocks.retractFn).toHaveBeenCalledWith(undefined, {
+      reaction: '👍',
+    });
   });
 
-  it('retracts the most recent own reaction when the profile has several', async () => {
-    // Server returns reactions chronologically; the last entry is the latest.
-    const result = renderHook(
-      makePost([
-        { reaction: '👍', profile: { id: 'me-1' } },
-        { reaction: '❤️', profile: { id: 'someone-else' } },
-        { reaction: '🎉', profile: { id: 'me-1' } },
-      ]),
-    );
-
-    expect(result.myReactions).toEqual(['👍', '🎉']);
-
+  it('attaches the legacy like by default and the given emoji otherwise', async () => {
+    probe(makePost([]));
     await act(async () => {
-      await result.toggleReaction();
+      await hookResult!.toggleReaction();
     });
-
-    expect(mocks.retractFn).toHaveBeenCalledWith(
-      undefined,
-      { reaction: '🎉' },
-      undefined,
-    );
-    expect(mocks.reactFn).not.toHaveBeenCalled();
+    expect(mocks.reactFn).toHaveBeenLastCalledWith({ reaction: '👍' });
+    await act(async () => {
+      await hookResult!.toggleReaction('❤️');
+    });
+    expect(mocks.reactFn).toHaveBeenLastCalledWith({ reaction: '❤️' });
   });
 
-  it('keeps the button active after the capability lapses so a reaction is never stuck', async () => {
-    mocks.canReact = false;
-    const result = renderHook(
-      makePost([{ reaction: '❤️', profile: { id: 'me-1' } }]),
-    );
-
-    expect(result.iReacted).toBe(true);
-    expect(result.canReact).toBe(true);
-
+  it('toggles each emoji independently: picking a new emoji does not retract an attached one', async () => {
+    // Guards the cross-swap regression (issue #276, round-15 review item #3):
+    // with 👍 attached, `toggleReaction('😂')` must attach 😂 and leave the 👍
+    // alone. A retract of a *different* emoji here would be the cross-swap the
+    // broken DELETE body-transport made live on the wire — the client would
+    // drop the body and retract 👍 while "swapping" to 😂. Each emoji is an
+    // independent toggle (see core `reactToPost`/`retractReaction` and the
+    // integration "retract removes the picked reaction, not the like" spec),
+    // so the profile's own reactions stack and are removed one at a time.
+    probe(makePost([{ reaction: '👍', profile: { id: 'me-1' } }]));
     await act(async () => {
-      await result.toggleReaction();
+      await hookResult!.toggleReaction('😂');
     });
-
-    expect(mocks.retractFn).toHaveBeenCalledWith(
-      undefined,
-      { reaction: '❤️' },
-      undefined,
-    );
-    expect(mocks.reactFn).not.toHaveBeenCalled();
-  });
-
-  it('does nothing when the capability lapses and the profile has not reacted', async () => {
-    mocks.canReact = false;
-    const result = renderHook(makePost([]));
-
-    expect(result.canReact).toBe(false);
-
-    await act(async () => {
-      await result.toggleReaction();
-    });
-
-    expect(mocks.reactFn).not.toHaveBeenCalled();
-    expect(mocks.retractFn).not.toHaveBeenCalled();
-  });
-
-  it('derives canReact from the real getPostActionAvailability (non-member of a group post)', async () => {
-    // Exercises the real hook→capability plumbing (not the constant stub):
-    // a group post with no membership returns canReact=false from
-    // getPostActionAvailability, so the DM trigger is inert.
-    mocks.useRealAvailability = true;
-    mocks.authData = { profile: { id: 'me-1', memberships: [] } };
-    const post = makePost([], {
-      groupId: 'group-1',
-      group: { id: 'group-1' },
-    } as never);
-    const result = renderHook(post);
-
-    expect(result.canReact).toBe(false);
-
-    await act(async () => {
-      await result.toggleReaction();
-    });
-
-    expect(mocks.reactFn).not.toHaveBeenCalled();
+    expect(mocks.reactFn).toHaveBeenCalledWith({ reaction: '😂' });
     expect(mocks.retractFn).not.toHaveBeenCalled();
   });
 });

@@ -1,5 +1,10 @@
 import { endpoint, z } from '#lib/endpoint';
-import { forbidden, notFound, rethrowIfOpenpeepsError } from '#lib/errors';
+import {
+  badRequest,
+  forbidden,
+  notFound,
+  rethrowIfOpenpeepsError,
+} from '#lib/errors';
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
 import {
@@ -7,8 +12,12 @@ import {
   findLatestConversationPost,
   reactToPost,
 } from '@openpeepshq/core/posts';
+import { communityConfig } from '@openpeepshq/core/config';
 import { successResponseSchema } from '@openpeepshq/common/types';
-import { reactionDataSchema } from '@openpeepshq/common/types';
+import {
+  reactionDataSchema,
+  resolveAllowedReactions,
+} from '@openpeepshq/common/types';
 import { isBlockedPair } from '@openpeepshq/common/lib';
 
 export const Param = z.object({
@@ -20,6 +29,7 @@ export const Input = reactionDataSchema;
 export const Output = successResponseSchema;
 
 export const Error = {
+  400: badRequest(),
   403: forbidden(),
   404: notFound(),
 };
@@ -43,6 +53,14 @@ export const apiEndpoint = endpoint({ Input, Param, Output, Error }).handle(
     }
 
     await ensurePostCapabilities(event, mergedPost, ['core-posts-react']);
+
+    // The community may restrict which reactions are allowed. Only new
+    // reactions are constrained — an emoji attached before being removed
+    // stays retractable (handled by the DELETE endpoint).
+    const allowedReactions = resolveAllowedReactions(await communityConfig());
+    if (!allowedReactions.includes(reactionData.reaction)) {
+      throw badRequest('error.reactionNotAllowed');
+    }
 
     // Leavers stay in the audience of older messages; only the audience of
     // the latest conversation post defines current participants.

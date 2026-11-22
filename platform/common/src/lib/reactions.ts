@@ -1,13 +1,14 @@
-import { REACTION_TYPES, type ReactionData } from '../types';
+export const AP_LIKE_REACTION = '👍';
 
-/** The legacy plain like a bodyless DELETE retracts for pre-picker clients. */
-export const AP_LIKE_REACTION = REACTION_TYPES[0];
-
-/** Whether a logged reaction value is one of the curated post reactions. */
-export const isReactionType = (
-  reaction: string,
-): reaction is ReactionData['reaction'] =>
-  (REACTION_TYPES as readonly string[]).includes(reaction);
+/**
+ * Whether a logged reaction value is usable: a non-empty emoji string.
+ * The community may configure a custom allowed set, so this no longer
+ * restricts to the curated defaults — it only guards against malformed/empty
+ * entries so response validation cannot fail on legacy logs. Reactions that
+ * were attached before being removed from the configured set still pass.
+ */
+export const isReactionType = (reaction: string): boolean =>
+  typeof reaction === 'string' && reaction.trim().length > 0;
 
 export type ReactionLogEntry = {
   type: string;

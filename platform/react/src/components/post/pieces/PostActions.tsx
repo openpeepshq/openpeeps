@@ -22,7 +22,7 @@ export function PostActions({
   const {
     me,
     myRepost,
-    iReacted,
+    iLiked,
     myReactions,
     canReply,
     canRepost,
@@ -95,7 +95,7 @@ export function PostActions({
             previewMode={previewMode}
             myReactions={myReactions}
             canReact={canReact}
-            iReacted={iReacted}
+            iLiked={iLiked}
             onToggleReaction={(reaction) => void toggleReaction(reaction)}
           />
         </>

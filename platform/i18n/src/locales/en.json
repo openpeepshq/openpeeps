@@ -488,14 +488,14 @@
       "seeThread": "See Thread",
       "seeEvent": "View Event",
       "react": "React",
-      "closeReactionPicker": "Close reactions",
+      "orphanedReaction": "No longer allowed — tap to remove",
       "reply": "Reply",
       "repost": "Repost"
     },
     "footer": {
       "reply": "Reply",
       "repost": "Repost",
-      "react": "React",
+      "like": "Like",
       "share": "Share"
     },
     "shareMenu": {
@@ -2297,6 +2297,21 @@
         "duplicate": "That username is already on the list.",
         "builtInError": "Built-in usernames are always reserved and cannot be changed."
       },
+      "reactions": {
+        "title": "Post reactions",
+        "description": "Choose which emojis members can attach to posts, in the feed and direct messages. Leave the list empty to use the default set.",
+        "custom": "This community uses a custom reaction set.",
+        "defaultsInUse": "Using the default reaction set:",
+        "emptyList": "No custom emojis added.",
+        "add": "Add emoji",
+        "remove": "Remove",
+        "empty": "Enter an emoji to add.",
+        "tooLong": "That emoji is too long.",
+        "duplicate": "That emoji is already on the list.",
+        "tooMany": "Use at most 64 emojis.",
+        "save": "Save reactions",
+        "reset": "Reset to defaults"
+      },
       "roles": {
         "title": "Roles and Capabilities",
         "description": "Set up the features and capabilities available to each role within the community"
@@ -3817,6 +3832,7 @@
     "rsvpRemoved": "The organizer has removed you from this event.",
     "rsvpRemovedForbidden": "Only the event organizer can remove attendees.",
     "cannotInteractBlocked": "You cannot interact with this profile.",
+    "reactionNotAllowed": "That reaction is not allowed in this community.",
     "emailAlreadyTaken": "That email is already in use.",
     "postCreateForbidden": "You don't have permission to create this kind of post here.",
     "postDeleted": "This post is no longer available.",

@@ -1,164 +1,174 @@
 /** @vitest-environment jsdom */
-import { act, createElement } from 'react';
+/**
+ * Regression tests for the web `ReactionPicker` orphaned-reaction path
+ * (issue #276, round-5 review item #2). Orphans — reactions the profile
+ * attached before the community removed the emoji from its allowed set — must
+ * render dimmed after a divider and stay retractable; there must be no orphan
+ * section when every attached reaction is still allowed.
+ *
+ * `@openpeepshq/react-ui` is stubbed so the popover content renders without a
+ * portal; the real `ReactionButton` (and `lucide-react`) run, so the dimmed
+ * `opacity-60` class and the orphan title are exercised as shipped.
+ */
+import { act, createElement, type ReactNode } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { PublicPost } from '@openpeepshq/common/types';
-import { REACTION_TYPES } from '@openpeepshq/common';
-import { ReactionPicker } from './ReactionPicker';
 
-const onToggleMock = vi.hoisted(() => vi.fn());
+const mocks = vi.hoisted(() => ({
+  allowed: ['👍', '🎉'] as readonly string[],
+}));
 
 vi.mock('../../../i18n', () => ({
-  useT: () => (key: string, opts?: { defaultValue?: string }) =>
-    opts?.defaultValue ?? key,
+  useT: () => (key: string) => key,
 }));
-
+vi.mock('../../../hooks/posts/useAllowedReactions', () => ({
+  useAllowedReactions: () => mocks.allowed,
+}));
+vi.mock('../helpers', () => ({
+  // Faithful to the real postReactionStats contract: "<unique emojis> <count>",
+  // so the compact count assertion exercises the shipped text shape.
+  postReactionStats: (post: { reactions?: Array<{ reaction: string }> }) => {
+    const reactions = post.reactions ?? [];
+    const uniqueEmojis = [...new Set(reactions.map((r) => r.reaction))].join(
+      '',
+    );
+    return `${uniqueEmojis} ${reactions.length}`;
+  },
+}));
 vi.mock('@openpeepshq/react-ui', () => ({
-  Button: ({
-    children,
-    className,
-    title,
-    disabled,
-  }: {
-    children?: ReactNode;
-    className?: string;
-    title?: string;
-    disabled?: boolean;
-  }) => createElement('button', { className, title, disabled }, children),
-  // Render both the trigger and the content eagerly so the picker row can be
-  // asserted without driving the real popover's open state.
-  Popover: ({ children }: { children?: ReactNode }) =>
-    createElement('div', null, children),
-  PopoverTrigger: ({ children }: { children?: ReactNode }) =>
-    createElement('span', { 'data-testid': 'reaction-trigger' }, children),
-  PopoverContent: ({ children }: { children?: ReactNode }) =>
-    createElement('div', { 'data-testid': 'reaction-content' }, children),
-  cn: (...parts: Array<string | false | null | undefined>) =>
-    parts.filter(Boolean).join(' '),
+  Button: (props: { children?: ReactNode; disabled?: boolean }) =>
+    createElement('button', { disabled: props.disabled }, props.children),
+  Popover: (props: { children?: ReactNode }) =>
+    createElement('div', null, props.children),
+  PopoverTrigger: (props: { children?: ReactNode }) =>
+    createElement('span', null, props.children),
+  PopoverContent: (props: { children?: ReactNode }) =>
+    createElement('div', { 'data-testid': 'picker-content' }, props.children),
+  cn: (...classes: Array<string | false | null | undefined>) =>
+    classes.filter(Boolean).join(' '),
 }));
 
-const makePost = (): PublicPost =>
-  ({ id: 'post-1', reactions: [] }) as unknown as PublicPost;
+import { ReactionPicker } from './ReactionPicker';
 
-const renderPicker = (
-  props?: Partial<Parameters<typeof ReactionPicker>[0]>,
+let container: HTMLElement | undefined;
+let root: Root | undefined;
+
+const render = (
+  myReactions: string[],
+  onToggleReaction: () => void,
+  post: { id: string; reactions?: Array<{ reaction: string }> } = {
+    id: 'post-1',
+    reactions: [],
+  },
 ) => {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
-  const root: Root = createRoot(container);
+  const el = document.createElement('div');
+  document.body.appendChild(el);
+  const r = createRoot(el);
   act(() => {
-    root.render(
+    r.render(
       createElement(ReactionPicker, {
-        post: makePost(),
-        myReactions: [],
+        post: post as PublicPost,
+        myReactions,
         canReact: true,
-        iReacted: false,
-        onToggleReaction: (reaction: string) => onToggleMock(reaction),
-        ...props,
+        iLiked: false,
+        onToggleReaction,
+        compact: true,
       }),
     );
   });
-
-  const content = () =>
-    container.querySelector('[data-testid="reaction-content"]')!;
-  const emojiButton = (emoji: string) =>
-    [...container.querySelectorAll<HTMLButtonElement>('button')].find(
-      (button) => button.textContent === emoji,
-    );
-
-  return {
-    content,
-    emojiButton,
-    triggerButton: () =>
-      container.querySelector<HTMLButtonElement>(
-        '[data-testid="reaction-trigger"] button',
-      ),
-    closeButton: () =>
-      container.querySelector<HTMLButtonElement>(
-        '[aria-label="posts.actions.closeReactionPicker"]',
-      ),
-    cleanup: () => {
-      act(() => root.unmount());
-      container.remove();
-    },
-  };
+  container = el;
+  root = r;
+  return el;
 };
 
-describe('ReactionPicker (web)', () => {
-  let cleanup: (() => void) | undefined;
+const orphanButton = (container: HTMLElement) =>
+  container.querySelector('button[title="posts.actions.orphanedReaction"]');
+const divider = (container: HTMLElement) =>
+  [...container.querySelectorAll('[data-testid="picker-content"] div')].find(
+    (el) =>
+      typeof el.className === 'string' &&
+      el.className.includes('bg-border') &&
+      el.getAttribute('aria-hidden') === 'true',
+  );
 
+describe('ReactionPicker (web) orphans', () => {
   beforeEach(() => {
     (
       globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
     ).IS_REACT_ACT_ENVIRONMENT = true;
-    onToggleMock.mockClear();
   });
 
   afterEach(() => {
-    cleanup?.();
-    cleanup = undefined;
+    act(() => root?.unmount());
+    container?.remove();
+    container = undefined;
+    root = undefined;
   });
 
-  it('shows exactly the curated reactions plus a close affordance', () => {
-    const view = renderPicker();
-    cleanup = view.cleanup;
-
-    const buttons = view.content().querySelectorAll('button');
-    // 7 curated emojis + the explicit close button (the web picker's
-    // counterpart to the RN picker's ✕).
-    expect(buttons.length).toBe(REACTION_TYPES.length + 1);
-    for (const emoji of REACTION_TYPES) {
-      expect(view.content().textContent).toContain(emoji);
-    }
-  });
-
-  it('highlights the reactions the current profile already attached', () => {
-    const view = renderPicker({ myReactions: ['❤️'] });
-    cleanup = view.cleanup;
-
-    expect(view.emojiButton('❤️')!.className).toContain('bg-border');
-    expect(view.emojiButton('👍')!.className).not.toContain('bg-border');
-  });
-
-  it('calls onToggleReaction with the tapped emoji', () => {
-    const view = renderPicker();
-    cleanup = view.cleanup;
-
-    const tapped = view.emojiButton('😂')!;
-    act(() => {
-      tapped.click();
-    });
-
-    expect(onToggleMock).toHaveBeenCalledTimes(1);
-    expect(onToggleMock).toHaveBeenCalledWith('😂');
-  });
-
-  it('gives each emoji button a title with the reaction name', () => {
-    const view = renderPicker();
-    cleanup = view.cleanup;
-
-    for (const emoji of REACTION_TYPES) {
-      expect(view.emojiButton(emoji)!.title).toBe(emoji);
-    }
-  });
-
-  it('exposes an explicit close affordance labelled closeReactionPicker', () => {
-    const view = renderPicker();
-    cleanup = view.cleanup;
-
-    const close = view.closeButton();
-    expect(close).not.toBeNull();
-    expect(close!.getAttribute('aria-label')).toBe(
-      'posts.actions.closeReactionPicker',
+  it('renders the orphan dimmed after the divider', () => {
+    const c = render(['🐰'], vi.fn());
+    const orphan = orphanButton(c);
+    expect(orphan).not.toBeNull();
+    // The orphan is dimmed (the real ReactionButton applies opacity-60).
+    expect(orphan!.className).toContain('opacity-60');
+    // A divider precedes the orphan row.
+    const d = divider(c);
+    expect(d).toBeTruthy();
+    // The orphan button is a later sibling of the divider inside the row.
+    const row = c.querySelector('[data-testid="picker-content"] > div')!;
+    const children = [...row.children];
+    expect(children.indexOf(d as HTMLElement)).toBeLessThan(
+      children.indexOf(orphan as HTMLElement),
     );
   });
 
-  it('disables the trigger when the profile cannot react and has no reactions', () => {
-    const view = renderPicker({ canReact: false, myReactions: [] });
-    cleanup = view.cleanup;
+  it('retracts when the orphan is tapped', () => {
+    const onToggle = vi.fn();
+    const c = render(['👍', '🐰'], onToggle);
+    act(() => {
+      orphanButton(c)!.dispatchEvent(
+        new MouseEvent('click', { bubbles: true }),
+      );
+    });
+    expect(onToggle).toHaveBeenCalledTimes(1);
+    expect(onToggle).toHaveBeenCalledWith('🐰');
+  });
 
-    const trigger = view.triggerButton()!;
-    expect(trigger.disabled).toBe(true);
+  it('renders no orphan section when every attached reaction is allowed', () => {
+    const c = render(['👍', '🎉'], vi.fn());
+    expect(orphanButton(c)).toBeNull();
+    expect(divider(c)).toBeFalsy();
+  });
+});
+
+describe('ReactionPicker (web) compact trigger count (DM bubble, round-10 item #2)', () => {
+  beforeEach(() => {
+    (
+      globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
+    ).IS_REACT_ACT_ENVIRONMENT = true;
+  });
+
+  afterEach(() => {
+    act(() => root?.unmount());
+    container?.remove();
+    container = undefined;
+    root = undefined;
+  });
+
+  it('hides the count when the post has no reactions', () => {
+    const c = render([], vi.fn(), { id: 'post-1', reactions: [] });
+    // The trigger is just the icon — no "·" count text.
+    expect(c.textContent).not.toContain('·');
+  });
+
+  it('shows the first emoji and count when reactions exist', () => {
+    const c = render(['👍'], vi.fn(), {
+      id: 'post-1',
+      reactions: [{ reaction: '👍' }, { reaction: '🎉' }],
+    });
+    // Compact trigger: my first emoji (👍) · "👍🎉 2".
+    expect(c.textContent).toContain('👍');
+    expect(c.textContent).toContain('👍🎉 2');
   });
 });

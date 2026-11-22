@@ -1,11 +1,13 @@
 /**
- * Native PostActions reaction-picker wiring (issue #80 review round 5).
+ * Native PostActions reaction-picker wiring (issue #276, round-15 review item
+ * #2 — this suite was removed when the RN picker switched to the allowed-set
+ * model and is restored here).
  *
- * Pins that the RN PostActions React button opens the picker and threads
- * `myReactions` / `toggleReaction` / `onClose` through to it (the web path has
- * useFeedPostActions + ReactionPicker tests, but the native wiring was
- * untested). Mirrors PostMenu.test.tsx: node jest env, every external import
- * mocked — the decision under test is the button→picker threading.
+ * Pins that the RN PostActions Like button opens the picker and threads
+ * `myReactions`, the community `reactions` (from useAllowedReactions) and
+ * `onToggle` through to it. Mirrors PostMenu.test.tsx: node jest env, every
+ * external import mocked — the decision under test is the button→picker
+ * threading.
  */
 import { type ReactNode } from 'react';
 import ReactTestRenderer from 'react-test-renderer';
@@ -22,8 +24,8 @@ let mockCanReact = true;
 let lastPickerProps:
   | {
       myReactions: string[];
+      reactions: readonly string[];
       onToggle: (r: string) => void;
-      onClose: () => void;
     }
   | undefined;
 const buttonInstances: { onPress?: () => void }[] = [];
@@ -47,12 +49,12 @@ jest.mock('react-i18next', () => ({
   }),
 }));
 
-// --- the feed action hook under test --------------------------------------
+// --- the feed action hooks under test --------------------------------------
 jest.mock('@openpeepshq/react', () => ({
   useFeedPostActions: () => ({
     me: { id: 'me-1' },
     myRepost: undefined,
-    iReacted: mockMyReactions.length > 0,
+    iLiked: mockMyReactions.includes('👍'),
     myReactions: mockMyReactions,
     canReply: true,
     canRepost: true,
@@ -61,14 +63,15 @@ jest.mock('@openpeepshq/react', () => ({
     toggleRepost,
     toggleReaction,
   }),
+  useAllowedReactions: () => REACTION_TYPES,
 }));
 
 // --- local UI: capture picker props and button presses --------------------
 jest.mock('./ReactionPicker', () => ({
   ReactionPicker: (props: {
     myReactions: string[];
+    reactions: readonly string[];
     onToggle: (r: string) => void;
-    onClose: () => void;
   }) => {
     lastPickerProps = props;
     return null;
@@ -151,24 +154,24 @@ const renderPostActions = (
   return { tree };
 };
 
-/** The React button is the one whose text is the react footer label. */
+/** The Like button is the one whose text is the react footer label. */
 const reactButtonPress = (json: unknown): (() => void) | undefined => {
   let found: (() => void) | undefined;
   walk(json, (n) => {
     if (found || n.type !== 'Button') return;
-    if (collectText(n).includes('posts.footer.react')) {
+    if (collectText(n).includes('posts.footer.like')) {
       found = n.props?.onPress as () => void;
     }
   });
   return found;
 };
 
-/** The React button's `disabled` prop (undefined when the button is absent). */
+/** The Like button's `disabled` prop (undefined when the button is absent). */
 const reactButtonDisabled = (json: unknown): boolean | undefined => {
   let found: boolean | undefined;
   walk(json, (n) => {
     if (found !== undefined || n.type !== 'Button') return;
-    if (collectText(n).includes('posts.footer.react')) {
+    if (collectText(n).includes('posts.footer.like')) {
       found = n.props?.disabled as boolean | undefined;
     }
   });
@@ -186,7 +189,7 @@ beforeEach(() => {
   buttonInstances.length = 0;
 });
 
-test('tapping the React button opens the picker wired to the feed actions', () => {
+test('tapping the Like button opens the picker wired to the feed actions', () => {
   const { tree } = renderPostActions(makePost());
   const press = reactButtonPress(tree.toJSON());
   expect(press).toBeTruthy();
@@ -198,6 +201,7 @@ test('tapping the React button opens the picker wired to the feed actions', () =
 
   expect(lastPickerProps).toBeDefined();
   expect(lastPickerProps?.myReactions).toEqual(['❤️']);
+  expect(lastPickerProps?.reactions).toEqual(REACTION_TYPES);
   tree.unmount();
 });
 
@@ -217,7 +221,10 @@ test('picking an emoji from the open picker calls toggleReaction with it', () =>
   tree.unmount();
 });
 
-test('the picker close control calls onClose without toggling a reaction', () => {
+test('an orphan (no longer allowed) reaction still toggles', () => {
+  // The picker renders the profile's own reactions that are no longer in the
+  // community allowed set (orphans) so they stay retractable; the RN wrapper
+  // must thread them through onToggle the same as allowed reactions.
   const { tree } = renderPostActions(makePost());
   ReactTestRenderer.act(() => {
     reactButtonPress(tree.toJSON())!();
@@ -225,14 +232,15 @@ test('the picker close control calls onClose without toggling a reaction', () =>
   expect(lastPickerProps).toBeDefined();
 
   ReactTestRenderer.act(() => {
-    lastPickerProps?.onClose();
+    lastPickerProps?.onToggle('🎉');
   });
 
-  expect(toggleReaction).not.toHaveBeenCalled();
+  expect(toggleReaction).toHaveBeenCalledTimes(1);
+  expect(toggleReaction).toHaveBeenCalledWith('🎉');
   tree.unmount();
 });
 
-test('the React button renders disabled when the profile cannot react and has no reactions', () => {
+test('the Like button renders disabled when the profile cannot react and has no reactions', () => {
   // Native mirror of the web ReactionPicker contract: without the react
   // capability and no existing reaction, the trigger is inert (the web path
   // pins this in ReactionPicker.test.tsx).

@@ -8,10 +8,10 @@ import {
   retractReaction,
 } from '@openpeepshq/core/posts';
 import {
-  reactionTypeSchema,
+  reactionEmojiSchema,
   successResponseSchema,
 } from '@openpeepshq/common/types';
-import { AP_LIKE_REACTION } from '@openpeepshq/common';
+import { AP_LIKE_REACTION } from '@openpeepshq/common/lib';
 
 export const Param = z.object({
   postId: z.string(),
@@ -20,8 +20,15 @@ export const Param = z.object({
 // DELETE carries no body (Riddl's parseBody returns {} for DELETE), so the
 // reaction travels as a query parameter; omitting it retracts the legacy
 // plain like for pre-picker clients.
+//
+// Contract (write-path-only gate, signed in round 16): retraction is
+// deliberately NOT checked against the community's allowed set — only the
+// schema (a valid emoji). POST /react validates new attachments against the
+// configured set; anything attached earlier stays retractable after it is
+// removed from that set, so this endpoint stays asymmetric with POST on
+// purpose (an orphaned emoji's only removal path is a retraction).
 export const Query = z.object({
-  reaction: reactionTypeSchema.optional(),
+  reaction: reactionEmojiSchema.optional(),
 });
 
 export const Output = successResponseSchema;
@@ -56,7 +63,7 @@ export const apiEndpoint = endpoint({ Param, Query, Output, Error }).handle(
     }
 
     await retractReaction(mergedPost, profile, {
-      // A bodyless DELETE is the pre-picker contract: retract the plain like.
+      // A query-less DELETE is the pre-picker contract: retract the plain like.
       reaction: input.reaction ?? AP_LIKE_REACTION,
     });
 

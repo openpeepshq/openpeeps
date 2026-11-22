@@ -46,9 +46,10 @@ describe('currentReactionsFromEntries', () => {
 
   it('sorts unsorted entries so the chronologically latest wins dedup', () => {
     // Feed newest-first so the only thing that can preserve "latest wins" is
-    // the ascending sort (the DM retraction decision in usePostReactions rests
-    // on this order surviving). Without the sort, the stale 👍 entry (first in
-    // the array) would win dedup and the current ❤️ would be dropped.
+    // the ascending sort: dedup keeps the last entry per (profile, emoji), so
+    // the chronologically latest reaction/unreaction wins. Without the sort,
+    // the stale 👍 entry (first in the array) would win dedup and the current ❤️
+    // would be dropped.
     const current = currentReactionsFromEntries([
       {
         type: 'unreaction',

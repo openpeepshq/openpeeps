@@ -11,26 +11,24 @@ import {
 } from '../../icons/index';
 import { type PublicPost } from '@openpeepshq/common';
 import { useTranslation } from 'react-i18next';
-import { useFeedPostActions } from '@openpeepshq/react';
+import { useFeedPostActions, useAllowedReactions } from '@openpeepshq/react';
 import { ReactionPicker } from './ReactionPicker';
 import { ShareMenu } from './ShareMenu';
 
 interface PostActionsProps {
   post: PublicPost;
   previewMode?: boolean;
-  compact?: boolean;
 }
 
 export const PostActions = ({
   post,
   previewMode = false,
-  compact: _compact = false,
 }: PostActionsProps) => {
   const { t } = useTranslation();
   const {
     me,
     myRepost,
-    iReacted,
+    iLiked,
     myReactions,
     canReply,
     canRepost,
@@ -39,6 +37,7 @@ export const PostActions = ({
     toggleRepost,
     toggleReaction,
   } = useFeedPostActions(post);
+  const allowedReactions = useAllowedReactions();
   const [reactionPickerOpen, setReactionPickerOpen] = useState(false);
 
   const replyActive = !previewMode && canReply;
@@ -145,12 +144,9 @@ export const PostActions = ({
           onPress={() => setReactionPickerOpen((open) => !open)}
           className={cn(actionClass, 'justify-end', !reactActive && idleClass)}
         >
-          <ThumbsUpIcon
-            size={16}
-            className={iconClass(reactActive, iReacted)}
-          />
-          <ThemedText className={labelClass(reactActive, iReacted)}>
-            {t('posts.footer.react')}
+          <ThumbsUpIcon size={16} className={iconClass(reactActive, iLiked)} />
+          <ThemedText className={labelClass(reactActive, iLiked)}>
+            {t('posts.footer.like')}
           </ThemedText>
         </Button>
         <View className="flex-1 items-end">{shareButton}</View>
@@ -159,7 +155,7 @@ export const PostActions = ({
         <View className="flex-row gap-1 px-4 pb-2">
           <ReactionPicker
             myReactions={myReactions}
-            onClose={() => setReactionPickerOpen(false)}
+            reactions={allowedReactions}
             onToggle={(reaction) => {
               setReactionPickerOpen(false);
               void toggleReaction(reaction);

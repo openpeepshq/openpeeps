@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
   SKIN_TONE_OPTIONS,
@@ -10,32 +10,11 @@ import {
   isDefaultEmoji,
   useJamReactionPreferences,
 } from '@openpeepshq/react';
-import { ThemedText } from '../ui/themed-text';
-import { cn } from '../../lib/utils';
+import { ReactionButton } from '../post/pieces/ReactionButton';
 
 export interface JamReactionMenuProps {
   onSelect: (emoji: string) => void | Promise<void>;
 }
-
-const EmojiButton = ({
-  emoji,
-  title,
-  active,
-  onPress,
-}: {
-  emoji: string;
-  title: string;
-  active?: boolean;
-  onPress: () => void;
-}) => (
-  <Pressable
-    accessibilityLabel={title}
-    onPress={onPress}
-    className={cn('shrink-0 rounded-md p-2', active && 'bg-border')}
-  >
-    <ThemedText className="text-lg">{emoji}</ThemedText>
-  </Pressable>
-);
 
 /**
  * Reaction picker: a quick row of default emojis (with the preferred skin
@@ -73,9 +52,9 @@ export const JamReactionMenu = ({ onSelect }: JamReactionMenuProps) => {
         contentContainerClassName="flex-row items-center gap-x-1"
       >
         {defaultEmojis.map((emoji) => (
-          <EmojiButton
+          <ReactionButton
             key={emoji}
-            emoji={emoji}
+            reaction={emoji}
             title={emoji}
             onPress={() => void onSelect(emoji)}
           />
@@ -84,9 +63,9 @@ export const JamReactionMenu = ({ onSelect }: JamReactionMenuProps) => {
           <>
             <View className="mx-1 h-8 w-px shrink-0 bg-border" />
             {recentDisplayEmojis.map((emoji) => (
-              <EmojiButton
+              <ReactionButton
                 key={emoji}
-                emoji={emoji}
+                reaction={emoji}
                 title={emoji}
                 onPress={() => void onSelect(emoji)}
               />
@@ -94,8 +73,8 @@ export const JamReactionMenu = ({ onSelect }: JamReactionMenuProps) => {
           </>
         ) : null}
         <View className="mx-1 h-8 w-px shrink-0 bg-border" />
-        <EmojiButton
-          emoji={getSkinToneEmoji(skinTone)}
+        <ReactionButton
+          reaction={getSkinToneEmoji(skinTone)}
           title={t('jams.reactions.skinToneTitle')}
           active={showSkinToneSelector}
           onPress={() => setShowSkinToneSelector((open) => !open)}
@@ -105,9 +84,9 @@ export const JamReactionMenu = ({ onSelect }: JamReactionMenuProps) => {
       {showSkinToneSelector ? (
         <View className="mt-2 flex-row gap-1 border-t border-border pt-2">
           {SKIN_TONE_OPTIONS.map((option) => (
-            <EmojiButton
+            <ReactionButton
               key={option.tone}
-              emoji={option.emoji}
+              reaction={option.emoji}
               title={t('jams.reactions.skinToneTitle')}
               active={skinTone === option.tone}
               onPress={() => handleSetSkinTone(option.tone)}

@@ -14,6 +14,17 @@ import { additionalForbiddenHandlesSchema } from './forbiddenHandles';
 
 export const passwordPlaceHolder = '*********';
 
+/**
+ * A post-reaction value: a non-empty emoji (or emoji sequence) string.
+ * Communities allow arbitrary emojis via `content.allowedReactions`, so this
+ * is a validated string rather than the curated enum. The schema lives here
+ * (not in `models.ts`) because `models.ts` already imports from this file,
+ * which keeps the dependency one-directional; the curated default set
+ * (`REACTION_TYPES`) and the `resolveAllowedReactions` helper live in
+ * `models.ts`, which re-exports nothing from the schema.
+ */
+export const reactionEmojiSchema = z.string().trim().min(1).max(32);
+
 export const password = (sanitize?: boolean) =>
   sanitize
     ? z
@@ -412,6 +423,13 @@ export const communityConfigSchemaFactory = (_sanitize?: boolean) =>
        *  Admin-managed via Community → Auto-follow accounts; only resolvable
        *  local profiles may be designated (federated handles are rejected). */
       autoFollow: z.string().array().optional(),
+      /**
+       * Emojis members can attach to posts. Absent (or empty, the "reset"
+       * value) keeps the curated default set (REACTION_TYPES). Enforced at
+       * the write path; reactions attached before a set change stay visible
+       * (orphans).
+       */
+      allowedReactions: z.array(reactionEmojiSchema).max(64).optional(),
     }),
     settings: z.object({
       openRegistrations: z.boolean(),

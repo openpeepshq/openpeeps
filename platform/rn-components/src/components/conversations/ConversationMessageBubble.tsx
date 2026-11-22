@@ -1,14 +1,18 @@
-import React from 'react';
-import { View } from 'react-native';
+import React, { useState } from 'react';
+import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { PublicPost } from '@openpeepshq/common/types';
-import { useCurrentProfile, usePostReactionToggle } from '@openpeepshq/react';
+import {
+  useCurrentProfile,
+  usePostReactionToggle,
+  useAllowedReactions,
+} from '@openpeepshq/react';
 import { useThemeOpacity } from '../../theme/useThemeOpacity';
 import { FeedPostContent } from '../post/FeedPostContent';
 import { UnreadPostIndicator } from '../post/pieces/UnreadPostIndicator';
-import { Button } from '../ui/button';
-import { ThemedText } from '../ui/themed-text';
+import { ReactionPicker } from '../post/pieces/ReactionPicker';
 import { ThumbsUpIcon } from '../icons/index';
+import { ThemedText } from '../ui/themed-text';
 
 export interface ConversationMessageBubbleProps {
   message: PublicPost;
@@ -23,7 +27,10 @@ export const ConversationMessageBubble = ({
   const { background } = useThemeOpacity();
   const { t } = useTranslation();
   const mine = message.profile.id === me?.id;
-  const { iReacted, canReact, toggleReaction } = usePostReactionToggle(message);
+  const { iLiked, myReactions, canReact, toggleReaction } =
+    usePostReactionToggle(message);
+  const allowedReactions = useAllowedReactions();
+  const [reactionPickerOpen, setReactionPickerOpen] = useState(false);
   const reactionCount = message.reactions?.length ?? 0;
 
   // NativeWind v4 can't apply `/N` opacity to CSS-variable colors (e.g.
@@ -49,26 +56,37 @@ export const ConversationMessageBubble = ({
               mine ? 'mt-2 flex-row justify-end' : 'mt-2 flex-row justify-start'
             }
           >
-            <Button
-              variant="ghost"
-              onPress={() => void toggleReaction()}
-              accessibilityLabel={t('posts.actions.react')}
-              className="items-center gap-1 native:px-2 native:py-1"
-            >
-              <ThumbsUpIcon
-                size={16}
-                className={iReacted ? 'text-primary' : 'text-muted-foreground'}
+            {reactionPickerOpen ? (
+              <ReactionPicker
+                myReactions={myReactions}
+                reactions={allowedReactions}
+                onToggle={(reaction) => {
+                  setReactionPickerOpen(false);
+                  void toggleReaction(reaction);
+                }}
               />
-              {reactionCount > 0 ? (
-                <ThemedText
-                  className={`text-xs ${
-                    iReacted ? 'text-primary' : 'text-muted-foreground'
-                  }`}
-                >
-                  {reactionCount}
-                </ThemedText>
-              ) : null}
-            </Button>
+            ) : (
+              <Pressable
+                className="items-center gap-1"
+                accessibilityRole="button"
+                accessibilityLabel={t('posts.actions.react')}
+                onPress={() => setReactionPickerOpen(true)}
+              >
+                <ThumbsUpIcon
+                  size={16}
+                  className={iLiked ? 'text-primary' : 'text-muted-foreground'}
+                />
+                {reactionCount > 0 ? (
+                  <ThemedText
+                    className={`text-xs ${
+                      iLiked ? 'text-primary' : 'text-muted-foreground'
+                    }`}
+                  >
+                    {reactionCount}
+                  </ThemedText>
+                ) : null}
+              </Pressable>
+            )}
           </View>
         ) : null}
       </View>

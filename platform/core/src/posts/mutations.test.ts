@@ -15,7 +15,7 @@ import * as activity from './activity';
 import * as helpers from './helpers';
 import * as eventOccurrences from './eventOccurrences';
 import * as pollEndJobs from './pollEndJobs';
-import { createPost, updatePost } from './mutations';
+import { createPost, reactToPost, updatePost } from './mutations';
 import { postsMapping } from './mapping';
 
 vi.mock('../db', async (importOriginal) => ({
@@ -437,5 +437,71 @@ describe('updatePost community-wide jam broadcast flag', () => {
         }),
       }),
     );
+  });
+});
+
+describe('reactToPost idempotency (one reaction per emoji per profile)', () => {
+  const mockDb = () => {
+    vi.mocked(allpeepDb).mockResolvedValue({ db: {} } as never);
+  };
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const makePost = (
+    reactions: Array<{ reaction: string; profile: { id: string } }>,
+  ) =>
+    ({
+      id: REPLY_ID,
+      reactions,
+    }) as unknown as PostWithMeta;
+
+  it('writes the reaction and emits when the profile has not attached that emoji', async () => {
+    mockDb();
+    const entryConnector = vi
+      .spyOn(helpers, 'entryConnector')
+      .mockResolvedValue({} as never);
+    const emit = vi.spyOn(hub, 'emit').mockResolvedValue(undefined);
+
+    const post = makePost([]);
+
+    await reactToPost(post, profile, { reaction: '🎉' });
+
+    expect(entryConnector).toHaveBeenCalledWith({}, profile, post, {
+      type: 'reaction',
+      data: { reaction: '🎉' },
+    });
+    expect(emit).toHaveBeenCalledWith('reactionCreated', profile, post, {
+      type: 'reaction',
+      reaction: '🎉',
+    });
+  });
+
+  it('is a no-op when the profile already attached that emoji (no write, no duplicate notification)', async () => {
+    const post = makePost([{ reaction: '🎉', profile: { id: 'creator-1' } }]);
+    const entryConnector = vi.spyOn(helpers, 'entryConnector');
+    const emit = vi.spyOn(hub, 'emit');
+
+    await reactToPost(post, profile, { reaction: '🎉' });
+
+    expect(entryConnector).not.toHaveBeenCalled();
+    expect(emit).not.toHaveBeenCalled();
+  });
+
+  it('still writes a different emoji the profile has not used', async () => {
+    mockDb();
+    const post = makePost([{ reaction: '🎉', profile: { id: 'creator-1' } }]);
+    const entryConnector = vi
+      .spyOn(helpers, 'entryConnector')
+      .mockResolvedValue({} as never);
+    vi.spyOn(hub, 'emit').mockResolvedValue(undefined);
+
+    await reactToPost(post, profile, { reaction: '❤️' });
+
+    expect(entryConnector).toHaveBeenCalledWith({}, profile, post, {
+      type: 'reaction',
+      data: { reaction: '❤️' },
+    });
   });
 });

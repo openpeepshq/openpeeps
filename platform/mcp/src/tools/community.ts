@@ -1,12 +1,13 @@
 import { McpServer } from '@modelcontextprotocol/server';
 import { openpeepsClient } from '@openpeepshq/client';
 import {
-  applySimpleGroupTemplate,
   AP_LIKE_REACTION,
+  REACTION_TYPES,
+  applySimpleGroupTemplate,
   defaultSimpleGroupTemplate,
   federatedHandleSchema,
   postDataUnionSchema,
-  reactionTypeSchema,
+  reactionEmojiSchema,
 } from '@openpeepshq/common';
 import * as z from '@openpeepshq/common/zod';
 import { runTool, unwrap } from '../result.js';
@@ -463,11 +464,10 @@ export const registerCommunityTools = (
   register(
     'react',
     {
-      description:
-        'React to a post with one of the curated reactions (defaults to 👍).',
+      description: `React to a post with an emoji. The community's admin configures the allowed set (defaults to ${REACTION_TYPES.join(' ')}); passing an emoji outside it is rejected with \`error.reactionNotAllowed\`.`,
       inputSchema: z.object({
         id: z.string().uuid(),
-        reaction: reactionTypeSchema.optional(),
+        reaction: reactionEmojiSchema.optional(),
       }),
     },
     async ({ id, reaction }) =>
@@ -484,16 +484,17 @@ export const registerCommunityTools = (
   register(
     'unreact',
     {
-      description:
-        'Remove your reaction from a post (defaults to the plain like).',
+      description: `Remove one of your reactions from a post. The community's admin configures the allowed set (defaults to ${REACTION_TYPES.join(' ')}); pass the emoji you attached.`,
       inputSchema: z.object({
         id: z.string().uuid(),
-        reaction: reactionTypeSchema.optional(),
+        reaction: reactionEmojiSchema.optional(),
       }),
     },
     async ({ id, reaction }) =>
       runTool(() =>
         unwrap(
+          // DELETE carries no body; the reaction travels as `?reaction=`.
+          // Omitting it keeps the server's legacy 👍 fallback.
           client.posts.retractReaction({
             pathParameters: { id },
             queryParameters: reaction ? { reaction } : undefined,

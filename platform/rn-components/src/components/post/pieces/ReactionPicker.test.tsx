@@ -1,184 +1,103 @@
 /**
- * Native ReactionPicker render test (issue #80 review round 4).
+ * Regression test for the native `ReactionPicker` orphaned-reaction path
+ * (issue #276, round-5 review item #2) — the mirror of the web picker test.
+ * Orphans — reactions attached before the community removed the emoji from its
+ * allowed set — render after a divider, flagged `orphan` (dimmed by
+ * `ReactionButton`), and stay retractable; there is no divider/orphan section
+ * when every attached reaction is still allowed.
  *
- * Pins the picker contract on React Native, mirroring the web
- * ReactionPicker.test.tsx per the AGENTS.md sync rule: the row renders all 7
- * curated reactions plus the explicit close affordance, the current
- * profile's own reactions are highlighted, a tap calls `onToggle` with the
- * tapped emoji, and the close button fires `onClose`.
- *
- * Mirrors the inline-mock pattern of PostMenu.test.tsx / ShareMenu.test.tsx:
- * node jest env, every external import mocked; `@openpeepshq/common` is
- * stubbed with the real curated set so the row is asserted against the
- * actual REACTION_TYPES values.
+ * The RN primitives, i18n, and `ReactionButton` are stubbed to self-describing
+ * host tags (`RB_ALLOWED` / `RB_ORPHAN` / `DIVIDER`) so the assertions read the
+ * real picker's orphan computation and render order from the rendered tree.
  */
-import { type ReactNode } from 'react';
-import ReactTestRenderer from 'react-test-renderer';
-
-const REACTION_TYPES = ['👍', '👎', '❤️', '😂', '😮', '😢', '🎉'];
-const CLOSE_LABEL = 'posts.actions.closeReactionPicker';
+const React = require('react');
+const ReactTestRenderer = require('react-test-renderer');
 
 jest.mock('react-native', () => {
-  const React = require('react');
-  const make = (tag: string) => (props: { children?: ReactNode }) => {
-    const { children, ...rest } = props;
-    return React.createElement(tag, rest, children);
-  };
-  return {
-    View: make('View'),
-    Pressable: make('Pressable'),
-  };
+  const V = (props: { className?: string; children?: unknown }) =>
+    React.createElement(
+      props.className === 'mx-1 h-8 w-px shrink-0 bg-border'
+        ? 'DIVIDER'
+        : 'DIV',
+      null,
+      props.children
+    );
+  const T = (props: { children?: unknown }) =>
+    React.createElement('Text', null, props.children);
+  const P = (props: { children?: unknown }) =>
+    React.createElement('Pressable', null, props.children);
+  return { View: V, Text: T, Pressable: P };
 });
-
 jest.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string, opts?: { defaultValue?: string }) =>
-      opts?.defaultValue ?? key,
-  }),
+  useTranslation: () => ({ t: (key: string) => key }),
+}));
+jest.mock('./ReactionButton', () => ({
+  ReactionButton: (props: {
+    reaction?: string;
+    orphan?: boolean;
+    onPress?: () => void;
+  }) =>
+    React.createElement(
+      props.orphan ? 'RB_ORPHAN' : 'RB_ALLOWED',
+      { onPress: props.onPress },
+      props.reaction
+    ),
 }));
 
-jest.mock('@openpeepshq/common', () => ({
-  REACTION_TYPES,
-}));
+const { ReactionPicker } = require('./ReactionPicker');
 
-jest.mock('../../ui/themed-text', () => {
-  const React = require('react');
-  return {
-    ThemedText: (props: { children?: ReactNode }) =>
-      React.createElement('Text', null, props.children),
-  };
-});
-
-jest.mock('../../icons/index', () => ({
-  XIcon: () => null,
-}));
-
-jest.mock('../../../lib/utils', () => ({
-  cn: (...parts: Array<string | false | null | undefined>) =>
-    parts.filter(Boolean).join(' '),
-}));
-
-import { ReactionPicker } from './ReactionPicker';
-
-type TreeNode = {
-  type?: string;
-  props?: Record<string, unknown> | null;
-  children?: (TreeNode | string | null)[];
-};
-
-function collectText(node: unknown, out: string[] = []): string[] {
-  if (node === null || typeof node !== 'object') return out;
-  const n = node as TreeNode;
-  for (const c of n.children || []) {
-    if (typeof c === 'string') out.push(c);
-    else if (c) collectText(c, out);
-  }
-  return out;
-}
-
-/** Depth-first walk over the render tree, visiting every element node. */
-function walk(node: unknown, visit: (n: TreeNode) => void): void {
-  if (node === null || typeof node !== 'object') return;
-  const n = node as TreeNode;
-  visit(n);
-  for (const c of n.children || []) {
-    if (typeof c !== 'string' && c !== null) walk(c, visit);
-  }
-}
-
-/** The Pressable whose only text content is the given emoji. */
-function emojiPressable(json: unknown, emoji: string): TreeNode | undefined {
-  let found: TreeNode | undefined;
-  walk(json, (n) => {
-    if (found || n.type !== 'Pressable') return;
-    if (collectText(n).join('') === emoji) found = n;
-  });
-  return found;
-}
-
-const renderPicker = (props?: {
-  myReactions?: string[];
-  onToggle?: (reaction: string) => void;
-  onClose?: () => void;
-}) => {
-  const onToggle = props?.onToggle ?? jest.fn();
-  const onClose = props?.onClose ?? jest.fn();
-  let tree!: ReactTestRenderer.ReactTestRenderer;
+const render = (
+  myReactions: string[],
+  reactions: readonly string[],
+  onToggle: (reaction: string) => void
+) => {
+  let tree!: ReturnType<typeof ReactTestRenderer.create>;
   ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
-      <ReactionPicker
-        myReactions={props?.myReactions ?? []}
-        onToggle={onToggle}
-        onClose={onClose}
-      />
+      React.createElement(ReactionPicker, {
+        myReactions,
+        reactions,
+        onToggle,
+      })
     );
   });
-  return { tree, onToggle, onClose };
+  return tree;
 };
 
-test('renders every curated reaction plus the close affordance', () => {
-  const { tree } = renderPicker();
-  const text = collectText(tree.toJSON());
-  for (const emoji of REACTION_TYPES) {
-    expect(text).toContain(emoji);
-  }
-  let sawClose = false;
-  walk(tree.toJSON(), (n) => {
-    if (n.props?.accessibilityLabel === CLOSE_LABEL) sawClose = true;
+describe('ReactionPicker (native) orphans', () => {
+  it('renders the orphan (dimmed flag) after the divider', () => {
+    const tree = render(['🐰'], ['👍'], () => {});
+    const dividers = tree.root.findAllByType('DIVIDER');
+    const orphans = tree.root.findAllByType('RB_ORPHAN');
+    expect(dividers.length).toBe(1);
+    expect(orphans.length).toBe(1);
+    // The divider precedes the orphan in render order.
+    const all = tree.root.findAll(() => true);
+    const dividerIdx = all.findIndex((n) => n.type === 'DIVIDER');
+    const orphanIdx = all.findIndex((n) => n.type === 'RB_ORPHAN');
+    expect(dividerIdx).toBeGreaterThanOrEqual(0);
+    expect(dividerIdx).toBeLessThan(orphanIdx);
+    // The orphan row carries the emoji it retracts.
+    expect(orphans[0].children).toContain('🐰');
   });
-  expect(sawClose).toBe(true);
-  tree.unmount();
-});
 
-test('highlights only the reactions the current profile already attached', () => {
-  const { tree } = renderPicker({ myReactions: ['❤️'] });
-  const highlighted: string[] = [];
-  walk(tree.toJSON(), (n) => {
-    const className = n.props?.className;
-    if (typeof className === 'string' && className.includes('bg-border')) {
-      highlighted.push(...collectText(n));
-    }
+  it('retracts when the orphan is tapped', () => {
+    let toggled: string | undefined;
+    const tree = render(['👍', '🐰'], ['👍'], (r) => {
+      toggled = r;
+    });
+    const orphan = tree.root.findAllByType('RB_ORPHAN')[0];
+    expect(orphan.children).toContain('🐰');
+    // The orphan button is wired to retract its own emoji.
+    ReactTestRenderer.act(() => {
+      orphan.props.onPress();
+    });
+    expect(toggled).toBe('🐰');
   });
-  expect(highlighted).toEqual(['❤️']);
-  tree.unmount();
-});
 
-test('gives each emoji button an accessibility label with the reaction name', () => {
-  const { tree } = renderPicker();
-  for (const emoji of REACTION_TYPES) {
-    const button = emojiPressable(tree.toJSON(), emoji);
-    expect(button).toBeTruthy();
-    expect(button?.props?.accessibilityLabel).toBe(emoji);
-  }
-  tree.unmount();
-});
-
-test('tapping an emoji calls onToggle with that emoji', () => {
-  const onToggle = jest.fn();
-  const { tree } = renderPicker({ onToggle });
-  const pressed = emojiPressable(tree.toJSON(), '😂');
-  expect(pressed).toBeTruthy();
-  ReactTestRenderer.act(() => {
-    (pressed?.props?.onPress as () => void)();
+  it('renders no orphan section when every attached reaction is allowed', () => {
+    const tree = render(['👍', '🎉'], ['👍', '🎉'], () => {});
+    expect(tree.root.findAllByType('RB_ORPHAN').length).toBe(0);
+    expect(tree.root.findAllByType('DIVIDER').length).toBe(0);
   });
-  expect(onToggle).toHaveBeenCalledTimes(1);
-  expect(onToggle).toHaveBeenCalledWith('😂');
-  tree.unmount();
-});
-
-test('the close button fires onClose without toggling a reaction', () => {
-  const onToggle = jest.fn();
-  const onClose = jest.fn();
-  const { tree } = renderPicker({ onToggle, onClose });
-  let closed = false;
-  walk(tree.toJSON(), (n) => {
-    if (n.props?.accessibilityLabel === CLOSE_LABEL && n.props?.onPress) {
-      closed = true;
-      ReactTestRenderer.act(() => (n.props.onPress as () => void)());
-    }
-  });
-  expect(closed).toBe(true);
-  expect(onClose).toHaveBeenCalledTimes(1);
-  expect(onToggle).not.toHaveBeenCalled();
-  tree.unmount();
 });

@@ -6,6 +6,7 @@ import {
 } from '@openpeepshq/common/types';
 import { forbidden, notFound, badRequest } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
+import { normalizeAllowedReactions } from '#lib/normalizeReactions';
 import { updateConfigValues } from '@openpeepshq/core/config';
 import {
   getLocalProfileByHandle,
@@ -91,6 +92,7 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
     rejectEmptyProfileFieldKeys(config);
     normalizeAdditionalForbiddenHandles(config);
     await validateAutoFollowHandles(config);
+    normalizeAllowedReactions(config);
     // Admin UI/CLI send sparse patches (e.g. only info.tagLine). Merge into the
     // stored overrides so unrelated keys like theme are preserved.
     await updateConfigValues(config, namespace, name);

@@ -17,6 +17,8 @@ export type { EventMenuProps } from './pieces/EventMenu';
 export { ReactionsModal } from './pieces/modals/ReactionsModal';
 export { ReactionPicker } from './pieces/ReactionPicker';
 export type { ReactionPickerProps } from './pieces/ReactionPicker';
+export { ReactionButton } from './pieces/ReactionButton';
+export type { ReactionButtonProps } from './pieces/ReactionButton';
 export { RepostModal } from './pieces/modals/RepostModal';
 export { DeletePostModal } from './pieces/modals/DeletePostModal';
 export { EditPostModal } from './post-form/EditPostModal';

@@ -331,12 +331,25 @@ test.describe('user actions (API)', () => {
     );
     expect(invalidPost.status()).toBe(400);
 
-    // Same for the query-parameter retract path.
-    const invalidDelete = await request.delete(
+    // The query-parameter retract path applies the write-path-only gate
+    // (round-16 contract, signed by the plan owner): retraction is validated
+    // by the emoji schema, not the community's allowed set, so a schema-valid
+    // emoji outside the set is accepted — it only matters if the profile had
+    // it attached before the set changed, and retraction is the orphan's only
+    // removal path. Only an invalid (oversized) value is a write-edge 400.
+    const validButOffSetDelete = await request.delete(
       `/api/openpeeps/core/v1/posts/${note.id}/react?reaction=${encodeURIComponent('👍🏽')}`,
       { headers: apiHeaders(token) },
     );
-    expect(invalidDelete.status()).toBe(400);
+    expect(validButOffSetDelete.ok(), await validButOffSetDelete.text()).toBe(
+      true,
+    );
+
+    const oversizedDelete = await request.delete(
+      `/api/openpeeps/core/v1/posts/${note.id}/react?reaction=${encodeURIComponent('not-an-emoji-just-a-very-long-string')}`,
+      { headers: apiHeaders(token) },
+    );
+    expect(oversizedDelete.status()).toBe(400);
   });
 
   test('reply activity bumps the original and latestReplies include nested descendants', async ({

@@ -86,6 +86,7 @@ export { AdminConfigurationCommunityFavicons } from './admin/community/Community
 export { AdminConfigurationCommunityTheme } from './admin/community/CommunityTheme';
 export { AdminConfigurationCommunityProfileFields } from './admin/community/CommunityProfileFields';
 export { AdminConfigurationCommunityForbiddenUsernames } from './admin/community/CommunityForbiddenUsernames';
+export { AdminConfigurationCommunityReactions } from './admin/community/CommunityReactions';
 export { AdminConfigurationCommunityRoles } from './admin/community/CommunityRoles';
 export { AdminGroupMembers } from './admin/GroupMembers';
 export { AdminReports } from './admin/Reports';

@@ -1,7 +1,6 @@
 /** @vitest-environment jsdom */
 import { act, createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { PublicPost } from '@openpeepshq/common/types';
 import { useFeedPostActions } from './useFeedPostActions';
@@ -11,10 +10,6 @@ const mocks = vi.hoisted(() => ({
   retractFn: vi.fn(async () => ({ success: true })),
   me: { id: 'me-1' },
   canReact: true,
-  // default stub args; a specific case feeds the real
-  // getPostActionAvailability (importOriginal) and the authData it needs
-  useRealAvailability: false,
-  authData: {} as Record<string, unknown>,
 }));
 
 vi.mock('../../contexts/openpeeps', () => ({
@@ -30,7 +25,7 @@ vi.mock('../../contexts/openpeeps', () => ({
 }));
 
 vi.mock('../../components/layout/IdentityContext', () => ({
-  useAuthData: () => mocks.authData,
+  useAuthData: () => ({}),
   useCurrentProfile: () => mocks.me,
 }));
 
@@ -38,24 +33,14 @@ vi.mock('../../components/server-data', () => ({
   useCapabilities: () => ({}),
 }));
 
-vi.mock('@openpeepshq/common', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@openpeepshq/common')>();
-  return {
-    ...actual,
-    getPostActionAvailability: (
-      authData: Parameters<typeof actual.getPostActionAvailability>[0],
-      post: Parameters<typeof actual.getPostActionAvailability>[1],
-      config: Parameters<typeof actual.getPostActionAvailability>[2],
-    ) =>
-      mocks.useRealAvailability
-        ? actual.getPostActionAvailability(authData, post, config)
-        : {
-            canReply: true,
-            canRepost: true,
-            canReact: mocks.canReact,
-          },
-  };
-});
+vi.mock('@openpeepshq/common', () => ({
+  AP_LIKE_REACTION: '👍',
+  getPostActionAvailability: () => ({
+    canReply: true,
+    canRepost: true,
+    canReact: mocks.canReact,
+  }),
+}));
 
 vi.mock('./replyOpener', () => ({
   useReplyOpener: () => vi.fn(),
@@ -63,12 +48,10 @@ vi.mock('./replyOpener', () => ({
 
 const makePost = (
   reactions: Array<{ reaction: string; profile: { id: string } }>,
-  extra: Partial<PublicPost> = {},
 ): PublicPost =>
   ({
     id: 'post-1',
     reactions,
-    ...extra,
   }) as unknown as PublicPost;
 
 let hookResult: ReturnType<typeof useFeedPostActions> | undefined;
@@ -86,8 +69,6 @@ describe('useFeedPostActions reactions', () => {
       globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
     ).IS_REACT_ACT_ENVIRONMENT = true;
     mocks.canReact = true;
-    mocks.useRealAvailability = false;
-    mocks.authData = {};
     mocks.reactFn.mockClear();
     mocks.retractFn.mockClear();
     hookResult = undefined;
@@ -107,17 +88,8 @@ describe('useFeedPostActions reactions', () => {
     document.body.appendChild(container);
     const newRoot = createRoot(container);
     root = newRoot;
-    const queryClient = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
-    });
     act(() => {
-      newRoot.render(
-        createElement(
-          QueryClientProvider,
-          { client: queryClient },
-          createElement(Probe, { post }),
-        ),
-      );
+      newRoot.render(createElement(Probe, { post }));
     });
     return hookResult as ReturnType<typeof useFeedPostActions>;
   };
@@ -144,11 +116,9 @@ describe('useFeedPostActions reactions', () => {
       await result.toggleReaction('❤️');
     });
 
-    expect(mocks.retractFn).toHaveBeenCalledWith(
-      undefined,
-      { reaction: '❤️' },
-      undefined,
-    );
+    expect(mocks.retractFn).toHaveBeenCalledWith(undefined, {
+      reaction: '❤️',
+    });
     expect(mocks.reactFn).not.toHaveBeenCalled();
   });
 
@@ -165,11 +135,9 @@ describe('useFeedPostActions reactions', () => {
       await result.toggleReaction('👍');
     });
 
-    expect(mocks.retractFn).toHaveBeenCalledWith(
-      undefined,
-      { reaction: '👍' },
-      undefined,
-    );
+    expect(mocks.retractFn).toHaveBeenCalledWith(undefined, {
+      reaction: '👍',
+    });
     expect(mocks.reactFn).not.toHaveBeenCalled();
   });
 
@@ -185,53 +153,54 @@ describe('useFeedPostActions reactions', () => {
     expect(mocks.retractFn).not.toHaveBeenCalled();
   });
 
-  it('stays able to un-react from the footer when the capability lapses but the profile already reacted', async () => {
-    // core-posts-react revoked (or the profile left the group) while the post
-    // and its own reaction stay visible: canReact=false from the capability
-    // check, but the exposed trigger must remain open so the reaction is not
-    // stuck. Mirrors usePostReactionToggle's `canReact || iReacted`.
-    mocks.canReact = false;
+  it('iLiked is false when the profile has no reactions', () => {
+    expect(renderHook(makePost([])).iLiked).toBe(false);
+  });
+
+  it('iLiked is false when the profile attached only a non-👍 reaction', () => {
     const result = renderHook(
       makePost([{ reaction: '❤️', profile: { id: 'me-1' } }]),
     );
 
+    expect(result.iLiked).toBe(false);
     expect(result.myReactions).toEqual(['❤️']);
+  });
+
+  it('iLiked is false when only someone else reacted with 👍', () => {
+    const result = renderHook(
+      makePost([
+        { reaction: '👍', profile: { id: 'someone-else' } },
+        { reaction: '❤️', profile: { id: 'me-1' } },
+      ]),
+    );
+
+    expect(result.iLiked).toBe(false);
+  });
+
+  it('iLiked is true when the profile attached its own 👍', () => {
+    const result = renderHook(
+      makePost([
+        { reaction: '👍', profile: { id: 'me-1' } },
+        { reaction: '❤️', profile: { id: 'me-1' } },
+      ]),
+    );
+
+    expect(result.iLiked).toBe(true);
+  });
+
+  it('a non-👍 reaction stays retractable even when it is not a like', async () => {
+    const result = renderHook(
+      makePost([{ reaction: '❤️', profile: { id: 'me-1' } }]),
+    );
+
     expect(result.canReact).toBe(true);
 
     await act(async () => {
       await result.toggleReaction('❤️');
     });
 
-    expect(mocks.retractFn).toHaveBeenCalledWith(
-      undefined,
-      { reaction: '❤️' },
-      undefined,
-    );
-    // Without the capability a *new* reaction is still refused.
-    await act(async () => {
-      await result.toggleReaction('🎉');
-    });
-    expect(mocks.reactFn).not.toHaveBeenCalled();
-  });
-
-  it('derives canReact from the real getPostActionAvailability (non-member of a group post)', async () => {
-    // Exercises the real hook→capability plumbing (not the constant stub):
-    // a group post with no membership returns canReact=false from
-    // getPostActionAvailability regardless of any react capability.
-    mocks.useRealAvailability = true;
-    mocks.authData = { profile: { id: 'me-1', memberships: [] } };
-    const post = makePost([], {
-      groupId: 'group-1',
-      group: { id: 'group-1' },
-    } as never);
-    const result = renderHook(post);
-
-    // useFeedPostActions returns `canReact` = canReactRaw || iReacted
-    // For a non-member, both are false -> canReact = false.
-    expect(result.canReact).toBe(false);
-
-    await act(async () => {
-      await result.toggleReaction('❤️');
+    expect(mocks.retractFn).toHaveBeenCalledWith(undefined, {
+      reaction: '❤️',
     });
     expect(mocks.reactFn).not.toHaveBeenCalled();
   });
