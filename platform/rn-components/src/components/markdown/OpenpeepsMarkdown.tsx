@@ -5,7 +5,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { ReactNode, useMemo } from 'react';
-import { Linking, View } from 'react-native';
+import { Linking, StyleProp, TextStyle, View } from 'react-native';
 import Markdown, {
   MarkdownIt,
   tokensToAST,
@@ -27,16 +27,23 @@ import { PreviewLink } from '../preview-link';
 import { useOpenPeepsTheme } from '../../theme/OpenPeepsThemeProvider';
 import { recordOutboundClick } from '@openpeepshq/react';
 
-export type OpenpeepsMarkdownProps = MarkdownRenderProps;
+export type OpenpeepsMarkdownProps = MarkdownRenderProps & {
+  /** Text metrics override merged over the theme's paragraph/list styles. */
+  baseTextStyle?: StyleProp<TextStyle>;
+};
 
 export const OpenpeepsMarkdown = ({
   source,
   mentions = [],
   linkPreviewMode = 'none',
   newTab = false,
+  baseTextStyle,
 }: OpenpeepsMarkdownProps) => {
   const { colors } = useOpenPeepsTheme();
-  const styles = useMemo(() => markdownTheme(colors), [colors]);
+  const styles = useMemo(
+    () => markdownTheme(colors, { baseTextStyle }),
+    [colors, baseTextStyle]
+  );
 
   const navigation =
     useNavigation<NativeStackNavigationProp<MainStackParamList>>();

@@ -1,6 +1,7 @@
 /** @type {import('jest').Config} */
 module.exports = {
   testEnvironment: 'node',
+  setupFiles: ['<rootDir>/jest.setup.cjs'],
   moduleNameMapper: {
     // Jest resolves the packages' `default` export condition (dist ESM), which
     // ts-jest cannot parse; tests run against the TypeScript source instead.

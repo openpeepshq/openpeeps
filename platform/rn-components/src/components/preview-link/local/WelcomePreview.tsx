@@ -44,6 +44,7 @@ export const WelcomePreview = () => {
             source={markdown}
             snippet={truncateMarkdown(stripMarkdownImages(markdown), 2, 240)}
             maxLines={2}
+            className="break-words text-sm text-muted-foreground"
           />
         ) : description ? (
           <ThemedText

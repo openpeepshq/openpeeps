@@ -1,5 +1,6 @@
 import {
   formatEventWhen,
+  isHiddenPost,
   type Article,
   type Event,
   type MediaAttachmentData,
@@ -139,7 +140,7 @@ const CompactTypeBody = ({ post }: { post: CompactPost }) => {
             maxBlocks={1}
             maxChars={80}
             maxLines={1}
-            className="text-sm text-muted-foreground"
+            className="break-words text-sm text-muted-foreground"
           />
           {docName ? (
             <View className="flex-row items-center gap-1">
@@ -165,7 +166,7 @@ const CompactTypeBody = ({ post }: { post: CompactPost }) => {
             maxBlocks={1}
             maxChars={80}
             maxLines={1}
-            className="text-sm text-muted-foreground"
+            className="break-words text-sm text-muted-foreground"
           />
           {optionCount > 0 ? (
             <ThemedText
@@ -238,21 +239,36 @@ export const CompactReplyParent = ({
   const name = post.profile.displayName || `@${post.profile.handle}`;
   const thumb = post.deletedAt ? null : compactThumb(post);
 
+  // Intentionally divergent from the web twin: web keeps `items-center` and
+  // vertically centers its (truly line-clamped) content in an inner
+  // `min-h-0 flex-col justify-center overflow-hidden` column; RN cannot
+  // line-clamp rendered markdown, so it starts the row at the top and lets
+  // any residual overflow clip at the bottom — the author line can never be
+  // cut. See the approved plan for issue #2074.
   return (
     <Pressable
       accessibilityLabel={t('posts.compact.viewPost', {
         defaultValue: 'View post',
       })}
       onPress={() => navigation.navigate('Post', { id: post.id })}
-      className={`bg-muted mx-2 mb-2 max-h-20 flex-row items-center gap-2 overflow-hidden rounded-lg px-2 py-1.5 ${className ?? ''}`}
+      className={`bg-muted mx-2 mb-2 max-h-20 flex-row items-start gap-2 overflow-hidden rounded-lg px-2 py-1.5 ${className ?? ''}`}
     >
       <ProfileAvatar profile={post.profile} className="size-8" />
-      {post.deletedAt ? (
+      {isHiddenPost(post) ? (
         <ThemedText
           className="flex-1 text-sm text-muted-foreground"
           numberOfLines={2}
         >
-          {t('posts.compact.deleted')}
+          {t('posts.hiddenMessage', { defaultValue: 'Hidden message' })}
+        </ThemedText>
+      ) : post.deletedAt ? (
+        <ThemedText
+          className="flex-1 text-sm text-muted-foreground"
+          numberOfLines={2}
+        >
+          {t('posts.compact.deleted', {
+            defaultValue: 'This post has been deleted.',
+          })}
         </ThemedText>
       ) : (
         <>
