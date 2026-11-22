@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { createWriteStream } from 'node:fs';
 import { pathExists, emptyDir } from 'fs-extra';
-import archiver from 'archiver';
+import { ZipArchive } from 'archiver';
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CoreConfig, CommunityConfig } from '@openpeepshq/common/types';
 import { buildStoredZip } from '../testUtils/extractZip';
@@ -116,7 +116,7 @@ const createFixture = async () => {
 const zipDirectory = (sourceDir: string, zipPath: string) =>
   new Promise<void>((resolve, reject) => {
     const output = createWriteStream(zipPath);
-    const archive = archiver('zip');
+    const archive = new ZipArchive();
     output.on('close', () => resolve());
     output.on('error', reject);
     archive.on('error', reject);

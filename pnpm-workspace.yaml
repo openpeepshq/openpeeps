@@ -86,11 +86,12 @@ overrides:
   # themselves inside the vulnerable range. Consumers are lint/build tooling
   # (glob 9 via babel-plugin-module-resolver, glob 10 via sucrase,
   # typescript-estree, @eslint/config-array, @vue/language-core, api-extractor)
-  # plus one runtime-reachable leg — glob 10 via archiver-utils (platform/core
-  # uses archiver at runtime) — though minimatch itself never ships in bundles.
+  # plus one runtime-reachable leg — minimatch via archiver → readdir-glob
+  # (platform/core uses archiver at runtime) — though minimatch itself never
+  # ships in bundles.
   # The 11.x API surface used by those call sites was verified compatible. The
-  # 3.x line (consumers glob 7/8, eslint-plugin-react, filelist, readdir-glob,
-  # test-exclude) sits below the advisory's >=7 floor and keeps its patched
+  # 3.x line (consumers glob 7/8, eslint-plugin-react, filelist, test-exclude)
+  # sits below the advisory's >=7 floor and keeps its patched
   # 3.1.5 pin.
   "minimatch@<7": "3.1.5"
   "minimatch@>=7": "11.0.9"

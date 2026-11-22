@@ -14,7 +14,7 @@ import { spawn } from 'node:child_process';
 import { emptyDir } from 'fs-extra';
 import { join, sep, isAbsolute } from 'node:path';
 import { tmpdir } from 'node:os';
-import archiver from 'archiver';
+import { ZipArchive } from 'archiver';
 import { extractWithNodeStreamZip } from './extractWithNodeStreamZip';
 import { collectionInfos } from '../db';
 import { communityConfig, config, defaultConfig } from '../config';
@@ -136,7 +136,7 @@ const hostnameFromServerHost = (host: string) => {
 const zipDirectory = (sourceDir: string, zipPath: string) =>
   new Promise<void>((resolve, reject) => {
     const output = createWriteStream(zipPath);
-    const archive = archiver('zip', { zlib: { level: 9 } });
+    const archive = new ZipArchive({ zlib: { level: 9 } });
 
     output.on('close', () => resolve());
     output.on('error', reject);

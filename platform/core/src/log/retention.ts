@@ -1,7 +1,7 @@
 import { createReadStream, createWriteStream } from 'node:fs';
 import { readdir, rm, stat } from 'node:fs/promises';
 import { basename, join } from 'node:path';
-import archiver from 'archiver';
+import { ZipArchive } from 'archiver';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -31,7 +31,7 @@ const fileExists = async (path: string): Promise<boolean> => {
 const zipLogFile = (file: string, zipPath: string): Promise<void> =>
   new Promise((resolve, reject) => {
     const output = createWriteStream(zipPath);
-    const archive = archiver('zip', { zlib: { level: 9 } });
+    const archive = new ZipArchive({ zlib: { level: 9 } });
     output.on('close', () => resolve());
     output.on('error', reject);
     archive.on('error', reject);
