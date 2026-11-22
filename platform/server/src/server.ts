@@ -22,6 +22,7 @@ import { initializeServer } from '#lib/init';
 import { corsMiddleware } from './lib/cors';
 import { installDbBrowserProxy } from './lib/dbBrowserProxy';
 import { installBackupsEndpoint } from './lib/backups';
+import { installAccountExportDownloadEndpoint } from './lib/accounts-export-download';
 import { installS3Endpoint } from './lib/s3';
 import { installStreamingEndpoint } from './lib/streaming';
 import { installPwaEndpoint } from './lib/pwa';
@@ -229,6 +230,12 @@ const startServer = async () => {
   // non-API URLs fall through to the SPA fallback below. Route-folder layout:
   // `src/api/openpeeps/...` → `/api/openpeeps/...`, `src/api/pwa/...` →
   // `/api/pwa/...`, etc.
+  // Personal-data export downloads (`/api/openpeeps/core/v1/accounts/current/
+  // export/download?token=`). Registered before the Riddl delegation below so
+  // the zip streams straight to the client instead of going through the JSON
+  // handler (see `lib/backups.ts`).
+  installAccountExportDownloadEndpoint(app);
+
   const riddlHandler = expressAdapter(openpeepsApi.handler);
   app.use((req, res, next) => {
     if (req.originalUrl.startsWith('/api/')) {

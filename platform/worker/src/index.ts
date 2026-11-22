@@ -46,6 +46,11 @@ import {
   waitlistOfferWorker,
 } from '@openpeepshq/core/posts';
 import {
+  ensureAccountExportCleanupSchedule,
+  accountExportQueue,
+  accountExportWorker,
+} from '@openpeepshq/core/accounts';
+import {
   ensureLogRetentionSchedule,
   logRetentionQueue,
   logRetentionWorker,
@@ -82,6 +87,8 @@ const startWorkers = () => {
   logRetentionWorker();
   console.log('Starting waitlist offer worker ...');
   waitlistOfferWorker();
+  console.log('Starting account export worker ...');
+  accountExportWorker();
 };
 
 const setupQueues = async () => {
@@ -99,6 +106,7 @@ const setupQueues = async () => {
   pollEndQueue();
   logRetentionQueue();
   waitlistOfferQueue();
+  accountExportQueue();
   // Register the daily cron schedule. Idempotent under upsertJobScheduler so
   // it's safe to call on every worker boot.
   await ensureStreamingCleanupSchedule();
@@ -106,6 +114,7 @@ const setupQueues = async () => {
   await ensureAnalyticsSchedules();
   await ensureEventOccurrenceSchedule();
   await ensureLogRetentionSchedule();
+  await ensureAccountExportCleanupSchedule();
 };
 
 const logJobStats = async () => {

@@ -34,7 +34,11 @@ export interface OpenpeepsClientOptions {
 const allPeepClientOptionsToClientConfig = (
   options?: OpenpeepsClientOptions,
 ): ClientConfig => ({
-  baseUrl: (options?.baseUrl ?? '') + '/api/openpeeps/core/v1',
+  // Strip trailing slash(es) from the configured base so composing the API
+  // prefix cannot produce a doubled slash (`https://host//api/...`) that
+  // 404s against the server's single-slash routes.
+  baseUrl:
+    (options?.baseUrl ?? '').replace(/\/+$/, '') + '/api/openpeeps/core/v1',
   headers: options?.token
     ? {
         Authorization: `Bearer ${options.token}`,
