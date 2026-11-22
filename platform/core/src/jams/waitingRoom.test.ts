@@ -37,12 +37,16 @@ const redis = vi.hoisted(() => {
       hGet: async (key: string, field: string) => hash(key).get(field) ?? null,
       hGetAll: async (key: string) => Object.fromEntries(hashes.get(key) ?? []),
       hExists: async (key: string, field: string) => hash(key).has(field),
-      hDel: async (key: string, field: string) => {
-        hash(key).delete(field);
-        return 1;
+      hDel: async (key: string, ...fields: (string | string[])[]) => {
+        const flat = fields.flat();
+        for (const field of flat) hash(key).delete(field);
+        return flat.length;
       },
       expire: async () => true,
-      del: async () => 1,
+      del: async (key: string) => {
+        hashes.delete(key);
+        return 1;
+      },
     },
   };
 });
@@ -62,7 +66,11 @@ vi.mock('../profiles', () => ({
   getProfile: vi.fn(),
 }));
 
-import { acceptFromWaitingRoom, joinWaitingRoom } from './waitingRoom';
+import {
+  acceptFromWaitingRoom,
+  clearJamAdmittance,
+  joinWaitingRoom,
+} from './waitingRoom';
 import { createJamToken, assertJamRsvpAllowed } from './token';
 import { getProfile } from '../profiles';
 
@@ -124,6 +132,37 @@ describe('joinWaitingRoom', () => {
     const stored = await redis.shared.hGetAll('jams:waiting-room:ev1');
     expect(JSON.parse(stored.g2)).toEqual({ displayName: 'plain-guest' });
   });
+
+  it('refuses a banned (removed) profile up front with error.jamBanned', async () => {
+    const bannedEvent = {
+      ...event,
+      data: {
+        ...(event.data as object),
+        jam: { ...(event.data?.jam as object), banned: ['guest1'] },
+      },
+    } as unknown as PostWithMeta;
+    await expect(joinWaitingRoom(bannedEvent, guest)).rejects.toMatchObject({
+      errorKey: 'error.jamBanned',
+    });
+    // The profile must not have been queued: no waiting-room entry is written.
+    const stored = await redis.shared.hGetAll('jams:waiting-room:ev1');
+    expect(stored).toEqual({});
+  });
+
+  it('still queues a profile that is not in the ban list', async () => {
+    const bannedEvent = {
+      ...event,
+      data: {
+        ...(event.data as object),
+        jam: { ...(event.data?.jam as object), banned: ['someone-else'] },
+      },
+    } as unknown as PostWithMeta;
+    await joinWaitingRoom(bannedEvent, guest);
+    const stored = await redis.shared.hGetAll('jams:waiting-room:ev1');
+    expect(stored).toEqual({
+      guest1: JSON.stringify({ displayName: 'Ada Guest' }),
+    });
+  });
 });
 
 describe('acceptFromWaitingRoom', () => {
@@ -156,6 +195,40 @@ describe('acceptFromWaitingRoom', () => {
     // The queue entry is consumed either way — no zombie slot remains.
     const wr = await redis.shared.hGetAll('jams:waiting-room:ev1');
     expect(wr).toEqual({});
+  });
+});
+
+describe('clearJamAdmittance', () => {
+  it('removes only the named profile from the admittance hash', async () => {
+    await joinWaitingRoom(event, guest);
+    vi.mocked(getProfile).mockResolvedValue(guest);
+    await acceptFromWaitingRoom(event, 'guest1');
+    const before = await redis.shared.hGetAll('jams:admitted:ev1');
+    expect(Object.keys(before)).toEqual(['guest1']);
+    await clearJamAdmittance(event, undefined, ['guest1']);
+    expect(await redis.shared.hGetAll('jams:admitted:ev1')).toEqual({});
+  });
+
+  it('is a no-op for an empty id set (never wipes the whole hash)', async () => {
+    await joinWaitingRoom(event, guest);
+    vi.mocked(getProfile).mockResolvedValue(guest);
+    await acceptFromWaitingRoom(event, 'guest1');
+    const before = await redis.shared.hGetAll('jams:admitted:ev1');
+    expect(Object.keys(before)).toEqual(['guest1']);
+    // An explicit empty set must not fall through to del() — that would clear
+    // every pending admittee in the room, not just the (absent) banned one.
+    await clearJamAdmittance(event, undefined, []);
+    expect(await redis.shared.hGetAll('jams:admitted:ev1')).toEqual(before);
+  });
+
+  it('wipes the whole admittance hash when no id set is given', async () => {
+    await joinWaitingRoom(event, guest);
+    vi.mocked(getProfile).mockResolvedValue(guest);
+    await acceptFromWaitingRoom(event, 'guest1');
+    const before = await redis.shared.hGetAll('jams:admitted:ev1');
+    expect(Object.keys(before)).toEqual(['guest1']);
+    await clearJamAdmittance(event);
+    expect(await redis.shared.hGetAll('jams:admitted:ev1')).toEqual({});
   });
 });
 

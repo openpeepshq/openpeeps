@@ -24,14 +24,21 @@ const mockParticipants: unknown[] = [];
 let mockIsModerator = false;
 let mockHasWaitingRoom = false;
 let mockWaitingProfiles: unknown[] = [];
+let mockBannedIds: string[] = [];
+const mockPressHandlers: Array<() => void> = [];
 
 jest.mock('react-native', () => ({
   View: (props: { children?: unknown }) =>
     React.createElement('View', null, props.children),
   ScrollView: (props: { children?: unknown }) =>
     React.createElement('ScrollView', null, props.children),
-  Pressable: (props: { children?: unknown }) =>
-    React.createElement('Pressable', null, props.children),
+  // Records every press handler in render order so a test can fire the
+  // "Removed" header toggle (the only Pressable when the drawer has no
+  // participants / waiting room — see the round-15 suggestion-2 case).
+  Pressable: (props: { children?: unknown; onPress?: () => void }) => {
+    if (props.onPress) mockPressHandlers.push(props.onPress);
+    return React.createElement('Pressable', null, props.children);
+  },
   Text: (props: { children?: unknown }) =>
     React.createElement('Text', null, props.children),
 }));
@@ -79,6 +86,20 @@ jest.mock('@openpeepshq/react', () => ({
     waitingProfiles: mockWaitingProfiles,
     admittingId: null,
     admit: () => {},
+    // Mirror the real hook's banned-sublist contract (the drawer reads
+    // bannedIds/liftingId/liftBan when isModerator is true); empty keeps the
+    // "Removed" section hidden so these assertions stay on the Observers pin.
+    bannedIds: mockBannedIds,
+    liftingId: null,
+    liftBan: () => {},
+  }),
+  // The "Removed" sublist row resolves each banned id through
+  // `openpeepsApi.useProfile(id).data`; returning `undefined` exercises the
+  // unresolved fallback (the full profile id) that round-15 suggestion 2 pins.
+  useOpenpeeps: () => ({
+    openpeepsApi: {
+      useProfile: () => ({ data: undefined }),
+    },
   }),
 }));
 
@@ -92,6 +113,8 @@ jest.mock('../icons/index', () => {
     React.createElement(name, props);
   return {
     AudioLinesIcon: make('AudioLinesIcon'),
+    ChevronDownIcon: make('ChevronDownIcon'),
+    ChevronRightIcon: make('ChevronRightIcon'),
     EyeOnIcon: make('EyeOnIcon'),
     HandIcon: make('HandIcon'),
     MicIcon: make('MicIcon'),
@@ -146,14 +169,28 @@ jest.mock('../ui/themed-text', () => ({
   },
 }));
 
+// The package ships ESM-only source (see the jest.config.cjs notes); the
+// drawer only calls Toast.show for lift-ban errors, which these cases never
+// reach, so an inert mock keeps the suite parseable.
+jest.mock('react-native-toast-message', () => {
+  const Toast = { show: jest.fn() };
+  return { __esModule: true, default: Toast };
+});
+
 const { JamPeopleDrawer } = require('./JamPeopleDrawer');
 
-const renderDrawer = (sessions: number, waitingRoom: boolean = false) => {
+const renderDrawer = (
+  sessions: number,
+  waitingRoom: boolean = false,
+  bannedIds: string[] = []
+) => {
   mockSessions = sessions;
   mockIsModerator = waitingRoom;
   mockHasWaitingRoom = waitingRoom;
   mockWaitingProfiles = waitingRoom ? [{ id: 'w1' }] : [];
+  mockBannedIds = bannedIds;
   mockRenderedTexts.length = 0;
+  mockPressHandlers.length = 0;
   let tree!: ReactTestRenderer.ReactTestRenderer;
   ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
@@ -212,5 +249,42 @@ describe('JamPeopleDrawer observers section (RN)', () => {
     expect(texts).toContain('In jam');
     expect(texts).not.toContain('Observers');
     expect(texts).not.toContain('external observer');
+  });
+});
+
+describe('JamPeopleDrawer "Removed" sublist fallback (RN, issue #303 round-15 suggestion 2)', () => {
+  // Independent of the observers renderDrawer: the fallback case needs a
+  // moderator with a non-empty banned list but no waiting room / participants,
+  // which the observers helper (isModerator === waitingRoom) cannot express.
+  const renderBannedDrawer = (bannedIds: string[]) => {
+    mockIsModerator = true;
+    mockHasWaitingRoom = false;
+    mockWaitingProfiles = [];
+    mockBannedIds = bannedIds;
+    mockRenderedTexts.length = 0;
+    mockPressHandlers.length = 0;
+    let tree!: ReactTestRenderer.ReactTestRenderer;
+    ReactTestRenderer.act(() => {
+      tree = ReactTestRenderer.create(
+        React.createElement(JamPeopleDrawer, { open: true, onClose: () => {} })
+      );
+    });
+    // The section is collapsed by default; fire the header toggle (the only
+    // Pressable with an onPress when there are no participants / waiting room)
+    // so the rows mount and their name fallbacks render.
+    ReactTestRenderer.act(() => {
+      mockPressHandlers.forEach((onPress) => onPress());
+    });
+    return tree;
+  };
+
+  it('shows the full profile id for an unresolved row, not a truncated slice', () => {
+    // The useProfile mock returns undefined for every id, so the row hits the
+    // unresolved fallback. Asserting the FULL id is present catches the old
+    // raw-slice behavior (the first 8 chars only) — a 36-char id cannot appear
+    // when only 8 chars are rendered.
+    renderBannedDrawer(['banned-2x-0000-0000-0000-000000000000']);
+    const text = mockRenderedTexts.join(' ');
+    expect(text).toContain('banned-2x-0000-0000-0000-000000000000');
   });
 });

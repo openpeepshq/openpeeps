@@ -5,6 +5,7 @@ import {
   type PublicProfile,
   type PostWithMeta,
 } from '@openpeepshq/common/types';
+import { forbidden } from '../errors';
 import { assertJamRsvpAllowed, createJamToken } from './token';
 import {
   disconnect,
@@ -56,7 +57,18 @@ export const isAdmittedToJam = async (
 export const clearJamAdmittance = async (
   event: PostWithMeta,
   recurrenceId?: string,
+  onlyProfileIds?: string[],
 ): Promise<void> => {
+  if (onlyProfileIds !== undefined) {
+    // Per-profile path: an explicit (possibly empty) id set must never fall
+    // through to the wipe-everything del() below, so `[]` is a no-op.
+    if (onlyProfileIds.length === 0) return;
+    await getSharedConnection().then((conn) =>
+      // ioredis flattens an array field at the protocol level.
+      conn.hDel(admittanceKey(event, recurrenceId), onlyProfileIds),
+    );
+    return;
+  }
   await getSharedConnection().then((conn) =>
     conn.del(admittanceKey(event, recurrenceId)),
   );
@@ -127,6 +139,14 @@ export const joinWaitingRoom = async (
   profile: PublicProfile,
   recurrenceId?: string,
 ) => {
+  // A removed (banned) profile must not be able to queue at all — mirroring
+  // the `createJamToken` gate, so the refusal happens up front instead of at
+  // the moderator's later "admit" click.
+  const jam = event.data?.type === 'event' ? event.data?.jam : undefined;
+  if (jam?.banned?.includes(profile.id)) {
+    throw forbidden({ errorKey: 'error.jamBanned' });
+  }
+
   assertJamRsvpAllowed(event, profile, recurrenceId);
 
   const conn = await getSharedConnection();

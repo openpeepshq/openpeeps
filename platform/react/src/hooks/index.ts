@@ -36,9 +36,13 @@ export { useJamDetails, useJamRtmpStream } from './jams/useJamDetails';
 export type { UseJamRtmpStreamArgs } from './jams/useJamDetails';
 export {
   useJamParticipantMute,
+  useJamParticipantRemove,
   useJoinWaitingRoomToken,
 } from './jams/useJamParticipant';
-export type { UseJamParticipantMuteArgs } from './jams/useJamParticipant';
+export type {
+  UseJamParticipantMuteArgs,
+  UseJamParticipantRemoveArgs,
+} from './jams/useJamParticipant';
 export { useFeedPostActions } from './posts/useFeedPostActions';
 export { usePostReactionToggle } from './posts/usePostReactionToggle';
 export { useAllowedReactions } from './posts/useAllowedReactions';

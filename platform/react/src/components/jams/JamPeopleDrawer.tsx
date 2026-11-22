@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import {
   AudioLines,
+  ChevronDown,
+  ChevronRight,
   Eye,
   Hand,
   Mic,
@@ -15,7 +18,9 @@ import { useParticipants, useRoomContext } from '@livekit/components-react';
 import type { Participant } from 'livekit-client';
 import { Button, Input } from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
+import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useJamPeople } from '../../hooks/jams/useJamPeople';
+import { useToast } from '../layout/ToastProvider';
 import { Avatar } from '../profile';
 import { parseParticipantMetadata } from './jamEventActions';
 import { useJamExternalSessions } from './useJamExternalSessions';
@@ -107,6 +112,8 @@ function JamObserversSection({ count }: { count: number }) {
  */
 export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
   const t = useT();
+  const { error: toastError } = useToast();
+  const [bannedExpanded, setBannedExpanded] = useState(false);
   const room = useRoomContext();
   const participants = useParticipants();
   const externalSessions = useJamExternalSessions();
@@ -121,7 +128,14 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
     waitingProfiles,
     admittingId,
     admit,
-  } = useJamPeople({ room, participants });
+    bannedIds,
+    liftingId,
+    liftBan,
+  } = useJamPeople({
+    room,
+    participants,
+    onLiftError: toastError,
+  });
 
   if (!open) return null;
 
@@ -220,6 +234,40 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
             </div>
           </div>
         ) : null}
+
+        {isModerator && bannedIds.length > 0 ? (
+          <div>
+            <button
+              type="button"
+              className="flex w-full items-center justify-between gap-2 text-left"
+              onClick={() => setBannedExpanded((current) => !current)}
+              aria-expanded={bannedExpanded}
+              aria-label={`${t('jams.people.banned')} (${bannedIds.length})`}
+              title={t('jams.people.banned')}
+            >
+              <span className="text-muted-foreground text-xs font-semibold uppercase">
+                {t('jams.people.banned')} ({bannedIds.length})
+              </span>
+              {bannedExpanded ? (
+                <ChevronDown className="text-muted-foreground size-4" />
+              ) : (
+                <ChevronRight className="text-muted-foreground size-4" />
+              )}
+            </button>
+            {bannedExpanded ? (
+              <div className="mt-1 flex flex-col gap-2">
+                {bannedIds.map((profileId) => (
+                  <BannedProfileRow
+                    key={profileId}
+                    profileId={profileId}
+                    lifting={liftingId === profileId}
+                    onLift={() => liftBan(profileId)}
+                  />
+                ))}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -243,5 +291,44 @@ function WaitingRoomAvatar({
       profile={{ displayName: waitingRoomEntryName(profile) }}
       size={size}
     />
+  );
+}
+
+/**
+ * A banned-sublist row. Splits into its own component so the per-id
+ * `useProfile(id)` only fires when the row is actually mounted — i.e. when the
+ * moderator expands the "Removed" sublist — instead of a full profile-directory
+ * fetch up front.
+ */
+function BannedProfileRow({
+  profileId,
+  lifting,
+  onLift,
+}: {
+  profileId: string;
+  lifting: boolean;
+  onLift: () => void;
+}) {
+  const t = useT();
+  const { openpeepsApi } = useOpenpeeps();
+  const profile = openpeepsApi.useProfile(profileId).data;
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <div className="flex min-w-0 items-center gap-2 opacity-60">
+        <Avatar profile={profile} size={2} />
+        <span className="truncate text-sm">
+          {profile ? profileName(profile) : profileId}
+        </span>
+      </div>
+      <Button
+        variant="outline"
+        compact
+        action={onLift}
+        disabled={lifting}
+        title={t('jams.people.unban')}
+      >
+        <UserRoundCheck className="size-4" />
+      </Button>
+    </div>
   );
 }

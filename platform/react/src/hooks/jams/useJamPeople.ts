@@ -7,6 +7,7 @@ import type {
 import { matchesQuery, sortByRaisedHand } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useCurrentProfile } from '../../components/layout/IdentityContext';
+import { useT } from '../../i18n';
 import { useJamContext } from '../../components/jams/JamContext';
 import { parseParticipantMetadata } from '../../components/jams/jamEventActions';
 import { useRaisedHands } from '../../components/jams/useJamHands';
@@ -14,14 +15,21 @@ import { useRaisedHands } from '../../components/jams/useJamHands';
 export type UseJamPeopleArgs = {
   room: Room;
   participants: Participant[];
+  /** Toast routing for a failed lift-ban (both stacks pass their own toast). */
+  onLiftError?: (message: string) => void;
 };
 
 /**
  * People drawer data: searchable in-jam list sorted by raised hand (observers
  * hidden) and, for moderators, the waiting-room profiles with admit.
  */
-export const useJamPeople = ({ room, participants }: UseJamPeopleArgs) => {
+export const useJamPeople = ({
+  room,
+  participants,
+  onLiftError,
+}: UseJamPeopleArgs) => {
   const me = useCurrentProfile();
+  const t = useT();
   const { jamPost, jam, occurrence } = useJamContext();
   const { openpeepsApi } = useOpenpeeps();
   const raisedHands = useRaisedHands(room);
@@ -34,9 +42,19 @@ export const useJamPeople = ({ room, participants }: UseJamPeopleArgs) => {
     occurrence,
   );
   const admitParticipant = openpeepsApi.admitParticipantAction();
+  const liftJamBan = openpeepsApi.liftJamBanAction();
 
   const [query, setQuery] = useState('');
   const [admittingId, setAdmittingId] = useState<string | null>(null);
+  const [liftingId, setLiftingId] = useState<string | null>(null);
+
+  // Ban list ids only — names are resolved lazily per id by the drawer's
+  // banned sublist (one `useProfile(id)` per row, mounted on expand) instead
+  // of a full `profiles.list` directory fetch for every moderator.
+  const bannedIds = useMemo(
+    () => (isModerator ? (jam.banned ?? []) : []),
+    [isModerator, jam.banned],
+  );
 
   const listedParticipants = useMemo(() => {
     const visible = participants.filter((participant) => {
@@ -46,7 +64,6 @@ export const useJamPeople = ({ room, participants }: UseJamPeopleArgs) => {
     });
     return sortByRaisedHand(visible, (participant) => participant.metadata);
     // raisedHands changes participant metadata order; re-sort when it updates.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [participants, query, raisedHands]);
 
   const waitingProfiles = useMemo((): JamWaitingProfile[] => {
@@ -77,10 +94,30 @@ export const useJamPeople = ({ room, participants }: UseJamPeopleArgs) => {
     }
   };
 
+  const liftBan = async (profileId: string) => {
+    setLiftingId(profileId);
+    try {
+      await liftJamBan({ id: jamPost.id, profileId });
+      // Success is visible in the drawer itself (the row leaves the Removed
+      // sublist), so no success toast — the error path is the one with no
+      // other feedback.
+    } catch {
+      onLiftError?.(
+        t('jams.people.unbanError', {
+          defaultValue: 'Failed to re-allow profile',
+        }),
+      );
+    } finally {
+      setLiftingId(null);
+    }
+  };
+
   return {
     isModerator,
     hasWaitingRoom,
     moderatorIds: jam.moderators,
+    bannedIds,
+    liftingId,
     raisedHands,
     query,
     setQuery,
@@ -88,5 +125,6 @@ export const useJamPeople = ({ room, participants }: UseJamPeopleArgs) => {
     waitingProfiles,
     admittingId,
     admit,
+    liftBan,
   };
 };

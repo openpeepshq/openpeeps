@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import {
   truncateText,
   type JamEvent,
@@ -29,6 +30,7 @@ export const JamChatMessage = ({
   message,
   mentionProfiles = [],
 }: JamChatMessageProps) => {
+  const { t } = useTranslation();
   const { openpeepsApi } = useOpenpeeps();
   const profileQuery = openpeepsApi.useProfile(message.profileId || 'unknown');
   const profile = profileQuery.data;
@@ -77,6 +79,17 @@ export const JamChatMessage = ({
       <View className="items-center justify-center">
         <ThemedText className="text-center text-sm text-muted-foreground">
           {name} {label} the jam <UpdatingDate date={message.createdAt} />
+        </ThemedText>
+      </View>
+    );
+  }
+
+  if (message.type === 'kicked') {
+    return (
+      <View className="items-center justify-center">
+        <ThemedText className="text-center text-sm text-muted-foreground">
+          {name} {t('jams.chat.wasRemoved')}{' '}
+          <UpdatingDate date={message.createdAt} />
         </ThemedText>
       </View>
     );

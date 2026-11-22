@@ -12,6 +12,12 @@ export type UseJamParticipantMuteArgs = {
   onError: (message: string) => void;
 };
 
+export type UseJamParticipantRemoveArgs = {
+  participant: Participant;
+  onSuccess: (message: string) => void;
+  onError: (message: string) => void;
+};
+
 /** Moderator action: server-side mute of a remote participant's microphone. */
 export const useJamParticipantMute = ({
   participant,
@@ -44,6 +50,41 @@ export const useJamParticipantMute = ({
       onError(
         t('jams.participants.muteError', {
           defaultValue: 'Failed to mute participant',
+        }),
+      );
+    }
+  };
+};
+
+/** Moderator action: evict a remote participant from the jam room. */
+export const useJamParticipantRemove = ({
+  participant,
+  onSuccess,
+  onError,
+}: UseJamParticipantRemoveArgs) => {
+  const t = useT();
+  const { jamPost, occurrence } = useJamContext();
+  const { openpeepsApi } = useOpenpeeps();
+  const removeParticipant = openpeepsApi.removeJamParticipantAction({
+    id: jamPost.id,
+  });
+
+  return async () => {
+    try {
+      await removeParticipant(
+        { identity: participant.identity },
+        undefined,
+        occurrence ? { occurrence } : undefined,
+      );
+      onSuccess(
+        t('jams.participants.removeSuccess', {
+          defaultValue: 'Participant removed from the jam',
+        }),
+      );
+    } catch {
+      onError(
+        t('jams.participants.removeError', {
+          defaultValue: 'Failed to remove participant',
         }),
       );
     }

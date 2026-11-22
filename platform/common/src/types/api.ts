@@ -450,6 +450,15 @@ export const muteParticipantRequestSchema = z.object({
 export type MuteParticipantRequest = z.infer<
   typeof muteParticipantRequestSchema
 >;
+
+export const removeParticipantRequestSchema = z.object({
+  identity: z.string().uuid(),
+});
+
+export type RemoveParticipantRequest = z.infer<
+  typeof removeParticipantRequestSchema
+>;
+
 export interface Thread extends PublicPost {
   children: Thread[];
 }

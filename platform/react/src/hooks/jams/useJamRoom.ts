@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { DisconnectReason } from 'livekit-client';
+import { DisconnectReason } from 'livekit-client';
 import { getJamCapacityJoinBlock } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
@@ -36,9 +36,10 @@ export type JamJoinParams = {
 /**
  * Room orchestration shared by web and native `JamRoom`: token/connection
  * state, reconnect after non-terminal disconnects, observer auto-connect,
- * capacity gating and auto-RSVP. The UI decides what to render from the
- * returned flags in this order: unavailable → connection → reconnecting →
- * observer → auto-RSVP → capacity gate → lobby → request join → inactive.
+ * capacity gating, auto-RSVP and the removed-from-jam state. The UI decides
+ * what to render from the returned flags in this order: unavailable →
+ * connection → reconnecting → observer → auto-RSVP → removed → capacity
+ * gate → lobby → request join → inactive.
  */
 export const useJamRoom = () => {
   const t = useT();
@@ -62,6 +63,7 @@ export const useJamRoom = () => {
   const [reconnectError, setReconnectError] = useState<string | undefined>();
   const [observerError, setObserverError] = useState<string | undefined>();
   const [autoRsvpError, setAutoRsvpError] = useState<string | undefined>();
+  const [removedFromJam, setRemovedFromJam] = useState(false);
   const autoRsvpStarted = useRef(false);
   const reconnectInFlight = useRef(false);
   const mounted = useRef(true);
@@ -70,6 +72,13 @@ export const useJamRoom = () => {
   const livekitEnabled = serverInfo.jams.livekit.enabled;
   const isModerator = !!me && (jam?.moderators.includes(me.id) ?? false);
   const jamActive = !!jamStateQuery.data?.active;
+  // Banned on the (refetched) post: blocks the lobby and drives the
+  // removed panel after a terminal PARTICIPANT_REMOVED disconnect.
+  const isBanned =
+    !!me &&
+    !observer &&
+    post.data?.type === 'event' &&
+    post.data.jam?.banned?.includes(me.id) === true;
 
   useEffect(() => {
     mounted.current = true;
@@ -139,6 +148,11 @@ export const useJamRoom = () => {
 
   const handleDisconnected = useCallback(
     (reason?: DisconnectReason) => {
+      // Server-side removal (PARTICIPANT_REMOVED) is terminal: show the
+      // removed panel instead of the generic not-active state.
+      if (reason === DisconnectReason.PARTICIPANT_REMOVED) {
+        setRemovedFromJam(true);
+      }
       if (isIntentionalLeave() || !shouldReconnectAfterDisconnect(reason)) {
         setConnection(undefined);
         setReconnectPrefs(undefined);
@@ -274,6 +288,7 @@ export const useJamRoom = () => {
     autoRsvpError,
     shouldAutoRsvp,
     capacityBlock,
+    removedFromJam: removedFromJam || isBanned,
     canDirectJoin: isModerator || (jamActive && !jam?.waitingRoom),
     canRequestJoin: !isModerator && !!jam?.waitingRoom,
     handleJoin,

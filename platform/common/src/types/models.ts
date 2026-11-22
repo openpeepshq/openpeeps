@@ -374,6 +374,8 @@ export const jamDataSchema = z
     speakers: z.string().array().optional(),
     presenters: z.string().array().optional(),
     audience: z.string().array().optional(),
+    /** Profile ids banned from rejoining this jam; cleared via the lift-ban endpoint. */
+    banned: z.string().array().optional(),
     videoEnabled: z.boolean(),
     type: z.enum(['video-call']),
     maxSpeakers: z.number().int().positive().optional(),
@@ -1021,6 +1023,7 @@ export const jamEventDataSchema = z.object({
     'leave',
     'start',
     'close',
+    'kicked',
     'recordStart',
     'recordStop',
     'streamStart',

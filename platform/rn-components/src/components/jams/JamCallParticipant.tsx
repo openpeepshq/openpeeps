@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer, useRef } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import Sound from 'react-native-sound';
 import {
   isTrackReference,
@@ -16,10 +16,12 @@ import {
   useJamContext,
   useJamEventsContext,
   useJamParticipantMute,
+  useJamParticipantRemove,
   useRaisedHands,
 } from '@openpeepshq/react';
 import {
   AudioLinesIcon,
+  BanIcon,
   EllipsisIcon,
   HandIcon,
   MicIcon,
@@ -98,22 +100,26 @@ const JamSpotlightMenuItem = ({
 };
 
 /**
- * Menu on a remote tile: moderators can mute, and whoever may spotlight
- * (creator or moderator) can toggle the room-wide spotlight.
+ * Moderator-only menu on a remote tile: mute and remove, plus the
+ * room-wide spotlight toggle when the caller may spotlight. Mirrors the
+ * web `JamParticipantModeratorMenu` — it is mounted only for moderators.
  */
 const JamParticipantMenu = ({
   trackRef,
-  canMute,
   spotlighted,
   onToggleSpotlight,
 }: {
   trackRef: TrackReferenceOrPlaceholder;
-  canMute: boolean;
   spotlighted: boolean;
   onToggleSpotlight?: () => void;
 }) => {
   const { t } = useTranslation();
   const handleMute = useJamParticipantMute({
+    participant: trackRef.participant,
+    onSuccess: (text1) => Toast.show({ type: 'success', text1 }),
+    onError: (text1) => Toast.show({ type: 'error', text1 }),
+  });
+  const handleRemove = useJamParticipantRemove({
     participant: trackRef.participant,
     onSuccess: (text1) => Toast.show({ type: 'success', text1 }),
     onError: (text1) => Toast.show({ type: 'error', text1 }),
@@ -133,21 +139,79 @@ const JamParticipantMenu = ({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
         <DropdownMenuGroup>
-          {canMute ? (
-            <DropdownMenuItem
-              className="flex-row items-center gap-x-2"
-              onPress={() => void handleMute()}
-            >
-              <MicOffIcon size={16} className="text-foreground" />
-              <ThemedText>{t('jams.participants.muteParticipant')}</ThemedText>
-            </DropdownMenuItem>
-          ) : null}
+          <DropdownMenuItem
+            className="flex-row items-center gap-x-2"
+            onPress={() => void handleMute()}
+          >
+            <MicOffIcon size={16} className="text-foreground" />
+            <ThemedText>{t('jams.participants.muteParticipant')}</ThemedText>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="flex-row items-center gap-x-2"
+            onPress={() =>
+              Alert.alert(
+                t('jams.participantMenu.removeFromJam'),
+                t('jams.participants.removeConfirm'),
+                [
+                  {
+                    text: t('common.actions.cancel'),
+                    style: 'cancel',
+                  },
+                  {
+                    text: t('jams.participantMenu.removeFromJam'),
+                    style: 'destructive',
+                    onPress: () => void handleRemove(),
+                  },
+                ]
+              )
+            }
+          >
+            <BanIcon size={16} className="text-destructive" />
+            <ThemedText>{t('jams.participantMenu.removeFromJam')}</ThemedText>
+          </DropdownMenuItem>
           {onToggleSpotlight ? (
             <JamSpotlightMenuItem
               spotlighted={spotlighted}
               onToggleSpotlight={onToggleSpotlight}
             />
           ) : null}
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
+/**
+ * Spotlight-only menu on a remote tile for viewers who may spotlight but
+ * are not moderators. Mirrors the web spotlight-only `PopupMenu` so a
+ * non-moderator host never sees the moderation container.
+ */
+const JamParticipantSpotlightMenu = ({
+  spotlighted,
+  onToggleSpotlight,
+}: {
+  spotlighted: boolean;
+  onToggleSpotlight: () => void;
+}) => {
+  const { t } = useTranslation();
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          size="icon"
+          variant="ghost"
+          className="size-8 rounded-full bg-card"
+          accessibilityLabel={t('jams.speakerView.spotlight')}
+        >
+          <EllipsisIcon size={16} className="text-foreground" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start">
+        <DropdownMenuGroup>
+          <JamSpotlightMenuItem
+            spotlighted={spotlighted}
+            onToggleSpotlight={onToggleSpotlight}
+          />
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -226,10 +290,14 @@ const JamParticipantOverlay = ({
               <HandIcon size={iconSize} className="text-foreground" />
             </View>
           ) : null}
-          {(viewerIsModerator || onToggleSpotlight) && !participant.isLocal ? (
+          {viewerIsModerator && !participant.isLocal ? (
             <JamParticipantMenu
               trackRef={trackRef}
-              canMute={viewerIsModerator}
+              spotlighted={spotlighted}
+              onToggleSpotlight={onToggleSpotlight}
+            />
+          ) : onToggleSpotlight && !participant.isLocal ? (
+            <JamParticipantSpotlightMenu
               spotlighted={spotlighted}
               onToggleSpotlight={onToggleSpotlight}
             />

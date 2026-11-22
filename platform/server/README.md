@@ -88,7 +88,14 @@ export const apiEndpoint = endpoint({ Input, Output }).handle(
 );
 ```
 
-Riddl auto-discovers each `apiEndpoint` export via the glob in `server.ts`.
+Riddl auto-discovers each `apiEndpoint` export via the glob in `server.ts`,
+which matches **verb-named files only**
+(`./api/**/{GET,POST,PUT,DELETE,PATCH,OPTIONS,middleware}.ts`). Keep colocated
+unit tests out of the route path: a `*.test.ts` next to a route module is
+silently ignored by that glob, so it is never eager-imported at boot — the
+production build inlines every glob match, and a test module's top-level
+`vi.mock()` throws outside a Vitest run. Vite also rejects glob negation
+patterns, so the verb allowlist is the only supported way to exclude them.
 
 `src/api/middleware.ts` is picked up by Riddl's middleware loader and wraps
 every request below `./api/...`. It reads the `Authorization: Bearer <jwt>`

@@ -18,6 +18,7 @@ import { findAccount } from '@openpeepshq/core/accounts';
 import type { RequestEvent } from '@riddl/core';
 import { authNeeded, forbidden } from './errors';
 import {
+  canModerateJam,
   checkAccessTokenCapabilities,
   checkGroupCapabilities,
   checkPostCapabilities,
@@ -124,6 +125,41 @@ export const ensurePostCapabilities = async (
     event.context.authData,
     capabilities,
     post,
+    await capabilitiesConfig(),
+  );
+
+  if (!success) {
+    throw forbidden(`Missing capabilities: ${missingCapabilities.join(', ')}`);
+  }
+};
+
+/**
+ * Host-or-moderator gate for jam-moderation mutations (remove-participant,
+ * lift-ban). `ensurePostCapabilities` alone cannot be the gate: it
+ * early-returns for public jams (see above), so a non-moderator would pass it.
+ * The host and co-moderators (the `jam.moderators` array, via
+ * `canModerateJam`) are checked directly first — mirroring the UI, which shows
+ * the moderation controls to exactly that set; everyone else needs
+ * `core-posts-jam-moderate`, evaluated with the real `checkPostCapabilities`
+ * (no early return).
+ */
+export const ensureJamModeration = async (
+  event: RequestEvent,
+  jamEvent: PostWithMeta,
+) => {
+  const profile = event.context.authData.profile;
+  if (
+    (profile && jamEvent.profile.id === profile.id) ||
+    canModerateJam(profile, jamEvent)
+  ) {
+    return;
+  }
+
+  await ensureAccess(event);
+  const { success, missingCapabilities } = checkPostCapabilities(
+    event.context.authData,
+    ['core-posts-jam-moderate'],
+    jamEvent,
     await capabilitiesConfig(),
   );
 

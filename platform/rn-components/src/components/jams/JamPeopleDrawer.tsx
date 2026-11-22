@@ -1,5 +1,6 @@
-import React from 'react';
-import { ScrollView, View } from 'react-native';
+import React, { useState } from 'react';
+import { Pressable, ScrollView, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { useParticipants, useRoomContext } from '@livekit/react-native';
 import type { Participant } from 'livekit-client';
 import { useTranslation } from 'react-i18next';
@@ -9,9 +10,12 @@ import {
   parseParticipantMetadata,
   useJamExternalSessions,
   useJamPeople,
+  useOpenpeeps,
 } from '@openpeepshq/react';
 import {
   AudioLinesIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
   EyeOnIcon,
   HandIcon,
   MicIcon,
@@ -119,6 +123,7 @@ const JamObserversSection = ({ count }: { count: number }) => {
  */
 export const JamPeopleDrawer = ({ open, onClose }: JamPeopleDrawerProps) => {
   const { t } = useTranslation();
+  const [bannedExpanded, setBannedExpanded] = useState(false);
   const room = useRoomContext();
   const participants = useParticipants();
   const externalSessions = useJamExternalSessions();
@@ -133,7 +138,14 @@ export const JamPeopleDrawer = ({ open, onClose }: JamPeopleDrawerProps) => {
     waitingProfiles,
     admittingId,
     admit,
-  } = useJamPeople({ room, participants });
+    bannedIds,
+    liftingId,
+    liftBan,
+  } = useJamPeople({
+    room,
+    participants,
+    onLiftError: (text1) => Toast.show({ type: 'error', text1 }),
+  });
 
   if (!open) return null;
 
@@ -208,6 +220,45 @@ export const JamPeopleDrawer = ({ open, onClose }: JamPeopleDrawerProps) => {
             </View>
           </View>
         ) : null}
+
+        {isModerator && bannedIds.length > 0 ? (
+          <View>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ expanded: bannedExpanded }}
+              onPress={() => setBannedExpanded((current) => !current)}
+            >
+              <View className="flex-row items-center justify-between gap-2">
+                <SectionHeading>
+                  {`${t('jams.people.banned')} (${bannedIds.length})`}
+                </SectionHeading>
+                {bannedExpanded ? (
+                  <ChevronDownIcon
+                    size={16}
+                    className="text-muted-foreground"
+                  />
+                ) : (
+                  <ChevronRightIcon
+                    size={16}
+                    className="text-muted-foreground"
+                  />
+                )}
+              </View>
+            </Pressable>
+            {bannedExpanded ? (
+              <View className="mt-1 gap-2">
+                {bannedIds.map((profileId) => (
+                  <BannedProfileRow
+                    key={profileId}
+                    profileId={profileId}
+                    lifting={liftingId === profileId}
+                    onLift={() => liftBan(profileId)}
+                  />
+                ))}
+              </View>
+            ) : null}
+          </View>
+        ) : null}
       </ScrollView>
     </JamDrawer>
   );
@@ -227,3 +278,43 @@ function WaitingRoomAvatar({ profile }: { profile: JamWaitingProfile }) {
     />
   );
 }
+/**
+ * A banned-sublist row. Splits into its own component so the per-id
+ * `useProfile(id)` only fires when the row is actually mounted — i.e. when the
+ * moderator expands the "Removed" sublist — instead of a full profile-directory
+ * fetch up front.
+ */
+const BannedProfileRow = ({
+  profileId,
+  lifting,
+  onLift,
+}: {
+  profileId: string;
+  lifting: boolean;
+  onLift: () => void;
+}) => {
+  const t = useTranslation().t;
+  const { openpeepsApi } = useOpenpeeps();
+  const profile = openpeepsApi.useProfile(profileId).data;
+  return (
+    <View className="flex-row items-center justify-between gap-2">
+      <View className="min-w-0 flex-1 flex-row items-center gap-2 opacity-60">
+        {profile ? (
+          <ProfileAvatar profile={profile} className="size-8" />
+        ) : null}
+        <ThemedText numberOfLines={1} className="shrink text-sm">
+          {profile ? profileName(profile) : profileId}
+        </ThemedText>
+      </View>
+      <Button
+        variant="outline"
+        size="icon"
+        onPress={onLift}
+        disabled={lifting}
+        accessibilityLabel={t('jams.people.unban')}
+      >
+        <UserRoundCheckIcon size={16} className="text-foreground" />
+      </Button>
+    </View>
+  );
+};

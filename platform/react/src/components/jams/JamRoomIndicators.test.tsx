@@ -95,6 +95,16 @@ vi.mock('../../i18n', () => ({
 
 vi.mock('../profile', () => ({ Avatar: () => null }));
 
+vi.mock('../layout/ToastProvider', () => ({
+  useToast: () => ({
+    toast: () => {},
+    success: () => {},
+    error: () => {},
+    info: () => {},
+    count: 0,
+  }),
+}));
+
 vi.mock('@openpeepshq/react-ui', () => ({
   Input: () => null,
   Button: () => null,

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   type TrackReferenceOrPlaceholder,
   TrackRefContext,
@@ -9,6 +9,7 @@ import {
 } from '@livekit/components-react';
 import {
   AudioLines,
+  Ban,
   Ellipsis,
   Hand,
   Mic,
@@ -16,9 +17,20 @@ import {
   Pin,
   WifiOff,
 } from 'lucide-react';
-import { PopupMenu, PopupMenuButton } from '@openpeepshq/react-ui';
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  PopupMenu,
+  PopupMenuButton,
+} from '@openpeepshq/react-ui';
 import { useT } from '../../i18n';
-import { useJamParticipantMute } from '../../hooks/jams/useJamParticipant';
+import {
+  useJamParticipantMute,
+  useJamParticipantRemove,
+} from '../../hooks/jams/useJamParticipant';
 import { useCurrentProfile } from '../layout/IdentityContext';
 import { useToast } from '../layout/ToastProvider';
 import { Avatar } from '../profile';
@@ -74,46 +86,98 @@ function JamParticipantModeratorMenu({
 }) {
   const t = useT();
   const { success, error } = useToast();
+  const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
   const handleMute = useJamParticipantMute({
     participant: trackRef.participant,
     onSuccess: success,
     onError: error,
   });
+  const handleRemove = useJamParticipantRemove({
+    participant: trackRef.participant,
+    onSuccess: success,
+    onError: error,
+  });
+
+  const confirmRemove = async () => {
+    await handleRemove();
+    setConfirmRemoveOpen(false);
+  };
 
   return (
-    <PopupMenu
-      icon={Ellipsis}
-      className="bg-surface text-foreground"
-      iconSize={16}
-      title={t('jams.participants.title', { defaultValue: 'Participants' })}
-    >
-      <PopupMenuButton
-        title={t('jams.participants.muteParticipant', {
-          defaultValue: 'Mute Participant',
-        })}
-        text={t('jams.participants.muteParticipant', {
-          defaultValue: 'Mute Participant',
-        })}
-        icon={MicOff}
-        action={handleMute}
-      />
-      {onToggleSpotlight ? (
+    <>
+      <PopupMenu
+        icon={Ellipsis}
+        className="bg-surface text-foreground"
+        iconSize={16}
+        title={t('jams.participants.title', { defaultValue: 'Participants' })}
+      >
         <PopupMenuButton
-          title={
-            spotlighted
-              ? t('jams.speakerView.removeSpotlight')
-              : t('jams.speakerView.spotlight')
-          }
-          text={
-            spotlighted
-              ? t('jams.speakerView.removeSpotlight')
-              : t('jams.speakerView.spotlight')
-          }
-          icon={Pin}
-          action={onToggleSpotlight}
+          title={t('jams.participants.muteParticipant', {
+            defaultValue: 'Mute Participant',
+          })}
+          text={t('jams.participants.muteParticipant', {
+            defaultValue: 'Mute Participant',
+          })}
+          icon={MicOff}
+          action={handleMute}
         />
-      ) : null}
-    </PopupMenu>
+        <PopupMenuButton
+          title={t('jams.participantMenu.removeFromJam', {
+            defaultValue: 'Remove from Jam',
+          })}
+          text={t('jams.participantMenu.removeFromJam', {
+            defaultValue: 'Remove from Jam',
+          })}
+          icon={Ban}
+          action={() => setConfirmRemoveOpen(true)}
+        />
+        {onToggleSpotlight ? (
+          <PopupMenuButton
+            title={
+              spotlighted
+                ? t('jams.speakerView.removeSpotlight')
+                : t('jams.speakerView.spotlight')
+            }
+            text={
+              spotlighted
+                ? t('jams.speakerView.removeSpotlight')
+                : t('jams.speakerView.spotlight')
+            }
+            icon={Pin}
+            action={onToggleSpotlight}
+          />
+        ) : null}
+      </PopupMenu>
+      <Dialog
+        open={confirmRemoveOpen}
+        onOpenChange={(open) => !open && setConfirmRemoveOpen(open)}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>
+              {t('jams.participantMenu.removeFromJam', {
+                defaultValue: 'Remove from Jam',
+              })}
+            </DialogTitle>
+          </DialogHeader>
+          <p className="px-1 text-sm">
+            {t('jams.participants.removeConfirm', {
+              defaultValue:
+                'Remove this person from the jam? They will not be able to rejoin.',
+            })}
+          </p>
+          <DialogActions
+            cancelLabel={t('common.actions.cancel', { defaultValue: 'Cancel' })}
+            onCancel={() => setConfirmRemoveOpen(false)}
+            actionLabel={t('jams.participantMenu.removeFromJam', {
+              defaultValue: 'Remove from Jam',
+            })}
+            onAction={() => confirmRemove()}
+            actionVariant="destructive"
+          />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 

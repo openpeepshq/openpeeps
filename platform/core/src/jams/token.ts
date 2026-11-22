@@ -131,6 +131,10 @@ export const createJamToken = async (
     throw notFound({ errorKey: 'error.jamNotFound', parameters: { jamId } });
   }
 
+  if (jam?.banned?.includes(profile.id)) {
+    throw forbidden({ errorKey: 'error.jamBanned' });
+  }
+
   assertJamRsvpAllowed(event, profile, recurrenceId);
 
   const rs = await roomService();
