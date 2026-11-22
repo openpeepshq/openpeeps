@@ -1,7 +1,7 @@
 import { MainScreenProps } from '../../components/navigation/types/index';
-import { useOpenpeeps } from '@openpeepshq/react';
+import { useOpenpeeps, useAccountExport } from '@openpeepshq/react';
 import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ThemedText } from '../../components/ui/themed-text';
 import { ThemedView } from '../../components/ui/themed-view';
 import { useForm } from 'react-hook-form';
@@ -12,6 +12,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Account } from '@openpeepshq/common';
 import { ActivityIndicator, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { downloadDocument } from '../../lib/downloadFile';
 
 type AccountSettingsProps = MainScreenProps<'AccountSettings'>;
 
@@ -23,7 +24,7 @@ type AccountFormValues = {
 };
 
 export const AccountSettings: React.FC<AccountSettingsProps> = () => {
-  const { openpeepsApi, queryClient } = useOpenpeeps();
+  const { openpeepsApi, queryClient, client } = useOpenpeeps();
   const { data: currentAccount } = openpeepsApi.useCurrentAccount();
   const logout = openpeepsApi.logoutAction();
   const [isOldPasswordVisible, setIsOldPasswordVisible] = React.useState(false);
@@ -35,6 +36,40 @@ export const AccountSettings: React.FC<AccountSettingsProps> = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const { t } = useTranslation();
+
+  // RN has no fetch/blob, so the shared hook's web download step is replaced
+  // with an external handler. `download` must stay stable across renders:
+  // the hook closes over it in its memoized run callback.
+  const download = useCallback(
+    async (url: string) => {
+      const opened = await downloadDocument(url);
+      if (!opened) {
+        throw new Error(
+          t('settings.account.exportDownloadFailed', {
+            defaultValue:
+              'No app was found to download the file. Please try again.',
+          })
+        );
+      }
+    },
+    [t]
+  );
+  const { exporting, status, startExport } = useAccountExport({
+    client,
+    t,
+    download,
+  });
+
+  // The hook reports export failures through its `status` (the web page
+  // renders it as an inline toast); RN has no such surface, so mirror the
+  // change to the imperative toast.
+  useEffect(() => {
+    if (!status) return;
+    Toast.show({
+      type: status.type,
+      text1: status.message,
+    });
+  }, [status]);
 
   const form = useForm<AccountFormValues>({
     defaultValues: {
@@ -308,6 +343,38 @@ export const AccountSettings: React.FC<AccountSettingsProps> = () => {
                 <ThemedText>
                   {t('settings.account.oldPasswordReason')}
                 </ThemedText>
+              </View>
+              <ThemedText className="text-sm text-muted-foreground">
+                {t('settings.account.exportData', {
+                  defaultValue: 'Download my content',
+                })}
+              </ThemedText>
+              <ThemedText className="text-xs text-muted-foreground">
+                {t('settings.account.exportDataDescription', {
+                  defaultValue:
+                    'Download a copy of your data: your posts (with their thread context), posts you reacted to, and your profile and media, as a zip archive.',
+                })}
+              </ThemedText>
+              <View className="w-full">
+                <Button
+                  variant="outline"
+                  onPress={() => void startExport()}
+                  disabled={exporting}
+                >
+                  {exporting ? (
+                    <ThemedText className="text-sm">
+                      {t('settings.account.exportPreparing', {
+                        defaultValue: 'Preparing your export…',
+                      })}
+                    </ThemedText>
+                  ) : (
+                    <ThemedText className="text-sm">
+                      {t('settings.account.downloadData', {
+                        defaultValue: 'Download',
+                      })}
+                    </ThemedText>
+                  )}
+                </Button>
               </View>
             </ThemedView>
           </Form>

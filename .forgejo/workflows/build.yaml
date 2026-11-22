@@ -310,6 +310,7 @@ jobs:
       - name: Run unit tests
         run: >
           pnpm --filter @openpeepshq/common
+          --filter @openpeepshq/client
           --filter @openpeepshq/core
           --filter @openpeepshq/react
           --filter @openpeepshq/server
@@ -392,6 +393,16 @@ jobs:
           SERVER_PROTOCOL: http
           JAMS_LIVEKIT_API_KEY: APIxxxxxxxxxxxx
           JAMS_LIVEKIT_API_SECRET: xxxxxxxxxxxxx
+        # Shared with the worker: the account-export worker builds
+        # export.zip under MEDIA_STORAGE_PARAMS_PATH (/apat/.media) and
+        # the web status/download routes stat + stream it (issue #237).
+        # The Dockerfile's anonymous `VOLUME /apat/.media` would give each
+        # container its own copy, so web would report every worker-built
+        # archive as `expired`. The service `volumes:` field (not `options`)
+        # is what act/Forgejo Runner resolves into a real named-volume mount
+        # shared across both service containers.
+        volumes:
+          - export-media:/apat/.media
       worker:
         image:
           ${{ needs.set-variables.outputs.registry_image_base }}:${{ needs.set-variables.outputs.short_sha
@@ -411,6 +422,10 @@ jobs:
           EMAIL_DEFAULT_FROM: test@openpeeps.test
           SERVER_HOST: web:8080
           SERVER_PROTOCOL: http
+        # Same named volume as web (see above): the worker writes the
+        # export zip here and web reads it back.
+        volumes:
+          - export-media:/apat/.media
     steps:
       - name: Wait for web service
         run: |

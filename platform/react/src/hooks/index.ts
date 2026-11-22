@@ -74,6 +74,7 @@ export {
 export { useTimezonePreference } from './settings/useTimezonePreference';
 export type { SettingsStatus } from './settings/useTimezonePreference';
 export { useLanguagePreference } from './settings/useLanguagePreference';
+export { useAccountExport } from './settings/useAccountExport';
 export { usePushEnabledDevices } from './settings/usePushEnabledDevices';
 export {
   ACCESS_TOKEN_EXPIRATION_OPTIONS,

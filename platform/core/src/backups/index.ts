@@ -133,7 +133,7 @@ const hostnameFromServerHost = (host: string) => {
   return new URL(serverUrl).hostname;
 };
 
-const zipDirectory = (sourceDir: string, zipPath: string) =>
+export const zipDirectory = (sourceDir: string, zipPath: string) =>
   new Promise<void>((resolve, reject) => {
     const output = createWriteStream(zipPath);
     const archive = archiver('zip', { zlib: { level: 9 } });

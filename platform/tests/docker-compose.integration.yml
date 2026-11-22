@@ -27,6 +27,13 @@ x-openpeeps-env: &openpeeps-env
   SERVER_HOST: web:8080
   SERVER_PROTOCOL: http
 
+volumes:
+  # Shared media between web + worker: the account-export worker builds
+  # export.zip here and the web status/download routes stat + stream it (issue
+  # #237). Without this, each container keeps the Dockerfile's anonymous
+  # /apat/.media and web reports every worker-built archive as `expired`.
+  media:
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -134,6 +141,8 @@ services:
         condition: service_started
       restore:
         condition: service_completed_successfully
+    volumes:
+      - media:/apat/.media
     ports:
       - "8080:8080"
     healthcheck:
@@ -166,6 +175,8 @@ services:
         condition: service_started
       redis:
         condition: service_started
+    volumes:
+      - media:/apat/.media
 
   tests:
     image: mcr.microsoft.com/playwright:v1.56.1-noble
