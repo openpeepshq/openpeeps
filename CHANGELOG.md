@@ -5,6 +5,9 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **notifications**: per-type filter for the notifications feed
+- **jams**: stack jam banners through a shared container
+- **profiles**: make new members auto-follow designated local accounts
 - **share**: gate external share actions on public posts
 - **skills**: add generated-at line to milestone stats
 - **jams**: show observer presence indicator to participants
@@ -28,6 +31,10 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **deps**: update mermaid to 12.3.0 (fixes katex advisory GHSA-238p-pmpm-9mq7)
+- **auth**: show the welcome page as the first page shown after login
+- **settings**: sticky save bar with unsaved-changes indicator on notification preferences
+- **deps**: force postcss-selector-parser 6.1.5 via @tailwindcss/typography
 - **rn-components**: re-render jam tiles when a remote video track swaps
 - **rn-components**: keep jam chat above the soft keyboard
 - **rn-components**: single-line picker rows with visible selection tint + a11y + SVG avatar (issue #1666)
@@ -130,7 +137,10 @@ Changelog for OpenPeeps
 
 ### Chores
 
+- **deps**: upgrade bullmq 5.34.7 to 5.81.5 and override uuid to 11.1.1
 - **deps**: override esbuild to 0.25.12 in the @esbuild-kit chain
+- **deps**: replace extract-zip with node-stream-zip for backup restore
+- **deps**: force minimatch 11.0.9 for all >=7 consumers
 - **deps**: update @release-it/conventional-changelog to 12.0.2 in rn-components
 - **deps**: add override for @hono/node-server to 1.19.19
 - **deps**: update drizzle-kit to 0.31.11 in core
