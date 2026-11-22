@@ -336,7 +336,8 @@ overrides:
   # declare no OTel deps), and a scoped key leaves future consumers free.
   "@fedify/fedify>@opentelemetry/sdk-metrics": "2.12.0"
 
-  # @sentry/node@10.x (platform/core, #2250) vendors its own DB
+  # @sentry/node@10.x (platform/core, #2250; #2267 tracks the same upgrade)
+  # vendors its own DB
   # instrumentations, which still emit the db.user span attribute
   # unconditionally (GHSA-qqmp-wf37-98f9's behavior; pnpm audit cannot see
   # it because the copies ship inside the audited-clean package). Chosen
