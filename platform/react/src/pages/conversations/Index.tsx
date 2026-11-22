@@ -10,6 +10,7 @@ import {
   truncateText,
 } from '@openpeepshq/common';
 import {
+  conversationTitle,
   useT,
   useOpenpeeps,
   useSetPlusButtonActions,
@@ -42,16 +43,9 @@ function ChatPreview({
   // audience; show an "X left" preview instead of an empty message.
   const isLeave = isConversationLeavePost(lastMessage);
 
-  const otherNames = participants
-    .filter((p) => p.id !== me?.id)
-    .map((p) => p.displayName || `@${p.handle}`)
-    .join(', ');
-  const title = otherNames
-    ? t('conversations.titleWithYou', {
-        defaultValue: '{{names}} and You',
-        names: otherNames,
-      })
-    : t('common.you', { defaultValue: 'You' });
+  const title = conversationTitle([lastMessage], t, me?.id, {
+    withYou: true,
+  });
 
   return (
     <article className="flex w-full flex-col gap-x-1 border-b p-3 text-left sm:p-4">

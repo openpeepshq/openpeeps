@@ -510,7 +510,15 @@
       "shareFailed": "Beitrag konnte nicht geteilt werden",
       "systemShare": "Teilen über…",
       "downloadCalendarIcs": "Zum Kalender hinzufügen",
-      "downloadCalendarIcsTitle": ".ics-Datei herunterladen"
+      "downloadCalendarIcsTitle": ".ics-Datei herunterladen",
+      "shareIntoGroup": "In eine Gruppe teilen…",
+      "shareIntoGroupPickerTitle": "In eine Gruppe teilen",
+      "noShareableGroups": "Du kannst in keine Gruppe posten",
+      "sharedIntoGroup": "In {{name}} geteilt",
+      "sendToConversation": "An Unterhaltungen senden…",
+      "sendToConversationPickerTitle": "An eine Unterhaltung senden",
+      "noConversations": "Du hast noch keine Unterhaltungen",
+      "sentToConversation": "An {{name}} gesendet"
     },
     "gallery": {
       "previous": "Zurück",

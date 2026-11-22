@@ -22,7 +22,7 @@ import {
   Trash2Icon,
   CalendarIcon,
 } from '../icons/index';
-import { useOpenpeeps } from '@openpeepshq/react';
+import { conversationTitle, useOpenpeeps } from '@openpeepshq/react';
 import { ProfileAvatar } from '../profile/Avatar';
 import { ConversationParticipantsModal } from './ConversationParticipantsModal';
 import { useTranslation } from 'react-i18next';
@@ -51,19 +51,12 @@ export const ConversationPreviewCard = ({
   // audience; show an "X left" preview instead of an empty message.
   const isLeave = lastMessage ? isConversationLeavePost(lastMessage) : false;
 
-  const otherParticipants = participants.filter(
-    (p) => p.id !== currentProfile?.id
-  );
-
-  const otherNames = otherParticipants
-    .map((p) => p.displayName || `@${p.handle}`)
-    .join(', ');
-  const title = otherNames
-    ? t('conversations.titleWithYou', {
-        defaultValue: '{{names}} and You',
-        names: otherNames,
-      })
-    : t('common.you', { defaultValue: 'You' });
+  // Shared helper: keeps the leaver/"You" semantics a single implementation
+  // with the web inbox and the share pickers; `withYou` renders the inbox
+  // form ("{{names}} and You").
+  const title = conversationTitle(conversation ?? [], t, currentProfile?.id, {
+    withYou: true,
+  });
 
   const handleDeleteGroupModalPress = useCallback(() => {
     deleteMessageModalRef.current?.present();

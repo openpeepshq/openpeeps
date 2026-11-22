@@ -251,6 +251,92 @@ test.describe('API coverage gaps', () => {
     expect(Array.isArray(list) ? list.length : 0).toBeGreaterThan(0);
   });
 
+  test('share a group post into a second group as a link note (#1851)', async ({
+    request,
+  }) => {
+    const { token } = await loginUser(request, owner.email, owner.password);
+    const sourceHandle = uniqueHandle('gsrc');
+    const targetHandle = uniqueHandle('gtgt');
+    const sourceGroup = await createGroup(request, token, {
+      handle: sourceHandle,
+      displayName: `Source ${sourceHandle}`.slice(0, 30),
+      capabilities: memberCaps,
+    });
+    const targetGroup = await createGroup(request, token, {
+      handle: targetHandle,
+      displayName: `Target ${targetHandle}`.slice(0, 30),
+      capabilities: memberCaps,
+    });
+
+    const source = await request.post('/api/openpeeps/core/v1/posts', {
+      headers: apiHeaders(token),
+      data: {
+        type: 'note',
+        visibility: 'local',
+        groupId: sourceGroup.id,
+        data: { type: 'note', content: `Cross-share me into ${targetHandle}` },
+      },
+    });
+    expect(source.ok(), await source.text()).toBeTruthy();
+    const sourcePost = (await source.json()) as {
+      id: string;
+      visibility: string;
+      groupId: string | null;
+    };
+    // Group posts are stored with visibility=group, never the feed visibility.
+    expect(sourcePost.visibility).toBe('group');
+    expect(sourcePost.groupId).toBe(sourceGroup.id);
+
+    // Cross-visibility sharing is link-only, never a repost: the share into
+    // the second group is a brand-new group note whose content is the source
+    // post's link (no `repostId`, no copied content).
+    const share = await request.post('/api/openpeeps/core/v1/posts', {
+      headers: apiHeaders(token),
+      data: {
+        type: 'note',
+        visibility: 'group',
+        groupId: targetGroup.id,
+        data: {
+          type: 'note',
+          content: `https://test.openpeeps.org/posts/${sourcePost.id}`,
+        },
+      },
+    });
+    expect(share.ok(), await share.text()).toBeTruthy();
+    const shared = (await share.json()) as {
+      id: string;
+      visibility: string;
+      groupId: string | null;
+      repost?: { id: string } | null;
+      data: { content?: string };
+    };
+    expect(shared.visibility).toBe('group');
+    expect(shared.groupId).toBe(targetGroup.id);
+    expect(shared.id).not.toBe(sourcePost.id);
+    // Link-only: the share carries no repost provenance and only the link.
+    expect(shared.repost ?? null).toBeNull();
+    expect(shared.data?.content).toContain(`/posts/${sourcePost.id}`);
+    expect(shared.data?.content).not.toContain('Cross-share me');
+
+    // The share lands on the target group's feed.
+    const targetFeed = await request.get(
+      `/api/openpeeps/core/v1/posts/by-group/${targetGroup.id}?limit=50`,
+      { headers: apiHeaders(token) },
+    );
+    expect(targetFeed.ok(), await targetFeed.text()).toBeTruthy();
+    const feed = (await targetFeed.json()) as Array<{ id: string }>;
+    expect(feed.map((p) => p.id)).toContain(shared.id);
+
+    // The source post is untouched: nothing was reposted onto it.
+    const reposts = await request.get(
+      `/api/openpeeps/core/v1/posts/${sourcePost.id}/reposts`,
+      { headers: apiHeaders(token) },
+    );
+    expect(reposts.ok(), await reposts.text()).toBeTruthy();
+    const repostList = (await reposts.json()) as Array<{ id: string }>;
+    expect(repostList.map((p) => p.id)).not.toContain(shared.id);
+  });
+
   test('search posts finds created content', async ({ request }) => {
     const { token } = await loginUser(request, owner.email, owner.password);
     const needle = `searchneedle${uniqueHandle('s')}`;

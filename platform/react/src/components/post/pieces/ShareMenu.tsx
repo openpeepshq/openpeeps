@@ -1,4 +1,12 @@
-import { Calendar, Copy, Repeat2, Send, Share } from 'lucide-react';
+import {
+  Calendar,
+  Copy,
+  MessageCircle,
+  Repeat2,
+  Send,
+  Share,
+  Users,
+} from 'lucide-react';
 import type { PublicPost } from '@openpeepshq/common/types';
 import { isPubliclyShareable } from '@openpeepshq/common/lib';
 import {
@@ -21,6 +29,8 @@ import {
 } from '../../../hooks/posts/useShareMenu';
 import { useCreateNewConversation } from '../../conversations/CreateNewConversationContext';
 import { useToast } from '../../layout/ToastProvider';
+import { ShareIntoGroupPicker } from './ShareIntoGroupPicker';
+import { SendToConversationPicker } from './SendToConversationPicker';
 
 export interface ShareMenuProps {
   post: PublicPost;
@@ -50,10 +60,16 @@ export const ShareMenu = ({
   const { openCreateConversation } = useCreateNewConversation();
   const postUrl = absolutePostUrl(post);
   const [copyModalOpen, setCopyModalOpen] = useState(false);
-  const { signedIn, isEvent, repost, eventIcsFile } = useShareMenu(
-    post,
-    postUrl,
-  );
+  const [groupPickerOpen, setGroupPickerOpen] = useState(false);
+  const [conversationPickerOpen, setConversationPickerOpen] = useState(false);
+  const {
+    signedIn,
+    isEvent,
+    repost,
+    shareIntoGroup,
+    sendToConversation,
+    eventIcsFile,
+  } = useShareMenu(post, postUrl);
   // Feature-detect. Desktop browsers often have no Web Share API; copy stays
   // in the menu either way.
   const canSystemShare =
@@ -145,6 +161,28 @@ export const ShareMenu = ({
               icon={Send}
               action={() => openCreateConversation({ message: postUrl })}
             />
+            {/* Link-only share: available for any post the viewer can see,
+                including private sources (the link is never a repost). */}
+            <PopupMenuButton
+              title={t('posts.shareMenu.shareIntoGroup', {
+                defaultValue: 'Share into group…',
+              })}
+              text={t('posts.shareMenu.shareIntoGroup', {
+                defaultValue: 'Share into group…',
+              })}
+              icon={Users}
+              action={() => setGroupPickerOpen(true)}
+            />
+            <PopupMenuButton
+              title={t('posts.shareMenu.sendToConversation', {
+                defaultValue: 'Send to conversation…',
+              })}
+              text={t('posts.shareMenu.sendToConversation', {
+                defaultValue: 'Send to conversation…',
+              })}
+              icon={MessageCircle}
+              action={() => setConversationPickerOpen(true)}
+            />
           </>
         ) : null}
         {signedIn && (isEvent || externallyShareable) ? (
@@ -225,6 +263,20 @@ export const ShareMenu = ({
           />
         </DialogContent>
       </Dialog>
+      {groupPickerOpen ? (
+        <ShareIntoGroupPicker
+          open
+          onOpenChange={setGroupPickerOpen}
+          onShare={shareIntoGroup}
+        />
+      ) : null}
+      {conversationPickerOpen ? (
+        <SendToConversationPicker
+          open
+          onOpenChange={setConversationPickerOpen}
+          onSend={sendToConversation}
+        />
+      ) : null}
     </>
   );
 };
