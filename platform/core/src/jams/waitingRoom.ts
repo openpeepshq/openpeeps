@@ -18,9 +18,14 @@ const waitingRoomKey = (event: PostWithMeta, recurrenceId?: string) =>
   `jams:waiting-room:${jamRoomName(event.id, recurrenceId)}`;
 const admittanceKey = (event: PostWithMeta, recurrenceId?: string) =>
   `jams:admitted:${jamRoomName(event.id, recurrenceId)}`;
+const denialKey = (event: PostWithMeta, recurrenceId?: string) =>
+  `jams:denied:${jamRoomName(event.id, recurrenceId)}`;
 
 /** Keep admissions around for the length of a long jam / mobile backgrounding. */
 const ADMITTANCE_TTL_SEC = 12 * 60 * 60;
+
+/** Denials only need to outlive the current join attempt's stream. */
+export const DENIAL_TTL_SEC = 10 * 60;
 
 const currentWaitingRoom = (event: PostWithMeta, recurrenceId?: string) =>
   getSharedConnection()
@@ -37,11 +42,6 @@ const currentWaitingRoom = (event: PostWithMeta, recurrenceId?: string) =>
       ),
     )
     .then((entries) => Object.fromEntries(entries));
-
-const currentAdmittance = (event: PostWithMeta, recurrenceId?: string) =>
-  getSharedConnection().then((conn) =>
-    conn.hGetAll(admittanceKey(event, recurrenceId)),
-  );
 
 export const isAdmittedToJam = async (
   event: PostWithMeta,
@@ -69,9 +69,9 @@ export const clearJamAdmittance = async (
     );
     return;
   }
-  await getSharedConnection().then((conn) =>
-    conn.del(admittanceKey(event, recurrenceId)),
-  );
+  const conn = await getSharedConnection();
+  await conn.del(admittanceKey(event, recurrenceId));
+  await conn.del(denialKey(event, recurrenceId));
 };
 
 export const currentWaitingRoomWatch = (
@@ -97,42 +97,109 @@ export const currentWaitingRoomWatch = (
         .then(() => () => disconnect(conn)),
     );
 
+/**
+ * The keyspace event is the fast path for waking a queued guest, but a
+ * missed event (a reject that lands around the subscription window, or a
+ * Redis without `notify-keyspace-events`) must not strand the guest in the
+ * waiting room forever. As a fallback, re-check the decision keys on an
+ * interval for a bounded window after subscribing.
+ */
+export const ADMITTANCE_FALLBACK_POLL_MS = 500;
+export const ADMITTANCE_FALLBACK_POLLS = 40;
+
 export const admittanceWatch = (
   jamEvent: PostWithMeta,
   profileId: string,
   onToken: (token: string) => Promise<void> | void,
   recurrenceId?: string,
-) =>
-  currentAdmittance(jamEvent, recurrenceId)
-    .then((admittance) => {
-      if (admittance[profileId]) {
-        return onToken(admittance[profileId]);
-      }
-    })
-    .then(() => getConnection())
-    .then((conn) =>
-      conn
-        .subscribe(
-          `__keyspace@0__:${admittanceKey(jamEvent, recurrenceId)}`,
-          async (event) => {
-            if ('hset' === event) {
-              const token = await getSharedConnection().then((c) =>
-                c.hGet(admittanceKey(jamEvent, recurrenceId), profileId),
-              );
-              if (token) {
-                await disconnect(conn);
-                return onToken(token);
+  onDenied?: () => Promise<void> | void,
+) => {
+  let settled = false;
+  let pollTimer: ReturnType<typeof setInterval> | undefined;
+  const aKey = admittanceKey(jamEvent, recurrenceId);
+  const dKey = denialKey(jamEvent, recurrenceId);
+
+  const notifyIfDecided = async () => {
+    if (settled) return true;
+    const shared = await getSharedConnection();
+    const token = await shared.hGet(aKey, profileId);
+    if (token) {
+      // A second wake-up (keyspace event racing an in-flight fallback poll)
+      // can pass the guard above while these reads are awaited; re-checking
+      // claims the decision synchronously, so only the first caller
+      // delivers it.
+      if (settled) return true;
+      settled = true;
+      await onToken(token);
+      return true;
+    }
+    const denied = await shared.hGet(dKey, profileId);
+    if (denied) {
+      if (settled) return true;
+      settled = true;
+      await onDenied?.();
+      return true;
+    }
+    return false;
+  };
+
+  return notifyIfDecided().then(() =>
+    getConnection().then(async (conn) => {
+      let connClosed = false;
+      const settle = async () => {
+        if (pollTimer) {
+          clearInterval(pollTimer);
+          pollTimer = undefined;
+        }
+        if (!connClosed) {
+          connClosed = true;
+          await disconnect(conn);
+        }
+      };
+      if (!settled) {
+        const onKeyEvent = async (event: string) => {
+          if (event !== 'hset') return;
+          if (await notifyIfDecided()) {
+            await settle();
+          }
+        };
+        await conn.subscribe(`__keyspace@0__:${aKey}`, onKeyEvent);
+        await conn.subscribe(`__keyspace@0__:${dKey}`, onKeyEvent);
+        let polls = 0;
+        pollTimer = setInterval(() => {
+          void (async () => {
+            if (await notifyIfDecided()) {
+              await settle();
+            } else if (++polls >= ADMITTANCE_FALLBACK_POLLS) {
+              // The window closed without a decision; the watch stays open
+              // and the keyspace events remain the wake-up path from here.
+              if (pollTimer) {
+                clearInterval(pollTimer);
+                pollTimer = undefined;
               }
             }
-          },
-        )
-        .then(() => async () => {
-          await getSharedConnection().then((c) =>
-            c.hDel(waitingRoomKey(jamEvent, recurrenceId), profileId),
-          );
+          })();
+        }, ADMITTANCE_FALLBACK_POLL_MS);
+        if (await notifyIfDecided()) {
+          await settle();
+        }
+      }
+
+      return async () => {
+        if (pollTimer) {
+          clearInterval(pollTimer);
+          pollTimer = undefined;
+        }
+        await getSharedConnection().then((c) =>
+          c.hDel(waitingRoomKey(jamEvent, recurrenceId), profileId),
+        );
+        if (conn.isOpen) {
           await disconnect(conn);
-        }),
-    );
+        }
+      };
+    }),
+  );
+};
 
 export const joinWaitingRoom = async (
   event: PostWithMeta,
@@ -161,6 +228,8 @@ export const joinWaitingRoom = async (
 
   // Do not clear admittance here — once admitted, the guest may reconnect
   // (mobile idle / tab freeze) without a second moderator approval.
+  // A new request does clear a previous rejection.
+  await conn.hDel(denialKey(event, recurrenceId), profile.id);
   await conn.hSet(wrKey, { [profile.id]: JSON.stringify(entry) });
 };
 
@@ -196,4 +265,19 @@ export const acceptFromWaitingRoom = async (
     [profile.id]: await createJamToken(event, profile, { recurrenceId }),
   });
   await conn.expire(aKey, ADMITTANCE_TTL_SEC);
+};
+
+/** Remove a waiting profile and wake their join stream so they stop waiting. */
+export const rejectFromWaitingRoom = async (
+  event: PostWithMeta,
+  profileId: string,
+  recurrenceId?: string,
+) => {
+  const conn = await getSharedConnection();
+  const dKey = denialKey(event, recurrenceId);
+  await conn.hDel(waitingRoomKey(event, recurrenceId), profileId);
+  await conn.hSet(dKey, { [profileId]: '1' });
+  // Only needs to outlive the current join attempt — the guest's join stream
+  // polls this key; a stale denial must not survive future join requests.
+  await conn.expire(dKey, DENIAL_TTL_SEC);
 };

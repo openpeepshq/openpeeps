@@ -26,6 +26,11 @@ const h = vi.hoisted(() => ({
   quality: { value: 1 }, // livekit-client ConnectionQuality.Good
   participants: { value: [] as unknown[] },
   recording: { value: false },
+  // Waiting-room action row state (mirrors `useJamPeople`).
+  moderator: { value: false },
+  waitingProfiles: { value: [] as unknown[] },
+  admittingId: { value: null as string | null },
+  rejectingId: { value: null as string | null },
 }));
 
 vi.mock('@livekit/components-react', () => ({
@@ -58,16 +63,24 @@ vi.mock('./jamEventActions', () => ({
 
 vi.mock('../../hooks/jams/useJamPeople', () => ({
   useJamPeople: () => ({
-    isModerator: false,
-    hasWaitingRoom: false,
+    isModerator: h.moderator.value,
+    hasWaitingRoom: h.moderator.value,
     moderatorIds: [],
     raisedHands: new Set<string>(),
     query: '',
     setQuery: () => {},
     listedParticipants: h.participants.value,
-    waitingProfiles: [],
-    admittingId: null,
+    waitingProfiles: h.waitingProfiles.value,
+    admittingId: h.admittingId.value,
+    rejectingId: h.rejectingId.value,
     admit: () => {},
+    reject: () => {},
+    // The merged drawer also renders the moderator-only "Removed" (banned)
+    // section, guarded by `isModerator && bannedIds.length` — so the mock must
+    // supply the field once `isModerator` is true, else `.length` throws.
+    bannedIds: [] as string[],
+    liftingId: null as string | null,
+    liftBan: () => {},
   }),
 }));
 
@@ -105,10 +118,33 @@ vi.mock('../layout/ToastProvider', () => ({
   }),
 }));
 
-vi.mock('@openpeepshq/react-ui', () => ({
-  Input: () => null,
-  Button: () => null,
-}));
+// The drawer renders its waiting-room actions through react-ui `Button`;
+// render a real `<button>` (title/disabled/variant preserved) so the
+// waiting-room row test can assert on the actual control, while the
+// banner/observer tests stay unaffected (they never query for buttons).
+vi.mock('@openpeepshq/react-ui', async () => {
+  const React = (await import('react')).default;
+  return {
+    Input: () => React.createElement('input'),
+    Button: (props: {
+      title?: string;
+      'aria-label'?: string;
+      disabled?: boolean;
+      variant?: string;
+      children?: ReactNode;
+    }) =>
+      React.createElement(
+        'button',
+        {
+          title: props.title ?? '',
+          'aria-label': props['aria-label'] ?? '',
+          disabled: Boolean(props.disabled),
+          'data-variant': props.variant ?? '',
+        },
+        props.children,
+      ),
+  };
+});
 
 const render = (ui: ReactNode) => {
   const container = document.createElement('div');
@@ -330,6 +366,112 @@ describe('JamPeopleDrawer observers section (web)', () => {
     // Pins the `count_one` branch, mirroring the RN singular test.
     expect(container.textContent).toContain('Observers');
     expect(container.textContent).toContain('1 external observer');
+    unmount();
+  });
+});
+
+describe('JamPeopleDrawer waiting-room action row (web)', () => {
+  const queue = () => [{ id: 'w1' }];
+
+  afterEach(() => {
+    document.body.innerHTML = '';
+    h.moderator.value = false;
+    h.waitingProfiles.value = [];
+    h.admittingId.value = null;
+    h.rejectingId.value = null;
+  });
+
+  it('pins the admit/reject row: labels, order, and the destructive reject variant', () => {
+    h.moderator.value = true;
+    h.waitingProfiles.value = queue();
+    const { container, unmount } = render(
+      <JamPeopleDrawer open onClose={() => {}} />,
+    );
+
+    const admit = container.querySelector(
+      'button[data-variant="outline"]',
+    ) as HTMLButtonElement;
+    const reject = container.querySelector(
+      'button[data-variant="destructive"]',
+    ) as HTMLButtonElement;
+
+    // The queue row renders exactly the two action buttons (the header
+    // close button has no react-ui variant).
+    expect(container.querySelectorAll('button[data-variant]')).toHaveLength(2);
+    // Admit precedes Reject in document order…
+    expect(
+      admit!.compareDocumentPosition(reject!) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    // …with the user-visible copy and the idle titles.
+    expect(admit!.textContent).toBe('Admit');
+    expect(reject!.textContent).toBe('Reject');
+    expect(admit!.title).toBe('Admit');
+    expect(reject!.title).toBe('Reject');
+    // The accessible name mirrors the title (the RN twin pins the
+    // matching `accessibilityLabel`), so screen readers hear the busy
+    // state while the buttons swap their titles.
+    expect(admit!.getAttribute('aria-label')).toBe('Admit');
+    expect(reject!.getAttribute('aria-label')).toBe('Reject');
+    expect(admit!.disabled).toBe(false);
+    expect(reject!.disabled).toBe(false);
+    // Reject is a destructive action (LeaveCloseButton precedent): the
+    // variant pins the repo's destructive-action styling pattern.
+    expect(reject!.dataset.variant).toBe('destructive');
+    unmount();
+  });
+
+  it('disables both buttons and swaps the reject title while rejecting', () => {
+    h.moderator.value = true;
+    h.waitingProfiles.value = queue();
+    h.rejectingId.value = 'w1';
+    const { container, unmount } = render(
+      <JamPeopleDrawer open onClose={() => {}} />,
+    );
+
+    const admit = container.querySelector(
+      'button[data-variant="outline"]',
+    ) as HTMLButtonElement;
+    const reject = container.querySelector(
+      'button[data-variant="destructive"]',
+    ) as HTMLButtonElement;
+
+    // While the reject is in flight, both buttons are disabled and the
+    // reject title carries the busy variant (the RN twin pins the same
+    // busy `accessibilityLabel` swap).
+    expect(admit!.disabled).toBe(true);
+    expect(reject!.disabled).toBe(true);
+    expect(admit!.title).toBe('Admit');
+    expect(reject!.title).toBe('Rejecting…');
+    expect(admit!.getAttribute('aria-label')).toBe('Admit');
+    expect(reject!.getAttribute('aria-label')).toBe('Rejecting…');
+    unmount();
+  });
+
+  it('disables both buttons and swaps the admit title while admitting', () => {
+    h.moderator.value = true;
+    h.waitingProfiles.value = queue();
+    h.admittingId.value = 'w1';
+    const { container, unmount } = render(
+      <JamPeopleDrawer open onClose={() => {}} />,
+    );
+
+    const admit = container.querySelector(
+      'button[data-variant="outline"]',
+    ) as HTMLButtonElement;
+    const reject = container.querySelector(
+      'button[data-variant="destructive"]',
+    ) as HTMLButtonElement;
+
+    // Mirrors the rejecting case above (and the RN twin, which pins both
+    // busy states symmetrically): while the admit is in flight, both
+    // buttons are disabled and the admit title carries the busy variant.
+    expect(admit!.disabled).toBe(true);
+    expect(reject!.disabled).toBe(true);
+    expect(admit!.title).toBe('Admitting…');
+    expect(reject!.title).toBe('Reject');
+    expect(admit!.getAttribute('aria-label')).toBe('Admitting…');
+    expect(reject!.getAttribute('aria-label')).toBe('Reject');
     unmount();
   });
 });

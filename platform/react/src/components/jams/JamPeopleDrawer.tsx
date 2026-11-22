@@ -9,6 +9,7 @@ import {
   MicOff,
   Search,
   UserRoundCheck,
+  UserRoundX,
   WifiOff,
   X,
 } from 'lucide-react';
@@ -106,17 +107,17 @@ function JamObserversSection({ count }: { count: number }) {
 
 /**
  * In-room participants list with mic / raised-hand / moderator indicators,
- * plus a moderator-only waiting-room admit section and the hidden
- * external-session count. Mirrors the Svelte `PeopleDrawer` (which folds in
- * `JamWaitingCard`).
+ * plus a moderator-only waiting-room section with admit and reject and the
+ * hidden external-session count. Mirrored by the native
+ * `platform/rn-components` `JamPeopleDrawer`.
  */
 export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
   const t = useT();
-  const { error: toastError } = useToast();
   const [bannedExpanded, setBannedExpanded] = useState(false);
   const room = useRoomContext();
   const participants = useParticipants();
   const externalSessions = useJamExternalSessions();
+  const { success: toastSuccess, error: toastError } = useToast();
   const {
     isModerator,
     hasWaitingRoom,
@@ -127,7 +128,9 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
     listedParticipants,
     waitingProfiles,
     admittingId,
+    rejectingId,
     admit,
+    reject,
     bannedIds,
     liftingId,
     liftBan,
@@ -135,9 +138,30 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
     room,
     participants,
     onLiftError: toastError,
+    onActionSuccess: toastSuccess,
+    onActionError: toastError,
   });
 
   if (!open) return null;
+
+  // Resolve the waiting-room action labels once and reuse them for both the
+  // button title and its text, so each string lives in one place (the title
+  // is the busy variant while the action is in flight).
+  const admitLabel = t('jams.waitingRoom.admitParticipant', {
+    defaultValue: 'Admit',
+  });
+  const admittingLabel = t('jams.waitingRoom.admitting', {
+    defaultValue: 'Admitting…',
+  });
+  const rejectLabel = t('jams.waitingRoom.rejectParticipant', {
+    defaultValue: 'Reject',
+  });
+  const rejectingLabel = t('jams.waitingRoom.rejecting', {
+    defaultValue: 'Rejecting…',
+  });
+  const inWaitingRoomLabel = t('jams.people.inWaitingRoom', {
+    defaultValue: 'In waiting room',
+  });
 
   return (
     <div className="bg-surface text-foreground absolute right-0 top-0 z-30 flex h-full w-full flex-col gap-3 overflow-hidden rounded md:relative md:z-auto md:w-80">
@@ -202,9 +226,7 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
         {isModerator && hasWaitingRoom && waitingProfiles.length > 0 ? (
           <div>
             <h4 className="text-muted-foreground text-xs font-semibold uppercase">
-              {t('jams.people.inWaitingRoom', {
-                defaultValue: 'In waiting room',
-              })}
+              {inWaitingRoomLabel}
             </h4>
             <div className="mt-1 flex flex-col gap-2">
               {waitingProfiles.map((profile) => (
@@ -218,17 +240,46 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
                       {waitingRoomEntryName(profile)}
                     </span>
                   </div>
-                  <Button
-                    variant="outline"
-                    compact
-                    action={() => admit(profile)}
-                    disabled={admittingId === profile.id}
-                    title={t('jams.waitingRoom.admitParticipant', {
-                      defaultValue: 'Admit',
-                    })}
-                  >
-                    <UserRoundCheck className="size-4" />
-                  </Button>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <Button
+                      variant="outline"
+                      compact
+                      action={() => admit(profile)}
+                      disabled={
+                        admittingId === profile.id || rejectingId === profile.id
+                      }
+                      title={
+                        admittingId === profile.id ? admittingLabel : admitLabel
+                      }
+                      aria-label={
+                        admittingId === profile.id ? admittingLabel : admitLabel
+                      }
+                    >
+                      <UserRoundCheck className="size-4" />
+                      {admitLabel}
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      compact
+                      action={() => reject(profile)}
+                      disabled={
+                        admittingId === profile.id || rejectingId === profile.id
+                      }
+                      title={
+                        rejectingId === profile.id
+                          ? rejectingLabel
+                          : rejectLabel
+                      }
+                      aria-label={
+                        rejectingId === profile.id
+                          ? rejectingLabel
+                          : rejectLabel
+                      }
+                    >
+                      <UserRoundX className="size-4" />
+                      {rejectLabel}
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>

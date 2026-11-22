@@ -22,6 +22,7 @@ import {
   MicOffIcon,
   SearchIcon,
   UserRoundCheckIcon,
+  UserRoundXIcon,
   WifiOffIcon,
 } from '../icons/index';
 import { Button } from '../ui/button';
@@ -118,8 +119,8 @@ const JamObserversSection = ({ count }: { count: number }) => {
 
 /**
  * In-room participants list with mic / raised-hand / moderator indicators,
- * plus a moderator-only waiting-room admit section and the hidden
- * external-session count.
+ * plus a moderator-only waiting-room section with admit and reject and the
+ * hidden external-session count.
  */
 export const JamPeopleDrawer = ({ open, onClose }: JamPeopleDrawerProps) => {
   const { t } = useTranslation();
@@ -137,7 +138,9 @@ export const JamPeopleDrawer = ({ open, onClose }: JamPeopleDrawerProps) => {
     listedParticipants,
     waitingProfiles,
     admittingId,
+    rejectingId,
     admit,
+    reject,
     bannedIds,
     liftingId,
     liftBan,
@@ -145,6 +148,8 @@ export const JamPeopleDrawer = ({ open, onClose }: JamPeopleDrawerProps) => {
     room,
     participants,
     onLiftError: (text1) => Toast.show({ type: 'error', text1 }),
+    onActionSuccess: (text1) => Toast.show({ type: 'success', text1 }),
+    onActionError: (text1) => Toast.show({ type: 'error', text1 }),
   });
 
   if (!open) return null;
@@ -206,15 +211,47 @@ export const JamPeopleDrawer = ({ open, onClose }: JamPeopleDrawerProps) => {
                       {waitingRoomEntryName(profile)}
                     </ThemedText>
                   </View>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onPress={() => admit(profile)}
-                    disabled={admittingId === profile.id}
-                    accessibilityLabel={t('jams.waitingRoom.admitParticipant')}
-                  >
-                    <UserRoundCheckIcon size={16} className="text-foreground" />
-                  </Button>
+                  <View className="flex-row shrink-0 items-center gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onPress={() => admit(profile)}
+                      disabled={
+                        admittingId === profile.id || rejectingId === profile.id
+                      }
+                      accessibilityLabel={
+                        admittingId === profile.id
+                          ? t('jams.waitingRoom.admitting')
+                          : t('jams.waitingRoom.admitParticipant')
+                      }
+                    >
+                      <UserRoundCheckIcon
+                        size={16}
+                        className="text-foreground"
+                      />
+                      <ThemedText className="text-xs">
+                        {t('jams.waitingRoom.admitParticipant')}
+                      </ThemedText>
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onPress={() => reject(profile)}
+                      disabled={
+                        admittingId === profile.id || rejectingId === profile.id
+                      }
+                      accessibilityLabel={
+                        rejectingId === profile.id
+                          ? t('jams.waitingRoom.rejecting')
+                          : t('jams.waitingRoom.rejectParticipant')
+                      }
+                    >
+                      <UserRoundXIcon size={16} className="text-foreground" />
+                      <ThemedText className="text-xs">
+                        {t('jams.waitingRoom.rejectParticipant')}
+                      </ThemedText>
+                    </Button>
+                  </View>
                 </View>
               ))}
             </View>

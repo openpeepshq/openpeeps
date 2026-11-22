@@ -1051,7 +1051,8 @@
       "requestToJoin": "Request to join",
       "ctaJoin": "Join",
       "ctaStart": "Start",
-      "waitingForModerator": "Waiting for a moderator to let you in"
+      "waitingForModerator": "Waiting for a moderator to let you in",
+      "rejected": "The moderator declined your request to join"
     },
     "start": {
       "submit": "Start Jam",

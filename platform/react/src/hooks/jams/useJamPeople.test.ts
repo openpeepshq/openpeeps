@@ -24,6 +24,7 @@ vi.mock('../../contexts/openpeeps', () => ({
     openpeepsApi: {
       useWaitingRoomStream: () => undefined,
       admitParticipantAction: () => vi.fn(async () => ({})),
+      rejectParticipantAction: () => vi.fn(async () => ({})),
       liftJamBanAction: () => liftBanAction,
       removeJamParticipantAction: () => removeParticipantAction,
     },

@@ -17,16 +17,22 @@ export type UseJamPeopleArgs = {
   participants: Participant[];
   /** Toast routing for a failed lift-ban (both stacks pass their own toast). */
   onLiftError?: (message: string) => void;
+  /** Toast feedback for admit/reject outcomes; the caller owns the toast UI. */
+  onActionSuccess?: (message: string) => void;
+  onActionError?: (message: string) => void;
 };
 
 /**
  * People drawer data: searchable in-jam list sorted by raised hand (observers
- * hidden) and, for moderators, the waiting-room profiles with admit.
+ * hidden) and, for moderators, the waiting-room profiles with admit and
+ * reject.
  */
 export const useJamPeople = ({
   room,
   participants,
   onLiftError,
+  onActionSuccess,
+  onActionError,
 }: UseJamPeopleArgs) => {
   const me = useCurrentProfile();
   const t = useT();
@@ -42,10 +48,12 @@ export const useJamPeople = ({
     occurrence,
   );
   const admitParticipant = openpeepsApi.admitParticipantAction();
+  const rejectParticipant = openpeepsApi.rejectParticipantAction();
   const liftJamBan = openpeepsApi.liftJamBanAction();
 
   const [query, setQuery] = useState('');
   const [admittingId, setAdmittingId] = useState<string | null>(null);
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [liftingId, setLiftingId] = useState<string | null>(null);
 
   // Ban list ids only — names are resolved lazily per id by the drawer's
@@ -62,8 +70,11 @@ export const useJamPeople = ({
       if (metadata.observer) return false;
       return !query || matchesQuery(metadata.profile, query);
     });
+    // `raisedHands` is a reactivity dependency, not read in the memo body:
+    // hand state changes arrive as participant metadata updates that don't
+    // change the `participants` reference, so listing it is what re-sorts when
+    // hands change (the sort itself reads hand state from metadata).
     return sortByRaisedHand(visible, (participant) => participant.metadata);
-    // raisedHands changes participant metadata order; re-sort when it updates.
   }, [participants, query, raisedHands]);
 
   const waitingProfiles = useMemo((): JamWaitingProfile[] => {
@@ -82,17 +93,52 @@ export const useJamPeople = ({
       );
   }, [waitingRoom, query]);
 
-  const admit = async (profile: Pick<PublicProfile, 'id'>) => {
-    setAdmittingId(profile.id);
+  // Admit and reject share the same flow (busy state, endpoint call with the
+  // optional occurrence, success/error toast); only the endpoint, the busy
+  // setter, and the two toast keys differ.
+  const runWaitingRoomAction = async (
+    profile: Pick<PublicProfile, 'id'>,
+    action: {
+      invoke: () => Promise<unknown>;
+      setBusy: (busyId: string | null) => void;
+      successKey: string;
+      errorKey: string;
+    },
+  ) => {
+    action.setBusy(profile.id);
     try {
-      await admitParticipant(
-        { id: jamPost.id, profileId: profile.id },
-        occurrence ? { occurrence } : undefined,
-      );
+      await action.invoke();
+      onActionSuccess?.(t(action.successKey));
+    } catch {
+      onActionError?.(t(action.errorKey));
     } finally {
-      setAdmittingId(null);
+      action.setBusy(null);
     }
   };
+
+  const admit = (profile: Pick<PublicProfile, 'id'>) =>
+    runWaitingRoomAction(profile, {
+      invoke: () =>
+        admitParticipant(
+          { id: jamPost.id, profileId: profile.id },
+          occurrence ? { occurrence } : undefined,
+        ),
+      setBusy: setAdmittingId,
+      successKey: 'jams.waitingRoom.admitSuccess',
+      errorKey: 'jams.waitingRoom.admitError',
+    });
+
+  const reject = (profile: Pick<PublicProfile, 'id'>) =>
+    runWaitingRoomAction(profile, {
+      invoke: () =>
+        rejectParticipant(
+          { id: jamPost.id, profileId: profile.id },
+          occurrence ? { occurrence } : undefined,
+        ),
+      setBusy: setRejectingId,
+      successKey: 'jams.waitingRoom.rejectSuccess',
+      errorKey: 'jams.waitingRoom.rejectError',
+    });
 
   const liftBan = async (profileId: string) => {
     setLiftingId(profileId);
@@ -124,7 +170,9 @@ export const useJamPeople = ({
     listedParticipants,
     waitingProfiles,
     admittingId,
+    rejectingId,
     admit,
+    reject,
     liftBan,
   };
 };

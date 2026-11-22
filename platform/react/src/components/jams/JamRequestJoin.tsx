@@ -11,8 +11,10 @@ export interface JamRequestJoinProps {
 
 function JamWaitingRoomListener({
   onJoin,
+  onDenied,
 }: {
   onJoin: JamRequestJoinProps['onJoin'];
+  onDenied: () => void;
 }) {
   const t = useT();
   const [error, setError] = useState<string | null>(null);
@@ -28,13 +30,17 @@ function JamWaitingRoomListener({
     [onJoin],
   );
 
-  useJoinWaitingRoomToken(joinAndClearError, (e) => {
-    // Reuse the shared key→message mapping (`errorKey ?? key`, translate
-    // `error.*` keys). The SSE path passes an empty fallback so a keyless,
-    // message-less error renders nothing rather than a generic "Error".
-    const message = apiErrorMessage(e, t, '');
-    setError(message.length > 0 ? message : null);
-  });
+  useJoinWaitingRoomToken(
+    joinAndClearError,
+    (e) => {
+      // Reuse the shared key→message mapping (`errorKey ?? key`, translate
+      // `error.*` keys). The SSE path passes an empty fallback so a keyless,
+      // message-less error renders nothing rather than a generic "Error".
+      const message = apiErrorMessage(e, t, '');
+      setError(message.length > 0 ? message : null);
+    },
+    onDenied,
+  );
 
   return error ? (
     <p role="alert" className="text-destructive text-center text-sm">
@@ -45,23 +51,35 @@ function JamWaitingRoomListener({
 
 export function JamRequestJoin({ onJoin }: JamRequestJoinProps) {
   const t = useT();
-  const [requested, setRequested] = useState(false);
+  const [phase, setPhase] = useState<'idle' | 'waiting' | 'denied'>('idle');
 
   return (
     <div className="mx-auto flex w-full max-w-md flex-col items-center gap-4 p-4">
-      {requested ? (
+      {phase === 'waiting' ? (
         <>
-          <JamWaitingRoomListener onJoin={onJoin} />
+          <JamWaitingRoomListener
+            onJoin={onJoin}
+            onDenied={() => setPhase('denied')}
+          />
           <p className="text-muted-foreground text-center text-sm">
             {t('jams.join.waitingForModerator', {
-              defaultValue: 'Waiting for a moderator to admit you…',
+              defaultValue: 'Waiting for a moderator to let you in',
             })}
           </p>
         </>
       ) : (
-        <Button variant="default" action={() => setRequested(true)}>
-          {t('jams.join.requestToJoin', { defaultValue: 'Request to join' })}
-        </Button>
+        <>
+          {phase === 'denied' ? (
+            <p className="text-muted-foreground text-center text-sm">
+              {t('jams.join.rejected', {
+                defaultValue: 'The moderator declined your request to join',
+              })}
+            </p>
+          ) : null}
+          <Button variant="default" action={() => setPhase('waiting')}>
+            {t('jams.join.requestToJoin', { defaultValue: 'Request to join' })}
+          </Button>
+        </>
       )}
     </div>
   );

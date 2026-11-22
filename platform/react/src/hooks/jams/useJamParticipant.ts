@@ -91,10 +91,11 @@ export const useJamParticipantRemove = ({
   };
 };
 
-/** Joins automatically once a moderator admits us from the waiting room. */
+/** Joins once a moderator admits us, or reports a rejection. */
 export const useJoinWaitingRoomToken = (
   onJoin: (params: JamJoinParams) => void,
   onError?: (error: SseError | undefined) => void,
+  onDenied?: () => void,
 ) => {
   const { jamPost, occurrence } = useJamContext();
   const { openpeepsApi } = useOpenpeeps();
@@ -119,15 +120,19 @@ export const useJoinWaitingRoomToken = (
   );
 
   useEffect(() => {
-    if (tokenResponse?.token && tokenResponse.livekitUrl) {
-      // Re-join is a no-op on the server (the room stores one entry per
-      // profile id), so a render-cycled onJoin identity cannot corrupt the
-      // queue — but the token response itself must still be fresh.
+    if (!tokenResponse) return;
+    if ('denied' in tokenResponse) {
+      onDenied?.();
+      return;
+    }
+    if (tokenResponse.token && tokenResponse.livekitUrl) {
+      // A re-render can hand onJoin a new identity and re-fire this effect;
+      // that only re-delivers the already-fresh token, which is a no-op.
       onJoin({
         token: tokenResponse.token,
         livekitUrl: tokenResponse.livekitUrl,
         choices: { audioEnabled: true, videoEnabled: true },
       });
     }
-  }, [tokenResponse, onJoin]);
+  }, [tokenResponse, onJoin, onDenied]);
 };

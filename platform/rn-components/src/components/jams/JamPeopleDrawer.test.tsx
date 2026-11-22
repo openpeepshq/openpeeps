@@ -26,10 +26,21 @@ let mockHasWaitingRoom = false;
 let mockWaitingProfiles: unknown[] = [];
 let mockBannedIds: string[] = [];
 const mockPressHandlers: Array<() => void> = [];
+// Busy state for the waiting-room action row (mirrors `useJamPeople`).
+let mockAdmittingId: string | null = null;
+let mockRejectingId: string | null = null;
+// Every rendered action-button and its props, in document order.
+const mockButtonProps: Array<Record<string, unknown>> = [];
+// Every rendered View className (pins the action group's layout classes).
+const mockViewClasses: string[] = [];
+// Every rendered icon, in document order (recorded by the icon stub).
+const mockIconNames: string[] = [];
 
 jest.mock('react-native', () => ({
-  View: (props: { children?: unknown }) =>
-    React.createElement('View', null, props.children),
+  View: (props: { children?: unknown; className?: string }) => {
+    if (props.className) mockViewClasses.push(props.className);
+    return React.createElement('View', null, props.children);
+  },
   ScrollView: (props: { children?: unknown }) =>
     React.createElement('ScrollView', null, props.children),
   // Records every press handler in render order so a test can fire the
@@ -58,6 +69,10 @@ jest.mock('react-i18next', () => ({
       if (key === 'jams.people.observers') return 'Observers';
       if (key === 'jams.people.inWaitingRoom') return 'Waiting room';
       if (key === 'jams.people.noParticipants') return 'No participants found';
+      if (key === 'jams.waitingRoom.admitParticipant') return 'Admit';
+      if (key === 'jams.waitingRoom.admitting') return 'Admitting\u2026';
+      if (key === 'jams.waitingRoom.rejectParticipant') return 'Reject';
+      if (key === 'jams.waitingRoom.rejecting') return 'Rejecting\u2026';
       if (key === 'jams.drawer.peopleTitle') return 'People';
       if (key === 'jams.drawer.close') return 'Close';
       if (key === 'jams.drawer.searchPeoplePlaceholder') return 'Search';
@@ -84,8 +99,10 @@ jest.mock('@openpeepshq/react', () => ({
     setQuery: () => {},
     listedParticipants: mockParticipants,
     waitingProfiles: mockWaitingProfiles,
-    admittingId: null,
+    admittingId: mockAdmittingId,
+    rejectingId: mockRejectingId,
     admit: () => {},
+    reject: () => {},
     // Mirror the real hook's banned-sublist contract (the drawer reads
     // bannedIds/liftingId/liftBan when isModerator is true); empty keeps the
     // "Removed" section hidden so these assertions stay on the Observers pin.
@@ -109,8 +126,10 @@ jest.mock('@openpeepshq/common/lib', () => ({
 }));
 
 jest.mock('../icons/index', () => {
-  const make = (name: string) => (props: Record<string, unknown>) =>
-    React.createElement(name, props);
+  const make = (name: string) => (props: Record<string, unknown>) => {
+    mockIconNames.push(name);
+    return React.createElement(name, props);
+  };
   return {
     AudioLinesIcon: make('AudioLinesIcon'),
     ChevronDownIcon: make('ChevronDownIcon'),
@@ -121,13 +140,16 @@ jest.mock('../icons/index', () => {
     MicOffIcon: make('MicOffIcon'),
     SearchIcon: make('SearchIcon'),
     UserRoundCheckIcon: make('UserRoundCheckIcon'),
+    UserRoundXIcon: make('UserRoundXIcon'),
     WifiOffIcon: make('WifiOffIcon'),
   };
 });
 
 jest.mock('../ui/button', () => ({
-  Button: (props: { children?: unknown }) =>
-    React.createElement('Button', null, props.children),
+  Button: (props: { children?: unknown }) => {
+    mockButtonProps.push(props as unknown as Record<string, unknown>);
+    return React.createElement('Button', null, props.children);
+  },
 }));
 
 jest.mock('../ui/input', () => ({
@@ -170,8 +192,8 @@ jest.mock('../ui/themed-text', () => ({
 }));
 
 // The package ships ESM-only source (see the jest.config.cjs notes); the
-// drawer only calls Toast.show for lift-ban errors, which these cases never
-// reach, so an inert mock keeps the suite parseable.
+// drawer only calls Toast.show for waiting-room action feedback, which these
+// cases never reach, so an inert mock keeps the suite parseable.
 jest.mock('react-native-toast-message', () => {
   const Toast = { show: jest.fn() };
   return { __esModule: true, default: Toast };
@@ -182,6 +204,7 @@ const { JamPeopleDrawer } = require('./JamPeopleDrawer');
 const renderDrawer = (
   sessions: number,
   waitingRoom: boolean = false,
+  busy: { admittingId?: string | null; rejectingId?: string | null } = {},
   bannedIds: string[] = []
 ) => {
   mockSessions = sessions;
@@ -189,7 +212,12 @@ const renderDrawer = (
   mockHasWaitingRoom = waitingRoom;
   mockWaitingProfiles = waitingRoom ? [{ id: 'w1' }] : [];
   mockBannedIds = bannedIds;
+  mockAdmittingId = busy.admittingId ?? null;
+  mockRejectingId = busy.rejectingId ?? null;
   mockRenderedTexts.length = 0;
+  mockButtonProps.length = 0;
+  mockViewClasses.length = 0;
+  mockIconNames.length = 0;
   mockPressHandlers.length = 0;
   let tree!: ReactTestRenderer.ReactTestRenderer;
   ReactTestRenderer.act(() => {
@@ -252,6 +280,68 @@ describe('JamPeopleDrawer observers section (RN)', () => {
   });
 });
 
+describe('JamPeopleDrawer waiting-room action row (RN)', () => {
+  it('pins the admit/reject row: labels, order, group layout, and icons', () => {
+    renderDrawer(0, true);
+    const texts = mockRenderedTexts;
+
+    expect(texts).toContain('Waiting room');
+    expect(texts).toContain('waiting');
+    expect(texts).toContain('Admit');
+    expect(texts).toContain('Reject');
+    // The action row follows the queued profile name…
+    expect(texts.indexOf('waiting')).toBeLessThan(texts.indexOf('Admit'));
+    // …and Admit precedes Reject within the row.
+    expect(texts.indexOf('Admit')).toBeLessThan(texts.indexOf('Reject'));
+
+    // Exactly the two action buttons render, in order, both enabled.
+    expect(mockButtonProps).toHaveLength(2);
+    expect(mockButtonProps[0].accessibilityLabel).toBe('Admit');
+    expect(mockButtonProps[1].accessibilityLabel).toBe('Reject');
+    expect(mockButtonProps[0].disabled).toBe(false);
+    expect(mockButtonProps[1].disabled).toBe(false);
+
+    // The button group carries the non-wrapping layout class (round-2
+    // finding), so it survives narrow-width Yoga shrinking.
+    expect(mockViewClasses).toContain('flex-row shrink-0 items-center gap-1');
+
+    // Both action icons render, check (admit) before x (reject).
+    expect(mockIconNames).toContain('UserRoundCheckIcon');
+    expect(mockIconNames).toContain('UserRoundXIcon');
+    expect(mockIconNames.indexOf('UserRoundCheckIcon')).toBeLessThan(
+      mockIconNames.indexOf('UserRoundXIcon')
+    );
+  });
+
+  it('swaps the busy accessibilityLabel and disables both buttons while admitting', () => {
+    renderDrawer(0, true, { admittingId: 'w1' });
+
+    expect(mockButtonProps[0].accessibilityLabel).toBe('Admitting\u2026');
+    expect(mockButtonProps[1].accessibilityLabel).toBe('Reject');
+    expect(mockButtonProps[0].disabled).toBe(true);
+    expect(mockButtonProps[1].disabled).toBe(true);
+  });
+
+  it('swaps the busy accessibilityLabel and disables both buttons while rejecting', () => {
+    renderDrawer(0, true, { rejectingId: 'w1' });
+
+    expect(mockButtonProps[0].accessibilityLabel).toBe('Admit');
+    expect(mockButtonProps[1].accessibilityLabel).toBe('Rejecting\u2026');
+    expect(mockButtonProps[0].disabled).toBe(true);
+    expect(mockButtonProps[1].disabled).toBe(true);
+  });
+
+  it('hides the action row for non-moderators and without a waiting room', () => {
+    renderDrawer(0);
+
+    expect(mockButtonProps).toHaveLength(0);
+    expect(mockRenderedTexts).not.toContain('Waiting room');
+    expect(mockViewClasses).not.toContain(
+      'flex-row shrink-0 items-center gap-1'
+    );
+  });
+});
+
 describe('JamPeopleDrawer "Removed" sublist fallback (RN, issue #303 round-15 suggestion 2)', () => {
   // Independent of the observers renderDrawer: the fallback case needs a
   // moderator with a non-empty banned list but no waiting room / participants,
@@ -261,7 +351,12 @@ describe('JamPeopleDrawer "Removed" sublist fallback (RN, issue #303 round-15 su
     mockHasWaitingRoom = false;
     mockWaitingProfiles = [];
     mockBannedIds = bannedIds;
+    mockAdmittingId = null;
+    mockRejectingId = null;
     mockRenderedTexts.length = 0;
+    mockButtonProps.length = 0;
+    mockViewClasses.length = 0;
+    mockIconNames.length = 0;
     mockPressHandlers.length = 0;
     let tree!: ReactTestRenderer.ReactTestRenderer;
     ReactTestRenderer.act(() => {
