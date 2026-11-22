@@ -153,6 +153,24 @@ export const config = <T = CoreConfig>(
 export const communityConfig = () =>
   config<CommunityConfig>('openpeeps', 'community');
 
+/**
+ * Reads the community config straight from the DB, bypassing the in-memory
+ * cache. Use for low-frequency worker-side reads where a missed pub/sub
+ * invalidation is not acceptable; the cached `config()` + `configUpdated`
+ * stays the default path.
+ *
+ * Currently used by the auto-follow designation read, which runs in the
+ * worker process, whose cache is only refreshed on a redis pub/sub
+ * `configUpdated` event that a worker connection can miss (connect timing,
+ * a redelivery gap, or a worker restart); a fresh read keeps the designated
+ * accounts on the settings the admin actually saved. Only that read is
+ * fresh: the same handler's `capabilitiesConfig` follow-eligibility check
+ * intentionally stays on the cached `config` path, so a future reader should
+ * not "fix" that read to be fresh without a behavior change.
+ */
+export const communityConfigFresh = () =>
+  initConfig<CommunityConfig>('openpeeps', 'community');
+
 export const capabilitiesConfig = (): Promise<CapabilitiesConfig> =>
   config<CapabilitiesConfig>('openpeeps', 'capabilities').then(
     (loaded) =>

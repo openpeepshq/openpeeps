@@ -30,6 +30,8 @@ vi.mock('../events', () => ({ hub: { emit: vi.fn(), once: vi.fn() } }));
 vi.mock('../config', () => ({
   capabilitiesConfig: vi.fn(),
   communityConfig: vi.fn(),
+  communityConfigFresh: vi.fn(),
+  config: vi.fn(),
 }));
 vi.mock('../accessTokens/helpers', () => ({
   deleteAccessTokensForProfile: vi.fn(),
@@ -57,7 +59,12 @@ vi.mock('../federation/identity', () => ({ localActorScalars: vi.fn() }));
 import { followConnector, followFinder } from './helpers';
 import { getLocalProfileByHandle, getProfile, profilesCache } from './cache';
 import { hub } from '../events';
-import { capabilitiesConfig, communityConfig } from '../config';
+import {
+  capabilitiesConfig,
+  communityConfig,
+  communityConfigFresh,
+  config,
+} from '../config';
 import {
   canFollowProfile,
   deleteProfile,
@@ -179,6 +186,28 @@ describe('followDesignatedProfiles', () => {
     expect(getLocalProfileByHandle).not.toHaveBeenCalled();
     expect(followConnector).not.toHaveBeenCalled();
   });
+
+  it('pins the handle list it is given; never re-reads community config itself', async () => {
+    // Layering guard: followDesignatedProfiles is the pure "follow these
+    // handles" step. The fresh community-config read (#310) lives one layer
+    // up in the profileCreated handler. This pins that the function takes the
+    // handle list as given and its only config read is the capabilities check,
+    // so a future internal community-config re-read — via any of the exported
+    // accessors (fresh, cached, or the generic config()) — is a visible
+    // regression rather than a silent behavior change.
+    vi.mocked(getLocalProfileByHandle).mockResolvedValue(news);
+
+    await followDesignatedProfiles(member, ['news']);
+
+    expect(getLocalProfileByHandle).toHaveBeenCalledWith('news');
+    expect(capabilitiesConfig).toHaveBeenCalledTimes(1);
+    expect(followConnector).toHaveBeenCalledTimes(1);
+    // It never reads community config itself — fresh, cached, or via the
+    // generic config() accessor.
+    expect(communityConfigFresh).not.toHaveBeenCalled();
+    expect(communityConfig).not.toHaveBeenCalled();
+    expect(config).not.toHaveBeenCalled();
+  });
 });
 
 describe('canFollowProfile', () => {
@@ -258,7 +287,7 @@ describe('registerAutoFollowHandler', () => {
       expect.any(Function),
     );
     vi.mocked(getProfile).mockResolvedValue(member);
-    vi.mocked(communityConfig).mockResolvedValue({
+    vi.mocked(communityConfigFresh).mockResolvedValue({
       content: { autoFollow: ['news'] },
     } as never);
     vi.mocked(getLocalProfileByHandle).mockResolvedValue(news);
@@ -274,7 +303,7 @@ describe('registerAutoFollowHandler', () => {
 
   it('does nothing when no handles are configured', async () => {
     vi.mocked(getProfile).mockResolvedValue(member);
-    vi.mocked(communityConfig).mockResolvedValue({ content: {} } as never);
+    vi.mocked(communityConfigFresh).mockResolvedValue({ content: {} } as never);
 
     await handler!({ id: 'p1' });
 
