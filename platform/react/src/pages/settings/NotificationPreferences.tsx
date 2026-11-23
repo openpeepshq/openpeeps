@@ -284,36 +284,40 @@ export function NotificationPreferences() {
   }
 
   return (
-    <section className="mr-4 mt-5 p-4">
-      <h2 className="mb-2 text-lg font-medium">
-        {t('settings.notifications.pushSettings', {
-          defaultValue: 'Push settings',
-        })}
-      </h2>
-      <PushSettingsPanel />
-      <h2 className="mb-2 text-lg font-medium">
-        {t('settings.notifications.description', {
-          defaultValue: 'Choose how you want to be notified about activity.',
-        })}
-      </h2>
+    <>
+      <section className="mr-4 mt-5 p-4">
+        <h2 className="mb-2 text-lg font-medium">
+          {t('settings.notifications.pushSettings', {
+            defaultValue: 'Push settings',
+          })}
+        </h2>
+        <PushSettingsPanel />
+        <h2 className="mb-2 text-lg font-medium">
+          {t('settings.notifications.description', {
+            defaultValue: 'Choose how you want to be notified about activity.',
+          })}
+        </h2>
 
-      {types.map((nt) => (
-        <NotificationSettingRow
-          key={nt.type}
-          notificationType={nt}
-          settings={settings.notifications?.[nt.type]}
-          onChange={(next) => setTypeSettings(nt.type, next)}
-        />
-      ))}
+        {types.map((nt) => (
+          <NotificationSettingRow
+            key={nt.type}
+            notificationType={nt}
+            settings={settings.notifications?.[nt.type]}
+            onChange={(next) => setTypeSettings(nt.type, next)}
+          />
+        ))}
 
-      {status ? (
-        <Toast variant={status.type} onDismiss={clearStatus}>
-          {status.message}
-        </Toast>
-      ) : null}
-
+        {status ? (
+          <Toast variant={status.type} onDismiss={clearStatus}>
+            {status.message}
+          </Toast>
+        ) : null}
+      </section>
+      {/* Full-width sibling of the inset section (not a child of its p-4/mr-4
+          box) so it spans the whole content width and sits flush with the
+          mobile bottom nav instead of falling short of the screen edges. */}
       <NotificationSaveBar dirty={dirty} saving={saving} onSave={save} />
-    </section>
+    </>
   );
 }
 
@@ -330,7 +334,7 @@ function NotificationSaveBar({
   const t = useT();
   return (
     <div
-      className="sticky bottom-0 -mx-4 -mb-4 border-t bg-surface px-4 py-3"
+      className="sticky bottom-0 w-full border-t bg-surface px-4 py-3"
       role="status"
     >
       <div className="flex items-center justify-between">

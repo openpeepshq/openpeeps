@@ -190,6 +190,20 @@ describe('NotificationPreferences', () => {
     expect(button?.disabled).toBe(true);
   });
 
+  it('renders the save bar as a full-width sibling, not nested inside the inset section', () => {
+    render(createElement(NotificationPreferences));
+    const button = saveButton();
+    expect(button).not.toBeNull();
+    const bar = button?.closest('[role=status]') as HTMLElement | null;
+    expect(bar).not.toBeNull();
+    // The bar must not sit inside the inset content <section> (p-4 + mr-4),
+    // whose box it could not fully escape — that nesting is what made the bar
+    // fall short of the screen edges on mobile.
+    expect(bar?.closest('section')).toBeNull();
+    // And it declares full width so it spans the content column edge-to-edge.
+    expect(bar?.className).toContain('w-full');
+  });
+
   it('shows the unsaved-changes text and enables the button when dirty', () => {
     hookState.dirty = true;
     render(createElement(NotificationPreferences));
