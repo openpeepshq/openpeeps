@@ -31,6 +31,7 @@ const shardGroups = [
     'api/openpeeps/core/v1/profiles/test.ts',
     'forms/test.ts',
     'email-push/session-sse.test.ts',
+    'account-export/test.ts',
     'ui/test.ts',
   ],
   [
