@@ -1,9 +1,12 @@
 /** @vitest-environment jsdom */
-import { act, createElement } from 'react';
+import { act, createElement, type ReactNode } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { MediaAttachmentData } from '@openpeepshq/common';
-import { useComposeAttachments } from './ComposeAttachments';
+import {
+  ComposeAttachments,
+  useComposeAttachments,
+} from './ComposeAttachments';
 
 const { useMediaUpload } = vi.hoisted(() => ({
   useMediaUpload: vi.fn(),
@@ -32,6 +35,49 @@ vi.mock('../../form/ImageEditModal', () => ({
 vi.mock('./DescriptionEditModal', () => ({
   DescriptionEditModal: () => null,
 }));
+
+// The mic toolbar button opens the VoiceRecorderModal, which imports the
+// dialog primitives from react-ui; stub them so the real ComposeAttachments
+// renders in jsdom without the full UI dependency.
+vi.mock('@openpeepshq/react-ui', () => {
+  const passthrough =
+    (tag: string) =>
+    ({ children }: { children?: ReactNode }) =>
+      createElement(tag, null, children);
+  return {
+    Dialog: ({
+      open,
+      children,
+    }: {
+      open: boolean;
+      onOpenChange?: (open: boolean) => void;
+      children?: ReactNode;
+    }) =>
+      open
+        ? createElement('div', { 'data-testid': 'voice-dialog' }, children)
+        : null,
+    DialogContent: passthrough('div'),
+    DialogHeader: passthrough('div'),
+    DialogTitle: passthrough('h2'),
+    DialogDescription: passthrough('p'),
+    Button: ({
+      action,
+      title,
+      children,
+      'data-testid': testId,
+    }: {
+      action?: () => void;
+      title?: string;
+      children?: ReactNode;
+      'data-testid'?: string;
+    }) =>
+      createElement(
+        'button',
+        { type: 'button', title, 'data-testid': testId, onClick: action },
+        children,
+      ),
+  };
+});
 
 const uploadMock = vi.fn();
 
@@ -162,5 +208,38 @@ describe('useComposeAttachments pickers', () => {
       container.querySelector('[data-testid="crop-modal"]'),
     ).not.toBeNull();
     expect(uploadMock).not.toHaveBeenCalled();
+  });
+
+  it('exposes openVoiceRecorder on the hook api', () => {
+    const exposed: Record<string, unknown> = {};
+    const ApiProbe = () => {
+      const api = useComposeAttachments({
+        attachments: [],
+        onChange: () => undefined,
+      });
+      exposed.openVoiceRecorder = api.openVoiceRecorder;
+      return null;
+    };
+    const r = createRoot(container);
+    root = r;
+    act(() => {
+      r.render(createElement(ApiProbe));
+    });
+    expect(typeof exposed.openVoiceRecorder).toBe('function');
+  });
+
+  it('renders the mic button in the shared toolbar', () => {
+    const r = createRoot(container);
+    root = r;
+    act(() => {
+      r.render(
+        createElement(ComposeAttachments, {
+          attachments: [],
+          onChange: () => undefined,
+        }),
+      );
+    });
+    const mic = container.querySelector('button[title="Record voice note"]');
+    expect(mic).not.toBeNull();
   });
 });

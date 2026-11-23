@@ -13,6 +13,23 @@ type UploadProgressInfo = {
   estimatedRemainingMs?: number;
 };
 
+// Audio containers the file picker can return, mapped to honest mimetypes for
+// the picked-file branch of `type: 'audio'` (recordings never go through this
+// table — the recorder's .m4a/AAC output is trusted directly). Exported so the
+// unit suite can pin it against web's `ComposeAttachments` audio extensions.
+export const AUDIO_EXTENSION_MIME: Record<string, string> = {
+  m4a: 'audio/mp4',
+  mp4: 'audio/mp4',
+  aac: 'audio/aac',
+  mp3: 'audio/mpeg',
+  ogg: 'audio/ogg',
+  oga: 'audio/ogg',
+  opus: 'audio/opus',
+  wav: 'audio/wav',
+  flac: 'audio/flac',
+  weba: 'audio/webm',
+};
+
 export type UploadProgressMap = {
   [key: string]: { percent: number; estimatedRemainingMs?: number };
 };
@@ -32,6 +49,12 @@ type UploadMediaType = {
   name?: string | null;
   mimeType?: string | null;
   setUploadProgress?: React.Dispatch<React.SetStateAction<UploadProgressMap>>;
+  /**
+   * The URI is the recorder's own output (a fresh .m4a), not a file the user
+   * picked. Only then is the m4a/AAC name+mimetype trusted instead of the
+   * URI-based inference a picked file must keep honest.
+   */
+  isRecordedAudio?: boolean;
 };
 
 export const uploadMedia = async ({
@@ -43,6 +66,7 @@ export const uploadMedia = async ({
   name,
   mimeType,
   setUploadProgress,
+  isRecordedAudio,
 }: UploadMediaType) => {
   const decodedMediaUri = decodeFileUri(mediaUri);
   let finalUri = decodedMediaUri;
@@ -64,6 +88,37 @@ export const uploadMedia = async ({
       }
     }
     finalMimeType = resolveDocumentMime(mimeType, name);
+  } else if (type === 'audio') {
+    if (isRecordedAudio) {
+      // The recorder emits .m4a (AAC-in-MP4), so the known output format is
+      // trusted instead of guessing the mime from the extension (a fragile
+      // `uri.split('.')` inference) — keeps the filename and mimetype honest
+      // without a .bin / octet-stream fallback. Full rationale in
+      // record-audio-sheet.tsx (onStartRecord).
+      fileExtension = 'm4a';
+      finalMimeType = 'audio/mp4';
+    } else {
+      // Picked files keep whatever container the user chose — their bytes are
+      // not transcoded on the client, so the reported name/mimetype must match
+      // the on-disk content (the server normalizes them to m4a later). The
+      // extension is inferred from the URI's last path segment (picked files
+      // carry no `name`), so an opaque content:// URI degrades to
+      // .bin/octet-stream and the server sniffs it.
+      const source = name || decodedMediaUri;
+      const lastSegment = source.split('/').pop() ?? '';
+      const dot = lastSegment.lastIndexOf('.');
+      const pickedExt =
+        dot > 0 && dot < lastSegment.length - 1
+          ? lastSegment.slice(dot + 1).toLowerCase()
+          : undefined;
+      if (pickedExt) {
+        fileExtension = pickedExt;
+      }
+      finalMimeType =
+        mimeType && mimeType.includes('/')
+          ? mimeType
+          : (AUDIO_EXTENSION_MIME[fileExtension] ?? 'application/octet-stream');
+    }
   }
 
   const tempFileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExtension}`;

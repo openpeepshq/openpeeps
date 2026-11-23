@@ -8,6 +8,8 @@ packages:
 linkWorkspacePackages: deep
 
 overrides:
+  # --- Dependency-constraint note (not an override) ---
+  # react-native-audio-recorder-player is deliberately not overridden here — the recorded .m4a/audio/mp4 trust in `uploadMedia` depends on this lib's defaults; see record-audio-sheet.tsx (onStartRecord) for the full rationale.
   # eslint and vite declare jiti only as an optional peer. With release-it@19's
   # c12@3 (whose config loader hard-depends on jiti ^2 — it calls createJiti,
   # which jiti 1 does not export) in the tree, pnpm's shared peer resolution
