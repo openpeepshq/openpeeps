@@ -49,8 +49,10 @@ export interface LateTrackMediaStream {
  * the publication that mounts this layout — so the event can fire before the
  * listener exists.
  *
- * Camera tiles don't need this: they remount on the track object itself
- * (see `JamCallParticipant`), which is a different (renegotiation) case.
+ * Camera tiles use the same mechanism (see `JamCallParticipant`): a first
+ * mid-Jam camera publish has the same race — the JS track exists before the
+ * native stream carries its video track, so the one-shot attach needs the
+ * same late-track remount burst (#1808).
  */
 export const useLateTrackMediaStream = (
   track?: Track

@@ -42,6 +42,7 @@ import { cn } from '../../lib/utils';
 import { ProfileAvatar } from '../profile/Avatar';
 import { JamAnimatedEmoji } from './JamAnimatedEmoji';
 import { useConnectionLost } from './useParticipantConnection';
+import { useLateTrackMediaStream } from './useLateTrackMediaStream';
 import { useThemeOpacity } from '../../theme/useThemeOpacity';
 
 export interface JamCallParticipantProps {
@@ -377,6 +378,11 @@ export const JamCallParticipant = ({
   useEffect(() => {
     bumpTrackEpoch();
   }, [cameraTrack]);
+  // A first mid-Jam camera publish has the same late-attach race as screen
+  // share: the one-shot `streamURL` attach can run before the stream carries
+  // its video track and the native view never retries — so the hook's
+  // remountKey re-runs it once the track arrives.
+  const { remountKey } = useLateTrackMediaStream(cameraTrack);
   const cameraOn =
     isTrackReference(trackRef) &&
     !!cameraTrack &&
@@ -401,7 +407,7 @@ export const JamCallParticipant = ({
       >
         {cameraOn ? (
           <VideoTrack
-            key={`${trackRef.publication.trackSid}-${trackEpoch}`}
+            key={`${trackRef.publication.trackSid}-${trackEpoch}-${remountKey}`}
             trackRef={trackRef}
             style={StyleSheet.absoluteFill}
             objectFit="cover"
