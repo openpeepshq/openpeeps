@@ -172,15 +172,17 @@ export const ProfileSelector = ({
                     onClick={() => toggleProfile(profile)}
                   >
                     <Avatar profile={profile} size={2.5} borderless />
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-medium">
-                        {profileName(profile)}
-                      </span>
-                      {profile.handle ? (
-                        <span className="text-muted-foreground block truncate text-xs">
-                          @{profile.handle}
-                        </span>
-                      ) : null}
+                    {/* One-line caption (name + handle): with a stacked
+                        two-line caption, `items-center` centered the 40px
+                        avatar against the whole block, leaving the avatar
+                        center ~8px below the display-name line (issue
+                        #1666). A single line makes the alignment hold by
+                        construction and keeps long names from shifting the
+                        avatar. */}
+                    <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                      {profile.handle
+                        ? `${profileName(profile)} @${profile.handle}`
+                        : profileName(profile)}
                     </span>
                     {selected ? (
                       <Check className="text-primary size-4 shrink-0" />
