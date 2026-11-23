@@ -5,7 +5,12 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **posts**: community-configurable post reactions
+- **jams**: opt-in community jam broadcasts and group-scoped start alerts
+- **jams**: toast moderators when someone joins the waiting room
+- **profiles**: let members opt out of the community directory
 - **events**: server-side ICS feed with per-profile subscription tokens
+- **posts**: choose from a set of post reactions
 - **notifications**: per-type filter for the notifications feed
 - **jams**: stack jam banners through a shared container
 - **profiles**: make new members auto-follow designated local accounts
@@ -32,6 +37,17 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **deps**: upgrade firebase-admin from 13.10.0 to 14.5.1 in core
+- **resources**: stop long category names overflowing cards, trees and breadcrumbs
+- **rn-components**: stop clipping thread-reply author names in compact strips
+- **rn-components**: keep avatar slot sized while media is loading (issue #1666)
+- **server**: throw real 404s from jam, stream, recording and follow endpoints
+- **deps**: override sdk-metrics to 2.12.0 to clear @opentelemetry/core 2.7.1
+- **rn-components**: stop unread badges clipping in the RN app
+- **rn-components**: keep dropdown menus inside the viewport
+- **rn-components**: remount screen-share video a few times on late native attach
+- **resources**: rename Add files button to Add file
+- **rn-components**: avoid the keyboard in the jam chat drawer on both platforms
 - **deps**: update mermaid to 12.3.0 (fixes katex advisory GHSA-238p-pmpm-9mq7)
 - **auth**: show the welcome page as the first page shown after login
 - **settings**: sticky save bar with unsaved-changes indicator on notification preferences
@@ -138,6 +154,7 @@ Changelog for OpenPeeps
 
 ### Chores
 
+- **deps**: upgrade @sentry/node from 9.13.0 to 10.78.0 to resolve opentelemetry vulnerabilities
 - **deps**: upgrade bullmq 5.34.7 to 5.81.5 and override uuid to 11.1.1
 - **deps**: override esbuild to 0.25.12 in the @esbuild-kit chain
 - **deps**: replace extract-zip with node-stream-zip for backup restore
