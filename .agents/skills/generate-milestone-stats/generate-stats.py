@@ -1,27 +1,35 @@
 #!/usr/bin/env python3
 """
-Stats + burndown for a Gitea/Forgejo milestone.
+Milestone stats for a Gitea/Forgejo milestone.
 
 Produces a milestone description containing:
   1. A "generated at" line with the UTC timestamp of this refresh.
-  2. A stats table counting OPEN issues per pipeline stage.
-  3. A burndown chart for the 7 days before the milestone due date, counting
-     currently-scoped issues that were still open at end of each day and
-     splitting each day's total across four pipeline stages:
-       - pre-planning   (unlabeled / needs-specs / ready-to-schedule)
-       - planning       (ready-to-plan / ready-to-review-plan)
-       - implementation (ready-to-implement / ready-to-review / ready-to-merge /
-                         merge-accepted)
-       - testing        (on-test-instance / ready-to-test / waiting-for-app-build)
+  2. A chart of open issues, whose form depends on the milestone's
+     position relative to its due date:
+     - PAST (closed, or due date already passed): the description is left
+       untouched; the script exits without writing anything.
+     - CURRENT (the open milestone with the earliest non-past due date):
+       a burndown chart for the 7 days up to the due date, counting
+       currently-scoped issues that were still open at end of each day and
+       splitting each day's total across four pipeline stages:
+         - pre-planning   (unlabeled / needs-specs / ready-to-schedule)
+         - planning       (ready-to-plan / ready-to-review-plan)
+         - implementation (ready-to-implement / ready-to-review /
+                           ready-to-merge / merge-accepted)
+         - testing        (on-test-instance / ready-to-test /
+                           waiting-for-app-build)
+       Each issue's stage history is reconstructed from its `/timeline`
+       label events. `flow/*` labels are exclusive, so the latest flow event
+       wins. Each day's bar is scaled to the busiest day; a `|` marker shows
+       that day's ideal count (linear from the window's first day to 0 on
+       the due date).
+     - FUTURE (any other open milestone): a single snapshot bar of the
+       milestone's current open issues by pipeline stage, read from each
+       issue's current `flow/*` label (no timeline fetch).
+  3. A "🧍 Needs human intervention" line (current + future modes).
 
-     Each issue's stage history is reconstructed from its `/timeline` label
-     events. `flow/*` labels are exclusive, so the latest flow event wins.
-     Each day's bar is scaled to the busiest day; a `|` marker shows that
-     day's ideal count (linear from the window's first day to 0 on the due
-     date).
-
-Closed issues are ignored in the stats table; the burndown uses the open/closed
-timeline of the current milestone scope.
+Closed issues are ignored in the human-intervention line; the burndown uses
+the open/closed timeline of the current milestone scope.
 
 Usage:
     python3 generate-stats.py --milestone-id 23
@@ -69,8 +77,8 @@ _args = parse_args()
 TOKEN = _args.token
 MILESTONE_ID = _args.milestone_id
 
-# Burndown stages, in pipeline order. Every issue with a flow label maps to
-# exactly one; unlabeled issues are pre-planning (the intake backlog).
+# Pipeline stages, in order. Every issue with a flow label maps to exactly
+# one; unlabeled issues are pre-planning (the intake backlog).
 STAGE_PRE = "pre-planning"
 STAGE_PLAN = "planning"
 STAGE_IMPL = "implementation"
@@ -91,6 +99,25 @@ STAGE_OF_LABEL = {
 LABEL_TO_STAGE = {lbl: stage for stage, lbls in STAGE_OF_LABEL.items() for lbl in lbls}
 
 STAGE_GLYPH = {STAGE_PRE: "░", STAGE_PLAN: "▒", STAGE_IMPL: "▓", STAGE_TEST: "█"}
+
+STAGE_LEGEND = (
+    "░ pre-planning (unlabeled / `needs-specs` / `ready-to-schedule`), "
+    "▒ planning (`ready-to-plan` / `ready-to-review-plan`), "
+    "▓ implementation (`ready-to-implement` through `merge-accepted`), "
+    "█ testing (`on-test-instance` / `ready-to-test` / `waiting-for-app-build`)"
+)
+
+# Open issues that currently need human intervention (awaiting a human gate),
+# in workflow order.
+NEEDS_HUMAN = [
+    ("needs-specs", "flow/needs-specs"),
+    ("ready-to-schedule", "flow/ready-to-schedule"),
+    ("ready-to-review-plan", "flow/ready-to-review-plan"),
+    ("ready-to-merge", "flow/ready-to-merge"),
+    ("on-test-instance", "flow/on-test-instance"),
+    ("waiting-for-app-build", "flow/waiting-for-app-build"),
+    ("ready-to-test", "flow/ready-to-test"),
+]
 
 
 def api_get(url):
@@ -114,219 +141,82 @@ def parse_date(s):
     return date.fromisoformat(s[:10])
 
 
-# --- Fetch all milestone items (open + closed) for the burndown ---
+# --- Milestone metadata + mode classification ---
+url = f"{BASE}/milestones/{MILESTONE_ID}"
+milestone = api_get(url)
+due_date = parse_date(milestone.get("due_on"))
+MILESTONE_URL = f"https://code.openpeeps.org/openpeeps/openpeeps/milestone/{MILESTONE_ID}"
+today = date.today()
+
+
+def classify_mode():
+    """Classify the target milestone as past / current / future.
+
+    - closed, or due date already passed -> past (leave the description alone)
+    - the open milestone(s) with the earliest non-past due date -> current
+      (full burndown); ties all become current
+    - any other open milestone (other due dates, or no due date) -> future
+      (single snapshot bar)
+    """
+    if milestone.get("state") == "closed":
+        return "past"
+    if due_date is None:
+        return "future"
+    if due_date < today:
+        return "past"
+    open_ms = []
+    for page in range(1, 4):
+        batch = api_get(f"{BASE}/milestones?state=open&limit=50&page={page}")
+        if not batch:
+            break
+        open_ms.extend(batch)
+        if len(batch) < 50:
+            break
+    upcoming = [
+        d for d in (parse_date(m.get("due_on")) for m in open_ms) if d is not None and d >= today
+    ]
+    if upcoming and due_date == min(upcoming):
+        return "current"
+    return "future"
+
+
+MODE = classify_mode()
+print(f"Milestone #{MILESTONE_ID} {milestone.get('title')!r}: mode={MODE} "
+      f"(state={milestone.get('state')}, due={due_date})")
+
+if MODE == "past":
+    print("Past milestone: leaving description untouched.")
+    raise SystemExit(0)
+
+# --- Fetch all milestone items (open + closed) for this milestone ---
+# The plural ?milestones=<id> filter works and is fast; the singular
+# ?milestone=<id> is broken on this server (it ignores the parameter and
+# returns every issue), so the old full-repo scan is no longer needed.
 print("Fetching milestone items...")
 all_items = {}
 for page in range(1, 50):
     data = api_get(
-        f"{BASE}/issues?limit=100&state=all&sort=created&order=desc&page={page}"
+        f"{BASE}/issues?limit=50&state=all&sort=created&order=desc"
+        f"&milestones={MILESTONE_ID}&page={page}"
     )
     if not data:
         break
     for i in data:
+        # Defensive: only trust items that actually carry this milestone.
         if i.get("milestone") and i["milestone"].get("id") == MILESTONE_ID:
             all_items[i["number"]] = i
+    if len(data) < 50:
+        break
 print(f"Found {len(all_items)} items (open + closed)")
 
-# --- Fetch the milestone metadata for the due date ---
-url = f"{BASE}/milestones/{MILESTONE_ID}"
-req = urllib.request.Request(url)
-with urllib.request.urlopen(req) as resp:
-    milestone = json.loads(resp.read().decode())
-due_date = parse_date(milestone.get("due_on"))
-MILESTONE_URL = f"https://code.openpeeps.org/openpeeps/openpeeps/milestone/{MILESTONE_ID}"
-print(f"Due date: {due_date}")
 
-# --- Build the burndown ---
-# 7 days before the due date, inclusive of the due date.
-if due_date is None:
-    due_date = date.today()
-end = due_date
-start = end - timedelta(days=7)
+def stage_of_issue(i):
+    """Stage of an issue from its CURRENT labels (unlabeled -> pre-planning)."""
+    labels = [l["name"] for l in i.get("labels", [])]
+    return next((LABEL_TO_STAGE[l] for l in labels if l in LABEL_TO_STAGE), STAGE_PRE)
 
 
-def fetch_timeline(num):
-    """All timeline events for an issue, deduplicated and in id (chronological) order.
-
-    The /timeline endpoint paginates with an overlap quirk (the next page
-    re-returns the tail of the previous one), so events are keyed by id and the
-    walk stops as soon as a page yields nothing new.
-    """
-    seen = {}
-    order = []
-    for page in range(1, 40):
-        try:
-            batch = api_get(f"{BASE}/issues/{num}/timeline?limit=100&page={page}")
-        except Exception:
-            break
-        if not isinstance(batch, list) or not batch:
-            break
-        fresh = 0
-        for ev in batch:
-            # Forgejo occasionally returns a bare null entry for event types it
-            # cannot serialize (seen on issue #1539); skip it rather than crash.
-            if ev is None:
-                continue
-            eid = ev.get("id")
-            if eid is not None and eid not in seen:
-                seen[eid] = ev
-                order.append(eid)
-                fresh += 1
-        if len(batch) < 100 or fresh == 0:
-            break
-    return [seen[eid] for eid in order]
-
-
-def stage_segments(num, created_date, current_labels):
-    """Ordered list of (date, stage) for the issue's pipeline history.
-
-    Baseline is pre-planning at the issue's creation date; each flow-label
-    event moves it to that label's stage. `flow/*` labels are exclusive, so the
-    latest flow event is the issue's stage at that time. The issue's current
-    flow label is the authoritative end-of-timeline state, so if the last
-    event no longer matches it (a label change in flight between the issue
-    list and its timeline fetch), a final segment snaps it back for today on.
-    """
-    segs = [(created_date or date.min, STAGE_PRE)]
-    for ev in fetch_timeline(num):
-        if ev.get("type") != "label":
-            continue
-        name = (ev.get("label") or {}).get("name") or ""
-        stage = LABEL_TO_STAGE.get(name)
-        when = parse_date(ev.get("created_at"))
-        if stage is not None and when is not None:
-            segs.append((when, stage))
-    current_stage = next(
-        (LABEL_TO_STAGE[l] for l in current_labels if l in LABEL_TO_STAGE), None
-    )
-    if current_stage is not None and segs[-1][1] != current_stage:
-        segs.append((date.today(), current_stage))
-    return segs
-
-
-print("Reconstructing stage histories from issue timelines...")
-histories = {}  # issue number -> [(date, stage), ...]
-for num in sorted(all_items.keys()):
-    i = all_items[num]
-    current_labels = [l["name"] for l in i.get("labels", [])]
-    histories[num] = stage_segments(num, parse_date(i.get("created_at")), current_labels)
-print(f"  ({len(histories)} issues)")
-
-# Per issue: created date, closed date (open-ness window).
-open_meta = {
-    num: (parse_date(i.get("created_at")), parse_date(i.get("closed_at")))
-    for num, i in all_items.items()
-}
-
-
-def stage_of_at(segs, day):
-    """Stage the issue is in at end of `day` (last segment dated <= day)."""
-    stage = segs[0][1]
-    for when, s in segs:
-        if when is not None and when <= day:
-            stage = s
-        else:
-            break
-    return stage
-
-
-def stage_counts_on(day):
-    """Counts of open issues per stage at end of `day` (current milestone scope)."""
-    counts = {s: 0 for s in STAGES}
-    for num, (created, closed) in open_meta.items():
-        if created is None or created > day:
-            continue
-        if closed is not None and closed <= day:
-            continue
-        counts[stage_of_at(histories[num], day)] += 1
-    return counts
-
-
-days = [start + timedelta(days=k) for k in range((end - start).days + 1)]
-day_stage_counts = [stage_counts_on(d) for d in days]
-open_counts = [sum(c.values()) for c in day_stage_counts]
-first_count = open_counts[0] if open_counts else 0
-
-print(f"\nBurndown ({start} -> {end}):")
-for d, c in zip(days, day_stage_counts):
-    print(
-        f"  {d}  open={sum(c.values())}  " + "  ".join(f"{s}={c[s]}" for s in STAGES)
-    )
-
-# --- Render the burndown as an ASCII chart ---
-# Each day's bar is scaled to the maximum daily count (the busiest day fills
-# the full width). The `|` marks that day's ideal count, placed at its position
-# on the same scale (inside the bar when actual >= ideal, in the empty space
-# beyond it when actual < ideal).
-max_count = max(open_counts) if open_counts else 1
-bar_width = 56
-
-
-def ideal_on(d):
-    """Ideal open count at end of `d`: linear from first_count to 0."""
-    if end == start:
-        return 0
-    frac = (d - start).days / (end - start).days
-    return round(first_count * (1 - frac))
-
-
-def render_bar(counts, ideal):
-    """Stage-segmented bar scaled to max_count, with a `|` at the ideal count.
-
-    The bar's length is the day's total open count on the max_count scale; the
-    grey-scale segments show the composition across pipeline stages. The `|`
-    sits where the ideal count would be on the same scale.
-    """
-    if max_count == 0:
-        return ""
-    total = sum(counts.values())
-    length = max(0, min(round(total / max_count * bar_width), bar_width))
-    if total > 0 and length > 0:
-        # Largest-remainder split so the segments sum to exactly `length`.
-        raw = [counts[s] / total * length for s in STAGES]
-        widths = [int(w) for w in raw]
-        leftover = length - sum(widths)
-        order = sorted(range(len(STAGES)), key=lambda i: raw[i] - int(raw[i]), reverse=True)
-        for k in range(leftover):
-            widths[order[k % len(STAGES)]] += 1
-        bar = "".join(STAGE_GLYPH[s] * widths[i] for i, s in enumerate(STAGES))
-    else:
-        bar = ""
-    bar = bar.ljust(bar_width)
-    pipe = max(0, min(round(ideal / max_count * bar_width), bar_width - 1))
-    return bar[:pipe] + "|" + bar[pipe + 1:]
-
-
-chart_lines = ["```"]
-chart_lines.append(
-    f"Open issues  (max={max_count})"
-    "   | = ideal   ░ pre-planning  ▒ planning  ▓ implementation  █ testing"
-)
-chart_lines.append("")
-today = date.today()
-for d, counts in zip(days, day_stage_counts):
-    ideal = ideal_on(d)
-    if d > today:
-        # Future date: no actual bar, only the ideal marker.
-        label = f"{'—':>3}"
-        bar = render_bar({s: 0 for s in STAGES}, ideal)
-    else:
-        label = f"{sum(counts.values()):>3}"
-        bar = render_bar(counts, ideal)
-    chart_lines.append(f"{d.isoformat()}  {label}  {bar}")
-chart_lines.append("```")
-
-# Open issues that currently need human intervention (awaiting a human gate),
-# in workflow order.
-NEEDS_HUMAN = [
-    ("needs-specs", "flow/needs-specs"),
-    ("ready-to-schedule", "flow/ready-to-schedule"),
-    ("ready-to-review-plan", "flow/ready-to-review-plan"),
-    ("ready-to-merge", "flow/ready-to-merge"),
-    ("on-test-instance", "flow/on-test-instance"),
-    ("waiting-for-app-build", "flow/waiting-for-app-build"),
-    ("ready-to-test", "flow/ready-to-test"),
-]
+# --- "Needs human intervention" line (current + future modes) ---
 human_counts = {}
 for i in all_items.values():
     if i["state"] != "open":
@@ -345,7 +235,8 @@ def fetch_label_ids():
     Repo labels and org labels are separate ID spaces, so merge both.
     """
     ids = {}
-    for base in ("https://code.openpeeps.org/api/v1/orgs/openpeeps", "https://code.openpeeps.org/api/v1/repos/openpeeps/openpeeps"):
+    for base in ("https://code.openpeeps.org/api/v1/orgs/openpeeps",
+                 "https://code.openpeeps.org/api/v1/repos/openpeeps/openpeeps"):
         for page in range(1, 6):
             try:
                 batch = api_get(f"{base}/labels?limit=50&page={page}")
@@ -359,7 +250,7 @@ def fetch_label_ids():
     return ids
 
 
-# Each item links to the milestone's open-issue list filtered to its flow
+# Each gate links to the milestone's open-issue list filtered to its flow
 # label (by numeric id), so a zero count still resolves to the (empty) filter
 # view. A gate whose label id cannot be resolved falls back to the plain
 # milestone URL.
@@ -380,28 +271,239 @@ human_line = (
     + f" (total {sum(human_counts.values())})"
 )
 
-burndown_section = [
-    f"## Burndown ({start.isoformat()} to {end.isoformat()})",
-    "",
-    *chart_lines,
-    "",
-    human_line,
-    "",
-    f"> Counts issues currently in the milestone that were still open at end of each day, "
-    f"split by pipeline stage from each issue's `flow/*` label history: "
-    f"░ pre-planning (unlabeled / `needs-specs` / `ready-to-schedule`), "
-    f"▒ planning (`ready-to-plan` / `ready-to-review-plan`), "
-    f"▓ implementation (`ready-to-implement` through `merge-accepted`), "
-    f"█ testing (`on-test-instance` / `ready-to-test` / `waiting-for-app-build`). "
-    f"Bars are scaled to the busiest day ({max_count}); the `|` marks the ideal "
-    f"count for that day, linear from {first_count} on {start.isoformat()} to 0 "
-    f"on {end.isoformat()}. "
-    f"Scope changes (issues moved in/out of the milestone during the window) are not reflected.",
-    "",
-    f"<sub>Stats generated at {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}</sub>",
-]
+generated_at = (
+    f"<sub>Stats generated at {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}</sub>"
+)
+bar_width = 56
 
-desc = "\n".join(burndown_section)
+if MODE == "current":
+    # --- Current milestone: full burndown from issue timelines ---
+    # 7 days before the due date, inclusive of the due date.
+    end = due_date
+    start = end - timedelta(days=7)
+
+    def fetch_timeline(num):
+        """All timeline events for an issue, deduplicated and in id (chronological) order.
+
+        The /timeline endpoint paginates with an overlap quirk (the next page
+        re-returns the tail of the previous one), so events are keyed by id and
+        the walk stops as soon as a page yields nothing new.
+        """
+        seen = {}
+        order = []
+        for page in range(1, 40):
+            try:
+                batch = api_get(f"{BASE}/issues/{num}/timeline?limit=100&page={page}")
+            except Exception:
+                break
+            if not isinstance(batch, list) or not batch:
+                break
+            fresh = 0
+            for ev in batch:
+                # Forgejo occasionally returns a bare null entry for event
+                # types it cannot serialize (seen on issue #1539); skip it
+                # rather than crash.
+                if ev is None:
+                    continue
+                eid = ev.get("id")
+                if eid is not None and eid not in seen:
+                    seen[eid] = ev
+                    order.append(eid)
+                    fresh += 1
+            if len(batch) < 100 or fresh == 0:
+                break
+        return [seen[eid] for eid in order]
+
+    def stage_segments(num, created_date, current_labels):
+        """Ordered list of (date, stage) for the issue's pipeline history.
+
+        Baseline is pre-planning at the issue's creation date; each flow-label
+        event moves it to that label's stage. `flow/*` labels are exclusive, so
+        the latest flow event is the issue's stage at that time. The issue's
+        current flow label is the authoritative end-of-timeline state, so if
+        the last event no longer matches it (a label change in flight between
+        the issue list and its timeline fetch), a final segment snaps it back
+        for today on.
+        """
+        segs = [(created_date or date.min, STAGE_PRE)]
+        for ev in fetch_timeline(num):
+            if ev.get("type") != "label":
+                continue
+            name = (ev.get("label") or {}).get("name") or ""
+            stage = LABEL_TO_STAGE.get(name)
+            when = parse_date(ev.get("created_at"))
+            if stage is not None and when is not None:
+                segs.append((when, stage))
+        current_stage = next(
+            (LABEL_TO_STAGE[l] for l in current_labels if l in LABEL_TO_STAGE), None
+        )
+        if current_stage is not None and segs[-1][1] != current_stage:
+            segs.append((today, current_stage))
+        return segs
+
+    print("Reconstructing stage histories from issue timelines...")
+    histories = {}  # issue number -> [(date, stage), ...]
+    for num in sorted(all_items.keys()):
+        i = all_items[num]
+        current_labels = [l["name"] for l in i.get("labels", [])]
+        histories[num] = stage_segments(num, parse_date(i.get("created_at")), current_labels)
+    print(f"  ({len(histories)} issues)")
+
+    # Per issue: created date, closed date (open-ness window).
+    open_meta = {
+        num: (parse_date(i.get("created_at")), parse_date(i.get("closed_at")))
+        for num, i in all_items.items()
+    }
+
+    def stage_of_at(segs, day):
+        """Stage the issue is in at end of `day` (last segment dated <= day)."""
+        stage = segs[0][1]
+        for when, s in segs:
+            if when is not None and when <= day:
+                stage = s
+            else:
+                break
+        return stage
+
+    def stage_counts_on(day):
+        """Counts of open issues per stage at end of `day` (current milestone scope)."""
+        counts = {s: 0 for s in STAGES}
+        for num, (created, closed) in open_meta.items():
+            if created is None or created > day:
+                continue
+            if closed is not None and closed <= day:
+                continue
+            counts[stage_of_at(histories[num], day)] += 1
+        return counts
+
+    days = [start + timedelta(days=k) for k in range((end - start).days + 1)]
+    day_stage_counts = [stage_counts_on(d) for d in days]
+    open_counts = [sum(c.values()) for c in day_stage_counts]
+    first_count = open_counts[0] if open_counts else 0
+
+    print(f"\nBurndown ({start} -> {end}):")
+    for d, c in zip(days, day_stage_counts):
+        print(
+            f"  {d}  open={sum(c.values())}  " + "  ".join(f"{s}={c[s]}" for s in STAGES)
+        )
+
+    # Each day's bar is scaled to the maximum daily count (the busiest day
+    # fills the full width). The `|` marks that day's ideal count, placed at
+    # its position on the same scale (inside the bar when actual >= ideal, in
+    # the empty space beyond it when actual < ideal).
+    max_count = max(open_counts) if open_counts else 1
+
+    def ideal_on(d):
+        """Ideal open count at end of `d`: linear from first_count to 0."""
+        if end == start:
+            return 0
+        frac = (d - start).days / (end - start).days
+        return round(first_count * (1 - frac))
+
+    def render_bar(counts, ideal):
+        """Stage-segmented bar scaled to max_count, with a `|` at the ideal count.
+
+        The bar's length is the day's total open count on the max_count scale;
+        the grey-scale segments show the composition across pipeline stages.
+        The `|` sits where the ideal count would be on the same scale.
+        """
+        if max_count == 0:
+            return ""
+        total = sum(counts.values())
+        length = max(0, min(round(total / max_count * bar_width), bar_width))
+        if total > 0 and length > 0:
+            # Largest-remainder split so the segments sum to exactly `length`.
+            raw = [counts[s] / total * length for s in STAGES]
+            widths = [int(w) for w in raw]
+            leftover = length - sum(widths)
+            order = sorted(range(len(STAGES)), key=lambda i: raw[i] - int(raw[i]), reverse=True)
+            for k in range(leftover):
+                widths[order[k % len(STAGES)]] += 1
+            bar = "".join(STAGE_GLYPH[s] * widths[i] for i, s in enumerate(STAGES))
+        else:
+            bar = ""
+        bar = bar.ljust(bar_width)
+        pipe = max(0, min(round(ideal / max_count * bar_width), bar_width - 1))
+        return bar[:pipe] + "|" + bar[pipe + 1:]
+
+    chart_lines = ["```"]
+    chart_lines.append(
+        f"Open issues  (max={max_count})"
+        "   | = ideal   ░ pre-planning  ▒ planning  ▓ implementation  █ testing"
+    )
+    chart_lines.append("")
+    for d, counts in zip(days, day_stage_counts):
+        ideal = ideal_on(d)
+        if d > today:
+            # Future date: no actual bar, only the ideal marker.
+            label = f"{'—':>3}"
+            bar = render_bar({s: 0 for s in STAGES}, ideal)
+        else:
+            label = f"{sum(counts.values()):>3}"
+            bar = render_bar(counts, ideal)
+        chart_lines.append(f"{d.isoformat()}  {label}  {bar}")
+    chart_lines.append("```")
+
+    section = [
+        f"## Burndown ({start.isoformat()} to {end.isoformat()})",
+        "",
+        *chart_lines,
+        "",
+        human_line,
+        "",
+        f"> Counts issues currently in the milestone that were still open at end of each day, "
+        f"split by pipeline stage from each issue's `flow/*` label history: {STAGE_LEGEND}. "
+        f"Bars are scaled to the busiest day ({max_count}); the `|` marks the ideal "
+        f"count for that day, linear from {first_count} on {start.isoformat()} to 0 "
+        f"on {end.isoformat()}. "
+        f"Scope changes (issues moved in/out of the milestone during the window) are not reflected.",
+        "",
+        generated_at,
+    ]
+else:
+    # --- Future milestone: single snapshot bar from current labels ---
+    counts = {s: 0 for s in STAGES}
+    for i in all_items.values():
+        if i["state"] == "open":
+            counts[stage_of_issue(i)] += 1
+    total = sum(counts.values())
+
+    def render_snapshot(counts, total):
+        """Single stage-segmented bar, full width (no ideal marker)."""
+        if total == 0:
+            return ""
+        raw = [counts[s] / total * bar_width for s in STAGES]
+        widths = [int(w) for w in raw]
+        leftover = bar_width - sum(widths)
+        order = sorted(range(len(STAGES)), key=lambda i: raw[i] - int(raw[i]), reverse=True)
+        for k in range(leftover):
+            widths[order[k % len(STAGES)]] += 1
+        return "".join(STAGE_GLYPH[s] * widths[i] for i, s in enumerate(STAGES))
+
+    print(f"\nSnapshot: {total} open issues  " + "  ".join(f"{s}={counts[s]}" for s in STAGES))
+    chart_lines = [
+        "```",
+        f"Open issues  (max={total})"
+        "   ░ pre-planning  ▒ planning  ▓ implementation  █ testing",
+        "",
+        f"{today.isoformat()}  {total:>3}  {render_snapshot(counts, total)}",
+        "```",
+    ]
+    section = [
+        f"## Open issues by stage",
+        "",
+        *chart_lines,
+        "",
+        human_line,
+        "",
+        f"> Snapshot of the milestone's {total} open issues, split by pipeline stage "
+        f"from each issue's current `flow/*` label: {STAGE_LEGEND}. "
+        f"A burndown chart is only generated for the current release milestone.",
+        "",
+        generated_at,
+    ]
+
+desc = "\n".join(section)
 print(f"\n=== Description ({len(desc)} chars) ===")
 print(desc)
 
