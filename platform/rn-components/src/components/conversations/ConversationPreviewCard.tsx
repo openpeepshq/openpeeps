@@ -81,7 +81,7 @@ export const ConversationPreviewCard = ({
               ))}
             </View>
             <View className="flex min-w-0 flex-1 flex-row items-center gap-2">
-              <Text className="truncate font-bold">
+              <Text className="truncate font-bold" numberOfLines={1}>
                 {truncateText(title, 20)}
               </Text>
               {unreadCount > 0 ? (
@@ -95,7 +95,7 @@ export const ConversationPreviewCard = ({
             className="text-muted-foreground"
           />
 
-          <View className="mt-2 flex flex-row items-start gap-x-2">
+          <View className="mt-2 flex flex-row items-start gap-x-2 overflow-hidden">
             {isLeave ? (
               <Text className="text-muted-foreground">
                 {t('conversations.messageInThread.left', {
@@ -104,7 +104,9 @@ export const ConversationPreviewCard = ({
               </Text>
             ) : (
               <>
-                <View className="flex flex-row items-center">
+                {/* RN flex children default to flexShrink: 0 — pin the author
+                    label so the message area (flex-1 min-w-0) gets the slack. */}
+                <View className="flex flex-row shrink-0 items-center">
                   <Text>~</Text>
                   {currentProfile?.id === lastMessage.profile.id ? (
                     <Text className="ml-1">
@@ -118,15 +120,24 @@ export const ConversationPreviewCard = ({
                   <Text className="mx-1">:</Text>
                 </View>
                 {lastMessage.data?.type === 'event' ? (
-                  <View className="flex flex-row items-center gap-1">
-                    <CalendarIcon size={16} className="text-muted-foreground" />
-                    <Text>{(lastMessage.data as { name?: string }).name}</Text>
+                  <View className="min-w-0 flex-1 overflow-hidden">
+                    <View className="flex flex-row items-center gap-1">
+                      <CalendarIcon
+                        size={16}
+                        className="text-muted-foreground"
+                      />
+                      <Text>
+                        {(lastMessage.data as { name?: string }).name}
+                      </Text>
+                    </View>
                   </View>
                 ) : (
-                  <OpenpeepsMarkdown
-                    source={lastMessage.data?.content || ''}
-                    linkPreviewMode="none"
-                  />
+                  <View className="min-w-0 flex-1 overflow-hidden">
+                    <OpenpeepsMarkdown
+                      source={lastMessage.data?.content || ''}
+                      linkPreviewMode="none"
+                    />
+                  </View>
                 )}
               </>
             )}
@@ -134,6 +145,7 @@ export const ConversationPreviewCard = ({
         </View>
       </TouchableOpacity>
       <DropdownMenuContent>
+        {/* Mute/Report are pre-existing console.log placeholders — no tracking issue exists yet; when one is filed, reference it here (e.g. "see #XXXX") */}
         <DropdownMenuItem onPress={() => console.log('Mute conversation')}>
           <BellOffIcon size={18} className=" mr-2 text-foreground" />
           <Text>Mute conversation</Text>

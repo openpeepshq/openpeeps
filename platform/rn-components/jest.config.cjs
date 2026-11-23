@@ -15,6 +15,13 @@ module.exports = {
     '^@openpeepshq/common/types$': '<rootDir>/../common/src/types/index.ts',
     '^@openpeepshq/common$': '<rootDir>/../common/src/lib/contentLength.ts',
     '^@openpeepshq/react$': '<rootDir>/../react/src/index.ts',
+    // Leaf subpath for `conversationTitle`, exported from the package root
+    // barrel but re-exported here from the self-contained module it lives in.
+    // Mapping the subpath (not the root barrel) keeps Jest from pulling the
+    // barrel's heavy native/ESM transitive deps (contexts, streaming, stores,
+    // components) into the node test env — same single-file pin as `common`.
+    '^@openpeepshq/react/conversationTitle$':
+      '<rootDir>/../react/src/hooks/conversations/conversationTitle.ts',
   },
   transform: {
     '^.+\\.tsx?$': [
