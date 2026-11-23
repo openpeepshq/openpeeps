@@ -65,6 +65,11 @@ export function Settings() {
         action="/settings/feed"
         testId="settings-link-feed"
       />
+      <ConfigMenuButton
+        translationPrefix="settings.calendarFeed"
+        action="/settings/calendar-feed"
+        testId="settings-link-calendar-feed"
+      />
       {stripeMembershipEnabled && (
         <ConfigMenuButton
           translationPrefix="settings.billing"

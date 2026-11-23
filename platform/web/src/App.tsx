@@ -132,6 +132,7 @@ import {
   AdminConfigurationSso,
   AdminConfigurationSsoNew,
   AccessTokensSettings,
+  CalendarFeedSettings,
   BlockedSettings,
   LanguageSettings,
   TimezoneSettings,
@@ -330,6 +331,7 @@ const SettingsPages = {
   Feed: FeedSettings,
   Billing: BillingSettings,
   AccessTokens: AccessTokensSettings,
+  CalendarFeed: CalendarFeedSettings,
   Blocked: BlockedSettings,
 };
 
@@ -667,6 +669,10 @@ function AppShell() {
                     <Route
                       path="/settings/access-tokens"
                       element={<SettingsPages.AccessTokens />}
+                    />
+                    <Route
+                      path="/settings/calendar-feed"
+                      element={<SettingsPages.CalendarFeed />}
                     />
                     <Route
                       path="/settings/blocked"

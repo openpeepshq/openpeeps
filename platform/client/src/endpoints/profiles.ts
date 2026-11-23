@@ -22,6 +22,7 @@ import type {
   ProfileSettings,
   ProfileSettingsData,
   PublicAccessToken,
+  CalendarFeedTokenResponse,
   SessionEvent,
   SessionPlatform,
   Hashtag,
@@ -93,6 +94,19 @@ export const profiles = (
       SuccessResponse,
       { accessTokenId: string }
     >(rawClient, '/profiles/current/access-tokens/:accessTokenId', 'delete'),
+    // `calendarFeed` is a bare resource: POST mints (and revokes the old)
+    // token, DELETE revokes all — neither takes or returns a body beyond the
+    // typed response.
+    calendarFeed: allpeepNoPayloadEndpoint<CalendarFeedTokenResponse>(
+      rawClient,
+      '/profiles/current/calendar-feed',
+      'post',
+    ),
+    revokeCalendarFeed: allpeepNoPayloadEndpoint<SuccessResponse>(
+      rawClient,
+      '/profiles/current/calendar-feed',
+      'delete',
+    ),
     sessionEvents: {
       listen: eventSource<
         SessionEvent,

@@ -80,6 +80,8 @@ export type { SettingsStatus } from './settings/useTimezonePreference';
 export { useLanguagePreference } from './settings/useLanguagePreference';
 export { useAccountExport } from './settings/useAccountExport';
 export { usePushEnabledDevices } from './settings/usePushEnabledDevices';
+export { useCalendarFeedLink } from './settings/useCalendarFeedLink';
+export type { CalendarFeedStatus } from './settings/useCalendarFeedLink';
 export {
   ACCESS_TOKEN_EXPIRATION_OPTIONS,
   ACCESS_TOKEN_RESOURCE_TYPES,

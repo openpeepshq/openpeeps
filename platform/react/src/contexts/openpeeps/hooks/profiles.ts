@@ -9,6 +9,7 @@ import { useHasAuthToken } from './useHasAuthToken';
 import type {
   AccessTokenCreationData,
   AccessTokenWithMeta,
+  CalendarFeedTokenResponse,
   NotificationFeedQueryParams,
   FollowData,
   GroupWithMeta,
@@ -101,6 +102,8 @@ export type ProfileHooks = {
   revokeCurrentProfileAccessTokenAction: (defaultPathParams?: {
     accessTokenId: string;
   }) => (pathParams?: { accessTokenId: string }) => Promise<SuccessResponse>;
+  createCurrentProfileCalendarFeedAction: () => () => Promise<CalendarFeedTokenResponse>;
+  revokeCurrentProfileCalendarFeedAction: () => () => Promise<SuccessResponse>;
 };
 
 export const profileHooks = (
@@ -196,5 +199,11 @@ export const profileHooks = (
   revokeCurrentProfileAccessTokenAction: noPayloadMutation(
     client.profiles.current.revokeAccessToken,
     [['profiles', 'current', 'accessTokens']],
+  ),
+  createCurrentProfileCalendarFeedAction: noPayloadMutation(
+    client.profiles.current.calendarFeed,
+  ),
+  revokeCurrentProfileCalendarFeedAction: noPayloadMutation(
+    client.profiles.current.revokeCalendarFeed,
   ),
 });

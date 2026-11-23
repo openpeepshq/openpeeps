@@ -9,6 +9,7 @@ Changelog for OpenPeeps
 - **jams**: opt-in community jam broadcasts and group-scoped start alerts
 - **jams**: toast moderators when someone joins the waiting room
 - **profiles**: let members opt out of the community directory
+- **settings**: calendar feed link create/delete UI on web and RN
 - **events**: server-side ICS feed with per-profile subscription tokens
 - **posts**: choose from a set of post reactions
 - **notifications**: per-type filter for the notifications feed

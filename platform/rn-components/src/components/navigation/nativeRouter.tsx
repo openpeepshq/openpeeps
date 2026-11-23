@@ -21,6 +21,7 @@ const SETTINGS_SCREENS: Record<string, keyof MainStackParamList | undefined> = {
   'language': 'LanguageSettings',
   'timezone': 'TimezoneSettings',
   'feed': 'FeedSettings',
+  'calendar-feed': 'CalendarFeedSettings',
 };
 
 const go = (name: string, params?: object) => {

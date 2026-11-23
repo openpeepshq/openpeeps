@@ -101,6 +101,7 @@ export const applySemanticParent = ({
     case 'PushEnabledDevices':
     case 'AccountSettings':
     case 'AccessTokensSettings':
+    case 'CalendarFeedSettings':
     case 'ThemeSettings':
     case 'FeedSettings':
     case 'BlockedSettings':

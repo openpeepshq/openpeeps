@@ -14,6 +14,7 @@ export * from './markdownHelpers';
 export * from './contentLength';
 export * from './attachmentHelpers';
 export * from './resources';
+export * from './calendarFeedUrl';
 export * from './eventIcs';
 export * from './eventTime';
 export * from './timeZone';

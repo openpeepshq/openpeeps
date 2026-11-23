@@ -68,6 +68,10 @@ export const Settings = (
           translationPrefix="settings.feed"
           onPress={() => navigation.navigate('FeedSettings')}
         />
+        <ConfigMenuButton
+          translationPrefix="settings.calendarFeed"
+          onPress={() => navigation.navigate('CalendarFeedSettings')}
+        />
       </View>
     </ThemedView>
   );

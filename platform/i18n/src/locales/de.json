@@ -3044,6 +3044,20 @@
       "scopeRequired": "Mindestens ein Bereich ist erforderlich",
       "scopes": "Bereiche"
     },
+    "calendarFeed": {
+      "title": "Kalender-Feed",
+      "description": "Abonnieren Sie die lokalen Events in Ihrer Kalender-App",
+      "introTitle": "Kalender abonnieren",
+      "introDescription": "Holen Sie sich einen iCalendar- (ICS-)Feed mit den lokalen Events, den Sie in jede Kalender-App importieren können, die Abonnements unterstützt. Beim Erstellen eines Links hier werden frühere Links ersetzt und widerrufen, und jeder Link läuft nach 90 Tagen ab.",
+      "create": "Kalender-Link erstellen",
+      "creating": "Wird erstellt…",
+      "createError": "Der Kalender-Link konnte nicht erstellt werden.",
+      "delete": "Link löschen",
+      "deleting": "Wird gelöscht…",
+      "revokeSuccess": "Kalender-Link gelöscht.",
+      "revokeError": "Der Kalender-Link konnte nicht gelöscht werden.",
+      "copy": "Kopieren"
+    },
     "menu": "Einstellungen"
   },
   "form": {

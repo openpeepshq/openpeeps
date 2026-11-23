@@ -75,6 +75,7 @@ export type MainStackParamList = {
   PushEnabledDevices: undefined;
   AccountSettings: undefined;
   AccessTokensSettings: undefined;
+  CalendarFeedSettings: undefined;
   ThemeSettings: undefined;
   FeedSettings: undefined;
   BlockedSettings: undefined;

@@ -100,6 +100,7 @@ export { AdminConfigurationEmail } from './admin/ConfigurationEmail';
 export { AdminConfigurationSso } from './admin/ConfigurationSso';
 export { AdminConfigurationSsoNew } from './admin/ConfigurationSsoNew';
 export { AccessTokensSettings } from './settings/AccessTokens';
+export { CalendarFeedSettings } from './settings/CalendarFeed';
 export { BlockedSettings } from './settings/Blocked';
 export { LanguageSettings } from './settings/Language';
 export { TimezoneSettings } from './settings/Timezone';

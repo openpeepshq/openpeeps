@@ -27,6 +27,7 @@ import {
   AccountSettings,
   ThemeSettings,
   AccessTokensSettings,
+  CalendarFeedSettings,
   FeedSettings,
   BlockedSettings,
   VideoPlayer,
@@ -152,6 +153,10 @@ export const MainNavigator = () => {
       <Stack.Screen
         name="AccessTokensSettings"
         component={AccessTokensSettings}
+      />
+      <Stack.Screen
+        name="CalendarFeedSettings"
+        component={CalendarFeedSettings}
       />
       <Stack.Screen name="BlockedSettings" component={BlockedSettings} />
       <Stack.Screen name="LanguageSettings" component={LanguageSettings} />

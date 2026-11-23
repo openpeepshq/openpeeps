@@ -3044,6 +3044,20 @@
       "revoked": "Revoked",
       "scopeRequired": "At least one scope is required",
       "scopes": "Scopes"
+    },
+    "calendarFeed": {
+      "title": "Calendar feed",
+      "description": "Subscribe to the local events in your calendar app",
+      "introTitle": "Subscribe to the calendar",
+      "introDescription": "Get an iCalendar (ICS) feed with the local events, ready to import into any calendar app that supports subscriptions. Creating a link here replaces and revokes any previous one, and each link expires after 90 days.",
+      "create": "Create calendar link",
+      "creating": "Creating…",
+      "createError": "Could not create the calendar link.",
+      "delete": "Delete link",
+      "deleting": "Deleting…",
+      "revokeSuccess": "Calendar link deleted.",
+      "revokeError": "Could not delete the calendar link.",
+      "copy": "Copy"
     }
   },
   "form": {

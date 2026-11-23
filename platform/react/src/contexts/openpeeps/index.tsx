@@ -280,6 +280,7 @@ export const OpenpeepsProvider: React.FC<{
         currentProfile,
         currentAccount,
         queryClient,
+        baseUrl,
       }}
     >
       <QueryClientProvider client={queryClient}>
