@@ -7,27 +7,49 @@ import type { MediaStream } from '@livekit/react-native-webrtc';
 const asWebRtcStream = (track?: Track): MediaStream | undefined =>
   track?.mediaStream as MediaStream | undefined;
 
-// A single remount is not enough for the first share of a call: the JS stream
-// reports its video track (SDP apply) a beat before the native stream has the
-// track registered (first frame / dynacast), so the native one-shot `streamURL`
-// lookup that a single remount triggers can still run empty. A short, bounded
-// burst of remounts after the first track appears gives the native attach a few
-// chances to land once the stream is ready. Each extra remount is a cheap
-// native view recreation, and the burst only happens on the rare late-share
-// path — an already-attached share never sees one.
+// A single remount is not enough for a late share: the JS stream reports its
+// video track (SDP apply) before the native stream has the track registered
+// (first frame / dynacast), so the native one-shot `streamURL` lookup that a
+// remount triggers can run empty. The retry schedule below gives the attach a
+// sequence of bounded chances to land while the native stream settles. Each
+// extra remount is a cheap native view recreation, and the whole schedule only
+// ever runs on the rare late-share path — an already-attached share never
+// sees any of it.
 //
-// The burst is bounded and self-clearing: `RETRY_BURST_ATTEMPTS = 4` ticks at
-// `RETRY_BURST_INTERVAL_MS = 300`; the first three ticks bump (300/600/900 ms
-// after the transition bump, ~1.2 s window), and the fourth (1200 ms) is
-// consumed by the interval-clear branch — so exactly 3 extra remounts land.
+// The schedule has two parts:
+//
+// 1. A tight burst right after the first track appears: `RETRY_BURST_ATTEMPTS`
+//    = 4 ticks at `RETRY_BURST_INTERVAL_MS` = 300; the first three ticks bump
+//    (300/600/900 ms after the transition bump) and the fourth (1200 ms) is
+//    consumed by the interval-clear branch — so exactly 3 extra remounts land
+//    within ~1.2 s. This covers the warm-connection case (subsequent shares),
+//    where the native stream registers its track almost at the same time as
+//    the JS one.
+//
+// 2. A sparse tail: `RETRY_TAIL_ATTEMPTS` = 5 ticks at
+//    `RETRY_TAIL_INTERVAL_MS` = 2000 ms each — ticks 1–4 bump (remounts at
+//    2 s, 4 s, 6 s and 8 s after the burst ends) and tick 5 (10 s) is
+//    consumed by the interval-clear branch, exactly as the burst's 4th tick
+//    clears it (the N constant counts ticks, the last one clears). The FIRST
+//    share in a Jam adds a new m-line, so the receiver renegotiates and
+//    re-establishes ICE before the native stream registers the video track —
+//    that can take several seconds, well past the ~1.2 s burst. The tail is
+//    the part that fixes that case (verified against the QA report: the
+//    initial share of a Jam stayed black while subsequent shares worked).
+//    After the tail's clear tick, the schedule is fully over and
+//    self-cleared: no further remounts and no live timers.
 const RETRY_BURST_ATTEMPTS = 4;
 const RETRY_BURST_INTERVAL_MS = 300;
+const RETRY_TAIL_ATTEMPTS = 5;
+const RETRY_TAIL_INTERVAL_MS = 2000;
 
 export interface LateTrackMediaStream {
   /**
-   * Changes when the stream gains its first video track and again on a short
-   * burst of retries immediately after, so the native view re-runs its
-   * one-shot `streamURL` attach a few times while the native stream settles.
+   * Changes when the stream gains its first video track and again on the
+   * bounded retry schedule (tight burst, then sparse backoff tail) while the
+   * native stream settles, so the native view re-runs its one-shot `streamURL`
+   * attach until it can succeed — including the first share of a Jam, whose
+   * renegotiation delays the native track registration past the burst window.
    */
   remountKey: number;
 }
@@ -41,8 +63,8 @@ export interface LateTrackMediaStream {
  * that lookup runs before the stream carries its video track, iOS gives up (no
  * retry) and the tile stays black until we leave and rejoin. Re-keying the
  * `VideoTrack` with `remountKey` remounts the native view when the stream gains
- * its video track — and again a few times over the next second or so — so the
- * one-shot lookup re-runs until it can succeed.
+ * its video track — and again on the bounded retry schedule — so the one-shot
+ * lookup re-runs until it can succeed.
  *
  * The poll is not redundant with the `addtrack` listener: on the first share,
  * `addtrack` fires inside the native SDP-apply batch, before the room re-emits
@@ -72,6 +94,23 @@ export const useLateTrackMediaStream = (
 
     let pollTimer: ReturnType<typeof setInterval> | undefined;
     let burstTimer: ReturnType<typeof setInterval> | undefined;
+    let tailTimer: ReturnType<typeof setInterval> | undefined;
+
+    const startTail = () => {
+      // Sparse retries for the first share of a Jam: its m-line forces a
+      // receiver-side renegotiation, so the native stream can register its
+      // video track seconds after the JS-side SDP apply — past the tight
+      // burst. Remounts at 2 s, 4 s, 6 s and 8 s after the burst (ticks 1–4
+      // bump); the 5th tick (10 s) clears the interval and ends the schedule.
+      let extra = 0;
+      tailTimer = setInterval(() => {
+        if (++extra >= RETRY_TAIL_ATTEMPTS) {
+          clearInterval(tailTimer!);
+          return;
+        }
+        setRemountKey((key) => key + 1);
+      }, RETRY_TAIL_INTERVAL_MS);
+    };
 
     const startBurst = () => {
       // The first track just appeared: the view re-mounts once for it (key
@@ -83,6 +122,7 @@ export const useLateTrackMediaStream = (
       burstTimer = setInterval(() => {
         if (++extra >= RETRY_BURST_ATTEMPTS) {
           clearInterval(burstTimer!);
+          startTail();
           return;
         }
         setRemountKey((key) => key + 1);
@@ -116,6 +156,7 @@ export const useLateTrackMediaStream = (
     return () => {
       if (pollTimer) clearInterval(pollTimer);
       if (burstTimer) clearInterval(burstTimer);
+      if (tailTimer) clearInterval(tailTimer);
       mediaStream.removeEventListener('addtrack', refresh);
       prevCountRef.current = 0;
     };

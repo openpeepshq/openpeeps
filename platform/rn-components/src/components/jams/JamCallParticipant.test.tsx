@@ -3,7 +3,7 @@
  * is keyed by the late-track `remountKey`, so when a first mid-Jam remote
  * camera publish delivers its video track late, the native view remounts and
  * re-runs its one-shot `streamURL` attach (one transition remount plus the
- * hook's short bounded burst, then it stops).
+ * hook's retry schedule — tight burst first, then the sparse tail).
  *
  * The real `JamCallParticipant` and the real `useLateTrackMediaStream` run;
  * only the module surfaces the test cannot load under jest are stubbed
@@ -265,13 +265,15 @@ describe('JamCallParticipant camera tile wiring', () => {
       });
       expect(tile.mounts()).toBe(6);
 
-      // The burst is bounded: the fourth tick only clears the interval, and
-      // nothing remounts after that.
+      // The tight burst is bounded: the fourth tick (1200 ms) clears the
+      // interval, and nothing further remounts up to the tail's first tick
+      // (3200 ms) — advance just before it. The tail's remounts at 2 s
+      // intervals are covered by the hook's own suite
+      // (`useLateTrackMediaStream.test.ts`, "sparse backoff tail"); a camera
+      // publish mid-Jam does not renegotiate, so it stays within the burst
+      // window.
       ReactTestRenderer.act(() => {
-        jest.advanceTimersByTime(300);
-      });
-      ReactTestRenderer.act(() => {
-        jest.advanceTimersByTime(300 * 10);
+        jest.advanceTimersByTime(1900);
       });
       expect(tile.mounts()).toBe(6);
       tile.unmount();
