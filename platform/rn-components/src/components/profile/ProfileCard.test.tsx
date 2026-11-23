@@ -196,6 +196,37 @@ describe('ProfileCard select-mode row (issue #1666)', () => {
     expect(bioText).toBeUndefined();
   });
 
+  it('renders the handle as a muted, smaller secondary line in select mode', () => {
+    // Round-2 plan option B: name `text-base` + handle
+    // `text-muted-foreground text-sm` — two equal-weight 16dp lines leave the
+    // avatar sitting on the seam between them (issue #1666 QA rejections).
+    const handleText = (node: { props: { children?: unknown } }): string =>
+      Array.isArray(node.props.children)
+        ? node.props.children.join('')
+        : String(node.props.children);
+    const tree = renderCard({ actionType: 'select' });
+    const handle = tree.root
+      .findAllByType('ThemedText')
+      .find((node: { props: { children?: unknown } }) =>
+        handleText(node).startsWith('@lovelace.example')
+      );
+    expect(handle).toBeDefined();
+    expect(handle.props.className).toBe(
+      'text-muted-foreground text-sm truncate'
+    );
+    expect(handle.props.numberOfLines).toBe(1);
+
+    // Non-select cards keep the default handle styling.
+    const bigTree = renderCard();
+    const bigHandle = bigTree.root
+      .findAllByType('ThemedText')
+      .find((node: { props: { children?: unknown } }) =>
+        handleText(node).startsWith('@lovelace.example')
+      );
+    expect(bigHandle).toBeDefined();
+    expect(bigHandle.props.className).toBe('truncate');
+  });
+
   it('keeps the 40dp avatar and the compact row padding in select mode', () => {
     const tree = renderCard({ actionType: 'select' });
     expect(

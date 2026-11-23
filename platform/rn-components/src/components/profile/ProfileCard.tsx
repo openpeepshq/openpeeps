@@ -138,7 +138,19 @@ export const ProfileCard = ({
             >
               {truncateText(profile.displayName, 18) || profile.handle}
             </ThemedText>
-            <ThemedText className="truncate" numberOfLines={1}>
+            {/* Round-2 plan (comment 22096) option B: the handle is a
+                muted, smaller secondary line. Two equal-weight 16dp lines
+                leave the 40dp avatar sitting on the seam between them —
+                the "picture not aligned with the name" read the QA rounds
+                kept reporting (issue #1666). */}
+            <ThemedText
+              className={
+                selectRow
+                  ? 'text-muted-foreground text-sm truncate'
+                  : 'truncate'
+              }
+              numberOfLines={1}
+            >
               @{profile.handle}
             </ThemedText>
             {bio && !selectRow ? (
