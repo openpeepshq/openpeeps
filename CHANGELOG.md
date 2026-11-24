@@ -5,11 +5,15 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **settings**: calendar feed link create/delete UI on web and RN
+- **admin**: community reaction picker + removable default emojis
+- **post**: record voice notes for statuses (up to 90s)
+- **export**: async GDPR personal-data export with zip + one-time token
+- **jams**: let moderators remove a participant and lift the ban (issue #303)
 - **posts**: community-configurable post reactions
 - **jams**: opt-in community jam broadcasts and group-scoped start alerts
 - **jams**: toast moderators when someone joins the waiting room
 - **profiles**: let members opt out of the community directory
-- **settings**: calendar feed link create/delete UI on web and RN
 - **events**: server-side ICS feed with per-profile subscription tokens
 - **posts**: choose from a set of post reactions
 - **notifications**: per-type filter for the notifications feed
@@ -38,6 +42,10 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **settings**: make notification save bar span full width on mobile
+- **skills**: use plural milestone filter + per-mode milestone stats
+- **profiles**: read auto-follow config fresh in worker once-queue handler
+- **deps**: upgrade archiver from 7.0.1 to 8.0.0 in platform/core
 - **deps**: upgrade firebase-admin from 13.10.0 to 14.5.1 in core
 - **resources**: stop long category names overflowing cards, trees and breadcrumbs
 - **rn-components**: stop clipping thread-reply author names in compact strips
@@ -143,6 +151,8 @@ Changelog for OpenPeeps
 
 ### Documentation
 
+- **agents**: mandate PUT-by-id label replace-all in the in-progress protocol
+- **deps**: name issue #2267 in the @sentry/node remediation posture note
 - **agents**: add terminal discipline rules to prevent stuck runs
 - **agents**: document worktree install rules for dependency changes
 - **flow**: let review push test/doc/quality/dependency-only rounds straight back to implement
@@ -155,6 +165,7 @@ Changelog for OpenPeeps
 
 ### Chores
 
+- **deps**: override glob 9/10 to 14.0.6 (GHSA-3g3m-2fjr-6pw4)
 - **deps**: upgrade @sentry/node from 9.13.0 to 10.78.0 to resolve opentelemetry vulnerabilities
 - **deps**: upgrade bullmq 5.34.7 to 5.81.5 and override uuid to 11.1.1
 - **deps**: override esbuild to 0.25.12 in the @esbuild-kit chain
@@ -174,6 +185,10 @@ Changelog for OpenPeeps
 - **deps**: remove redundant pnpm overrides and pin dompurify (fix #2025)
 - **pnpm**: force fast-jwt 6.3.6 override to clear multiple advisories (3 critical)
 - **deps**: remove unused turbo devDependency from rn-components
+
+## 2026-11-23
+
+- No changes
 
 ## 2026-11-05
 
