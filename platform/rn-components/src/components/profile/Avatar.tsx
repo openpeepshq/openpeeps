@@ -71,7 +71,15 @@ export const ProfileAvatar = ({
       )}
       style={{ backgroundColor: initialsBg }}
     >
-      <Text className="text-foreground font-medium" style={{ fontSize }}>
+      {/* lineHeight = fontSize + no font padding make the text box exactly the
+          glyph height, so items-center centers the initials on the circle —
+          the default line-height/font-metric padding leaves the box taller than
+          the glyphs and pushes them down (issue #1666 QA: initials avatars sit
+          low while image avatars align). */}
+      <Text
+        className="text-foreground font-medium"
+        style={{ fontSize, lineHeight: fontSize, includeFontPadding: false }}
+      >
         {getInitials(profile?.displayName, profile?.handle)}
       </Text>
     </View>

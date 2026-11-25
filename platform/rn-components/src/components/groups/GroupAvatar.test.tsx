@@ -113,10 +113,14 @@ const findTile = (tree: ReturnType<typeof ReactTestRenderer.create>) =>
     );
 
 // The tile's single child is the initials Text (not an array).
-const tileFontSize = (tree: ReturnType<typeof ReactTestRenderer.create>) => {
+const tileText = (tree: ReturnType<typeof ReactTestRenderer.create>) => {
   const child = findTile(tree)?.props?.children;
-  return (Array.isArray(child) ? child[0] : child)?.props?.style?.fontSize;
+  return (Array.isArray(child) ? child[0] : child)?.props;
 };
+
+const tileFontSize = (
+  tree: ReturnType<typeof ReactTestRenderer.create>
+): number | undefined => tileText(tree)?.style?.fontSize;
 
 describe('GroupAvatar loading-gap fix (issue #1666 round-4 review item 2)', () => {
   it('renders the initials tile behind the image while the group avatar is still loading', () => {
@@ -162,5 +166,19 @@ describe('GroupAvatar loading-gap fix (issue #1666 round-4 review item 2)', () =
     expect(tileFontSize(renderGroupAvatar(baseGroup, 'size-24'))).toBe(36);
     expect(tileFontSize(renderGroupAvatar(baseGroup, 'w-12 h-12'))).toBe(18);
     expect(tileFontSize(renderGroupAvatar(baseGroup, 'size-14'))).toBe(21);
+  });
+
+  it('centers the initials glyph deterministically: lineHeight = fontSize and no font padding (issue #1666 QA 2026-11-24)', () => {
+    // The QA report: initials/fallback avatars sit low in the selection chips
+    // while image avatars align. The image is a true square disc; the initials
+    // must be the same. Without an explicit lineHeight the text box is the
+    // platform font line-height (taller than the glyphs) plus font-metric
+    // padding, so items-center centers the *box* below the *glyph*. lineHeight
+    // = fontSize + includeFontPadding: false make the box exactly glyph height
+    // — pin both so a revert fails.
+    const tree = renderGroupAvatar(baseGroup);
+    const text = tileText(tree);
+    expect(text.style.lineHeight).toBe(text.style.fontSize);
+    expect(text.style.includeFontPadding).toBe(false);
   });
 });

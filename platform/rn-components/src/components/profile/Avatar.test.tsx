@@ -229,4 +229,23 @@ describe('ProfileAvatar SVG path selection (issue #1666 round-2 plan step 2)', (
       : tile.props.children;
     expect(text.props.style.fontSize).toBe(15);
   });
+
+  it('centers the initials glyph deterministically: lineHeight = fontSize and no font padding (issue #1666 QA 2026-11-24)', () => {
+    // The QA report: initials/fallback avatars sit low in the selection chips
+    // while image avatars align. The image branch is a true square disc; the
+    // initials must be the same. Without an explicit lineHeight the text box
+    // is the platform font line-height (taller than the glyphs) plus font-
+    // metric padding, so items-center centers the *box* below the *glyph*.
+    // lineHeight = fontSize + includeFontPadding: false make the box exactly
+    // glyph height — pin both so a revert fails.
+    const tree = renderAvatar(baseProfile);
+    const tile = tree.root
+      .findAllByType(MockView)
+      .find((node) => typeof node.props.style?.backgroundColor === 'string');
+    const text = Array.isArray(tile.props.children)
+      ? tile.props.children[0]
+      : tile.props.children;
+    expect(text.props.style.lineHeight).toBe(text.props.style.fontSize);
+    expect(text.props.style.includeFontPadding).toBe(false);
+  });
 });

@@ -62,7 +62,13 @@ export const GroupAvatar = ({
       )}
       style={{ backgroundColor }}
     >
-      <Text className="text-foreground font-medium" style={{ fontSize }}>
+      {/* lineHeight = fontSize + no font padding make the text box exactly the
+          glyph height, so items-center centers the initials on the circle
+          (issue #1666 QA: initials avatars sit low while image avatars align). */}
+      <Text
+        className="text-foreground font-medium"
+        style={{ fontSize, lineHeight: fontSize, includeFontPadding: false }}
+      >
         {getInitials(group?.displayName, group?.handle)}
       </Text>
     </View>
