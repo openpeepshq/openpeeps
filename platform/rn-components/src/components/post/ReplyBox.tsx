@@ -24,9 +24,9 @@ export const ReplyBox = ({ post }: ReplyBoxProps) => {
       accessibilityRole="button"
       accessibilityLabel={t('posts.replyBox.reply')}
       onPress={() => openReply(post)}
-      className="flex w-full flex-row items-center gap-x-2 border-b-2 border-border p-4"
+      className="flex w-full flex-row items-center gap-x-2 border-b-2 border-border pt-4 pb-6"
     >
-      <ProfileAvatar profile={profile} />
+      <ProfileAvatar profile={profile} className="size-10 shrink-0" />
       <View className="flex-row items-center justify-between flex-1 rounded-full border border-border px-4 py-3">
         <ThemedText>{t('posts.replyBox.addReplyPlaceholder')}</ThemedText>
         <ImageIcon size={20} className="ml-2 text-muted-foreground" />
