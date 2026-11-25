@@ -81,16 +81,20 @@ overrides:
   # and GHSA-g3hv-75wg-m249 — globparts amplification DoS, vulnerable
   # >=7.0.0 <11.0.1 (moderate; patched 11.0.1). No release in the 7.x-10.x
   # lines is patched, and no affected consumer declares a range that includes
-  # 11.x (glob 9: ^8.0.2, glob 10: ^9.0.4, typescript-estree: ^10.2.2,
-  # api-extractor: 10.2.3, @vue/language-core: ^9.0.3), so an in-range upgrade
+  # 11.x (typescript-estree: ^10.2.2, api-extractor: 10.2.3,
+  # @vue/language-core: ^9.0.3, readdir-glob: ^10.2.2), so an in-range upgrade
   # is impossible — the cross-major override to the patched line (11.0.9,
   # latest 11.x) is the only tree-wide fix. The earlier 8.0.7/9.0.9 pins were
   # themselves inside the vulnerable range. Consumers are lint/build tooling
-  # (glob 9 via babel-plugin-module-resolver, glob 10 via sucrase,
-  # typescript-estree, @eslint/config-array, @vue/language-core, api-extractor)
-  # plus one runtime-reachable leg — minimatch via archiver → readdir-glob
-  # (platform/core uses archiver at runtime) — though minimatch itself never
-  # ships in bundles.
+  # plus one runtime-reachable leg (minimatch via archiver → readdir-glob,
+  # platform/core uses archiver at runtime), though minimatch itself never
+  # ships in bundles. Split by declared range:
+  #   - declare ^11.0.5, resolve in-range (no override needed): eslint (direct),
+  #     @eslint/config-array, glob@14.0.6
+  #   - declare a pre-11 range, resolve 11.0.9 via this override:
+  #     babel-plugin-module-resolver (glob, via the glob override),
+  #     typescript-estree, @vue/language-core, api-extractor,
+  #     readdir-glob (the runtime-reachable leg)
   # The 11.x API surface used by those call sites was verified compatible. The
   # 3.x line (consumers glob 7/8, eslint-plugin-react, filelist, test-exclude)
   # sits below the advisory's >=7 floor and keeps its patched
@@ -199,11 +203,12 @@ overrides:
   # glob >=9 <14.0.2: AbortSignal cancellation bypass (GHSA-3g3m-2fjr-6pw4,
   # moderate) — the 9.3.5 / 10.5.0 pins from the wave-3 batch are themselves
   # vulnerable (advisory range is >=9.0.0 <=14.0.1). The only patched line is
-  # 14.x (first 14.0.2). Three consumers of glob 9/10, all dev/build tooling
-  # plus archiver's server-side zip path:
-  #   - archiver-utils 5.0.2 (wants glob ^10.0.0; archiver ^7, platform/core): glob.sync
-  #   - sucrase 3.35.0 (wants glob ^10.3.10; tailwindcss ^3, dev tooling): glob.glob
-  #   - babel-plugin-module-resolver 5.0.2 (wants glob ^9.3.3; react-native-builder-bob dev tooling):
+  # 14.x (first 14.0.2). One remaining consumer of glob 9/10, dev/build
+  # tooling (archiver@8's server-side zip path went through readdir-glob,
+  # not archiver-utils/glob; sucrase's glob leg was removed by the 3.35.1
+  # override below):
+  #   - babel-plugin-module-resolver 5.0.2 (wants glob ^9.3.3; react-native-builder-bob dev tooling
+  #     for platform/rn-components and react-native-components-example):
   #     _interopRequireDefault(require('glob')).default — glob >=10 (CJS) sets
   #     __esModule: true but exports no default, so the plugin's glob call
   #     sites (normalizeRoot: hasMagic/sync) crash with "Cannot read properties
@@ -217,10 +222,18 @@ overrides:
   #     it that way. The 9.3.5 resolved for that consumer before the override
   #     does export `default`, so this one consumer is a behavior-visible
   #     change on a latent path, not a no-op.
-  # The two named call sites (glob.sync, glob.glob) use the stable named v8+
-  # API that is unchanged through 14.x, so 14.0.6 (latest 14.x) resolves
-  # cleanly.
+  # The named call site uses the stable named v8+ API that is unchanged
+  # through 14.x, so 14.0.6 (latest 14.x) resolves cleanly.
   "glob@>=9 <14.0.2": "14.0.6"
+  # sucrase 3.35.0 (pulled by tailwindcss 3.x's build-time tooling — one
+  # consumer, @openpeepshq/rn-components, declares tailwindcss as a runtime
+  # dependency) pulls the vulnerable glob@^10.3.10; 3.35.1 (latest 3.x)
+  # dropped glob for tinyglobby, which the tree already resolves
+  # (0.2.15 / 0.2.17). Force the patched release so a fresh resolution cannot
+  # re-introduce the glob 10 leg — advisory GHSA-3g3m-2fjr-6pw4 then has no
+  # sucrase path left, and tailwindcss 4.x (issue #2271) can proceed without
+  # the interim pin.
+  sucrase: "3.35.1"
   # picomatch 2.3.1 / 4.0.2 (ReDoS high + method injection moderate)
   "picomatch@>=2 <2.3.2": "2.3.2"
   "picomatch@>=4 <4.0.4": "4.0.4"

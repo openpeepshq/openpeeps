@@ -53,6 +53,7 @@ overrides:
   glob@7: 7.2.3
   glob@8: 8.1.0
   glob@>=9 <14.0.2: 14.0.6
+  sucrase: 3.35.1
   picomatch@>=2 <2.3.2: 2.3.2
   picomatch@>=4 <4.0.4: 4.0.4
   lodash@<4.18.1: 4.18.1
@@ -14479,8 +14480,8 @@ packages:
   stylis@4.4.0:
     resolution: {integrity: sha512-5Z9ZpRzfuH6l/UAvCPAPUo3665Nk2wLaZU3x+TLHKVzIz33+sbJqbtrYoC3KD4/uVOr2Zp+L0LySezP9OHV9yA==}
 
-  sucrase@3.35.0:
-    resolution: {integrity: sha512-8EbVDiu9iN/nESwxeSxDKe0dunta1GOlHufmSSXxMD2z2/tMZpDMpvXQGsc+ajGo8y2uYUmixaSRUc/QPoQ0GA==}
+  sucrase@3.35.1:
+    resolution: {integrity: sha512-DhuTmvZWux4H1UOnWMB3sk0sbaCVOoQZjv8u1rDoTV0HTdGem9hkAZtl4JZy8P2z4Bg0nT+YMeOFyVr4zcG5Tw==}
     engines: {node: '>=16 || 14 >=14.17'}
     hasBin: true
 
@@ -30292,14 +30293,14 @@ snapshots:
 
   stylis@4.4.0: {}
 
-  sucrase@3.35.0:
+  sucrase@3.35.1:
     dependencies:
       '@jridgewell/gen-mapping': 0.3.13
       commander: 4.1.1
-      glob: 14.0.6
       lines-and-columns: 1.2.4
       mz: 2.7.0
       pirates: 4.0.6
+      tinyglobby: 0.2.17
       ts-interface-checker: 0.1.13
 
   supports-color@7.2.0:
@@ -30354,7 +30355,7 @@ snapshots:
       postcss-nested: 6.2.0(postcss@8.5.32)
       postcss-selector-parser: 6.1.5
       resolve: 1.22.12
-      sucrase: 3.35.0
+      sucrase: 3.35.1
     transitivePeerDependencies:
       - ts-node
 
@@ -30381,7 +30382,7 @@ snapshots:
       postcss-nested: 6.2.0(postcss@8.5.32)
       postcss-selector-parser: 6.1.5
       resolve: 1.22.12
-      sucrase: 3.35.0
+      sucrase: 3.35.1
     transitivePeerDependencies:
       - ts-node
 
