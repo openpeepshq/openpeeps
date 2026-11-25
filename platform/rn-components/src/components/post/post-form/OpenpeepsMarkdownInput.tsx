@@ -5,6 +5,7 @@ import {
   ScrollView,
   View,
   type NativeSyntheticEvent,
+  type TextInput,
   type TextInputSelectionChangeEventData,
 } from 'react-native';
 import { visibleTextLength, type PublicProfile } from '@openpeepshq/common';
@@ -17,6 +18,11 @@ import { Textarea } from '../../ui/textarea';
 import { ThemedText } from '../../ui/themed-text';
 import { toAbsoluteMediaUrl } from '../../../lib/media-url';
 import { cn, maxContentLength } from '../../../lib/utils';
+import {
+  applyMarkdownFormat,
+  type MarkdownFormat,
+  type TextSelection,
+} from './markdownFormat';
 
 export interface OpenpeepsMarkdownInputProps {
   value: string;
@@ -36,6 +42,12 @@ export interface OpenpeepsMarkdownInputProps {
   className?: string;
   testId?: string;
   autoFocus?: boolean;
+  /**
+   * Formatting buttons for long-form markdown. React Native has no
+   * content-editable surface that round-trips this markdown, so the buttons
+   * insert the same syntax the web visual editor writes.
+   */
+  formattingToolbar?: boolean;
 }
 
 const mentionQueryFrom = (text: string, cursor: number) => {
@@ -59,6 +71,7 @@ export const OpenpeepsMarkdownInput = ({
   className,
   testId,
   autoFocus = false,
+  formattingToolbar = false,
 }: OpenpeepsMarkdownInputProps) => {
   const { t } = useTranslation();
   const { openpeepsApi } = useOpenpeeps();
@@ -74,6 +87,14 @@ export const OpenpeepsMarkdownInput = ({
   }, [value]);
 
   const cursorRef = useRef(value.length);
+  const selectionRef = useRef<TextSelection>({
+    start: value.length,
+    end: value.length,
+  });
+  const inputRef = useRef<TextInput>(null);
+  const [forcedSelection, setForcedSelection] = useState<
+    TextSelection | undefined
+  >(undefined);
 
   valueRef.current = value;
 
@@ -115,9 +136,30 @@ export const OpenpeepsMarkdownInput = ({
   const handleSelectionChange = (
     event: NativeSyntheticEvent<TextInputSelectionChangeEventData>
   ) => {
-    const cursor = event.nativeEvent.selection.start;
-    cursorRef.current = cursor;
-    updateMentionState(valueRef.current, cursor);
+    const nextSelection = event.nativeEvent.selection;
+    cursorRef.current = nextSelection.start;
+    selectionRef.current = nextSelection;
+    updateMentionState(valueRef.current, nextSelection.start);
+  };
+
+  const applyFormat = (kind: MarkdownFormat) => {
+    const linkLabel = t('form.richMarkdown.linkText', {
+      defaultValue: 'link',
+    });
+    const result = applyMarkdownFormat(
+      valueRef.current,
+      selectionRef.current,
+      kind,
+      linkLabel
+    );
+    if (visibleTextLength(result.value) > maxLength) return;
+    onChange(result.value);
+    valueRef.current = result.value;
+    selectionRef.current = result.selection;
+    cursorRef.current = result.selection.start;
+    setForcedSelection(result.selection);
+    requestAnimationFrame(() => setForcedSelection(undefined));
+    inputRef.current?.focus();
   };
 
   const insertMention = (profile: PublicProfile) => {
@@ -142,6 +184,8 @@ export const OpenpeepsMarkdownInput = ({
 
   // With the native cap on (blockOverflow) the counter tracks the raw length
   // it enforces; otherwise it tracks the visible text the submit check uses.
+  // The web rich surface always counts visible text, so the metric can differ
+  // between the two — an accepted divergence.
   const shownLength = blockOverflow ? value.length : visibleTextLength(value);
   const overLimit = shownLength > maxLength;
 
@@ -182,6 +226,78 @@ export const OpenpeepsMarkdownInput = ({
             </Pressable>
           </View>
 
+          {formattingToolbar ? (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="mb-2"
+            >
+              <View className="flex-row gap-1">
+                {(
+                  [
+                    ['bold', 'B', 'form.richMarkdown.toolbar.bold', 'Bold'],
+                    [
+                      'italic',
+                      'I',
+                      'form.richMarkdown.toolbar.italic',
+                      'Italic',
+                    ],
+                    [
+                      'heading',
+                      'H',
+                      'form.richMarkdown.toolbar.blockTypes.heading',
+                      'Heading',
+                    ],
+                    [
+                      'list',
+                      '•',
+                      'form.richMarkdown.toolbar.bulletedList',
+                      'Bulleted list',
+                    ],
+                    [
+                      'quote',
+                      '❝',
+                      'form.richMarkdown.toolbar.blockTypes.quote',
+                      'Quote',
+                    ],
+                    ['link', '↗', 'form.richMarkdown.toolbar.link', 'Link'],
+                    [
+                      'code',
+                      '</>',
+                      'form.richMarkdown.toolbar.inlineCode',
+                      'Code',
+                    ],
+                  ] as const
+                ).map(([kind, glyph, key, fallback]) => (
+                  // `level: 2` is required by the `blockTypes.heading`
+                  // "Heading {{level}}" template (used by both the web
+                  // BlockTypeSelect and this RN button); 2 matches the `## `
+                  // the button actually inserts.
+                  <Pressable
+                    key={kind}
+                    accessibilityRole="button"
+                    accessibilityLabel={t(key, {
+                      defaultValue: fallback,
+                      level: 2,
+                    })}
+                    onPress={() => applyFormat(kind)}
+                    className="h-9 min-w-9 items-center justify-center rounded-md border border-border bg-background px-2"
+                  >
+                    <ThemedText
+                      className={cn(
+                        'text-sm',
+                        kind === 'bold' && 'font-bold',
+                        kind === 'italic' && 'italic'
+                      )}
+                    >
+                      {glyph}
+                    </ThemedText>
+                  </Pressable>
+                ))}
+              </View>
+            </ScrollView>
+          ) : null}
+
           {showMentions ? (
             <ScrollView
               keyboardShouldPersistTaps="handled"
@@ -209,6 +325,7 @@ export const OpenpeepsMarkdownInput = ({
           ) : null}
 
           <Textarea
+            ref={inputRef}
             autoFocus={autoFocus}
             numberOfLines={rows}
             value={value}
@@ -218,6 +335,7 @@ export const OpenpeepsMarkdownInput = ({
             onSelectionChange={handleSelectionChange}
             testID={testId}
             className={cn('min-h-[80px]', className)}
+            {...(forcedSelection ? { selection: forcedSelection } : {})}
           />
         </>
       )}
@@ -229,6 +347,55 @@ export const OpenpeepsMarkdownInput = ({
           {shownLength} / {maxLength}
         </ThemedText>
       </View>
+    </View>
+  );
+};
+
+/**
+ * Posts and messages keep the textarea and can show the formatting bar.
+ *
+ * The shared `form.composerMode.richText` key ("Rich text") intentionally
+ * covers both platforms' mode toggles: on web it switches to the visual
+ * editor, on native it only reveals the formatting toolbar over the same
+ * textarea, so keep copy edits platform-neutral.
+ *
+ * The web composer's toggle switches to a separate visual editor that honors
+ * only `value`, `onChange`, `maxLength`, `placeholder` and `testId` (its
+ * JSDoc lists `rows`, `blockOverflow`, `previewButton` and `className` as
+ * markdown-mode-only). This RN composer instead keeps the same
+ * `OpenpeepsMarkdownInput` in both modes, so every prop is honored in both —
+ * the only mode-specific behavior is `formattingToolbar`, which the toggle
+ * drives (on in rich mode) rather than being passed through. The prop type
+ * stays `OpenpeepsMarkdownInputProps` to match the web component.
+ */
+export const OpenpeepsComposerInput = (props: OpenpeepsMarkdownInputProps) => {
+  const { t } = useTranslation();
+  const [rich, setRich] = useState(false);
+  return (
+    <View className="w-full">
+      <View className="mb-2 flex-row gap-2">
+        <Button
+          size="sm"
+          variant={rich ? 'outline' : 'default'}
+          accessibilityState={{ selected: !rich }}
+          onPress={() => setRich(false)}
+        >
+          <ThemedText>
+            {t('form.composerMode.markdown', { defaultValue: 'Markdown' })}
+          </ThemedText>
+        </Button>
+        <Button
+          size="sm"
+          variant={rich ? 'default' : 'outline'}
+          accessibilityState={{ selected: rich }}
+          onPress={() => setRich(true)}
+        >
+          <ThemedText>
+            {t('form.composerMode.richText', { defaultValue: 'Rich text' })}
+          </ThemedText>
+        </Button>
+      </View>
+      <OpenpeepsMarkdownInput {...props} formattingToolbar={rich} />
     </View>
   );
 };

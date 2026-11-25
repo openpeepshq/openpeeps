@@ -22,7 +22,7 @@ import { ThemedText } from '../../components/ui/themed-text';
 import { MediaAttachment, Profile, PublicProfile } from '@openpeepshq/common';
 import { ImagePickerSheet } from '../../components/custom/index';
 import { ComposeAttachments } from '../../components/post/post-form/ComposeAttachments';
-import { OpenpeepsMarkdownInput } from '../../components/post/post-form/OpenpeepsMarkdownInput';
+import { OpenpeepsComposerInput } from '../../components/post/post-form/OpenpeepsMarkdownInput';
 import { Button } from '../../components/ui/button';
 import { useTranslation } from 'react-i18next';
 import { maxContentLength } from '../../lib/utils';
@@ -113,7 +113,7 @@ export const DraftMessage = ({ navigation }: DraftMessageProps) => {
               }
             />
           ) : null}
-          <OpenpeepsMarkdownInput
+          <OpenpeepsComposerInput
             rows={5}
             blockOverflow={false}
             value={message}

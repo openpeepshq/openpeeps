@@ -121,8 +121,11 @@ vi.mock('./ComposePreviewLinks', () => ({
   ComposePreviewLinks: () => null,
 }));
 
-vi.mock('./OpenpeepsMarkdownInput', () => ({
-  OpenpeepsMarkdownInput: (props: {
+// Note and question render the visual editor directly; stub it with a
+// textarea keyed off testId so the type-switch round-trip assertions still
+// read the same `posts-composer-content` field.
+vi.mock('./OpenpeepsRichMarkdownInput', () => ({
+  OpenpeepsRichMarkdownInput: (props: {
     value?: string;
     onChange?: (value: string) => void;
     testId?: string;

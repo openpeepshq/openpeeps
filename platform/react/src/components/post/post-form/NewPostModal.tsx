@@ -13,6 +13,7 @@ import {
   POLL_DEFAULT_EXPIRY_MS,
   isCommunityWideVisibility,
   pollOptionsWithinLimit,
+  POST_MAX_VISIBLE_LENGTH,
   resolvePollOptionContents,
   visibleTextLength,
   type GroupWithMeta,
@@ -41,7 +42,7 @@ import {
 } from '../../../stores/newPosts';
 import { useComposeAttachments } from './ComposeAttachments';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
-import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
+import { OpenpeepsRichMarkdownInput } from './OpenpeepsRichMarkdownInput';
 import { PollComposerFields, pollOptionLabel } from './PollComposerFields';
 import { PostAudienceSelector } from './PostAudienceSelector';
 import { PostTypeSwitcher } from './PostTypeSwitcher';
@@ -391,12 +392,16 @@ export function NewPostModal({
               </button>
             ) : null}
 
-            <OpenpeepsMarkdownInput
-              rows={5}
-              blockOverflow={false}
+            {/* Note and question both use the visual editor directly: its
+                toolbar already carries the rich-text / source switch, so no
+                external Markdown / Rich text toggle and no markdown preview
+                here. The budget is the shared post limit (visible text). */}
+            <OpenpeepsRichMarkdownInput
               value={content}
               onChange={setContent}
+              maxLength={POST_MAX_VISIBLE_LENGTH}
               testId="posts-composer-content"
+              compact
               placeholder={
                 composerType === 'question'
                   ? t('posts.form.poll.question', {

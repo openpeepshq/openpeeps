@@ -1,6 +1,6 @@
 {
   "name": "@openpeepshq/react",
-  "version": "0.26.0",
+  "version": "0.27.0",
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
@@ -43,6 +43,7 @@
     "@hookform/resolvers": "^5.4.2",
     "@livekit/components-react": "^2.9.21",
     "@livekit/components-styles": "^1.1.6",
+    "@mdxeditor/editor": "4.5.0",
     "@openpeepshq/client": "workspace:^",
     "@openpeepshq/common": "workspace:^",
     "@openpeepshq/greenscreen": "workspace:^",

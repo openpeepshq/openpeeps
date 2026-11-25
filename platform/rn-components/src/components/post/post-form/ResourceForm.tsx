@@ -30,7 +30,7 @@ import {
 import { Input } from '../../ui/input';
 import { ThemedText } from '../../ui/themed-text';
 import { ComposeAttachments } from './ComposeAttachments';
-import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
+import { OpenpeepsComposerInput } from './OpenpeepsMarkdownInput';
 import { VisibilitySelector } from './VisibilitySelector';
 import { CategoryPathPicker } from '../../resources/CategoryPathPicker';
 
@@ -260,9 +260,10 @@ export const ResourceForm = ({
           </>
         )}
 
-        <OpenpeepsMarkdownInput
+        <OpenpeepsComposerInput
           rows={8}
           maxLength={4000}
+          previewButton={false}
           value={resource.content ?? ''}
           onChange={(content) => patchResource({ content })}
           placeholder={t('resources.form.descriptionPlaceholder', {

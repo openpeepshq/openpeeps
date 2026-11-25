@@ -3,6 +3,7 @@ import { AudioLines, Image, Mic, Paperclip } from 'lucide-react';
 import {
   canSubmitPostContent,
   pollOptionsWithinLimit,
+  POST_MAX_VISIBLE_LENGTH,
   resolvePollOptionContents,
   visibleTextLength,
 } from '@openpeepshq/common';
@@ -24,7 +25,7 @@ import { resetReplyData, useReplyStore } from '../../../stores/newPosts';
 import { isSwitchablePostData, toNote, toQuestion } from '../../../lib/post';
 import { CompactReplyParent } from '../CompactReplyParent';
 import { Avatar } from '../../profile';
-import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
+import { OpenpeepsRichMarkdownInput } from './OpenpeepsRichMarkdownInput';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
 import { useComposeAttachments } from './ComposeAttachments';
 import { PostTypeSwitcher } from './PostTypeSwitcher';
@@ -203,11 +204,16 @@ export function ReplyModal({ post, onClose }: ReplyModalProps) {
             <div className="m-4 flex gap-2">
               {me ? <Avatar profile={me} size={3} /> : null}
               <div className="w-full space-y-2">
-                <OpenpeepsMarkdownInput
-                  rows={4}
-                  blockOverflow={false}
+                {/* Note replies use the visual editor directly: its toolbar
+                    already carries the rich-text / source switch, so no
+                    external Markdown / Rich text toggle and no markdown
+                    preview. The budget is the shared post limit. */}
+                <OpenpeepsRichMarkdownInput
                   value={content}
                   onChange={setContent}
+                  maxLength={POST_MAX_VISIBLE_LENGTH}
+                  testId="posts-composer-content"
+                  compact
                   placeholder={
                     composerType === 'question'
                       ? t('posts.form.poll.question', {

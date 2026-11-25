@@ -35,7 +35,7 @@ import {
 import { DateSheet } from './DateSheet';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
 import { EventTypeSwitcher } from './EventTypeSwitcher';
-import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
+import { OpenpeepsComposerInput } from './OpenpeepsMarkdownInput';
 import { VisibilitySelector } from './VisibilitySelector';
 
 export interface EventFormProps {
@@ -163,9 +163,10 @@ export const EventForm = ({
           {t('events.form.description')}
         </ThemedText>
 
-        <OpenpeepsMarkdownInput
+        <OpenpeepsComposerInput
           rows={6}
           maxLength={5000}
+          previewButton={false}
           value={event.content ?? ''}
           onChange={(content) => patchEvent({ content })}
           placeholder={t('events.form.descriptionPlaceholder')}

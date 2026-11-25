@@ -137,6 +137,7 @@ jest.mock('../../components/post/post-form/ComposeAttachments', () => ({
 
 jest.mock('../../components/post/post-form/OpenpeepsMarkdownInput', () => ({
   OpenpeepsMarkdownInput: () => null,
+  OpenpeepsComposerInput: () => null,
 }));
 
 jest.mock('../../lib/media-permissions', () => ({

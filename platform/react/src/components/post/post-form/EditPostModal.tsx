@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import {
   canSubmitPostContent,
   pollOptionsWithinLimit,
+  POST_MAX_VISIBLE_LENGTH,
   resolvePollOptionContents,
   visibleTextLength,
 } from '@openpeepshq/common';
@@ -22,7 +23,7 @@ import { useT } from '../../../i18n';
 import { OpenpeepsMarkdown } from '../../markdown/OpenpeepsMarkdown';
 import { ComposeAttachments } from './ComposeAttachments';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
-import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
+import { OpenpeepsRichMarkdownInput } from './OpenpeepsRichMarkdownInput';
 import { PollComposerFields, pollOptionLabel } from './PollComposerFields';
 
 export interface EditPostModalProps {
@@ -129,11 +130,14 @@ export function EditPostModal({ post, onClose }: EditPostModalProps) {
 
         {data.type === 'question' ? (
           <>
-            <OpenpeepsMarkdownInput
-              rows={3}
-              blockOverflow={false}
+            {/* Question uses the visual editor directly: its toolbar already
+                carries the rich-text / source switch, so no external
+                Markdown / Rich text toggle and no markdown preview. */}
+            <OpenpeepsRichMarkdownInput
               value={content}
               onChange={setContent}
+              maxLength={POST_MAX_VISIBLE_LENGTH}
+              compact
             />
             <ComposePreviewLinks content={content} />
             <PollComposerFields
@@ -166,11 +170,14 @@ export function EditPostModal({ post, onClose }: EditPostModalProps) {
           </>
         ) : data.type === 'note' ? (
           <>
-            <OpenpeepsMarkdownInput
-              rows={6}
-              blockOverflow={false}
+            {/* Note editing uses the visual editor directly (no external
+                toggle, no markdown preview) — the toolbar's rich-text /
+                source switch is enough. */}
+            <OpenpeepsRichMarkdownInput
               value={content}
               onChange={setContent}
+              maxLength={POST_MAX_VISIBLE_LENGTH}
+              compact
             />
             <ComposePreviewLinks content={content} />
             <ComposeAttachments

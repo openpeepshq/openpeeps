@@ -1,5 +1,5 @@
 /** @vitest-environment jsdom */
-import { act, createElement } from 'react';
+import { act, createElement, type ChangeEvent } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type {
@@ -110,8 +110,22 @@ vi.mock('../../profile', () => ({
   ProfileCard: () => null,
 }));
 
-vi.mock('../../markdown', () => ({
-  OpenpeepsMarkdown: () => null,
+// Note and question render the visual editor directly. The real surface lazy
+// loads @mdxeditor/editor, which cannot run in the unit env (no editor
+// kernel), so stub it with a textarea keyed off testId for the submit-gating
+// assertions.
+vi.mock('./OpenpeepsRichMarkdownInput', () => ({
+  OpenpeepsRichMarkdownInput: (props: {
+    value?: string;
+    onChange?: (value: string) => void;
+    testId?: string;
+  }) =>
+    createElement('textarea', {
+      'data-testid': props.testId,
+      value: props.value,
+      onChange: (e: ChangeEvent<HTMLTextAreaElement>) =>
+        props.onChange?.(e.target.value),
+    }),
 }));
 
 const imageAttachment: MediaAttachmentData = {

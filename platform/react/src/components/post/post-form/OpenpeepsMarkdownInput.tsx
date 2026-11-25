@@ -26,7 +26,7 @@ export interface OpenpeepsMarkdownInputProps {
   blockOverflow?: boolean;
   placeholder?: string;
   rows?: number;
-  /** Show the preview toggle button (mirrors Svelte `previewButton`). */
+  /** Show the preview toggle button. */
   previewButton?: boolean;
   /** Extra classes for the textarea (e.g. taller config editors). */
   className?: string;
@@ -34,9 +34,9 @@ export interface OpenpeepsMarkdownInputProps {
 }
 
 /**
- * Markdown editor mirroring the Svelte `OpenpeepsMarkdownInput`: a textarea
- * with @-mention autocomplete, a preview toggle that renders the markdown over
- * the field, and a character counter.
+ * Markdown editor: a textarea with @-mention autocomplete, an optional
+ * preview toggle that renders the markdown over the field, and a character
+ * counter.
  */
 export function OpenpeepsMarkdownInput({
   value,
@@ -109,6 +109,8 @@ export function OpenpeepsMarkdownInput({
 
   // With the native cap on (blockOverflow) the counter tracks the raw length
   // it enforces; otherwise it tracks the visible text the submit check uses.
+  // The rich surface always counts visible text, so the metric (and the
+  // number shown) can differ between the two modes — an accepted divergence.
   const shownLength = blockOverflow ? value.length : visibleTextLength(value);
   const overLimit = shownLength > maxLength;
 

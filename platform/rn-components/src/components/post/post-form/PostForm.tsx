@@ -107,11 +107,18 @@ export const PostForm = ({
         </Pressable>
       ) : null}
 
+      {/* Note and question both use the formatting toolbar (the native
+          "rich text" surface): React Native has no content-editable surface,
+          so the toolbar buttons insert the same markdown the web visual
+          editor writes. There is no external Markdown / Rich text toggle here
+          (the toolbar is the rich mode) and no separate preview button. */}
       <OpenpeepsMarkdownInput
         autoFocus={autoFocus}
         blockOverflow={false}
         value={content}
         onChange={(text) => form.setValue('data.content', text)}
+        formattingToolbar
+        previewButton={false}
         placeholder={
           isQuestion
             ? t('posts.form.poll.question')

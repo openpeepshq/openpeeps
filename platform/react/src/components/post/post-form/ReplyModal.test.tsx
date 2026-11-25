@@ -110,15 +110,17 @@ vi.mock('./ComposePreviewLinks', () => ({
   ComposePreviewLinks: () => null,
 }));
 
-vi.mock('./OpenpeepsMarkdownInput', () => ({
-  OpenpeepsMarkdownInput: (props: {
+// Reply uses the visual editor directly; stub it with a textarea keyed off
+// the same testId the reply composer passes.
+vi.mock('./OpenpeepsRichMarkdownInput', () => ({
+  OpenpeepsRichMarkdownInput: (props: {
     value?: string;
     onChange?: (value: string) => void;
     testId?: string;
     placeholder?: string;
   }) =>
     createElement('textarea', {
-      'data-testid': props.testId ?? 'posts-composer-content',
+      'data-testid': props.testId,
       value: props.value,
       placeholder: props.placeholder,
       onChange: (e: ChangeEvent<HTMLTextAreaElement>) =>

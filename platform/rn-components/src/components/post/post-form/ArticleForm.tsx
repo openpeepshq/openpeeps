@@ -13,7 +13,7 @@ import { ImageInput } from '../../form/ImageInput';
 import { Input } from '../../ui/input';
 import { Switch } from '../../ui/switch';
 import { ThemedText } from '../../ui/themed-text';
-import { OpenpeepsMarkdownInput } from './OpenpeepsMarkdownInput';
+import { OpenpeepsComposerInput } from './OpenpeepsMarkdownInput';
 import { VisibilitySelector } from './VisibilitySelector';
 
 export interface ArticleFormProps {
@@ -73,14 +73,14 @@ export const ArticleForm = ({
           />
         </View>
 
-        <OpenpeepsMarkdownInput
+        <OpenpeepsComposerInput
           rows={16}
           maxLength={10000}
+          previewButton={false}
           value={article.content ?? ''}
           onChange={(content) => patchArticle({ content })}
           placeholder={t('articles.form.contentPlaceholder', {
-            defaultValue:
-              'Write your content here.  User markdown for formatting',
+            defaultValue: 'Write your article',
           })}
         />
 
