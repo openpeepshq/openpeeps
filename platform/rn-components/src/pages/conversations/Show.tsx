@@ -35,7 +35,6 @@ import { OpenpeepsMarkdownInput } from '../../components/post/post-form/Openpeep
 import { maxContentLength } from '../../lib/utils';
 import { DropdownMenu } from '../../components/ui/dropdown-menu';
 import { Button } from '../../components/ui/button';
-import { ProfileAvatar } from '../../components/profile/Avatar';
 import { ThemedText } from '../../components/ui/themed-text';
 import {
   ConversationParticipantsModal,
@@ -43,7 +42,6 @@ import {
   DirectMessageSearch,
   MessageInThread,
 } from '../../components/conversations/index';
-import { ProfileCard } from '../../components/profile/index';
 
 const isMessageId = (value: string | undefined): value is string =>
   !!value &&
@@ -93,14 +91,6 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
   const participants =
     lastMessage?.audience?.filter((a) => a.id !== currentProfile?.id) ?? [];
   const multipleParticipants = participants.length > 1;
-
-  const participantNames =
-    participants.length > 0
-      ? participants.map((p) => p.displayName || `@${p.handle}`).join(', ')
-      : t('conversations.title', { defaultValue: 'Conversation' });
-  const openParticipantsLabel = t('conversations.participants.openList', {
-    defaultValue: 'View participants',
-  });
 
   const resetForm = useCallback(() => {
     setContent('');
@@ -240,41 +230,6 @@ export const ConversationShow = ({ route, navigation }: ConversationProps) => {
   return (
     <ThemedView className="flex-1">
       <View className="flex-1">
-        {/* Section under the page header showing the participants,
-            mirroring the web conversation Show page (ProfileCard for 1:1). */}
-        <View className="border-b border-border p-4">
-          {participants.length === 1 && participants[0] ? (
-            <ProfileCard
-              profile={participants[0]}
-              showAction={false}
-              unspaced
-            />
-          ) : multipleParticipants ? (
-            <TouchableOpacity
-              onPress={() => setParticipantsOpen(true)}
-              accessibilityRole="button"
-              accessibilityLabel={openParticipantsLabel}
-              className="w-full flex-row items-center gap-2 p-3"
-            >
-              <View className="flex-row -space-x-2 shrink-0">
-                {participants.slice(0, 4).map((p) => (
-                  <ProfileAvatar
-                    key={p.id}
-                    profile={p}
-                    className="size-9 border-0"
-                  />
-                ))}
-              </View>
-              <ThemedText
-                className="min-w-0 truncate text-sm font-medium"
-                numberOfLines={1}
-              >
-                {participantNames}
-              </ThemedText>
-            </TouchableOpacity>
-          ) : null}
-        </View>
-
         <DropdownMenu>
           <KeyboardAvoidingView
             className="flex-1"
