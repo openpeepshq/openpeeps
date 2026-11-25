@@ -98,10 +98,10 @@ export const CardEvent = ({ post, showEventDate = true }: CardEventProps) => {
               <ActivityIndicator size="small" />
             ) : jamState?.active ? (
               <View className="flex flex-row items-center gap-x-2 text-xs text-muted-foreground">
-                <View className="w-12">
+                <View className="w-14 shrink-0">
                   <ParticipantsCard jamState={jamState} />
                 </View>
-                <ThemedText>
+                <ThemedText className="shrink-0">
                   {attendeesLength}{' '}
                   {attendeesLength === 1
                     ? t('events.jam.attendee', { defaultValue: 'attendee' })

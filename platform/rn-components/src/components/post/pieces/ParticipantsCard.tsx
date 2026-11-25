@@ -11,7 +11,7 @@ export const ParticipantsCard: React.FC<ParticipantsCardProps> = ({
   jamState,
 }) => {
   return (
-    <View className="flex-row items-center">
+    <View className="flex-row items-center shrink-0">
       {jamState.participants.slice(0, 2).map((participant) => (
         <ProfileFromId key={participant} id={participant} />
       ))}

@@ -116,10 +116,10 @@ export function CardEvent({ post, showEventDate = true }: CardEventProps) {
         {jam && me && livekitEnabled ? (
           jamState?.active ? (
             <div className="text-muted-foreground flex items-center justify-start gap-2 text-xs">
-              <span className="w-12">
+              <span className="w-14 shrink-0">
                 <ParticipantsCard jamState={jamState} />
               </span>
-              <span>
+              <span className="shrink-0">
                 {attendeesLength}{' '}
                 {attendeesLength === 1
                   ? t('events.jam.attendee', { defaultValue: 'attendee' })
