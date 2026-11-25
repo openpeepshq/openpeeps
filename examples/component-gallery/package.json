@@ -19,7 +19,7 @@
     "@openpeepshq/i18n": "workspace:^",
     "@openpeepshq/react": "workspace:^",
     "@openpeepshq/react-ui": "workspace:^",
-    "i18next": "^24.2.3",
+    "i18next": "^26.3.4",
     "lucide-react": "^0.469.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

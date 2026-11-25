@@ -23,7 +23,7 @@
     "@openpeepshq/react": "workspace:^",
     "@openpeepshq/react-ui": "workspace:^",
     "@tanstack/react-query": "^5.0.0",
-    "i18next": "^24.2.3",
+    "i18next": "^26.3.4",
     "lucide-react": "^0.469.0",
     "marked": "^15.0.6",
     "mermaid": "^12.3.0",

@@ -52,7 +52,7 @@
     "dompurify": "3.4.17",
     "emoji-picker-element": "^1.29.1",
     "heic2any": "^0.0.4",
-    "i18next": "^24.2.3",
+    "i18next": "^26.3.4",
     "i18next-http-backend": "^4.0.10",
     "js-base64": "^3.7.7",
     "livekit-client": "2.19.2",
