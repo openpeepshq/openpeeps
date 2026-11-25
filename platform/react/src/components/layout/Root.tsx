@@ -67,7 +67,7 @@ export function RootLayout({ children, sideBar }: RootLayoutProps) {
               {/* Stretch the rail to the main column so it continues past
                   the viewport. Keep the nav viewport-tall and sticky.
                   overflow-x: clip (not hidden) so Firefox still honors sticky. */}
-              <aside className="bg-background w-70 hidden shrink-0 border-r md:flex md:min-h-screen">
+              <aside className="bg-background w-70 hidden shrink-0 border-r md:flex md:min-h-dvh">
                 <div className="w-full md:sticky md:top-0 md:h-screen">
                   <SideBar
                     mainMenu={sideBar?.mainMenu?.()}
@@ -75,9 +75,9 @@ export function RootLayout({ children, sideBar }: RootLayoutProps) {
                   />
                 </div>
               </aside>
-              <div className="bg-background flex min-h-screen min-w-0 flex-1 flex-col border-r">
+              <div className="bg-background flex min-h-dvh min-w-0 flex-1 flex-col border-r">
                 <HeaderMobile sideBar={sideBar} />
-                <main className="flex min-w-0 flex-1 flex-col">
+                <main className="flex min-h-0 min-w-0 flex-1 flex-col">
                   <ContentHeader />
                   <Breadcrumbs />
                   <Infos />

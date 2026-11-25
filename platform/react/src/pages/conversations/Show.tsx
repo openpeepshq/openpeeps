@@ -77,11 +77,12 @@ const ConversationComposer = ({
   });
 
   return (
-    <footer className="space-y-2 border-t p-3">
+    <footer className="shrink-0 space-y-2 border-t p-3">
       {compose.previews}
       <OpenpeepsComposerInput
         rows={3}
         blockOverflow={false}
+        className="max-h-40"
         value={text}
         onChange={setText}
         maxLength={POST_MAX_VISIBLE_LENGTH}
@@ -321,7 +322,7 @@ export function ConversationShow() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] flex-col">
+    <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
       <header className="border-b">
         {participants.length === 1 && participants[0] ? (
           <ProfileCard profile={participants[0]} showAction={false} />
@@ -370,7 +371,7 @@ export function ConversationShow() {
         aria-label={t('conversations.messageLog', {
           defaultValue: 'Messages',
         })}
-        className="flex-1 overflow-y-auto px-3"
+        className="flex-1 min-h-0 overscroll-y-contain overflow-y-auto px-3"
       >
         {messages.map((m, index) => (
           <MessageInThread
