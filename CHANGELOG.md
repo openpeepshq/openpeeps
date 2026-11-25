@@ -5,6 +5,8 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **share**: add 'Share into group' and 'Send to conversation' targets
+- **waiting-room**: implement participant reject
 - **settings**: calendar feed link create/delete UI on web and RN
 - **admin**: community reaction picker + removable default emojis
 - **post**: record voice notes for statuses (up to 90s)
@@ -42,6 +44,8 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **rn-components**: remount camera tile when a late mid-Jam camera track attaches
+- **react**: single-line caption in member picker rows (issue #1666)
 - **settings**: make notification save bar span full width on mobile
 - **skills**: use plural milestone filter + per-mode milestone stats
 - **profiles**: read auto-follow config fresh in worker once-queue handler
