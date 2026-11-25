@@ -28,7 +28,7 @@ overrides:
   "@types/react": "19.2.14"
   react: "19.2.6"
   react-dom: "19.2.6"
-  # icon-set-creator pins sharp@0.30.7; its prebuild often times out in CI and
+  # icon-set-creator declares sharp ^0.30.5; its prebuild often times out in CI and
   # then node-gyp fails (no make). Force the same sharp used by core/server.
   # Bump to 0.35.5 clears the libvips/libheif/librsvg advisories.
   sharp: "0.35.5"
@@ -241,15 +241,17 @@ overrides:
   # follow-up within same batch: flagged versions with published fixes
   # vite 7.3.5/6 (server + vitest peer): 5 advisories patched >=7.3.7
   "vite@>=7 <7.3.7": "7.3.8"
-  # google-auth-library/gtoken pin jws ^4.0.0 (HMAC verify flaw, no patch in 4.0.0)
+  # jws 4.x consumers pin jws ^4.0.0: web-push@3.6.7 (direct) and
+  # google-auth-library@11.3.4 (pulled by firebase-admin; 10.x devDependency
+  # removed in #2266). HMAC verify flaw, no patch in 4.0.0
   "jws@4": "4.0.1"
   # jsonwebtoken 9.0.2 — the version firebase-admin resolves (declares
-  # jws ^3.2.2); the v13-era google-auth-library/gtoken leg also matched,
-  # but that instance left the tree in this PR (gtoken: zero lockfile
-  # occurrences). google-auth-library@11.3.4 declares jws directly too,
-  # but its ^4.0.0 range resolves to 4.0.1 — the jws@4 pin, not this one.
-  # HMAC verify flaw, patched 3.2.3; jsonwebtoken 9.0.3 already moved to
-  # jws ^4.0.1 but firebase-admin resolves 9.0.2
+  # jws ^3.2.2). (The v13-era google-auth-library/gtoken leg that #2265
+  # matched left the tree with google-auth-library 9.15.1; gtoken has zero
+  # lockfile occurrences since then.) google-auth-library@11.3.4's ^4.0.0
+  # range resolves to 4.0.1 — the jws@4 pin, not this one. HMAC verify
+  # flaw, patched 3.2.3; jsonwebtoken 9.0.3 already moved to jws ^4.0.1
+  # but firebase-admin resolves 9.0.2
   "jws@<3.2.3": "3.2.3"
   # firebase-admin>busboy chain (3 advisories: 2 high DoS + CRLF moderate)
   "@fastify/busboy@<3.2.2": "3.2.5"
@@ -313,30 +315,28 @@ overrides:
   # lockfile entry (`bullmq@5.81.5(redis@4.7.0)`) is expected, not drift.
   # GHSA-w5hq-g745-h8pq (moderate, missing buffer bounds check in v3/v5/v6 when
   # buf is provided): patched only in uuid >= 11.1.1 — no 9.x/10.x fix exists,
-  # so the google stack's declared `^9.x` ranges cannot reach a patched release
-  # and must be forced. The bullmq leg of the finding left with the 5.x
-  # in-major bump (#2248: bullmq 5.x drops the uuid dependency entirely); the
-  # residual leg is firebase-admin -> @google-cloud/{storage,firestore} ->
-  # gaxios 6.7.1 / google-gax 4.6.1 / teeny-request 9.0.0 (all uuid ^9.x).
-  # Force 11.1.1 — the exact version mermaid already resolves in the tree, so
-  # no fresh resolution enters the minimumReleaseAge window. All three
-  # consumers use the stable named-export API (uuid.v4, never the buf argument
-  # the advisory targets), and 11.1.1 ships CJS dists (main ./dist/cjs/
-  # index.js) so require("uuid") in the google stack keeps working. Scoped to
-  # the vulnerable range so the already-patched mermaid copy stays untouched.
+  # so any `^9.x`-declaring consumer cannot reach a patched release. Both
+  # advisory legs have left the tree: bullmq 5.x dropped the uuid dependency
+  # entirely (#2248), and the firebase-admin -> @google-cloud leg left with the
+  # 14.x move (#2265: gaxios 7.1.5/8.3.3, google-gax 6.17.0, and
+  # teeny-request 11.1.1 declare no uuid). The override has no in-tree
+  # consumer today — it is retained as a floor so a future `^9.x`-declaring
+  # consumer cannot re-introduce a vulnerable resolution (same
+  # forward-looking retention as `brace-expansion@2`).
   "uuid@<11.1.1": "11.1.1"
   # @fedify/fedify (platform/server) pins @opentelemetry/sdk-metrics at exactly
-  # 2.7.1, which resolves @opentelemetry/core@2.7.1 (GHSA-8988-4f7v-96qf
-  # moderate: unbounded memory allocation in W3C Baggage propagation, patched
-  # >=2.8.0). Bumping @fedify/* to 2.4.6 does not clear it — 2.4.6's published
-  # manifest pins the same sdk-metrics 2.7.1, so the override is the fix and
-  # the bump is only for peer alignment. sdk-metrics@2.12.0 declares
+  # 2.7.1 (GHSA-8988-4f7v-96qf moderate: unbounded memory allocation in W3C
+  # Baggage propagation, patched in @opentelemetry/core >=2.8.0). Bumping
+  # @fedify/* to 2.4.6 does not clear it — 2.4.6's published manifest pins the
+  # same sdk-metrics 2.7.1, so the override is the fix and the bump is only
+  # for peer alignment. The override forces 2.12.0 directly, clearing the
+  # advisory (its first patched core is 2.8.0): sdk-metrics@2.12.0 declares
   # core@2.12.0 + resources@2.12.0 (already in the tree via fedify's
   # sdk-trace-base@2.12.0 leg) and peers @opentelemetry/api >=1.9.0 <1.10.0
-  # (fedify declares ~1.9.1), so it adds one resolution and removes the
-  # 2.7.1 core/resources legs entirely. Parent-scoped: fedify is the only
-  # consumer of sdk-metrics in the tree (@fedify/express / @fedify/postgres
-  # declare no OTel deps), and a scoped key leaves future consumers free.
+  # (fedify declares ~1.9.1), so it adds one resolution. Parent-scoped: fedify
+  # is the only consumer of sdk-metrics in the tree (@fedify/express /
+  # @fedify/postgres declare no OTel deps), and a scoped key leaves future
+  # consumers free.
   "@fedify/fedify>@opentelemetry/sdk-metrics": "2.12.0"
 
   # @sentry/node@10.x (platform/core, #2250; #2267 tracks the same upgrade)
