@@ -45,15 +45,36 @@ type ProfileBody = {
   discoverable?: boolean;
 };
 
+/**
+ * Derive a local `profiles.handle` for a federated actor from its
+ * `preferredUsername` (falling back to the actor URI).
+ *
+ * The handle is **lowercased** because the federated identity key
+ * `(handle, domain)` is case-insensitive: mention extraction
+ * (`matchFederatedMentionTokens`) already lowercases both halves, so
+ * `@Bob@Mastodon.Social` looks up `('bob', 'mastodon.social')`. Storing the
+ * raw `preferredUsername` verbatim (`Bob`) would make that exact-match lookup
+ * miss. Lowercasing at the single ingest source (both `upsertRemoteActor`
+ * callers) keeps the stored key and the lookup key in the same shape.
+ *
+ * Migration note: rows ingested before this normalisation keep their original
+ * case, so a mixed-case `(handle, domain)` may not resolve until backfilled —
+ * and the `(handle, domain)` uniqueness is now effectively case-insensitive,
+ * so `Bob`/`bob` on the same domain must be treated as one actor, not two.
+ */
 export const federatedHandleFrom = (
   preferred: string | null | undefined,
   uri: string,
 ): string => {
   const fromName = (preferred ?? '')
     .replace(/[^a-zA-Z0-9_.-]/g, '')
+    .toLowerCase()
     .slice(0, 64);
   if (fromName.length >= 1) return fromName;
-  const fromUri = uri.replace(/[^a-zA-Z0-9]/g, '').slice(-16);
+  const fromUri = uri
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .toLowerCase()
+    .slice(-16);
   return `actor-${fromUri || 'remote'}`;
 };
 

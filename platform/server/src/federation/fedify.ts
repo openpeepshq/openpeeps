@@ -1,8 +1,13 @@
 import './temporal';
-import { createFederation, type Federation } from '@fedify/fedify';
+import {
+  createFederation,
+  type Context,
+  type Federation,
+} from '@fedify/fedify';
 import {
   Accept,
   Create,
+  Delete,
   Endpoints,
   Follow,
   Image,
@@ -11,6 +16,7 @@ import {
   Person,
   Tombstone,
   Undo,
+  Update,
 } from '@fedify/fedify/vocab';
 import { PostgresKvStore, PostgresMessageQueue } from '@fedify/postgres';
 import { createPost } from '@openpeepshq/core/posts';
@@ -21,9 +27,11 @@ import {
   ACTOR_INBOX_PATH,
   ACTOR_PATH,
   CREATE_PATH,
+  DELETE_PATH,
   FOLLOWERS_PATH,
   NOTE_PATH,
   SHARED_INBOX_PATH,
+  UPDATE_PATH,
   deleteOutboundFollow,
   federatedHandleFrom,
   federationOrigin,
@@ -41,6 +49,7 @@ import {
   recordApActivity,
   upsertRemoteActor,
 } from '@openpeepshq/core/federation';
+import type { PublicNote } from '@openpeepshq/core/federation';
 import type { Profile, ProfileWithMeta } from '@openpeepshq/common/types';
 import { findProfile } from '@openpeepshq/core/profiles';
 import { logger } from '@openpeepshq/core/log';
@@ -68,6 +77,32 @@ const asText = (value: unknown): string | undefined => {
 const asInstant = (value: string) =>
   Temporal.Instant.fromEpochMilliseconds(new Date(value).getTime());
 
+/**
+ * The full Note object as the server would serve it at `NOTE_PATH` (content,
+ * attribution, `to`/`cc` audiences, reply target).
+ *
+ * Shared by the Note dispatcher and the Update object dispatcher: an
+ * `Update`'s embedded object *is* the current state of the note (AS 2.0
+ * `Update` semantics), and Mastodon & co. render whatever the envelope embeds
+ * without re-fetching — a URL-only object left them nothing to render (review
+ * round 4, item 1). The `Delete` dispatcher deliberately does not build an
+ * embedded object (`dispatchDeleteObject` serves a URI-only `Delete`, which is
+ * a tombstone by definition — see its doc block).
+ */
+export const noteObjectFor = (ctx: Context<void>, note: PublicNote) =>
+  new Note({
+    id: ctx.getObjectUri(Note, { id: note.id }),
+    attribution: ctx.getActorUri(note.creatorId),
+    content: note.content,
+    published: asInstant(note.published),
+    to: PUBLIC_COLLECTION,
+    ccs: [
+      ctx.getFollowersUri(note.creatorId),
+      ...note.mentionUris.map((uri) => new URL(uri)),
+    ],
+    replyTarget: note.inReplyToUri ? new URL(note.inReplyToUri) : undefined,
+  });
+
 const asHttpUrl = (value: string | null | undefined): URL | undefined => {
   if (!value) return undefined;
   try {
@@ -78,6 +113,63 @@ const asHttpUrl = (value: string | null | undefined): URL | undefined => {
   } catch {
     return undefined;
   }
+};
+
+/**
+ * Fetched-object dispatcher for `Update` activities (GET on the Update URI).
+ *
+ * Embeds the *current* Note (content/attribution/CCs) as the object — `Update`
+ * semantics say the object is the note's current state, and consumers that
+ * render the embedded object (Mastodon) would otherwise have nothing to
+ * render. If the note no longer resolves as public (deleted, or became
+ * non-public after the Update was sent), a `Tombstone` is the honest answer.
+ * Exported (not an inline closure) so it can be pinned with unit tests, the
+ * way the rest of this file is.
+ */
+export const dispatchUpdateObject = async (
+  ctx: Context<void>,
+  values: {
+    id: string;
+  },
+) => {
+  const uri = ctx.getObjectUri(Update, { id: values.id }).href;
+  const row = await findApActivityByUri(uri);
+  if (!row?.objectUri) return null;
+  const noteId = row.objectUri.split('/').pop();
+  if (!noteId) return null;
+  const note = await loadPublicNote(noteId);
+  if (!note) {
+    return new Tombstone({
+      id: new URL(row.objectUri),
+      formerType: Note,
+    });
+  }
+  return new Update({
+    id: new URL(row.uri),
+    actor: new URL(row.actorUri),
+    object: noteObjectFor(ctx, note),
+  });
+};
+
+/**
+ * Fetched-object dispatcher for `Delete` activities. `Delete` is a tombstone
+ * by definition: the object must be the deleted Note's URI (AS 2.0) — there
+ * are no contents left to embed, unlike `Update`.
+ */
+export const dispatchDeleteObject = async (
+  ctx: Context<void>,
+  values: {
+    id: string;
+  },
+) => {
+  const uri = ctx.getObjectUri(Delete, { id: values.id }).href;
+  const row = await findApActivityByUri(uri);
+  if (!row?.objectUri) return null;
+  return new Delete({
+    id: new URL(row.uri),
+    actor: new URL(row.actorUri),
+    object: new URL(row.objectUri),
+  });
 };
 
 export const createOpenPeepsFederation = async () => {
@@ -163,15 +255,13 @@ export const createOpenPeepsFederation = async () => {
   federation.setObjectDispatcher(Note, NOTE_PATH, async (ctx, values) => {
     const note = await loadPublicNote(values.id);
     if (!note) return null;
-    return new Note({
-      id: ctx.getObjectUri(Note, { id: note.id }),
-      attribution: ctx.getActorUri(note.creatorId),
-      content: note.content,
-      published: asInstant(note.published),
-      to: PUBLIC_COLLECTION,
-      cc: ctx.getFollowersUri(note.creatorId),
-      replyTarget: note.inReplyToUri ? new URL(note.inReplyToUri) : undefined,
-    });
+    // CC the followers collection plus every remote mentioned actor so their
+    // instances notify the mentionee (Mastodon reads mention CCs off the Note
+    // object, not the wrapping Create). Fedify 2.4.6 types the singular `cc`
+    // field as a single `Object | URL | null`, so the plural `ccs` constructor
+    // input is used — it serializes to the standard `cc` array. Do not
+    // "simplify" this back to `cc:` for the single-follower case.
+    return noteObjectFor(ctx, note);
   });
 
   federation.setObjectDispatcher(Create, CREATE_PATH, async (ctx, values) => {
@@ -189,6 +279,9 @@ export const createOpenPeepsFederation = async () => {
       to: PUBLIC_COLLECTION,
     });
   });
+
+  federation.setObjectDispatcher(Update, UPDATE_PATH, dispatchUpdateObject);
+  federation.setObjectDispatcher(Delete, DELETE_PATH, dispatchDeleteObject);
 
   federation.setObjectDispatcher(Accept, ACCEPT_PATH, async (ctx, values) => {
     const uri = ctx.getObjectUri(Accept, { id: values.id }).href;
@@ -514,4 +607,119 @@ export const federateUnfollow = async (
   // #1) — otherwise the re-follow would find this stale row and silently
   // return, leaving the remote host unaware of it.
   await deleteOutboundFollow(actorUri.href, followed.uri);
+};
+
+export const federateNoteUpdate = async (
+  federation: Federation<void>,
+  origin: string,
+  post: {
+    id: string;
+    creatorId: string;
+    visibility: string;
+    data?: { type?: string };
+  },
+) => {
+  // Only public notes ever leave the instance, so only their edits can need a
+  // remote Update (or a became-non-public tombstone). `updatePost` emits for
+  // every edit regardless of visibility, so a never-public edit must no-op:
+  // its Note URI was never delivered to anyone and sending a Delete for it
+  // would only ask remote inboxes to process an unsolicited tombstone.
+  if (post.visibility !== 'public' || post.data?.type !== 'note') return;
+  const actor = await loadLocalActor(post.creatorId);
+  if (!actor || actor.deleted) return;
+  const note = await loadPublicNote(post.id);
+  const ctx = federation.createContext(new URL(`${origin}/`), undefined);
+  const activityId = uuidv7();
+  if (!note) {
+    // The emitted post is public yet no longer resolves as a public note: a
+    // delete race (already covered by `postDeleted`) or, once visibility
+    // becomes mutable through `updatePost`, a genuine became-non-public edit.
+    // A tombstoned Delete is all remote readers can receive in that case.
+    const deleteUri = ctx.getObjectUri(Delete, { id: activityId });
+    const deleteActivity = new Delete({
+      id: deleteUri,
+      actor: ctx.getActorUri(post.creatorId),
+      object: ctx.getObjectUri(Note, { id: post.id }),
+    });
+    await recordApActivity({
+      uri: deleteUri.href,
+      type: 'Delete',
+      actorUri: ctx.getActorUri(post.creatorId).href,
+      objectUri: ctx.getObjectUri(Note, { id: post.id }).href,
+      direction: 'out',
+    });
+    await ctx.sendActivity(
+      { identifier: post.creatorId },
+      'followers',
+      deleteActivity,
+      { preferSharedInbox: true },
+    );
+    return;
+  }
+  const updateUri = ctx.getObjectUri(Update, { id: activityId });
+  // `object` is the Note URI, not an embedded Note: on the *sent* path,
+  // Mastodon & co. dereference the Update's object on receive and get the
+  // full updated Note from the Note dispatcher (which — like the fetched
+  // Update object below — now embeds content/attribution/CCs). The CC list
+  // of that Note is create-time-frozen: `updatePost` re-links hashtags but
+  // not mention edges, so an edit never changes who is CC'd remotely. See
+  // the `mentionUris` doc on `PublicNote` (Phase R review round 4, item 2).
+  const updateActivity = new Update({
+    id: updateUri,
+    actor: ctx.getActorUri(note.creatorId),
+    object: ctx.getObjectUri(Note, { id: note.id }),
+  });
+  await recordApActivity({
+    uri: updateUri.href,
+    type: 'Update',
+    actorUri: ctx.getActorUri(note.creatorId).href,
+    objectUri: ctx.getObjectUri(Note, { id: note.id }).href,
+    direction: 'out',
+  });
+  await ctx.sendActivity(
+    { identifier: note.creatorId },
+    'followers',
+    updateActivity,
+    { preferSharedInbox: true },
+  );
+};
+
+export const federateNoteDelete = async (
+  federation: Federation<void>,
+  origin: string,
+  post: {
+    id: string;
+    creatorId: string;
+    visibility: string;
+    uri?: string | null;
+    data?: { type?: string };
+  },
+) => {
+  // Only public local notes ever leave the instance, so only they need a
+  // remote Delete. `post.uri` (written by `localObjectScalars`) carries the
+  // Note object URI; `loadPublicNote` no longer sees the hard-deleted row.
+  if (post.visibility !== 'public' || post.data?.type !== 'note') return;
+  if (!post.uri) return;
+  const actor = await loadLocalActor(post.creatorId);
+  if (!actor || actor.deleted) return;
+  const ctx = federation.createContext(new URL(`${origin}/`), undefined);
+  const deleteUri = ctx.getObjectUri(Delete, { id: uuidv7() });
+  const deleteActivity = new Delete({
+    id: deleteUri,
+    actor: ctx.getActorUri(post.creatorId),
+    object: new URL(post.uri),
+  });
+  await recordApActivity({
+    uri: deleteUri.href,
+    type: 'Delete',
+    actorUri: ctx.getActorUri(post.creatorId).href,
+    objectUri: post.uri,
+    direction: 'out',
+  });
+  await ctx.sendActivity(
+    { identifier: post.creatorId },
+    'followers',
+    deleteActivity,
+    { preferSharedInbox: true },
+  );
 };

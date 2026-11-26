@@ -13,12 +13,16 @@ import type { ProfileWithMeta } from '@openpeepshq/common/types';
 // assertions on the mock would not compile — same pattern as
 // federateFollow.test.ts).
 const {
+  findApActivityByUriMock,
   findOutboundFollowMock,
+  loadPublicNoteMock,
   peerHostAllowedMock,
   recordApActivityMock,
   deleteOutboundFollowMock,
 } = vi.hoisted(() => ({
+  findApActivityByUriMock: vi.fn(async (..._args: unknown[]) => undefined),
   findOutboundFollowMock: vi.fn(async (..._args: unknown[]) => undefined),
+  loadPublicNoteMock: vi.fn(async (..._args: unknown[]) => null),
   peerHostAllowedMock: vi.fn(async (..._args: unknown[]) => true),
   recordApActivityMock: vi.fn(async (..._args: unknown[]) => undefined),
   deleteOutboundFollowMock: vi.fn(async (..._args: unknown[]) => undefined),
@@ -30,20 +34,32 @@ vi.mock('@fedify/fedify', () => ({
 }));
 vi.mock('@fedify/fedify/vocab', () => {
   // Fedify vocab classes are constructed with `new`; returning the props
-  // object makes `undo`/`follow` the same object our assertions inspect.
-  const Activity = function Activity(props: unknown) {
-    return props;
+  // object makes `undo`/`follow`/`note` the same object our assertions
+  // inspect. Each class also carries a static `typeId` (as the real classes
+  // do) so a test `Context` stub can map a class to its object path.
+  const AS = 'https://www.w3.org/ns/activitystreams#';
+  const make = (typeId: string) => {
+    const Cls = function Cls(props: unknown) {
+      return props;
+    };
+    Object.defineProperty(Cls, 'typeId', {
+      get: () => new URL(AS + typeId),
+    });
+    return Cls;
   };
   return {
-    Accept: Activity,
-    Create: Activity,
-    Endpoints: Activity,
-    Follow: Activity,
-    Image: Activity,
-    Note: Activity,
-    Person: Activity,
-    Tombstone: Activity,
-    Undo: Activity,
+    Accept: make('Accept'),
+    Create: make('Create'),
+    Delete: make('Delete'),
+    Endpoints: make('Endpoints'),
+    Follow: make('Follow'),
+    Image: make('Image'),
+    Note: make('Note'),
+    Person: make('Person'),
+    PUBLIC_COLLECTION: 'Public',
+    Tombstone: make('Tombstone'),
+    Undo: make('Undo'),
+    Update: make('Update'),
   };
 });
 vi.mock('@fedify/postgres', () => ({
@@ -56,12 +72,24 @@ vi.mock('@openpeepshq/core/config', () => ({
 vi.mock('@openpeepshq/core/federation', () => ({
   ACTOR_PATH: '/ap/users/{identifier}',
   deleteOutboundFollow: deleteOutboundFollowMock,
+  findApActivityByUri: findApActivityByUriMock,
   findOutboundFollow: findOutboundFollowMock,
+  loadPublicNote: loadPublicNoteMock,
   peerHostAllowed: peerHostAllowedMock,
   recordApActivity: recordApActivityMock,
 }));
 
-const { federateFollow, federateUnfollow } = await import('./fedify');
+const {
+  dispatchDeleteObject,
+  dispatchUpdateObject,
+  federateFollow,
+  federateUnfollow,
+  noteObjectFor,
+} = await import('./fedify');
+
+// The mocked vocab `Note` class (the props pass-through from the factory) —
+// `Tombstone.formerType` carries this reference.
+const { Note } = await import('@fedify/fedify/vocab');
 
 const ORIGIN = 'https://openpeeps.local';
 const FOLLOWER = {
@@ -250,5 +278,177 @@ describe('follow → unfollow → re-follow sequence (#241 review #1)', () => {
         (call) => (call[0] as { type: string }).type === 'Follow',
       ).length,
     ).toBe(2);
+  });
+});
+
+// Object-fetching dispatchers for Update/Delete activities (#1028 Phase R,
+// review round 4, item 1). An Update's object must be the *current* Note
+// (content/attribution/CCs), not a bare URI — consumers that render the
+// embedded object (Mastodon) otherwise have nothing to render. A Delete's
+// object must be the deleted Note's URI (a tombstone by definition).
+const NOTE_URI = `${ORIGIN}/ap/objects/note-1`;
+const UPDATE_URI = `${ORIGIN}/ap/update/update-1`;
+const DELETE_URI = `${ORIGIN}/ap/delete/delete-1`;
+
+// A minimal Fedify Context stub: the dispatchers only call getObjectUri
+// (to build the activity URI they look up in the ledger) plus the
+// Note-building helpers in `noteObjectFor`. `getObjectUri` mirrors the real
+// path constants (NOTE_PATH=/ap/objects/{id}, UPDATE_PATH=/ap/update/{id},
+// DELETE_PATH=/ap/delete/{id}) by mapping each vocab class's `typeId` (carried
+// by the mocked classes) to its object path.
+const objectPathFor = (cls: { typeId?: URL }): string => {
+  const local = cls.typeId?.href.split('#').pop();
+  const map: Record<string, string> = {
+    Note: 'objects',
+    Create: 'create',
+    Accept: 'accept',
+    Update: 'update',
+    Delete: 'delete',
+  };
+  return map[local ?? ''] ?? 'objects';
+};
+
+const stubCtx = () =>
+  ({
+    getObjectUri: (
+      cls: { typeId?: URL },
+      values: Record<string, string>,
+    ): URL => new URL(`${ORIGIN}/ap/${objectPathFor(cls)}/${values.id}`),
+    getActorUri: (identifier: string): URL =>
+      new URL(`${ORIGIN}/ap/users/${identifier}`),
+    getFollowersUri: (identifier: string): URL =>
+      new URL(`${ORIGIN}/ap/users/${identifier}/followers`),
+  }) as never;
+
+const note = (content = 'hello') =>
+  ({
+    id: 'note-1',
+    creatorId: 'local-profile-1',
+    content,
+    published: '2026-01-01T00:00:00.000Z',
+    inReplyToUri: null,
+    mentionUris: ['https://remote.example/users/mentioned'],
+  }) as never;
+
+const activityRow = (uri: string) =>
+  ({
+    uri,
+    actorUri: expectedActorUri,
+    objectUri: NOTE_URI,
+  }) as never;
+
+// getObjectUri here builds `${ORIGIN}/ap/${id}`; the dispatchers look the row
+// up by that exact href, so the ids must mirror the URIs above.
+const updateValues = { id: 'update-1' };
+const deleteValues = { id: 'delete-1' };
+
+describe('fetched Update/Delete objects (review round 4 item 1)', () => {
+  it('Update object embeds the current Note (content/attribution/CCs)', async () => {
+    findApActivityByUriMock.mockResolvedValue(activityRow(UPDATE_URI));
+    loadPublicNoteMock.mockResolvedValue(note('edited body'));
+
+    const result = (await dispatchUpdateObject(stubCtx(), updateValues)) as {
+      id: URL;
+      actor: URL;
+      object: Record<string, unknown>;
+    };
+
+    // The vocab mock returns the constructor props, so `object` is the
+    // embedded Note props built by `noteObjectFor`.
+    expect(result.id.href).toBe(UPDATE_URI);
+    expect(result.actor.href).toBe(expectedActorUri);
+    const embedded = result.object as {
+      id: URL;
+      attribution: URL;
+      content: string;
+    };
+    expect(embedded.id.href).toBe(NOTE_URI);
+    expect(embedded.attribution.href).toBe(expectedActorUri);
+    // The *current* content is embedded — this is the fix (a URI-only
+    // object carried no content to render).
+    expect(embedded.content).toBe('edited body');
+    // CCs include the followers collection and every remote mentioned actor.
+    const ccs = (result.object as { ccs: URL[] }).ccs;
+    expect(ccs.map((u) => u.href)).toEqual([
+      `${ORIGIN}/ap/users/local-profile-1/followers`,
+      'https://remote.example/users/mentioned',
+    ]);
+    expect(findApActivityByUriMock).toHaveBeenCalledWith(UPDATE_URI);
+    expect(loadPublicNoteMock).toHaveBeenCalledWith('note-1');
+  });
+
+  it('Update object is a Tombstone when the note no longer resolves as public', async () => {
+    findApActivityByUriMock.mockResolvedValue(activityRow(UPDATE_URI));
+    loadPublicNoteMock.mockResolvedValue(null);
+
+    const result = (await dispatchUpdateObject(stubCtx(), updateValues)) as {
+      id: URL;
+      formerType: unknown;
+    };
+
+    // `Tombstone` mock returns props: `formerType` is the Note vocab class.
+    expect(result.id.href).toBe(NOTE_URI);
+    expect(result.formerType).toBe(Note);
+  });
+
+  it('Update is null when the ledger has no row for the activity URI', async () => {
+    findApActivityByUriMock.mockResolvedValue(undefined);
+
+    const result = await dispatchUpdateObject(stubCtx(), updateValues);
+
+    expect(result).toBeNull();
+    expect(loadPublicNoteMock).not.toHaveBeenCalled();
+  });
+
+  it('Delete object is the deleted Note URI (a tombstone, no contents)', async () => {
+    findApActivityByUriMock.mockResolvedValue(activityRow(DELETE_URI));
+
+    const result = (await dispatchDeleteObject(stubCtx(), deleteValues)) as {
+      id: URL;
+      actor: URL;
+      object: URL;
+    };
+
+    expect(result.id.href).toBe(DELETE_URI);
+    expect(result.actor.href).toBe(expectedActorUri);
+    // Delete embeds the URI, not a Note object — there are no contents left.
+    expect(result.object).toBeInstanceOf(URL);
+    expect(result.object.href).toBe(NOTE_URI);
+    // A Delete never re-loads the note's contents.
+    expect(loadPublicNoteMock).not.toHaveBeenCalled();
+  });
+
+  it('Delete is null when the ledger has no row for the activity URI', async () => {
+    findApActivityByUriMock.mockResolvedValue(undefined);
+
+    const result = await dispatchDeleteObject(stubCtx(), deleteValues);
+
+    expect(result).toBeNull();
+  });
+});
+
+// `noteObjectFor` is the single source of the Note object shape shared by the
+// Note dispatcher and the Update dispatcher. Pin that the `cc` array always
+// starts with the followers collection and appends remote mention URIs — the
+// Fedify 2.4.6 `ccs` plural-constructor quirk that must not be "simplified".
+describe('noteObjectFor (shared Note shape)', () => {
+  it('CCs = followers collection + remote mention URIs, in order', () => {
+    const result = noteObjectFor(stubCtx(), note('x')) as unknown as {
+      ccs: URL[];
+    };
+    expect(result.ccs.map((u) => u.href)).toEqual([
+      `${ORIGIN}/ap/users/local-profile-1/followers`,
+      'https://remote.example/users/mentioned',
+    ]);
+  });
+
+  it('CCs = just the followers collection when there are no remote mentions', () => {
+    const result = noteObjectFor(stubCtx(), {
+      ...note(),
+      mentionUris: [],
+    } as never) as unknown as { ccs: URL[] };
+    expect(result.ccs.map((u) => u.href)).toEqual([
+      `${ORIGIN}/ap/users/local-profile-1/followers`,
+    ]);
   });
 });

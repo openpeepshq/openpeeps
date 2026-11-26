@@ -16,9 +16,14 @@ import { onceQueue, registerOnceHandler } from './once';
 
 const log = logger('app:events');
 
+/** Upper bound on `hub.ready()`'s wait for in-flight `on` subscriptions. */
+const SUBSCRIBE_READY_TIMEOUT_MS = 10_000;
+
 export type CoreEvents = {
   profileCreated: (profile: Profile) => void;
   postCreated: (post: PostWithMeta) => void;
+  postUpdated: (post: PostWithMeta, previousJamModerators: string[]) => void;
+  postDeleted: (post: PostWithMeta) => void;
   jamRecordingCompleted: (recording: JamRecordingWithMeta) => void;
   followCreated: (follower: Profile, followed: Profile) => void;
   /** Follow edge removed (unfollow). Federation reacts by sending Undo(Follow) for outbound follows only. */
@@ -55,6 +60,8 @@ export type CoreEventKey = keyof CoreEvents;
 const validEventKeyMap = {
   profileCreated: true,
   postCreated: true,
+  postUpdated: true,
+  postDeleted: true,
   jamRecordingCompleted: true,
   followCreated: true,
   followDeleted: true,
@@ -88,6 +95,11 @@ const baseHub = (prefix: string) => {
     string,
     { conn: RedisClientType; channels: string[] }
   >();
+  // Subscribe promises in flight. `on` registers a handler and then subscribes
+  // asynchronously (Redis connect + SUBSCRIBE), so there is a window in which an
+  // `emit` publishes to a channel that has no subscriber yet. `ready()` lets a
+  // caller await that window closing before relying on delivery.
+  const pendingSubscriptions = new Set<Promise<void>>();
 
   return {
     /**
@@ -114,18 +126,27 @@ const baseHub = (prefix: string) => {
       handler: (...args: T) => unknown,
     ): Unsubscribe => {
       const channel = `${prefix}:${eventType}`;
-      getConnection().then((conn) => {
-        conn.subscribe(channel, (message) => {
-          const args = JSON.parse(message);
-          handler(...args);
+      const sub = getConnection()
+        .then((conn) => {
+          conn.subscribe(channel, (message) => {
+            const args = JSON.parse(message);
+            handler(...args);
+          });
+          let entry = subscriptions.get(channel);
+          if (!entry) {
+            entry = { conn, channels: [] };
+            subscriptions.set(channel, entry);
+          }
+          entry.channels.push(channel);
+        })
+        .catch((err: unknown) => {
+          // Subscribe is best-effort like emit, but a permanently failed
+          // subscription means this handler is dead — log it rather than
+          // leaving a floating rejected promise.
+          log.error({ channel, err }, 'hub subscribe failed');
         });
-        let entry = subscriptions.get(channel);
-        if (!entry) {
-          entry = { conn, channels: [] };
-          subscriptions.set(channel, entry);
-        }
-        entry.channels.push(channel);
-      });
+      pendingSubscriptions.add(sub);
+      void sub.finally(() => pendingSubscriptions.delete(sub));
       return () => {
         getConnection().then((conn) => conn.unsubscribe(channel));
         const entry = subscriptions.get(channel);
@@ -139,6 +160,47 @@ const baseHub = (prefix: string) => {
     },
     once: (eventType: string, handler: (...args: unknown[]) => unknown) => {
       registerOnceHandler(`${prefix}:${eventType}`, handler);
+    },
+    /**
+     * Resolves once every `on` subscription registered so far has finished its
+     * asynchronous Redis connect + SUBSCRIBE. Await this before relying on
+     * pub/sub delivery: an `emit` published while a subscription is still
+     * pending is lost (Redis has no subscriber to deliver to). Federation
+     * attaches correctness-critical handlers (`postDeleted` tombstones), so
+     * `installFederation` awaits this before the server accepts writes.
+     *
+     * Bounded by `SUBSCRIBE_READY_TIMEOUT_MS`: node-redis retries `connect()`
+     * forever, so an unavailable Redis would otherwise hold server startup
+     * hostage. On timeout we proceed with a warning — a down Redis already
+     * degrades every hub consumer (emits fail too), so waiting longer buys
+     * nothing.
+     */
+    ready: async () => {
+      const start = Date.now();
+      while (pendingSubscriptions.size > 0) {
+        const remaining = SUBSCRIBE_READY_TIMEOUT_MS - (Date.now() - start);
+        const settled = await Promise.race([
+          Promise.allSettled([...pendingSubscriptions]).then(
+            () => 'settled' as const,
+          ),
+          new Promise<'timeout'>((resolve) =>
+            setTimeout(
+              () => resolve('timeout'),
+              Math.max(0, remaining),
+            ).unref(),
+          ),
+        ]);
+        if (settled === 'timeout' && pendingSubscriptions.size > 0) {
+          log.warn(
+            {
+              pending: pendingSubscriptions.size,
+              elapsedMs: Date.now() - start,
+            },
+            'hub subscriptions still pending; continuing without them',
+          );
+          return;
+        }
+      }
     },
   };
 };

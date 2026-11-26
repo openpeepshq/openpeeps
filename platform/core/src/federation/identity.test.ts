@@ -58,11 +58,22 @@ describe('federation identity URLs', () => {
 describe('federatedHandleFrom', () => {
   it('sanitizes preferred usernames and falls back to the actor URI', () => {
     expect(federatedHandleFrom('Ada Lovelace!', 'https://ex/users/1')).toBe(
-      'AdaLovelace',
+      'adalovelace',
     );
     expect(federatedHandleFrom('', 'https://ex.example/users/ab')).toMatch(
       /^actor-[a-z0-9]+$/,
     );
+  });
+
+  it('lowercases so the stored (handle, domain) key matches case-insensitive mention lookups', () => {
+    // Mention extraction lowercases both halves of `@Bob@Mastodon.Social`, so
+    // the handle stored at ingest must be lowercase too or the lookup misses.
+    expect(
+      federatedHandleFrom('Bob', 'https://mastodon.social/users/bob'),
+    ).toBe('bob');
+    expect(
+      federatedHandleFrom('Ada Lovelace!', 'https://mastodon.social/users/a'),
+    ).toBe('adalovelace');
   });
 });
 

@@ -504,6 +504,10 @@ export const deletePost = async (post: PostWithMeta, profile: Profile) => {
     await cancelPollEnd(post.id);
   }
 
+  // Fires after the post row is gone from the DB, so federation handlers
+  // cannot re-load the note and must rely on the pre-delete `post.uri`.
+  hub.emit('postDeleted', post);
+
   return postsMapping.find(db, post.id);
 };
 

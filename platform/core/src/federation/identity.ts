@@ -11,6 +11,8 @@ export const FOLLOWERS_PATH = '/ap/users/{identifier}/followers' as const;
 export const NOTE_PATH = '/ap/objects/{id}' as const;
 export const CREATE_PATH = '/ap/create/{id}' as const;
 export const ACCEPT_PATH = '/ap/accept/{id}' as const;
+export const UPDATE_PATH = '/ap/update/{id}' as const;
+export const DELETE_PATH = '/ap/delete/{id}' as const;
 
 export const federationOrigin = (domain: string) => `https://${domain}`;
 

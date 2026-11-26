@@ -38,11 +38,13 @@ import {
   isBlockedPair,
   isReactionHistoryEntry,
   isReactionType,
+  matchFederatedMentionTokens,
   matchMentionHandles,
   normalizePostDataFromDb,
   toHiddenPost,
   tombstoneProfileWithMetaIfDeleted,
 } from '@openpeepshq/common/lib';
+import { findProfileByHandleAndDomain } from '../../federation/profiles';
 import { ObjectFilter } from '../../db/types';
 import { EMBEDDED_REPOSTS_LIMIT } from '../mapping';
 import { loadThreadPreviewReplies } from '../threadPreview';
@@ -76,16 +78,44 @@ export const extractHashtags = (data: PostDataUnion) => {
 export const extractMentionHandles = (text?: string): string[] =>
   matchMentionHandles(text);
 
+/**
+ * Every mention token in the text: local `@handle` plus remote
+ * `handle@domain` (domain lowercased).
+ */
+export const extractFederatedMentionTokens = (text?: string): string[] =>
+  matchFederatedMentionTokens(text);
+
 export const resolveMentionsForPost = async (
   data: PostDataUnion,
 ): Promise<MentionWithPublicProfile[]> => {
   const byProfileId = new Map<string, MentionWithPublicProfile>();
 
-  for (const handle of extractMentionHandles(data.content)) {
-    const profile = await findProfileByHandle(handle);
+  for (const token of extractFederatedMentionTokens(data.content)) {
+    const [handle, domain] = token.includes('@')
+      ? token.split('@')
+      : [token, undefined];
+
+    // Local remains the fast path; a remote `handle@domain` token resolves
+    // through the federated finder first, then falls back to a local profile
+    // with the same handle (keeps behavior for ambiguous local handles).
+    // Fallback side effect: when the federated finder misses and a *local*
+    // profile matches, the stored `MentionData.text` keeps the `@domain`
+    // suffix (`@bob@mastodon.social` against local bob). Consumers of
+    // `MentionData.text` must therefore handle both the bare local-handle
+    // shape and the `handle@domain` shape for the same profile.
+    const profile = domain
+      ? ((await findProfileByHandleAndDomain(handle, domain)) ??
+        (await findProfileByHandle(handle)))
+      : await findProfileByHandle(handle);
 
     if (profile) {
-      byProfileId.set(profile.id, { profile, text: `@${handle}` });
+      // Handles are case-insensitive identity keys, so the stored mention text
+      // is normalised to lowercase on both branches (remote tokens are already
+      // lowercased at extraction) to keep `MentionData.text` a consistent shape.
+      byProfileId.set(profile.id, {
+        profile,
+        text: `@${handle.toLowerCase()}${domain ? `@${domain}` : ''}`,
+      });
     }
   }
 

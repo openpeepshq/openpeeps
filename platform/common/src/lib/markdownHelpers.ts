@@ -1,4 +1,7 @@
-import { mentionHandleRegexBase } from '../types';
+import {
+  federatedMentionHandleRegexBase,
+  mentionHandleRegexBase,
+} from '../types';
 
 export interface MarkdownRenderProps {
   source?: string;
@@ -52,11 +55,34 @@ export const linkProfileMentions = (
     );
   }
 
+  // Replace bare local `@handle` tokens last; a federated token
+  // (`@user@domain`) must not be wrapped in a local profile link. The
+  // bare-handle regex's prefix class `(^|[\s(>])` cannot match at the `@`
+  // before the domain, so remote mentions stay as plain text here.
   return text.replace(
     new RegExp(mentionHandleRegexBase, 'g'),
     (_full, prefix: string, handle: string) =>
       `${prefix}[@${handle}](/@${handle})`,
   );
+};
+
+/**
+ * All mention tokens in the text, deduplicated: local `@handle` tokens plus
+ * remote `handle@domain` tokens (domain lowercased).
+ */
+export const matchFederatedMentionTokens = (text?: string | null): string[] => {
+  if (!text) return [];
+  const tokens = new Set<string>();
+  const fedRegex = new RegExp(federatedMentionHandleRegexBase, 'gi');
+  for (const match of text.matchAll(fedRegex)) {
+    const handle = match[2]?.toLowerCase();
+    const domain = match[3]?.toLowerCase();
+    if (handle && domain) tokens.add(`${handle}@${domain}`);
+  }
+  for (const match of text.matchAll(new RegExp(mentionHandleRegexBase, 'g'))) {
+    if (match[2]) tokens.add(match[2]);
+  }
+  return [...tokens];
 };
 
 /**

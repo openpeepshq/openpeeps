@@ -11,6 +11,8 @@ import type {
 import {
   createOpenPeepsFederation,
   federateFollow,
+  federateNoteDelete,
+  federateNoteUpdate,
   federatePublicNote,
   federateUnfollow,
 } from './fedify';
@@ -30,6 +32,20 @@ export const installFederation = async (app: Express) => {
     void federatePublicNote(federation, origin, post).catch(
       (error: unknown) => {
         log.error('Failed to federate public note', error);
+      },
+    );
+  });
+  hub.on('postUpdated', (post: PostWithMeta) => {
+    void federateNoteUpdate(federation, origin, post).catch(
+      (error: unknown) => {
+        log.error('Failed to federate note update', error);
+      },
+    );
+  });
+  hub.on('postDeleted', (post: PostWithMeta) => {
+    void federateNoteDelete(federation, origin, post).catch(
+      (error: unknown) => {
+        log.error('Failed to federate note delete', error);
       },
     );
   });
@@ -53,5 +69,14 @@ export const installFederation = async (app: Express) => {
       log.error('Failed to federate unfollow activity', error);
     });
   });
+
+  // Federation attaches correctness-critical handlers (a dropped `postDeleted`
+  // means a remote follower keeps a post we deleted). `hub.on` subscribes to
+  // Redis asynchronously, so an `emit` fired before those subscriptions settle
+  // is silently lost. Awaiting `hub.ready()` here (server startup, before
+  // `app.listen`) closes that window: by the time writes are accepted, every
+  // federation handler has a live subscription.
+  await hub.ready();
+
   log.info(`ActivityPub federation mounted at ${origin}`);
 };

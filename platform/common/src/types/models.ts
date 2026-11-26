@@ -41,6 +41,17 @@ extendZodWithOpenApi(z);
 /** `@handle` using the allowed handle charset. No `\\b` — hyphens are not word chars. */
 export const mentionHandleRegexBase = `(^|[\\s(>])@(${handleRegexBase})(?=\\s|$|[.,!?;:])`;
 
+/**
+ * Federated handle mention: `@user@domain`. The domain is a dotted host
+ * (multi-label allowed, e.g. `mastodon.social`). No `\\b` — hyphens are not
+ * word chars. Group 2 = local handle, group 3 = remote domain.
+ *
+ * The trailing lookahead adds `)` so a parenthesised mention `(@a@x.co)`
+ * still matches; the bare local regex keeps the shorter class and so does not
+ * match a parenthesised `(@a)` (a pre-existing, intentional gap).
+ */
+export const federatedMentionHandleRegexBase = `(^|[\\s(>])@(${handleRegexBase})@([a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?){1,})(?=\\s|$|[.,!?;):])`;
+
 export const baseSchemaShape = {
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),

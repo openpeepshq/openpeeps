@@ -5,9 +5,10 @@ import {
   PublicProfile,
   notificationAll,
 } from '@openpeepshq/common/types';
-import { extractMentionHandles } from '@openpeepshq/core/posts';
+import { extractFederatedMentionTokens } from '@openpeepshq/core/posts';
 import { findPost } from '@openpeepshq/core/posts';
 import { findProfile, findProfileByHandle } from '@openpeepshq/core/profiles';
+import { findProfileByHandleAndDomain } from '@openpeepshq/core/federation';
 import { maybeCreateNotification } from '@openpeepshq/core/notifications';
 import { getProfileAvatar, profileName } from '@openpeepshq/common/lib';
 import { communityConfig } from '../../../config';
@@ -27,8 +28,14 @@ const getMentionedProfiles = async (
   }
 
   if (byId.size === 0) {
-    for (const handle of extractMentionHandles(post.data?.content)) {
-      const profile = await findProfileByHandle(handle);
+    for (const token of extractFederatedMentionTokens(post.data?.content)) {
+      const [handle, domain] = token.includes('@')
+        ? token.split('@')
+        : [token, undefined];
+
+      const profile = domain
+        ? await findProfileByHandleAndDomain(handle, domain)
+        : await findProfileByHandle(handle);
 
       if (profile) {
         byId.set(profile.id, profile);
