@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Room } from 'livekit-client';
 import type { JamWaitingRoomEntry } from '@openpeepshq/common/types';
+import type { SseError } from '@openpeepshq/fetch-client';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { useServerInfo } from '../../components/server-data/context';
@@ -10,6 +11,7 @@ import { useJamEventsContext } from '../../components/jams/JamEventsContext';
 import { useJamRecordingState } from '../../components/jams/jamRecordingState';
 import { toggleHand } from '../../components/jams/jamEventActions';
 import { useRaisedHands } from '../../components/jams/useJamHands';
+import { apiErrorMessage } from '../../lib/apiErrorMessage';
 import { logger } from '../../log';
 
 const log = logger('jams:recording');
@@ -68,9 +70,36 @@ export const useJamFooterControls = ({
 
   const startRecording = openpeepsApi.startRecordingAction({ id: jamPost.id });
   const stopRecording = openpeepsApi.stopRecordingAction({ id: jamPost.id });
+
+  // The waiting-room stream's non-2xx failure (auth expiry, 4xx/5xx) surfaces
+  // as a one-shot toast through the same error channel as the recording
+  // failures — the footer has no drawer to render a persistent banner in. The
+  // failure is also logged (same class of event as `useSessionEvents`'s) so a
+  // stream that dies on a non-moderator surface stays diagnosable. `t`/`onError`
+  // are read through refs so the callback is referentially stable (a new
+  // identity would tear the stream down on every render).
+  const tRef = useRef(t);
+  useEffect(() => {
+    tRef.current = t;
+  });
+  const onErrorRef = useRef(onError);
+  useEffect(() => {
+    onErrorRef.current = onError;
+  });
+  const onWaitingRoomStreamError = useCallback((error?: SseError) => {
+    const tNow = tRef.current;
+    log.warn('waiting-room stream failed to open:', error);
+    const fallback = tNow('jams.waitingRoom.streamError', {
+      defaultValue: 'Unable to reach the waiting room',
+    });
+    const message = apiErrorMessage(error, tNow, fallback);
+    if (message.length > 0) onErrorRef.current(message);
+  }, []);
+
   const waitingRoom = openpeepsApi.useWaitingRoomStream(
     isModerator && jam.waitingRoom ? jamPost.id : '',
     occurrence,
+    onWaitingRoomStreamError,
   );
 
   /**

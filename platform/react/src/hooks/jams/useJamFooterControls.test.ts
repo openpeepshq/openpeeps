@@ -3,6 +3,7 @@ import { act, createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { type JamWaitingRoomEntry } from '@openpeepshq/common/types';
+import { waitingRoomTMock } from '../../test/support/waitingRoomTMock';
 import {
   diffWaitingRoomAdditions,
   useJamFooterControls,
@@ -31,7 +32,14 @@ vi.mock('../../contexts/openpeeps', () => ({
     openpeepsApi: {
       startRecordingAction: () => () => Promise.resolve({ id: 'rec' }),
       stopRecordingAction: () => () => Promise.resolve({ id: 'rec' }),
-      useWaitingRoomStream: () => mockWaitingRoom,
+      useWaitingRoomStream: (
+        _id: unknown,
+        _occ: unknown,
+        onError?: (e: unknown) => void,
+      ) => {
+        mockWaitingRoomOnError = onError;
+        return mockWaitingRoom;
+      },
     },
   }),
 }));
@@ -48,13 +56,21 @@ vi.mock('../../components/jams/jamEventActions', () => ({
   toggleHand: async () => {},
 }));
 
-const tMock = (key: string, opts?: { count?: number }) =>
-  opts ? `${key}:${opts.count}` : key;
+// The shared waiting-room t-mock mirrors how the source calls `t`: the
+// `jams.waitingRoom.*` fallback resolves to its en.json value, and bare
+// `error.*` keys pass through raw (the source hands them to the resolver
+// with no defaultValue, so a bare `t(key)` regression would be caught).
+// `apiErrorMessage` is the real implementation — the mock t feeds it the
+// same key→copy semantics real i18n would (review suggestion 1).
+const tMock = waitingRoomTMock;
 
 // Module scope so the vi.mock factories above can read the current values.
 let mockJamPostId: string;
 let jam: { moderators: string[]; waitingRoom: boolean };
 let mockWaitingRoom: Record<string, JamWaitingRoomEntry> | undefined;
+// Captures the `onError` the hook hands the waiting-room stream, so a test
+// can drive a non-2xx failure and assert the toast routing.
+let mockWaitingRoomOnError: ((e: unknown) => void) | undefined;
 
 // The waiting-room stream sends display-only entries keyed by profile id
 // (`jamWaitingRoomEntrySchema`), so the fixtures use that shape, not full
@@ -189,6 +205,7 @@ describe('useJamFooterControls waiting-room baseline reset', () => {
     mockJamPostId = 'room-a';
     jam = { moderators: ['moderator'], waitingRoom: true };
     mockWaitingRoom = undefined;
+    mockWaitingRoomOnError = undefined;
     showToast = vi.fn();
   });
 
@@ -246,5 +263,106 @@ describe('useJamFooterControls waiting-room baseline reset', () => {
     mockWaitingRoom = { a: entry('alice') };
     rerender();
     expect(showToast).not.toHaveBeenCalled();
+  });
+});
+
+// The waiting-room stream's non-2xx failure (auth expiry, 4xx/5xx) must
+// surface through the caller's error toast channel instead of silently
+// staling the join/leave baseline (review suggestion 3).
+describe('useJamFooterControls waiting-room stream error', () => {
+  let showToast: (message: string) => void;
+  let onError: (message: string) => void;
+  let root: Root | undefined;
+  let container: HTMLDivElement | undefined;
+
+  // A single stable component type so re-renders update the existing fiber
+  // (a remount would re-create the hook and defeat the stability pin).
+  const Host = () => {
+    useJamFooterControls({
+      room: { localParticipant: { identity: 'moderator' } } as never,
+      participantCount: 1,
+      confirmStopRecording: () => true,
+      onSuccess: () => {},
+      onError,
+      showToast,
+    });
+    return null;
+  };
+
+  const mount = () => {
+    container = document.createElement('div');
+    document.body.appendChild(container);
+    root = createRoot(container);
+    act(() => {
+      root.render(createElement(Host));
+    });
+  };
+
+  const rerender = () => {
+    act(() => {
+      root?.render(createElement(Host));
+    });
+  };
+
+  beforeEach(() => {
+    (
+      globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
+    ).IS_REACT_ACT_ENVIRONMENT = true;
+    mockJamPostId = 'room-a';
+    jam = { moderators: ['moderator'], waitingRoom: true };
+    mockWaitingRoom = undefined;
+    mockWaitingRoomOnError = undefined;
+    showToast = vi.fn();
+    onError = vi.fn();
+  });
+
+  afterEach(() => {
+    act(() => {
+      root?.unmount();
+    });
+    container?.remove();
+    root = undefined;
+    container = undefined;
+  });
+
+  it('routes a 401 stream failure to the caller error toast, mapped (not the raw key)', () => {
+    mount();
+    expect(mockWaitingRoomOnError).toBeTypeOf('function');
+
+    act(() => {
+      mockWaitingRoomOnError?.({
+        status: 401,
+        key: 'error.jamGuestPassRequired',
+      });
+    });
+    // The key is left bare for the t-resolver (the source never hands
+    // `error.*` keys a defaultValue), so real i18n renders the guest-pass
+    // copy; the shared mock resolves the same key the same way. The raw key
+    // is never what reaches the toast.
+    expect(onError).toHaveBeenCalledTimes(1);
+    expect(onError).toHaveBeenCalledWith(
+      'Sign in, or create a guest pass, to join this jam.',
+    );
+    // A message-only failure (no key) surfaces the server message.
+    act(() => {
+      mockWaitingRoomOnError?.({ status: 503, message: 'bad gateway' });
+    });
+    expect(onError).toHaveBeenCalledWith('bad gateway');
+    // A keyless, messageless failure (no body to parse) falls back to the
+    // streamError copy the source resolves before calling apiErrorMessage.
+    act(() => {
+      mockWaitingRoomOnError?.({ status: 503 });
+    });
+    expect(onError).toHaveBeenCalledWith('Unable to reach the waiting room');
+    // Join announcements are unaffected: the error is side-band.
+    expect(showToast).not.toHaveBeenCalled();
+  });
+
+  it('hands the stream a referentially stable onError across renders', () => {
+    mount();
+    const firstOnError = mockWaitingRoomOnError;
+    expect(firstOnError).toBeTypeOf('function');
+    rerender();
+    expect(mockWaitingRoomOnError).toBe(firstOnError);
   });
 });

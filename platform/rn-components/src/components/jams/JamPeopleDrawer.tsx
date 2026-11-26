@@ -137,6 +137,7 @@ export const JamPeopleDrawer = ({ open, onClose }: JamPeopleDrawerProps) => {
     setQuery,
     listedParticipants,
     waitingProfiles,
+    waitingRoomError,
     admittingId,
     rejectingId,
     admit,
@@ -196,65 +197,76 @@ export const JamPeopleDrawer = ({ open, onClose }: JamPeopleDrawerProps) => {
 
         <JamObserversSection count={externalSessions} />
 
-        {isModerator && hasWaitingRoom && waitingProfiles.length > 0 ? (
+        {isModerator && hasWaitingRoom ? (
           <View>
             <SectionHeading>{t('jams.people.inWaitingRoom')}</SectionHeading>
-            <View className="mt-1 gap-2">
-              {waitingProfiles.map((profile) => (
-                <View
-                  key={profile.id}
-                  className="flex-row items-center justify-between gap-2"
-                >
-                  <View className="min-w-0 flex-1 flex-row items-center gap-2">
-                    <WaitingRoomAvatar profile={profile} />
-                    <ThemedText numberOfLines={1} className="shrink text-sm">
-                      {waitingRoomEntryName(profile)}
-                    </ThemedText>
-                  </View>
-                  <View className="flex-row shrink-0 items-center gap-1">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onPress={() => admit(profile)}
-                      disabled={
-                        admittingId === profile.id || rejectingId === profile.id
-                      }
-                      accessibilityLabel={
-                        admittingId === profile.id
-                          ? t('jams.waitingRoom.admitting')
-                          : t('jams.waitingRoom.admitParticipant')
-                      }
-                    >
-                      <UserRoundCheckIcon
-                        size={16}
-                        className="text-foreground"
-                      />
-                      <ThemedText className="text-xs">
-                        {t('jams.waitingRoom.admitParticipant')}
+            {waitingRoomError ? (
+              <ThemedText
+                accessibilityRole="alert"
+                className="mt-1 text-center text-sm text-destructive"
+              >
+                {waitingRoomError}
+              </ThemedText>
+            ) : waitingProfiles.length === 0 ? null : (
+              <View className="mt-1 gap-2">
+                {waitingProfiles.map((profile) => (
+                  <View
+                    key={profile.id}
+                    className="flex-row items-center justify-between gap-2"
+                  >
+                    <View className="min-w-0 flex-1 flex-row items-center gap-2">
+                      <WaitingRoomAvatar profile={profile} />
+                      <ThemedText numberOfLines={1} className="shrink text-sm">
+                        {waitingRoomEntryName(profile)}
                       </ThemedText>
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onPress={() => reject(profile)}
-                      disabled={
-                        admittingId === profile.id || rejectingId === profile.id
-                      }
-                      accessibilityLabel={
-                        rejectingId === profile.id
-                          ? t('jams.waitingRoom.rejecting')
-                          : t('jams.waitingRoom.rejectParticipant')
-                      }
-                    >
-                      <UserRoundXIcon size={16} className="text-foreground" />
-                      <ThemedText className="text-xs">
-                        {t('jams.waitingRoom.rejectParticipant')}
-                      </ThemedText>
-                    </Button>
+                    </View>
+                    <View className="flex-row shrink-0 items-center gap-1">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onPress={() => admit(profile)}
+                        disabled={
+                          admittingId === profile.id ||
+                          rejectingId === profile.id
+                        }
+                        accessibilityLabel={
+                          admittingId === profile.id
+                            ? t('jams.waitingRoom.admitting')
+                            : t('jams.waitingRoom.admitParticipant')
+                        }
+                      >
+                        <UserRoundCheckIcon
+                          size={16}
+                          className="text-foreground"
+                        />
+                        <ThemedText className="text-xs">
+                          {t('jams.waitingRoom.admitParticipant')}
+                        </ThemedText>
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onPress={() => reject(profile)}
+                        disabled={
+                          admittingId === profile.id ||
+                          rejectingId === profile.id
+                        }
+                        accessibilityLabel={
+                          rejectingId === profile.id
+                            ? t('jams.waitingRoom.rejecting')
+                            : t('jams.waitingRoom.rejectParticipant')
+                        }
+                      >
+                        <UserRoundXIcon size={16} className="text-foreground" />
+                        <ThemedText className="text-xs">
+                          {t('jams.waitingRoom.rejectParticipant')}
+                        </ThemedText>
+                      </Button>
+                    </View>
                   </View>
-                </View>
-              ))}
-            </View>
+                ))}
+              </View>
+            )}
           </View>
         ) : null}
 

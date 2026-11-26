@@ -177,7 +177,11 @@ export interface TypedPayloadProgressObserverEndpoint<
   }) => QueryKey;
 }
 
-/** Error surfaced when an SSE stream fails (non-OK response, dropped connection). */
+/**
+ * Error surfaced when an SSE stream fails to open (non-OK response, dropped
+ * connection). `key`/`message` mirror the JSON error body's `errorKey ?? key`
+ * and `message` fields so callers can map the machine key to copy.
+ */
 export interface SseError {
   /** HTTP status of the response, if one was received. */
   status?: number;
@@ -194,11 +198,21 @@ export interface EventSourceOptions<
   pathParameters?: PathParameters;
   queryParameters?: QueryParameters;
   handler: (event: EventType) => void | Promise<void>;
-  /** Fired once when the stream fails to open (non-OK / connection error). */
+  /**
+   * Fired at most once per stream instance when the stream fails to open
+   * (non-OK response, dropped connection). Not re-armed on sse.js
+   * auto-reconnect, and never fired after `close()` is called on the source.
+   */
   onError?: (error: SseError) => void;
   headers?: Record<string, string>;
   start?: boolean;
   onlyNew?: boolean;
+  /**
+   * With `onlyNew`, skip events whose id is not newer than this one. SSE
+   * event ids are compared numerically when both sides are all-digit,
+   * lexicographically otherwise (uuidv7 ids sort lexicographically in time
+   * order).
+   */
   lastId?: string;
 }
 

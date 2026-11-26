@@ -1108,7 +1108,8 @@
       "admitParticipant": "Zulassen",
       "admitting": "Wird zugelassen…",
       "rejectParticipant": "Ablehnen",
-      "rejecting": "Wird abgelehnt…"
+      "rejecting": "Wird abgelehnt…",
+      "streamError": "Der Wartebereich konnte nicht erreicht werden"
     },
     "recording": {
       "stopTitle": "Aufnahme stoppen",

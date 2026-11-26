@@ -17,11 +17,15 @@ type StreamResponse =
   | undefined;
 
 let mockStreamResponse: StreamResponse;
+// vi.fn-backed stream stub: its recorded calls are the single source of
+// truth for what `onError` identity the hook handed the stream on each render.
+const mockUseJoinWaitingRoomStream = vi.fn();
 
 vi.mock('../../contexts/openpeeps', () => ({
   useOpenpeeps: () => ({
     openpeepsApi: {
-      useJoinWaitingRoomStream: () => mockStreamResponse,
+      useJoinWaitingRoomStream: (...args: unknown[]) =>
+        mockUseJoinWaitingRoomStream(...args),
     },
   }),
 }));
@@ -44,9 +48,10 @@ describe('useJoinWaitingRoomToken denied branch', () => {
   let container: HTMLDivElement | undefined;
   let onJoin: (params: JamJoinParams) => void;
   let onDenied: () => void;
+  let onError: (error: unknown) => void;
 
   const Host = () => {
-    useJoinWaitingRoomToken(onJoin, undefined, onDenied);
+    useJoinWaitingRoomToken(onJoin, onError, onDenied);
     return null;
   };
 
@@ -71,8 +76,11 @@ describe('useJoinWaitingRoomToken denied branch', () => {
       globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
     ).IS_REACT_ACT_ENVIRONMENT = true;
     mockStreamResponse = undefined;
+    mockUseJoinWaitingRoomStream.mockClear();
+    mockUseJoinWaitingRoomStream.mockImplementation(() => mockStreamResponse);
     onJoin = vi.fn();
     onDenied = vi.fn();
+    onError = vi.fn();
   });
 
   afterEach(() => {
@@ -107,5 +115,25 @@ describe('useJoinWaitingRoomToken denied branch', () => {
       choices: { audioEnabled: true, videoEnabled: true },
     });
     expect(onDenied).not.toHaveBeenCalled();
+  });
+
+  it('hands the stream a referentially stable onError across renders', () => {
+    // The stream is (re)created whenever its options change identity, so a
+    // new `onError` on every render would tear the waiting-room connection
+    // down and re-open it. The hook must route the caller's (inline)
+    // callback through a ref and hand the stream one stable closure.
+    mount();
+    expect(mockUseJoinWaitingRoomStream).toHaveBeenCalledTimes(1);
+    const firstCall = mockUseJoinWaitingRoomStream.mock.calls[0];
+    const firstOnError = firstCall?.[2];
+    expect(firstOnError).toBeTypeOf('function');
+
+    rerender({ token: 'tok1', livekitUrl: 'https://livekit.example' });
+    rerender({ denied: true });
+
+    expect(mockUseJoinWaitingRoomStream.mock.calls.length).toBeGreaterThan(1);
+    for (const call of mockUseJoinWaitingRoomStream.mock.calls) {
+      expect(call[2]).toBe(firstOnError);
+    }
   });
 });

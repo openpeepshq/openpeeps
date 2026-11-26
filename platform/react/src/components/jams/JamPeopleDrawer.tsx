@@ -131,6 +131,7 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
     rejectingId,
     admit,
     reject,
+    waitingRoomError,
     bannedIds,
     liftingId,
     liftBan,
@@ -223,66 +224,81 @@ export function JamPeopleDrawer({ open, onClose }: JamPeopleDrawerProps) {
 
         <JamObserversSection count={externalSessions} />
 
-        {isModerator && hasWaitingRoom && waitingProfiles.length > 0 ? (
+        {isModerator && hasWaitingRoom ? (
           <div>
             <h4 className="text-muted-foreground text-xs font-semibold uppercase">
               {inWaitingRoomLabel}
             </h4>
-            <div className="mt-1 flex flex-col gap-2">
-              {waitingProfiles.map((profile) => (
-                <div
-                  key={profile.id}
-                  className="flex items-center justify-between gap-2"
-                >
-                  <div className="flex min-w-0 items-center gap-2">
-                    <WaitingRoomAvatar profile={profile} size={2} />
-                    <span className="truncate text-sm">
-                      {waitingRoomEntryName(profile)}
-                    </span>
+            {waitingRoomError ? (
+              <p
+                role="alert"
+                className="text-destructive mt-1 text-center text-sm"
+              >
+                {waitingRoomError}
+              </p>
+            ) : waitingProfiles.length === 0 ? null : (
+              <div className="mt-1 flex flex-col gap-2">
+                {waitingProfiles.map((profile) => (
+                  <div
+                    key={profile.id}
+                    className="flex items-center justify-between gap-2"
+                  >
+                    <div className="flex min-w-0 items-center gap-2">
+                      <WaitingRoomAvatar profile={profile} size={2} />
+                      <span className="truncate text-sm">
+                        {waitingRoomEntryName(profile)}
+                      </span>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-1">
+                      <Button
+                        variant="outline"
+                        compact
+                        action={() => admit(profile)}
+                        disabled={
+                          admittingId === profile.id ||
+                          rejectingId === profile.id
+                        }
+                        title={
+                          admittingId === profile.id
+                            ? admittingLabel
+                            : admitLabel
+                        }
+                        aria-label={
+                          admittingId === profile.id
+                            ? admittingLabel
+                            : admitLabel
+                        }
+                      >
+                        <UserRoundCheck className="size-4" />
+                        {admitLabel}
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        compact
+                        action={() => reject(profile)}
+                        disabled={
+                          admittingId === profile.id ||
+                          rejectingId === profile.id
+                        }
+                        title={
+                          rejectingId === profile.id
+                            ? rejectingLabel
+                            : rejectLabel
+                        }
+                        aria-label={
+                          rejectingId === profile.id
+                            ? rejectingLabel
+                            : rejectLabel
+                        }
+                      >
+                        <UserRoundX className="size-4" />
+                        {rejectLabel}
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex shrink-0 items-center gap-1">
-                    <Button
-                      variant="outline"
-                      compact
-                      action={() => admit(profile)}
-                      disabled={
-                        admittingId === profile.id || rejectingId === profile.id
-                      }
-                      title={
-                        admittingId === profile.id ? admittingLabel : admitLabel
-                      }
-                      aria-label={
-                        admittingId === profile.id ? admittingLabel : admitLabel
-                      }
-                    >
-                      <UserRoundCheck className="size-4" />
-                      {admitLabel}
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      compact
-                      action={() => reject(profile)}
-                      disabled={
-                        admittingId === profile.id || rejectingId === profile.id
-                      }
-                      title={
-                        rejectingId === profile.id
-                          ? rejectingLabel
-                          : rejectLabel
-                      }
-                      aria-label={
-                        rejectingId === profile.id
-                          ? rejectingLabel
-                          : rejectLabel
-                      }
-                    >
-                      <UserRoundX className="size-4" />
-                      {rejectLabel}
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         ) : null}
 

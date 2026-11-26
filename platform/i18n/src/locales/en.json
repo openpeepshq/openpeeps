@@ -1113,7 +1113,8 @@
       "admitParticipant": "Admit",
       "admitting": "Admitting…",
       "rejectParticipant": "Reject",
-      "rejecting": "Rejecting…"
+      "rejecting": "Rejecting…",
+      "streamError": "Unable to reach the waiting room"
     },
     "recording": {
       "stopTitle": "Stop recording",

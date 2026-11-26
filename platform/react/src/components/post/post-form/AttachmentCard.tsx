@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pencil, X } from 'lucide-react';
 import type { MediaAttachment, MediaAttachmentData } from '@openpeepshq/common';
+import type { SseError } from '@openpeepshq/fetch-client';
 import { useOpenpeeps } from '../../../contexts/openpeeps';
 import { useT } from '../../../i18n';
 import { DescriptionEditModal } from './DescriptionEditModal';
@@ -112,7 +113,23 @@ export function AttachmentCard({
 
   // --- Processing phase: subscribe to the SSE feed while processing. --------
   const processingId = processing ? attachmentId(att) : undefined;
-  const event = openpeepsApi.useMediaProgress(processingId);
+  // A dead progress feed (non-2xx) is a stalled upload: report it through the
+  // same `onFailed` path as a byte-upload or server-side failure so the card
+  // shows the existing generic "Upload failed" state. Ref-stable so the stream
+  // isn't torn down on re-render.
+  const onFailedRef = useRef(onFailed);
+  onFailedRef.current = onFailed;
+  const onProgressStreamError = useCallback(
+    (_error: SseError) => {
+      if (!processingId) return;
+      onFailedRef.current(processingId, undefined);
+    },
+    [processingId],
+  );
+  const event = openpeepsApi.useMediaProgress(
+    processingId,
+    onProgressStreamError,
+  );
   const reportedRef = useRef<string | undefined>(undefined);
   useEffect(() => {
     const data = event?.mediaAttachment;

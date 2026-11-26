@@ -4,6 +4,7 @@ import type {
   MediaStorageRequestInput,
   SuccessFailureResponse,
 } from '@openpeepshq/common';
+import type { SseError } from '@openpeepshq/fetch-client';
 import { useCallback, useState } from 'react';
 import {
   apiHook,
@@ -91,14 +92,23 @@ export const otherHooks = (client: OpenpeepsClient) => ({
    * Subscribe to the media-processing SSE feed for a single attachment.
    * Returns the latest progress event, with `progressPercent` capped server
    * side at 95% until the worker finishes.
+   *
+   * `onError` is called once when the feed fails to open (non-2xx response).
+   * A dead progress feed is a "stalled" state for the upload UI — surface the
+   * generic upload error rather than spinning on a progress bar that will
+   * never update.
    */
-  useMediaProgress: (id: string | undefined) =>
+  useMediaProgress: (
+    id: string | undefined,
+    onError?: (error: SseError) => void,
+  ) =>
     // Pass an empty `id` (not an empty object) when there's nothing to track
     // yet: the stream's `.last` guard only skips when a param *value* is
     // blank, so `{}` would otherwise open a broken `/media//progress` feed
     // during the byte-upload phase.
     noPayloadStream(client.mediaAttachment.progress.listen).last({
       pathParameters: { id: id ?? '' },
+      onError,
     }),
 
   // Server

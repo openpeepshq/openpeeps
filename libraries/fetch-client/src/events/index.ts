@@ -13,6 +13,14 @@ import { replacePathParams, resolveConfig, stringifyValues } from '../utils';
 const decodeAndParse = <T>(data: string) =>
   JSON.parse(decodeURIComponent(data)) as T;
 
+// SSE event ids are strings on the wire. Compare numerically when both sides
+// are integers, otherwise lexicographically (uuidv7 ids sort lexicographically
+// in time order).
+const isEventIdOlderOrEqual = (lastId: string, id: string) => {
+  const numeric = /^\d+$/.test(lastId) && /^\d+$/.test(id);
+  return numeric ? Number(lastId) >= Number(id) : lastId >= id;
+};
+
 const buildSource = async <
   EventType,
   PayloadType,
@@ -54,39 +62,55 @@ const buildSource = async <
   source.addEventListener(
     eventName,
     async ({ id, data }: { id: string; data: string }) => {
-      if (onlyNew && lastId && lastId >= id) {
+      if (onlyNew && lastId && isEventIdOlderOrEqual(lastId, id)) {
         return;
       }
       lastId = id;
       await handler(decodeAndParse<EventType>(data));
     },
   );
-  if (onError) {
-    // sse.js fires `error` with the HTTP status and response body when the
-    // request returns non-OK (e.g. a 401 authNeeded from the join endpoint).
-    // Surface the machine-readable `key` so callers can map it to a message.
-    source.addEventListener(
-      'error',
-      (event: { responseCode?: number; data?: string }) => {
-        let key: string | undefined;
-        let message: string | undefined;
-        if (typeof event.data === 'string' && event.data.length > 0) {
-          try {
-            const body = JSON.parse(event.data) as {
-              errorKey?: string;
-              key?: string;
-              message?: string;
-            };
-            key = body.errorKey ?? body.key;
-            message = body.message;
-          } catch {
-            message = event.data;
-          }
+  // sse.js fires `error` with the HTTP status and response body when the
+  // request returns non-OK (e.g. a 401 authNeeded from the join endpoint).
+  // The listener is registered unconditionally so the fire-once contract is
+  // explicit, but it is a no-op unless an `onError` callback is provided.
+  // `settled` guarantees at most one `onError` call per source instance
+  // (sse.js auto-reconnect would otherwise re-arm the relay); `closed`
+  // suppresses errors after the caller has closed the stream.
+  let settled = false;
+  let closed = false;
+  const originalClose = source.close.bind(source);
+  source.close = () => {
+    closed = true;
+    originalClose();
+  };
+  source.addEventListener(
+    'error',
+    (event: { responseCode?: number; data?: string }) => {
+      if (settled || closed) {
+        return;
+      }
+      settled = true;
+      if (!onError) {
+        return;
+      }
+      let key: string | undefined;
+      let message: string | undefined;
+      if (typeof event.data === 'string' && event.data.length > 0) {
+        try {
+          const body = JSON.parse(event.data) as {
+            errorKey?: string;
+            key?: string;
+            message?: string;
+          };
+          key = body.errorKey ?? body.key;
+          message = body.message;
+        } catch {
+          message = event.data;
         }
-        onError({ status: event.responseCode, key, message });
-      },
-    );
-  }
+      }
+      onError({ status: event.responseCode, key, message });
+    },
+  );
   if (start) {
     source.stream();
   }

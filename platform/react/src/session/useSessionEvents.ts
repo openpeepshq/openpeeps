@@ -8,6 +8,9 @@ import {
   dedupeQueryKeys,
   normalizePushInvalidateMessage,
 } from '../pwa/pushInvalidate';
+import { logger } from '../log';
+
+const log = logger('session');
 
 const BASE_KEYS = [
   ['profiles', 'current', 'notifications', 'stats'],
@@ -68,6 +71,15 @@ export const useSessionEvents = (
         headers: { Authorization: `Bearer ${token}` },
         handler: (event) => {
           if (!closed) applySessionEvent(queryClient, event);
+        },
+        // Background session-revocation sync: a dead feed (auth expiry, 4xx)
+        // has nothing actionable for the user, so the minimum signal is a
+        // devtools-visible warning rather than UI. No auto-reconnect — the
+        // periodic query invalidations above keep the session eventually
+        // consistent.
+        onError: (error) => {
+          if (closed) return;
+          log.warn('session events stream failed to open:', error);
         },
       });
       if (!closed) void source.stream();

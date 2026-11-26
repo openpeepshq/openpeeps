@@ -19,6 +19,7 @@ const ReactTestRenderer = require('react-test-renderer');
 
 let mockOnJoin: ((params: unknown) => void) | undefined;
 let mockOnDenied: (() => void) | undefined;
+let mockOnError: ((e: unknown) => void) | undefined;
 let mockButtonOnPress: (() => void) | undefined;
 let mockButtonComponent: unknown;
 const mockRenderedTexts: string[] = [];
@@ -38,22 +39,38 @@ jest.mock('react-i18next', () => ({
         return 'Waiting for a moderator to let you in';
       if (key === 'jams.join.rejected')
         return 'The moderator declined your request to join';
+      if (key === 'error.jamGuestPassRequired')
+        return 'Sign in, or create a guest pass, to join this jam.';
       return key;
     },
   }),
 }));
 
 // The hook is the only thing that talks to the join stream; capturing its
-// callbacks lets the test drive the denied transition directly (a real
-// stream would emit `{ denied: true }`).
+// callbacks lets the test drive the denied transition and the non-2xx
+// surface directly (a real stream would emit `{ denied: true }` / an
+// SseError).
 jest.mock('@openpeepshq/react', () => ({
-  apiErrorMessage: () => '',
+  apiErrorMessage: (err: unknown, t: (key: string) => string) => {
+    const candidate =
+      (err as { errorKey?: string })?.errorKey ??
+      (err as { key?: string })?.key ??
+      (err as { error?: { key?: string; message?: string } })?.error?.key ??
+      (err as { error?: { message?: string } })?.error?.message ??
+      (err as Error)?.message;
+    if (typeof candidate === 'string' && candidate.length > 0) {
+      if (candidate.startsWith('error.')) return t(candidate);
+      return candidate;
+    }
+    return '';
+  },
   useJoinWaitingRoomToken: (
     onJoin: (params: unknown) => void,
-    _onError: unknown,
+    onError: (e: unknown) => void,
     onDenied?: () => void
   ) => {
     mockOnJoin = onJoin;
+    mockOnError = onError;
     mockOnDenied = onDenied;
   },
 }));
@@ -91,6 +108,7 @@ describe('JamRequestJoin denied phase (RN)', () => {
   beforeEach(() => {
     mockOnJoin = undefined;
     mockOnDenied = undefined;
+    mockOnError = undefined;
     mockButtonOnPress = undefined;
     mockRenderedTexts.length = 0;
   });
@@ -159,5 +177,37 @@ describe('JamRequestJoin denied phase (RN)', () => {
         mockButtonComponent as never
       )
     ).toHaveLength(0);
+  });
+
+  it('renders the mapped guest-pass copy for a 401 on the join stream', () => {
+    // Web/native parity for the join path's non-2xx surface (review
+    // suggestion 2): the SseError is mapped through `apiErrorMessage` to the
+    // en.json `error.jamGuestPassRequired` copy and rendered in the waiting
+    // phase, alongside the waiting copy (non-terminal).
+    ReactTestRenderer.act(() => {
+      tree = ReactTestRenderer.create(
+        React.createElement(JamRequestJoin, { onJoin: () => {} })
+      );
+    });
+    pressButton();
+    expect(mockOnError).toBeDefined();
+
+    // The error re-renders only the child listener (its `error` state), not
+    // the parent, so the waiting copy (rendered by the parent on press) was
+    // already logged and is not re-logged here. Assert on the accumulated log
+    // rather than clearing: both the waiting copy and the mapped error must be
+    // present in the final render.
+    ReactTestRenderer.act(() => {
+      mockOnError?.({ status: 401, key: 'error.jamGuestPassRequired' });
+    });
+
+    expect(mockRenderedTexts).toContain(
+      'Sign in, or create a guest pass, to join this jam.'
+    );
+    // The key itself is never rendered raw, and the waiting copy stays.
+    expect(mockRenderedTexts).not.toContain('error.jamGuestPassRequired');
+    expect(mockRenderedTexts).toContain(
+      'Waiting for a moderator to let you in'
+    );
   });
 });

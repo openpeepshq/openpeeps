@@ -29,10 +29,16 @@ const mockPressHandlers: Array<() => void> = [];
 // Busy state for the waiting-room action row (mirrors `useJamPeople`).
 let mockAdmittingId: string | null = null;
 let mockRejectingId: string | null = null;
+// Waiting-room stream failure (mirrors `useJamPeople.waitingRoomError`).
+let mockWaitingRoomError: string | null = null;
 // Every rendered action-button and its props, in document order.
 const mockButtonProps: Array<Record<string, unknown>> = [];
 // Every rendered View className (pins the action group's layout classes).
 const mockViewClasses: string[] = [];
+// Every rendered ThemedText with accessibilityRole="alert", in document
+// order (pins the waiting-room stream-error alert, mirroring the web
+// drawer's role="alert" paragraph).
+const mockAlertRoles: string[] = [];
 // Every rendered icon, in document order (recorded by the icon stub).
 const mockIconNames: string[] = [];
 
@@ -73,6 +79,8 @@ jest.mock('react-i18next', () => ({
       if (key === 'jams.waitingRoom.admitting') return 'Admitting\u2026';
       if (key === 'jams.waitingRoom.rejectParticipant') return 'Reject';
       if (key === 'jams.waitingRoom.rejecting') return 'Rejecting\u2026';
+      if (key === 'jams.waitingRoom.streamError')
+        return 'Unable to reach the waiting room';
       if (key === 'jams.drawer.peopleTitle') return 'People';
       if (key === 'jams.drawer.close') return 'Close';
       if (key === 'jams.drawer.searchPeoplePlaceholder') return 'Search';
@@ -99,6 +107,7 @@ jest.mock('@openpeepshq/react', () => ({
     setQuery: () => {},
     listedParticipants: mockParticipants,
     waitingProfiles: mockWaitingProfiles,
+    waitingRoomError: mockWaitingRoomError,
     admittingId: mockAdmittingId,
     rejectingId: mockRejectingId,
     admit: () => {},
@@ -179,7 +188,11 @@ jest.mock('./useParticipantConnection', () => ({
 }));
 
 jest.mock('../ui/themed-text', () => ({
-  ThemedText: (props: { children?: unknown; className?: string }) => {
+  ThemedText: (props: {
+    children?: unknown;
+    className?: string;
+    accessibilityRole?: string;
+  }) => {
     const c = props.children;
     if (typeof c === 'string' && c) mockRenderedTexts.push(c);
     else if (Array.isArray(c)) {
@@ -187,6 +200,7 @@ jest.mock('../ui/themed-text', () => ({
         if (typeof part === 'string' && part) mockRenderedTexts.push(part);
       }
     }
+    if (props.accessibilityRole === 'alert') mockAlertRoles.push('alert');
     return React.createElement('ThemedText', { className: props.className }, c);
   },
 }));
@@ -205,13 +219,15 @@ const renderDrawer = (
   sessions: number,
   waitingRoom: boolean = false,
   busy: { admittingId?: string | null; rejectingId?: string | null } = {},
-  bannedIds: string[] = []
+  bannedIds: string[] = [],
+  waitingRoomError: string | null = null
 ) => {
   mockSessions = sessions;
   mockIsModerator = waitingRoom;
   mockHasWaitingRoom = waitingRoom;
   mockWaitingProfiles = waitingRoom ? [{ id: 'w1' }] : [];
   mockBannedIds = bannedIds;
+  mockWaitingRoomError = waitingRoomError;
   mockAdmittingId = busy.admittingId ?? null;
   mockRejectingId = busy.rejectingId ?? null;
   mockRenderedTexts.length = 0;
@@ -219,6 +235,7 @@ const renderDrawer = (
   mockViewClasses.length = 0;
   mockIconNames.length = 0;
   mockPressHandlers.length = 0;
+  mockAlertRoles.length = 0;
   let tree!: ReactTestRenderer.ReactTestRenderer;
   ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
@@ -339,6 +356,34 @@ describe('JamPeopleDrawer waiting-room action row (RN)', () => {
     expect(mockViewClasses).not.toContain(
       'flex-row shrink-0 items-center gap-1'
     );
+  });
+});
+
+// Web/native parity for the waiting-room stream failure (review
+// suggestion 1): the RN drawer renders the hook's `waitingRoomError` as an
+// alert, replacing the queued-profile rows — mirroring the web drawer's
+// role="alert" paragraph.
+describe('JamPeopleDrawer waiting-room stream error (RN, web/native parity)', () => {
+  it('renders the stream error as an alert instead of the queued-profile rows', () => {
+    renderDrawer(0, true, {}, [], 'Unable to reach the waiting room');
+    const texts = mockRenderedTexts;
+
+    expect(texts).toContain('Waiting room');
+    expect(texts).toContain('Unable to reach the waiting room');
+    // The error replaces the rows: no profile name and no action buttons.
+    expect(texts).not.toContain('waiting');
+    expect(texts).not.toContain('Admit');
+    expect(texts).not.toContain('Reject');
+    expect(mockButtonProps).toHaveLength(0);
+    // The alert role mirrors the web drawer's role="alert" paragraph.
+    expect(mockAlertRoles).toEqual(['alert']);
+  });
+
+  it('renders the rows again once the stream error clears', () => {
+    renderDrawer(0, true);
+    expect(mockRenderedTexts).toContain('waiting');
+    expect(mockRenderedTexts).toContain('Admit');
+    expect(mockAlertRoles).toHaveLength(0);
   });
 });
 

@@ -1,13 +1,15 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Participant, Room } from 'livekit-client';
 import type {
   JamWaitingProfile,
   PublicProfile,
 } from '@openpeepshq/common/types';
 import { matchesQuery, sortByRaisedHand } from '@openpeepshq/common/lib';
+import type { SseError } from '@openpeepshq/fetch-client';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useCurrentProfile } from '../../components/layout/IdentityContext';
 import { useT } from '../../i18n';
+import { apiErrorMessage } from '../../lib/apiErrorMessage';
 import { useJamContext } from '../../components/jams/JamContext';
 import { parseParticipantMetadata } from '../../components/jams/jamEventActions';
 import { useRaisedHands } from '../../components/jams/useJamHands';
@@ -43,9 +45,29 @@ export const useJamPeople = ({
   const isModerator = !!me && jam.moderators.includes(me.id);
   const hasWaitingRoom = !!jam.waitingRoom;
 
+  // The waiting-room stream's non-2xx failure (auth expiry, 4xx/5xx) is a
+  // non-terminal error: a fresh snapshot clears it. The callback must be
+  // referentially stable across renders, so `t` is read through a ref and a
+  // single stable closure is handed to the stream (same pattern as the join
+  // path in `useJoinWaitingRoomToken`).
+  const [waitingRoomError, setWaitingRoomError] = useState<string | null>(null);
+  const tRef = useRef(t);
+  useEffect(() => {
+    tRef.current = t;
+  });
+  const onWaitingRoomStreamError = useCallback((error?: SseError) => {
+    const tNow = tRef.current;
+    const fallback = tNow('jams.waitingRoom.streamError', {
+      defaultValue: 'Unable to reach the waiting room',
+    });
+    const message = apiErrorMessage(error, tNow, fallback);
+    setWaitingRoomError(message.length > 0 ? message : null);
+  }, []);
+
   const waitingRoom = openpeepsApi.useWaitingRoomStream(
     isModerator && hasWaitingRoom ? jamPost.id : '',
     occurrence,
+    onWaitingRoomStreamError,
   );
   const admitParticipant = openpeepsApi.admitParticipantAction();
   const rejectParticipant = openpeepsApi.rejectParticipantAction();
@@ -92,6 +114,12 @@ export const useJamPeople = ({
           profile.id.toLowerCase().includes(q),
       );
   }, [waitingRoom, query]);
+
+  // The stream error is non-terminal: the first fresh snapshot after a
+  // failure clears it (same semantics as the join path's error state).
+  useEffect(() => {
+    if (waitingRoom) setWaitingRoomError(null);
+  }, [waitingRoom]);
 
   // Admit and reject share the same flow (busy state, endpoint call with the
   // optional occurrence, success/error toast); only the endpoint, the busy
@@ -169,6 +197,7 @@ export const useJamPeople = ({
     setQuery,
     listedParticipants,
     waitingProfiles,
+    waitingRoomError,
     admittingId,
     rejectingId,
     admit,

@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { MediaAttachmentData } from '@openpeepshq/common';
+import type { SseError } from '@openpeepshq/fetch-client';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { VideoIcon } from '../../icons/index';
 import { ThemedText } from '../../ui/themed-text';
@@ -31,7 +32,22 @@ const ProcessingTracker = ({
   onUpdate,
 }: ProcessingTrackerProps) => {
   const { openpeepsApi } = useOpenpeeps();
-  const event = openpeepsApi.useMediaProgress(id);
+  // A dead progress feed (non-2xx) is a stalled upload: report it as `failed`
+  // through the same `onUpdate` path as a server-side `failed` status (mirrors
+  // the web AttachmentCard's `onProgressStreamError` → `onFailed` routing).
+  // Ref-stable so the stream isn't torn down on re-render; reported once per
+  // tracker mount.
+  const onUpdateRef = useRef(onUpdate);
+  onUpdateRef.current = onUpdate;
+  const attachmentRef = useRef(attachment);
+  attachmentRef.current = attachment;
+  const streamFailedRef = useRef(false);
+  const onProgressStreamError = useCallback((_error: SseError) => {
+    if (streamFailedRef.current) return;
+    streamFailedRef.current = true;
+    onUpdateRef.current({ ...attachmentRef.current, status: 'failed' });
+  }, []);
+  const event = openpeepsApi.useMediaProgress(id, onProgressStreamError);
   const reportedStatusRef = useRef<string | undefined>(attachment.status);
 
   useEffect(() => {

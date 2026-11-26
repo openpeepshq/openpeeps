@@ -339,6 +339,9 @@ importers:
       eslint-config-prettier:
         specifier: ^9.1.0
         version: 9.1.0(eslint@10.15.0(jiti@1.21.7))
+      jsdom:
+        specifier: ^25.0.1
+        version: 25.0.1
       prettier:
         specifier: ^3.4.2
         version: 3.4.2
@@ -348,6 +351,9 @@ importers:
       typescript:
         specifier: ^6.0.2
         version: 6.0.3
+      vitest:
+        specifier: ^4.1.12
+        version: 4.1.12(@opentelemetry/api@1.9.1)(@types/node@24.12.2)(@vitest/coverage-v8@4.1.12)(@vitest/ui@4.1.12)(jsdom@25.0.1)(vite@7.3.8(@types/node@24.12.2)(jiti@1.21.7)(lightningcss@1.33.0)(terser@5.49.1)(tsx@4.22.4)(yaml@2.9.1))
 
   libraries/geocoder:
     dependencies:
@@ -1043,6 +1049,9 @@ importers:
       '@openpeepshq/common':
         specifier: workspace:^
         version: link:../common
+      '@openpeepshq/fetch-client':
+        specifier: workspace:^
+        version: link:../../libraries/fetch-client
       '@openpeepshq/greenscreen':
         specifier: workspace:^
         version: link:../../libraries/greenscreen
@@ -1110,9 +1119,6 @@ importers:
       '@eslint/js':
         specifier: ^9.17.0
         version: 9.19.0
-      '@openpeepshq/fetch-client':
-        specifier: workspace:^
-        version: link:../../libraries/fetch-client
       '@types/node':
         specifier: ^22.13.1
         version: 22.13.1

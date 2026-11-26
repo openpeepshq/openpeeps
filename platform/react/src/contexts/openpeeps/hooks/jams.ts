@@ -47,10 +47,15 @@ export const jamHooks = (client: OpenpeepsClient) => ({
   createJamEventAction: payloadMutation(client.jams.events.create, [['jams']]),
   useJamAttendance: (id: string) =>
     apiHook(client.jams.events.attendance, { pathParams: { id } }),
-  useWaitingRoomStream: (id: string, occurrence?: string) =>
+  useWaitingRoomStream: (
+    id: string,
+    occurrence?: string,
+    onError?: (error: SseError) => void,
+  ) =>
     noPayloadStream(client.jams.waitingRoom.listen).last({
       pathParameters: { id },
       queryParameters: occurrence ? { occurrence } : undefined,
+      onError,
     }),
   admitParticipantAction: noPayloadMutation(client.jams.waitingRoom.admit),
   rejectParticipantAction: noPayloadMutation(client.jams.waitingRoom.reject),
