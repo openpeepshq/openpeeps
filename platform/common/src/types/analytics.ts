@@ -87,6 +87,17 @@ export type AnalyticsGroupGrowthPoint = z.infer<
   typeof analyticsGroupGrowthPointSchema
 >;
 
+export const analyticsProfileRowSchema = z.object({
+  profileId: z.string(),
+  handle: z.string(),
+  displayName: z.string().optional(),
+  uniqueViewers: z.number(),
+  // Read-layer parity with analyticsPostRowSchema; intentionally unused by the
+  // admin report (the PDF renders only `uniqueViewers`).
+  viewEvents: z.number().optional(),
+});
+export type AnalyticsProfileRow = z.infer<typeof analyticsProfileRowSchema>;
+
 export const analyticsPostRowSchema = z.object({
   postId: z.string(),
   snippet: z.string().optional(),
@@ -195,6 +206,8 @@ export const analyticsOverviewSchema = z.object({
   activeUsersSeries: analyticsBucketedPointSchema.array(),
   topMembers: analyticsMemberRowSchema.array(),
   topPosts: analyticsPostRowSchema.array(),
+  /** Top profiles by unique viewers of their profile pages (aggregate only). */
+  topProfiles: analyticsProfileRowSchema.array(),
   /** @deprecated kept for report/CSV compatibility */
   activitySeries: analyticsSeriesPointSchema.array(),
   engagementRateSeries: analyticsSeriesPointSchema.array(),

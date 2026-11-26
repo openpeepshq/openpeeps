@@ -141,6 +141,13 @@
       "when": 1795656890705,
       "tag": "0022_add_article_slug_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1795770000000,
+      "tag": "0026_add_profile_views",
+      "breakpoints": true
     }
   ]
 }

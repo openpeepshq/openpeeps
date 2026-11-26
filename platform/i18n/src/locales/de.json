@@ -1832,6 +1832,7 @@
       "topGroupsByActivity": "Top-Gruppen nach Aktivität",
       "groupGrowth": "Gruppenwachstum (neue Mitglieder)",
       "topPosts": "Top-Beiträge",
+      "topProfiles": "Top-Profile",
       "topPages": "Top-Seiten",
       "topOutboundLinks": "Top ausgehende Links",
       "activityHeatmap": "Aktivitäts-Heatmap",
@@ -1881,7 +1882,9 @@
         "activity": "Aktivität",
         "page": "Seite",
         "link": "Link",
-        "clicks": "Klicks"
+        "clicks": "Klicks",
+        "profile": "Profil",
+        "handle": "Handle"
       },
       "reports": {
         "title": "Monatlicher Vorstandsbericht",
@@ -1948,6 +1951,7 @@
         "activeUsers": "Aktive Mitglieder pro Zeitfenster im ausgewählten Zeitraum.",
         "topMembers": "Mitglieder, gerankt nach Beiträgen im Zeitraum: erstellte Beiträge plus gegebene Reaktionen und Antworten.",
         "topPosts": "Beiträge mit den meisten eindeutigen Betrachtern im ausgewählten Zeitraum.",
+        "topProfiles": "Profile mit den meisten eindeutigen Betrachtern ihrer Profilseiten im ausgewählten Zeitraum. Nur Zählungen — wer ein Profil angesehen hat, wird nie angezeigt.",
         "topPages": "In-App-Routen mit den meisten Seitenaufrufen im ausgewählten Zeitraum. Zählungen sind anonyme Aggregate; wer eine Seite angesehen hat, wird nicht gespeichert.",
         "topOutboundLinks": "Externe URLs, die aus Beiträgen und Vorschauen im ausgewählten Zeitraum angeklickt wurden. Zählungen sind anonyme Aggregate; wer geklickt hat, wird nicht gespeichert.",
         "signupsByDay": "Neue Mitgliedsprofile, die an jedem Kalendertag im ausgewählten Zeitraum erstellt wurden.",
@@ -1967,6 +1971,9 @@
         "tableCreator": "Autor des Beitrags.",
         "tableType": "Beitragstyp (Notiz, Artikel, Jam, Umfrage oder Veranstaltung).",
         "tableViews": "Eindeutige Betrachter des Beitrags im ausgewählten Zeitraum.",
+        "tableViewers": "Eindeutige Betrachter der Profilseite im ausgewählten Zeitraum.",
+        "tableProfile": "Profil, das angesehen wurde.",
+        "tableHandle": "Profil-Benutzername (Handle).",
         "tableChannel": "Für das Mitglied erfasster Registrierungskanal (z. B. Einladung oder organisch), sofern bekannt.",
         "tableGroupName": "Anzeigename (oder Benutzername) der Gruppe.",
         "tableMembers": "Aktuelle Gesamtmitgliederzahl der Gruppe, darunter aktive Mitglieder (eindeutige Beitragsautoren in der Gruppe im Zeitraum).",

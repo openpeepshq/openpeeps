@@ -1,7 +1,11 @@
 import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { useCurrentProfile, useOpenpeeps } from '@openpeepshq/react';
+import {
+  useCurrentProfile,
+  useOpenpeeps,
+  useProfileView,
+} from '@openpeepshq/react';
 import { useSetPageHeader } from '../components/layout';
 import { RssIcon } from '../components/icons/index';
 import { MainScreenProps } from '../components/navigation/types/index';
@@ -23,6 +27,8 @@ export const Profile = ({ route }: ProfileProps) => {
   const isOwnProfile = me?.handle === handle;
   const profile = isOwnProfile ? me : (profileQuery.data ?? undefined);
   const blockedByMe = !isOwnProfile && !!profileQuery.data?.blockedByMe;
+
+  useProfileView(profile?.id, { enabled: !isOwnProfile && !blockedByMe });
 
   const notFound = (
     <View className="relative flex-col items-center pt-20">

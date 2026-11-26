@@ -140,6 +140,15 @@ const overviewFixture: AnalyticsOverview = {
       viewEvents: 40,
     },
   ],
+  topProfiles: [
+    {
+      profileId: 'profile-alice',
+      handle: 'alice',
+      displayName: 'Alice',
+      uniqueViewers: 9,
+      viewEvents: 20,
+    },
+  ],
   activitySeries: [],
   engagementRateSeries: [
     { day: '2026-07-01', value: 12 },

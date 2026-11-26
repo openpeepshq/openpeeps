@@ -52,6 +52,7 @@ export const collectionInfos = {
   hasReadCollection: edge('hasRead'),
   bookmarksCollection: edge('bookmarks'),
   postSeenCollection: edge('postSeen'),
+  profileSeenCollection: edge('profileSeen'),
   profileSettingsCollection: document('profileSettings'),
   jamRecordingsCollection: edge('jamRecordings'),
   profileHashtagsCollection: edge('profileHashtags'),

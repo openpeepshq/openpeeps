@@ -183,4 +183,9 @@ export const profiles = (
     ProfileActivitySummary,
     { profileId: string }
   >(rawClient, '/profiles/:profileId/activity-summary'),
+  seen: allpeepPayloadEndpoint<SuccessResponse, { profileIds: string[] }>(
+    rawClient,
+    '/profiles/seen',
+    'post',
+  ),
 });

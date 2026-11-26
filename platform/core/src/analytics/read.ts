@@ -1,4 +1,4 @@
-import { and, asc, desc, gte, lte, min, sql, sum } from 'drizzle-orm';
+import { and, asc, desc, gte, isNull, lte, min, sql, sum } from 'drizzle-orm';
 import type {
   AnalyticsDateQuery,
   AnalyticsEngagement,
@@ -13,6 +13,7 @@ import {
   analyticsDailyByGroup,
   analyticsDailyTotals,
   analyticsPostViewsDaily,
+  analyticsProfileViewsDaily,
   analyticsRetentionCohorts,
 } from '../db/pg/schema/analytics';
 import { groups, posts, profiles } from '../db/pg/schema/documents';
@@ -715,6 +716,52 @@ const topPostsByViews = async (from: string, to: string, limit = 10) => {
   });
 };
 
+/**
+ * Top profiles by unique viewers of their profile pages (aggregate counts
+ * only — viewer identities are never surfaced). Mirrors
+ * {@link topPostsByViews} over `analytics_profile_views_daily`.
+ */
+const topProfilesByViews = async (from: string, to: string, limit = 10) => {
+  const db = await database();
+  // Privacy invariant: this select must stay aggregate — counts plus public
+  // profile fields only. Viewer ids live exclusively in the raw `profile_seen`
+  // edge and must never surface here.
+  const rows = await db
+    .select({
+      profileId: profiles.id,
+      handle: profiles.handle,
+      body: profiles.body,
+      uniqueViewers: sum(analyticsProfileViewsDaily.uniqueViewers),
+      viewEvents: sum(analyticsProfileViewsDaily.viewEvents),
+    })
+    .from(analyticsProfileViewsDaily)
+    .innerJoin(
+      profiles,
+      sql`${profiles.id}::text = ${analyticsProfileViewsDaily.profileId}`,
+    )
+    .where(
+      and(
+        gte(analyticsProfileViewsDaily.day, from),
+        lte(analyticsProfileViewsDaily.day, to),
+        isNull(profiles.deletedAt),
+      ),
+    )
+    .groupBy(profiles.id, profiles.handle, profiles.body)
+    .orderBy(desc(sum(analyticsProfileViewsDaily.uniqueViewers)))
+    .limit(limit);
+
+  return rows.map((r) => {
+    const body = (r.body ?? {}) as { displayName?: string; name?: string };
+    return {
+      profileId: r.profileId,
+      handle: r.handle,
+      displayName: body.displayName ?? body.name ?? undefined,
+      uniqueViewers: Number(r.uniqueViewers ?? 0),
+      viewEvents: Number(r.viewEvents ?? 0),
+    };
+  });
+};
+
 const withCache = async <T>(
   section: string,
   from: string,
@@ -735,7 +782,7 @@ export const getAnalyticsOverview = async (
   const range = await resolveQueryRange(query);
   // Unique people in the window — summing daily rollups would count a
   // member once per day they were active.
-  return withCache('overview-v7', range.from, range.to, async () => {
+  return withCache('overview-v9', range.from, range.to, async () => {
     const [
       activeMembersSeries,
       postsSeries,
@@ -745,6 +792,7 @@ export const getAnalyticsOverview = async (
       topGroupRows,
       groupGrowth,
       topPostRows,
+      topProfileRows,
       topMemberRows,
       compiledAt,
       totalMembers,
@@ -769,6 +817,7 @@ export const getAnalyticsOverview = async (
       topGroups(range.from, range.to),
       groupGrowthOverTime(range.from, range.to),
       topPostsByViews(range.from, range.to),
+      topProfilesByViews(range.from, range.to),
       topMembers(range.from, range.to),
       latestCompiledAt(range.from, range.to),
       totalMembersAt(range.to),
@@ -889,6 +938,7 @@ export const getAnalyticsOverview = async (
       activeUsersSeries,
       topMembers: topMemberRows,
       topPosts: topPostRows,
+      topProfiles: topProfileRows,
       activitySeries: activeMembersSeries,
       engagementRateSeries,
       topGroups: topGroupRows,

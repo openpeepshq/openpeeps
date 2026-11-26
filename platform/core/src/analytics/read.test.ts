@@ -463,3 +463,88 @@ maybe('getAnalyticsOverview', () => {
     expect(card.series?.map((p) => p.value)).toEqual(CURRENT_NEW);
   });
 });
+
+maybe('topProfiles (aggregate profile-view read, #802)', () => {
+  const seedProfileViews = async () => {
+    const pool = pgPool();
+    // Two live profiles that get profile views, and one deleted profile that
+    // has views but must be excluded from the ranking.
+    const [highRes, lowRes, deletedRes] = [
+      await pool.query(
+        `INSERT INTO profiles (id, handle, type, created_at, updated_at)
+         VALUES (gen_random_uuid(), 'pv-high', 'local', $1, $1) RETURNING id`,
+        ['2026-07-01T00:00:00.000Z'],
+      ),
+      await pool.query(
+        `INSERT INTO profiles (id, handle, type, created_at, updated_at)
+         VALUES (gen_random_uuid(), 'pv-low', 'local', $1, $1) RETURNING id`,
+        ['2026-07-01T00:00:00.000Z'],
+      ),
+      await pool.query(
+        `INSERT INTO profiles (id, handle, type, created_at, updated_at, deleted_at)
+         VALUES (gen_random_uuid(), 'pv-gone', 'local', $1, $1, $2) RETURNING id`,
+        ['2026-07-01T00:00:00.000Z', '2026-07-20T00:00:00.000Z'],
+      ),
+    ];
+    const highId = highRes.rows[0].id;
+    const lowId = lowRes.rows[0].id;
+    const deletedId = deletedRes.rows[0].id;
+
+    // Daily rollup rows inside the range (summed by topProfilesByViews):
+    // high: 20 + 3 = 23 unique viewers, 30 + 4 = 34 view events.
+    // low:  5 unique viewers, 6 view events.
+    // gone: 50 unique viewers (must be dropped by the deleted_at filter).
+    const insert = (day: string, profileId: string, uv: number, ev: number) =>
+      pool.query(
+        `INSERT INTO analytics_profile_views_daily
+           (id, day, profile_id, unique_viewers, view_events, compiled_at)
+         VALUES (gen_random_uuid(), $1, $2, $3, $4, now())`,
+        [day, profileId, uv, ev],
+      );
+    await insert('2026-08-02', highId, 20, 30);
+    await insert('2026-08-03', highId, 3, 4);
+    await insert('2026-08-02', lowId, 5, 6);
+    await insert('2026-08-02', deletedId, 50, 60);
+    // A row outside the range must not be counted.
+    await insert('2026-07-15', highId, 999, 999);
+  };
+
+  beforeEach(async () => {
+    await empty();
+    try {
+      await Promise.race([
+        invalidateAnalyticsCache(),
+        new Promise((resolve) => setTimeout(resolve, 2000)),
+      ]);
+    } catch {
+      // Cache layer degrades to a DB recompute when Redis is unavailable.
+    }
+    await seedProfileViews();
+  });
+
+  it('ranks profiles by unique viewers and excludes deleted profiles', async () => {
+    const overview = await getAnalyticsOverview({ from: FROM, to: TO });
+
+    expect(overview.topProfiles).toEqual([
+      {
+        profileId: expect.any(String),
+        handle: 'pv-high',
+        displayName: undefined,
+        uniqueViewers: 23,
+        viewEvents: 34,
+      },
+      {
+        profileId: expect.any(String),
+        handle: 'pv-low',
+        displayName: undefined,
+        uniqueViewers: 5,
+        viewEvents: 6,
+      },
+    ]);
+    // The deleted profile never appears, even though it has more raw views —
+    // viewer identities are aggregate-only and deleted profiles drop out.
+    expect(overview.topProfiles.some((p) => p.handle === 'pv-gone')).toBe(
+      false,
+    );
+  });
+});

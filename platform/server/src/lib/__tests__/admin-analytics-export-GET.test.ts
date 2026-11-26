@@ -53,6 +53,7 @@ vi.mock('@openpeepshq/core/analytics', async (importOriginal) => {
     activeUsersSeries: [],
     topMembers: [],
     topPosts: [],
+    topProfiles: [],
     activitySeries: [],
     engagementRateSeries: [],
     topGroups: [],

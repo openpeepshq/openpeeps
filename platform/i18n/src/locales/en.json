@@ -1832,6 +1832,7 @@
       "topGroupsByActivity": "Top Groups by Activity",
       "groupGrowth": "Group Growth (New Members)",
       "topPosts": "Top posts",
+      "topProfiles": "Top profiles",
       "topPages": "Top pages",
       "topOutboundLinks": "Top outbound links",
       "activityHeatmap": "Activity heatmap",
@@ -1881,7 +1882,9 @@
         "activity": "Activity",
         "page": "Page",
         "link": "Link",
-        "clicks": "Clicks"
+        "clicks": "Clicks",
+        "profile": "Profile",
+        "handle": "Handle"
       },
       "reports": {
         "title": "Monthly board report",
@@ -1948,6 +1951,7 @@
         "activeUsers": "Active members per time bucket in the selected range.",
         "topMembers": "Members ranked by contributions in the range: posts created plus reactions and replies given.",
         "topPosts": "Posts with the most unique viewers in the selected range.",
+        "topProfiles": "Profiles with the most unique viewers of their profile pages in the selected range. Counts only — viewer identities are never surfaced.",
         "topPages": "In-app routes with the most page views in the selected range. Counts are anonymous aggregates; who viewed a page is not stored.",
         "topOutboundLinks": "External URLs clicked from posts and previews in the selected range. Counts are anonymous aggregates; who clicked is not stored.",
         "signupsByDay": "New member profiles created on each calendar day in the selected range.",
@@ -1967,6 +1971,9 @@
         "tableCreator": "Author of the post.",
         "tableType": "Post type (note, article, jam, poll, or event).",
         "tableViews": "Unique viewers of the post in the selected range.",
+        "tableViewers": "Unique viewers of the profile page in the selected range.",
+        "tableProfile": "Profile that was viewed.",
+        "tableHandle": "Profile handle.",
         "tableChannel": "Signup channel recorded for the member (for example invite or organic), when known.",
         "tableGroupName": "Group display name (or handle).",
         "tableMembers": "Current total members in the group, with active members underneath (distinct post authors in the group during the range).",

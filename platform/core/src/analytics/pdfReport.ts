@@ -794,6 +794,23 @@ const drawOverviewPage = (layout: Layout, overview: AnalyticsOverview) => {
       views: formatNum(p.uniqueViewers),
     })),
   );
+
+  drawSectionTitle(layout, 'Top profiles');
+  drawTable(
+    layout,
+    [
+      { key: 'profile', header: 'Profile', width: 240 },
+      { key: 'handle', header: 'Handle', width: 164 },
+      // Distinct viewers per day rollup, not raw view events (view_events is
+      // deliberately not shown).
+      { key: 'views', header: 'Viewers', width: 128, align: 'right' },
+    ],
+    overview.topProfiles.slice(0, 8).map((p) => ({
+      profile: truncate(p.displayName ?? p.handle, 28),
+      handle: truncate(`@${p.handle}`, 24),
+      views: formatNum(p.uniqueViewers),
+    })),
+  );
 };
 
 const drawMembersPage = (

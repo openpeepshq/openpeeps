@@ -290,6 +290,24 @@ export const compileAnalyticsDay = async (day: string): Promise<void> => {
     group by to_id
   `);
 
+  await db.execute(
+    sql`delete from analytics_profile_views_daily where day = ${day}`,
+  );
+  await db.execute(sql`
+    insert into analytics_profile_views_daily
+      (id, day, profile_id, unique_viewers, view_events, compiled_at)
+    select
+      gen_random_uuid(),
+      ${day},
+      to_id,
+      count(distinct from_id)::int,
+      count(*)::int,
+      ${now}
+    from profile_seen
+    where created_at >= ${start} and created_at < ${end}
+    group by to_id
+  `);
+
   // Cheap self-check that a future query edit cannot silently reintroduce the
   // active-members > total-members bug this module once had. The rollup is
   // scoped through localMemberScope, so this only trips on a real regression.

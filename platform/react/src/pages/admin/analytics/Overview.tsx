@@ -5,15 +5,18 @@ import {
   Table,
   analyticsChartColor,
 } from '@openpeepshq/react-ui';
+import { useNavigate } from '../../../contexts/router';
 import type {
   AnalyticsMemberRow,
   AnalyticsPostRow,
   AnalyticsPostTypeKey,
+  AnalyticsProfileRow,
 } from '@openpeepshq/common/types';
 import { useOpenpeeps, useT } from '../../../index';
 import { AnalyticsLoading, AnalyticsSection } from './AnalyticsLayout';
 import { useAnalyticsRangeContext } from './AnalyticsRangeContext';
 import { columnHeader } from './analyticsInfo';
+import { topProfilesCsvRows } from './topProfilesCsv';
 
 const POST_TYPE_SERIES: Array<{
   key: AnalyticsPostTypeKey;
@@ -66,6 +69,7 @@ const PostTypesList = ({
 
 export const AnalyticsOverviewPage = () => {
   const t = useT();
+  const navigate = useNavigate();
   const { openpeepsApi } = useOpenpeeps();
   const { queryParams } = useAnalyticsRangeContext();
   const query = openpeepsApi.admin.useAnalyticsOverview(queryParams);
@@ -394,6 +398,74 @@ export const AnalyticsOverviewPage = () => {
                     info(
                       'tableViews',
                       'Unique viewers of the post in the selected range.',
+                    ),
+                  ),
+                },
+              ]}
+            />
+          ) : (
+            <p className="text-muted-foreground text-sm">No data yet</p>
+          )}
+        </AnalyticsSection>
+
+        <AnalyticsSection
+          collapsible
+          title={t('admin.analytics.topProfiles', {
+            defaultValue: 'Top profiles',
+          })}
+          info={info(
+            'topProfiles',
+            'Profiles with the most unique viewers of their profile pages in the selected range. Counts only — viewer identities are never surfaced.',
+          )}
+          csvFilename="top-profiles.csv"
+          csvRows={topProfilesCsvRows(data.topProfiles)}
+        >
+          {data.topProfiles.length > 0 ? (
+            <Table
+              data={data.topProfiles}
+              columnDefinitions={[
+                {
+                  id: 'profile',
+                  type: 'text',
+                  header: columnHeader(
+                    t('admin.analytics.table.profile', {
+                      defaultValue: 'Profile',
+                    }),
+                    info('tableProfile', 'Profile that was viewed.'),
+                  ),
+                  render: (p: AnalyticsProfileRow) => (
+                    <button
+                      type="button"
+                      className="cursor-pointer hover:underline"
+                      onClick={() =>
+                        navigate({ type: 'profile', handle: p.handle })
+                      }
+                    >
+                      {p.displayName ?? `@${p.handle}`}
+                    </button>
+                  ),
+                },
+                {
+                  id: 'handle',
+                  type: 'text',
+                  header: columnHeader(
+                    t('admin.analytics.table.handle', {
+                      defaultValue: 'Handle',
+                    }),
+                    info('tableHandle', 'Profile handle.'),
+                  ),
+                  render: (p: AnalyticsProfileRow) => `@${p.handle}`,
+                },
+                {
+                  id: 'uniqueViewers',
+                  type: 'property',
+                  header: columnHeader(
+                    t('admin.analytics.metrics.uniqueViewers', {
+                      defaultValue: 'Views',
+                    }),
+                    info(
+                      'tableViewers',
+                      'Unique viewers of the profile page in the selected range.',
                     ),
                   ),
                 },

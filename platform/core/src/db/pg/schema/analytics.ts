@@ -126,6 +126,26 @@ export const analyticsPostViewsDaily = pgTable(
   ],
 );
 
+/** Per-profile view rollups for top-profiles engagement ranking. */
+export const analyticsProfileViewsDaily = pgTable(
+  'analytics_profile_views_daily',
+  {
+    id: idColumn(),
+    day: date('day', { mode: 'string' }).notNull(),
+    profileId: text('profile_id').notNull(),
+    uniqueViewers: integer('unique_viewers').notNull().default(0),
+    viewEvents: integer('view_events').notNull().default(0),
+    compiledAt: timestamp('compiled_at', { withTimezone: true, mode: 'string' })
+      .notNull()
+      .default(sql`now()`),
+  },
+  (t) => [
+    uniqueIndex('analytics_profile_views_day_profile').on(t.day, t.profileId),
+    index('analytics_profile_views_day_idx').on(t.day),
+    index('analytics_profile_views_profile_idx').on(t.profileId),
+  ],
+);
+
 /** Report settings singleton. */
 export const analyticsSettings = pgTable('analytics_settings', {
   id: text('id').primaryKey().default('default'),

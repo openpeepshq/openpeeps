@@ -1,6 +1,6 @@
 {
   "name": "@openpeepshq/i18n",
-  "version": "0.29.0",
+  "version": "0.33.0",
   "license": "MIT",
   "type": "module",
   "dependencies": {},

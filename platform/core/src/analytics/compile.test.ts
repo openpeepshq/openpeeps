@@ -167,3 +167,59 @@ maybe('compileAnalyticsDay', () => {
     expect(Number(row.new_members)).toBe(0);
   });
 });
+
+maybe('compileAnalyticsDay profile_views rollup (#802)', () => {
+  afterAll(async () => {
+    await closePostgres();
+  });
+
+  const seedProfileSeen = async () => {
+    const pool = pgPool();
+    // Two distinct viewers view profile A twice on DAY, and a single viewer
+    // views profile B once. A view from outside DAY must be ignored, as must a
+    // view of a third profile (only A and B get rows).
+    await pool.query(
+      `INSERT INTO profile_seen (id, from_id, to_id, body, created_at, updated_at)
+       VALUES
+         (gen_random_uuid(), 'v1', 'A', '{}', $1, $1),
+         (gen_random_uuid(), 'v2', 'A', '{}', $2, $2),
+         (gen_random_uuid(), 'v1', 'A', '{}', $3, $3),
+         (gen_random_uuid(), 'v3', 'B', '{}', $1, $1),
+         (gen_random_uuid(), 'v4', 'A', '{}', $4, $4)`,
+      [
+        '2026-08-03T01:00:00.000Z',
+        '2026-08-03T02:00:00.000Z',
+        '2026-08-03T03:00:00.000Z',
+        '2026-08-04T01:00:00.000Z',
+      ],
+    );
+  };
+
+  it('compiles unique viewers and view events per profile for the day', async () => {
+    await empty();
+    await seedProfileSeen();
+    await compileAnalyticsDay(DAY);
+
+    const pool = pgPool();
+    const rows = (
+      await pool.query(
+        `SELECT profile_id, unique_viewers, view_events
+         FROM analytics_profile_views_daily
+         WHERE day = $1
+         ORDER BY profile_id`,
+        [DAY],
+      )
+    ).rows as {
+      profile_id: string;
+      unique_viewers: number;
+      view_events: number;
+    }[];
+
+    // A: 3 impressions, 2 distinct viewers (v1 viewed twice). B: 1 impression,
+    // 1 viewer. The out-of-day v4 row does not count toward A.
+    expect(rows).toEqual([
+      { profile_id: 'A', unique_viewers: 2, view_events: 3 },
+      { profile_id: 'B', unique_viewers: 1, view_events: 1 },
+    ]);
+  });
+});

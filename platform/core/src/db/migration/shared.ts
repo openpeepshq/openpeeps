@@ -34,6 +34,7 @@ export const EDGE_IMPORT_ORDER = [
   'repost',
   'bookmarks',
   'postSeen',
+  'profileSeen',
   'hasSeen',
   'hasRead',
   'userGroups',

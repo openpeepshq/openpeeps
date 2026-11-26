@@ -316,6 +316,12 @@ export const edgeRegistry: Record<string, EdgeConfig> = {
     fromCollection: 'profiles',
     toCollection: 'posts',
   },
+  profileSeen: {
+    kind: 'edge',
+    table: edges.profileSeen,
+    fromCollection: 'profiles',
+    toCollection: 'profiles',
+  },
   hasSeen: {
     kind: 'edge',
     table: edges.hasSeen,

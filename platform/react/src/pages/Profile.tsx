@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { Rss } from 'lucide-react';
-import { useT, useOpenpeeps, useSetPageHeader } from '../index';
+import { useT, useOpenpeeps, useSetPageHeader, useProfileView } from '../index';
 import {
   ProfileHeader,
   ProfilePostsAndReplies,
@@ -20,6 +20,8 @@ export function Profile() {
   const isOwnProfile = me?.handle === handle;
   const profile = isOwnProfile ? me : (profileQuery.data ?? undefined);
   const blockedByMe = !isOwnProfile && !!profileQuery.data?.blockedByMe;
+
+  useProfileView(profile?.id, { enabled: !isOwnProfile && !blockedByMe });
 
   useSetPageHeader(profile?.displayName || `@${handle}`);
 

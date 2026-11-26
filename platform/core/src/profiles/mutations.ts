@@ -38,6 +38,8 @@ import { logger } from '../log';
 import { revokeAllCalendarFeedTokens } from '../calendarFeedTokens';
 import { accountsCache } from '../accounts/cache';
 import { assertProfileCapacity } from './capacity';
+import { profileSeen } from '../db/pg/schema/edges';
+import { nowIso } from '../db/pg/mappers';
 import {
   deleteBlock,
   dropFollowsBetween,
@@ -272,3 +274,28 @@ export const unassignRole = (profile: Profile, role: Role) =>
   allpeepDb()
     .then(({ db }) => roleUnassigner(db, profile, role))
     .then(() => profilesCache.del(profile.id));
+
+/**
+ * Inserts one raw edge row per given id — intentionally without dedupe,
+ * self-view checks or capability gating: the ingest boundary (the
+ * profiles/seen endpoint) owns all of those, so callers must not bypass it
+ * with already-raw ids.
+ */
+export const markProfilesSeen = async (
+  profileIds: string[],
+  viewer: Profile,
+) => {
+  if (profileIds.length === 0) return;
+  const { db } = await allpeepDb();
+  const ts = nowIso();
+  await db.insert(profileSeen).values(
+    profileIds.map((id) => ({
+      id: uuidv7(),
+      fromId: viewer.id,
+      toId: id,
+      body: {},
+      createdAt: ts,
+      updatedAt: ts,
+    })),
+  );
+};

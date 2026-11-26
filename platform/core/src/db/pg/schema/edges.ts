@@ -33,6 +33,8 @@ export const repost = edgeTable('repost', true);
 export const bookmarks = edgeTable('bookmarks');
 /** Not unique: each view is an impression; unread uses EXISTS on any row. */
 export const postSeen = edgeTable('post_seen');
+/** Not unique: each profile-page view is an impression; rollup dedupes. */
+export const profileSeen = edgeTable('profile_seen');
 export const hasSeen = edgeTable('has_seen');
 export const hasRead = edgeTable('has_read');
 export const userGroups = edgeTable('user_groups');
