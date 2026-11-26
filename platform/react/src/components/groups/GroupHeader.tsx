@@ -58,7 +58,7 @@ export function GroupHeader({ group }: GroupHeaderProps) {
           title={t('groups.viewMembers', { defaultValue: 'View members' })}
           className="text-muted-foreground text-sm hover:underline"
         >
-          {group.membersCount} member{group.membersCount === 1 ? '' : 's'}
+          {t('groups.members.count', { count: group.membersCount })}
         </a>
       </div>
     </div>

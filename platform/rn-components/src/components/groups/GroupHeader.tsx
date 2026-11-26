@@ -65,7 +65,7 @@ export const GroupHeader = ({ group }: GroupHeaderProps) => {
           onPress={() => navigation.navigate('GroupMembers', { id: group.id })}
         >
           <ThemedText className="text-sm text-muted-foreground">
-            {group.membersCount} member{group.membersCount === 1 ? '' : 's'}
+            {t('groups.members.count', { count: group.membersCount })}
           </ThemedText>
         </Pressable>
       </View>

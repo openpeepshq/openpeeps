@@ -38,12 +38,25 @@ jest.mock('react-native', () => ({
   View: el('View'),
   Text: el('Text'),
   Pressable: el('Pressable'),
+  Image: el('Image'),
 }));
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (_key: string, opts?: { defaultValue?: string }) =>
-      opts?.defaultValue ?? _key,
+    t: (
+      _key: string,
+      opts?: { count?: number; defaultValue?: string }
+    ): string => {
+      // Minimal plural resolver for the member-count key (mirrors the real
+      // en.json values) so the i18n path is pinned — an exact match on the
+      // interpolated text cannot come from the hardcoded `member`/`'s'`
+      // concatenation. Other keys resolve to their defaultValue, or the key
+      // itself when none is given (previous mock behavior).
+      if (_key === 'groups.members.count' && typeof opts?.count === 'number') {
+        return `${opts.count} ${opts.count === 1 ? 'member' : 'members'}`;
+      }
+      return opts?.defaultValue ?? _key;
+    },
   }),
 }));
 
@@ -55,13 +68,27 @@ jest.mock('@react-navigation/native-stack', () => ({}));
 jest.mock('@openpeepshq/common', () => ({
   formatBadgeCount: (n: number) => String(n),
   isDeletedProfile: () => false,
+  groupName: (g: { displayName?: string; handle?: string } | undefined) =>
+    g?.displayName || g?.handle || '',
+  getGroupAvatar: (g: { avatar?: string } | undefined) => g?.avatar,
 }));
 jest.mock('@openpeepshq/common/lib', () => ({
   formatEventRecurrence: () => '',
+  groupSectionPath: () => 'posts',
+  groupName: (g: { displayName?: string; handle?: string } | undefined) =>
+    g?.displayName || g?.handle || '',
 }));
 
 jest.mock('@openpeepshq/react', () => ({
-  useOpenpeeps: () => ({ queryClient: { invalidateQueries: jest.fn() } }),
+  useOpenpeeps: () => ({
+    queryClient: { invalidateQueries: jest.fn() },
+    openpeepsApi: { useServerInfo: () => ({ data: undefined }) },
+  }),
+  useCurrentProfile: () => undefined,
+  useGroupNotificationLevel: () => ({
+    level: 'off',
+    setLevel: jest.fn(),
+  }),
   // Pass-through by contract, not just a stub: with no viewer tier (profile
   // settings / community default) in scope, the real hook returns the event
   // zone — its documented fallback tier (profile -> community -> event zone),
@@ -189,6 +216,18 @@ jest.mock('./custom/common/participant-avatar', () => ({
 jest.mock('./groups/JoinGroupButton', () => ({
   JoinGroupButton: el('JoinGroupButton'),
 }));
+// GroupHeader's member-branch siblings drag in @rn-primitives (JSX) and
+// native modal modules the node jest env cannot parse. Render them inert —
+// the header under test renders only the non-member branch here.
+jest.mock('./groups/GroupShareMenu', () => ({
+  GroupShareMenu: el('GroupShareMenu'),
+}));
+jest.mock('./groups/GroupNotificationSettingsModal', () => ({
+  GroupNotificationButton: el('GroupNotificationButton'),
+}));
+jest.mock('./groups/GroupOptionsMenu', () => ({
+  GroupOptionsMenu: el('GroupOptionsMenu'),
+}));
 jest.mock('./jams/JamDeviceSelectors', () => ({
   JamMicSelector: () => null,
   JamCameraSelector: () => null,
@@ -219,6 +258,7 @@ jest.mock('@livekit/react-native', () => ({
 
 import { FeedEvent } from './post/types/Event';
 import { GroupCard } from './groups/GroupCard';
+import { GroupHeader } from './groups/GroupHeader';
 import { JamFooter } from './jams/JamFooter';
 import { ProfileWithActionCard } from './profile/ProfileWithActionCard';
 
@@ -373,6 +413,38 @@ describe('group card (groups/GroupCard.tsx)', () => {
     expect(join).toBeDefined();
     const action = findWithClass(root, 'View', 'shrink-0', 'ml-2');
     expect(action).toBeDefined();
+  });
+});
+
+describe('group header (groups/GroupHeader.tsx)', () => {
+  const group = {
+    id: 'g-1',
+    name: 'Test Group',
+    displayName: 'Test Group',
+    handle: 'test-group',
+    membersCount: 42,
+    avatar: undefined,
+    // A header URI keeps the banner off the placeholder branch, whose
+    // `require(...png)` the node jest env cannot parse.
+    header: 'https://example.com/banner.png',
+  };
+
+  // Regression test for #2208: the member count must render through the
+  // `groups.members.count` i18n plural (mock-resolved above), not the
+  // hardcoded `member`/`'s'` concatenation.
+  test('member count renders the i18n plural for 42 members', () => {
+    const root = render(<GroupHeader group={group as never} />);
+    // containsText joins a node's children with a space, so the split
+    // hardcoded concatenation ("42 member" + "s") cannot match.
+    expect(containsText(root, '42 members')).toBe(true);
+  });
+
+  test('member count renders the i18n singular for 1 member', () => {
+    const root = render(
+      <GroupHeader group={{ ...group, membersCount: 1 } as never} />
+    );
+    expect(containsText(root, '1 member')).toBe(true);
+    expect(containsText(root, '1 members')).toBe(false);
   });
 });
 

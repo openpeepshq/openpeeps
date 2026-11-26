@@ -1,5 +1,7 @@
 import type { GroupWithMeta } from '@openpeepshq/common/types';
 import { formatBadgeCount, groupName } from '@openpeepshq/common/lib';
+
+import { useT } from '../../i18n';
 import { GroupAvatar } from './GroupAvatar';
 import { JoinGroupButton } from './JoinGroupButton';
 
@@ -29,6 +31,7 @@ export function GroupCard({
   unreadCount = 0,
   onSelect,
 }: GroupCardProps) {
+  const t = useT();
   const details = (
     <>
       <GroupAvatar
@@ -56,7 +59,7 @@ export function GroupCard({
         <span
           className={`text-muted-foreground truncate ${avatarSize < 2 ? 'text-xs' : 'text-sm'}`}
         >
-          {group.membersCount} member{group.membersCount === 1 ? '' : 's'}
+          {t('groups.members.count', { count: group.membersCount })}
         </span>
       </span>
     </>
