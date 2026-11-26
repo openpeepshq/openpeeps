@@ -6,6 +6,7 @@ import type { ProfileWithMeta } from '@openpeepshq/common/types';
 
 const {
   findPost,
+  findPostBySlug,
   findGroupByHandle,
   findProfileByHandle,
   listPosts,
@@ -16,6 +17,7 @@ const {
   redisSet,
 } = vi.hoisted(() => ({
   findPost: vi.fn(),
+  findPostBySlug: vi.fn(),
   findGroupByHandle: vi.fn(),
   findProfileByHandle: vi.fn(),
   listPosts: vi.fn(async () => []),
@@ -26,7 +28,7 @@ const {
   redisSet: vi.fn(async () => undefined),
 }));
 
-vi.mock('../posts', () => ({ findPost, listPosts }));
+vi.mock('../posts', () => ({ findPost, findPostBySlug, listPosts }));
 vi.mock('../groups', () => ({ findGroupByHandle, listGroups }));
 vi.mock('../profiles', () => ({ findProfileByHandle, listProfiles }));
 vi.mock('../config', () => ({ capabilitiesConfig }));
@@ -95,9 +97,44 @@ const post = (id: string, visibility: string, group?: GroupWithMeta) =>
     },
   }) as unknown as PostWithMeta;
 
+/**
+ * Article post for slug-route tests. `data` matches `articleSchema`
+ * (type + slug + instanceScoped) so the `'slug' in post.data` /
+ * `'instanceScoped' in post.data` branches in `crawlableEntries` are exercised
+ * against real article shapes.
+ */
+const article = (
+  slug: string | undefined,
+  instanceScoped: boolean | undefined,
+  handle: string | null = 'author',
+) => {
+  const data: Record<string, unknown> = {
+    type: 'article',
+    title: 'My article',
+    content: 'Article body',
+  };
+  if (slug !== undefined) data.slug = slug;
+  if (instanceScoped !== undefined) data.instanceScoped = instanceScoped;
+  // `handle === null` models a post whose profile carries no handle: the
+  // crawler layer must then emit no `/{handle}/{slug}` path at all.
+  return {
+    ...post('p-articleslug', 'public'),
+    id: 'p-articleslug',
+    profile:
+      handle === null
+        ? ({ ...(profile('author') as object), handle: null } as never)
+        : profile(handle),
+    data,
+  } as unknown as PostWithMeta;
+};
+
 beforeEach(() => {
-  vi.mocked(redisGet).mockClear();
-  vi.mocked(redisSet).mockClear();
+  // `redisGet.mockResolvedValue` in the cache test below otherwise sticks for
+  // the rest of the file — restore the "no cache" default on every test.
+  vi.mocked(redisGet).mockReset();
+  vi.mocked(redisGet).mockImplementation(async () => null);
+  vi.mocked(redisSet).mockReset();
+  vi.mocked(findPostBySlug).mockReset();
 });
 
 describe('spaMetaForPath (anonymous readability)', () => {
@@ -213,6 +250,56 @@ describe('spaMetaForPath (anonymous readability)', () => {
     });
     expect(findPost).not.toHaveBeenCalled();
   });
+
+  it('resolves a profile-scoped slug route to the article meta (refactored post branch)', async () => {
+    // `/alice/first-post` is a profile-scoped slug; `resolveMeta` routes it
+    // through `findPostBySlug`, then the shared post branch builds the meta.
+    capabilitiesConfig.mockResolvedValue(config);
+    findPostBySlug.mockResolvedValue(article('first-post', false, 'alice'));
+    const result = await spaMetaForPath('/alice/first-post', {
+      indexProfiles: false,
+    });
+    expect(findPostBySlug).toHaveBeenCalledWith('first-post', 'alice', false);
+    expect(result).toEqual({
+      meta: {
+        title: 'My article',
+        description: 'Article body',
+        kind: 'post',
+        datePublished: '2026-03-01T00:00:00.000Z',
+        dateModified: '2026-03-02T00:00:00.000Z',
+        authorName: '@alice',
+      },
+    });
+  });
+
+  it('resolves an instance-scoped slug route to the article meta (refactored post branch)', async () => {
+    // `/<long-slug>` (a >16-char, non-handle-shaped segment) is an
+    // instance-scoped slug; resolution and meta shape go through the same
+    // post branch as `/{handle}/{slug}`.
+    capabilitiesConfig.mockResolvedValue(config);
+    findPostBySlug.mockResolvedValue(article('my-long-instance-slug', true));
+    const result = await spaMetaForPath('/my-long-instance-slug', {
+      indexProfiles: false,
+    });
+    expect(findPostBySlug).toHaveBeenCalledWith(
+      'my-long-instance-slug',
+      undefined,
+      true,
+    );
+    expect(result.meta).toMatchObject({
+      title: 'My article',
+      kind: 'post',
+      authorName: '@author',
+    });
+  });
+
+  it('resolves a slug route to null meta when no article exists', async () => {
+    capabilitiesConfig.mockResolvedValue(config);
+    findPostBySlug.mockResolvedValue(null);
+    expect(
+      await spaMetaForPath('/alice/missing-slug', { indexProfiles: false }),
+    ).toEqual({ meta: null });
+  });
 });
 
 describe('crawlableEntries (profile sitemap exposure)', () => {
@@ -220,6 +307,7 @@ describe('crawlableEntries (profile sitemap exposure)', () => {
     vi.mocked(listPosts).mockClear();
     vi.mocked(listGroups).mockClear();
     vi.mocked(listProfiles).mockClear();
+    vi.mocked(findPostBySlug).mockClear();
   });
 
   it('queries profiles through the directory view so opted-out profiles stay out of the sitemap', async () => {
@@ -239,5 +327,77 @@ describe('crawlableEntries (profile sitemap exposure)', () => {
     const entries = await crawlableEntries({ indexProfiles: false });
     expect(listProfiles).not.toHaveBeenCalled();
     expect(entries).toEqual([{ path: '/' }]);
+  });
+
+  it('emits the canonical instance-scoped slug path for an instance-scoped article', async () => {
+    vi.mocked(listPosts).mockResolvedValue([
+      article('my-slug', true, 'author'),
+    ]);
+    const entries = await crawlableEntries({ indexProfiles: false });
+    // The canonical instance spelling `/{slug}` — not the profile spelling —
+    // goes in the sitemap, alongside the `/posts/:id` path.
+    expect(entries).toContainEqual({
+      path: '/my-slug',
+      updatedAt: '2026-03-02T00:00:00.000Z',
+    });
+    expect(entries).toContainEqual({
+      path: '/posts/p-articleslug',
+      updatedAt: '2026-03-02T00:00:00.000Z',
+    });
+    expect(entries).not.toContainEqual(
+      expect.objectContaining({ path: '/author/my-slug' }),
+    );
+  });
+
+  it('emits the canonical profile-scoped slug path for a profile-scoped article', async () => {
+    vi.mocked(listPosts).mockResolvedValue([
+      article('my-slug', false, 'author'),
+    ]);
+    const entries = await crawlableEntries({ indexProfiles: false });
+    // Profile-scoped: `/{handle}/{slug}`, never the bare instance spelling.
+    expect(entries).toContainEqual({
+      path: '/author/my-slug',
+      updatedAt: '2026-03-02T00:00:00.000Z',
+    });
+    expect(entries).not.toContainEqual(
+      expect.objectContaining({ path: '/my-slug' }),
+    );
+  });
+
+  it('emits no slug path when the article has no slug', async () => {
+    vi.mocked(listPosts).mockResolvedValue([article(undefined, undefined)]);
+    const entries = await crawlableEntries({ indexProfiles: false });
+    // Only the post id path, no slug entry.
+    expect(entries).toEqual([
+      { path: '/' },
+      { path: '/posts/p-articleslug', updatedAt: '2026-03-02T00:00:00.000Z' },
+    ]);
+  });
+
+  it('emits no slug path for a profile-scoped article whose profile has no handle', async () => {
+    vi.mocked(listPosts).mockResolvedValue([article('my-slug', false, null)]);
+    const entries = await crawlableEntries({ indexProfiles: false });
+    // Without a profile handle there is no `/{handle}/{slug}` to emit.
+    expect(entries).toEqual([
+      { path: '/' },
+      { path: '/posts/p-articleslug', updatedAt: '2026-03-02T00:00:00.000Z' },
+    ]);
+  });
+
+  it('treats `instanceScoped` as absent (profile-scoped) when the key is missing, even with a slug', async () => {
+    // The boundary the review called out: `'instanceScoped' in post.data` must
+    // be checked, not `post.data.instanceScoped === true`. A profile-scoped
+    // article that simply omitted the key must still emit `/{handle}/{slug}`.
+    vi.mocked(listPosts).mockResolvedValue([
+      article('my-slug', undefined, 'author'),
+    ]);
+    const entries = await crawlableEntries({ indexProfiles: false });
+    expect(entries).toContainEqual({
+      path: '/author/my-slug',
+      updatedAt: '2026-03-02T00:00:00.000Z',
+    });
+    expect(entries).not.toContainEqual(
+      expect.objectContaining({ path: '/my-slug' }),
+    );
   });
 });

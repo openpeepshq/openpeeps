@@ -27,7 +27,12 @@ import { installS3Endpoint } from './lib/s3';
 import { installStreamingEndpoint } from './lib/streaming';
 import { installPwaEndpoint } from './lib/pwa';
 import { installSeoEndpoint, spaMetaForRequest } from './lib/seoEndpoint';
-import { decideSpaRequest, sendSpaHtml } from './lib/spaHtml';
+import {
+  decideSpaRequest,
+  sendSpaHtml,
+  slugCanonicalRedirect,
+} from './lib/spaHtml';
+import { communityConfig } from '@openpeepshq/core/config';
 import { installFederation } from './federation';
 import {
   buildPluginRouters,
@@ -338,7 +343,7 @@ const startServer = async () => {
     // Registered before the static handler on purpose: static answers
     // `/index.html` verbatim, which would leak the unrendered `{{name}}`
     // placeholders, and scanner probes must not get a 200 community shell.
-    app.use((req, res, next) => {
+    app.use(async (req, res, next) => {
       if (req.method !== 'GET' && req.method !== 'HEAD') {
         next();
         return;
@@ -358,6 +363,23 @@ const startServer = async () => {
       if (decision.action === 'reject') {
         res.status(404).type('text/plain').send('Not found');
         return;
+      }
+      // Slug URLs (`/{slug}`, `/{handle}/{slug}`) have no client-side route;
+      // 301 a resolvable one to its canonical `/posts/:postId` so the URL
+      // works in-app and crawlers get a canonical target (issue #2080).
+      try {
+        const config = await communityConfig();
+        const slugTarget = await slugCanonicalRedirect(req.path, {
+          indexProfiles: !!config.settings?.indexProfiles,
+        });
+        if (slugTarget) {
+          res.redirect(301, slugTarget);
+          return;
+        }
+      } catch (err) {
+        // A slug lookup failure (e.g. DB not ready) must not break SPA
+        // serving — fall through to the normal shell.
+        log.warn('slug redirect lookup failed', err);
       }
       next();
     });

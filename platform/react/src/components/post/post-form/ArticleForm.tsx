@@ -14,6 +14,7 @@ import { OpenpeepsRichMarkdownInput } from './OpenpeepsRichMarkdownInput';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
 import { PostAudienceSelector } from './PostAudienceSelector';
 import { VisibilitySelector } from './VisibilitySelector';
+import { PluginSlot } from '../../registry/PluginSlot';
 
 export interface ArticleFormProps {
   postData: PostCreationData;
@@ -78,6 +79,13 @@ export function ArticleForm({
             onChange={(e) => patchArticle({ title: e.target.value })}
           />
         </Label>
+
+        {/* Slug support (and other article-editor extensions) plug in here.
+            No-op on platforms without a plugin registry (e.g. RN). */}
+        <PluginSlot
+          name="plugins.articles.editor.slug"
+          props={{ postData, onChange, isEdit }}
+        />
 
         <OpenpeepsRichMarkdownInput
           maxLength={10000}

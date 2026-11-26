@@ -3866,11 +3866,22 @@
     "form": {
       "title": "New Article",
       "titleInput": "Title",
+      "slug": "Slug (optional)",
+      "slugPlaceholder": "my-article",
+      "instanceScoped": "Instance-wide (/{slug})",
+      "profileScoped": "Profile-scoped (/@handle/slug)",
+      "autoGenerate": "Auto-generate from title on blur",
+      "checking": "Checking…",
+      "available": "Available",
+      "taken": "Taken",
+      "requiresPermission": "Requires permission",
       "uploadCover": "Upload your cover image",
       "contentPlaceholder": "Write your article",
       "visibility": "Who can see this (Required)",
       "visibilityNotChangeable": "Once you post your article, you can't change the visibility",
-      "content": "Article Content"
+      "content": "Article Content",
+      "slugHint": "A slug gives your article a clean, shareable URL.",
+      "slugEditHint": "Changing the slug will update the article URL."
     },
     "create": {
       "title": "Publish"

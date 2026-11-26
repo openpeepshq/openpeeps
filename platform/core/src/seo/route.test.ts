@@ -43,3 +43,67 @@ describe('seoRoute', () => {
     expect(seoRoute('/@', ON)).toBeNull();
   });
 });
+
+describe('seoRoute slug routes (articles)', () => {
+  const OFF = { indexProfiles: false };
+  const ON = { indexProfiles: true };
+  // A bare instance slug must be long enough to not be handle-shaped (handles
+  // are ≤16 chars), otherwise the `/:handle` profile route owns it.
+  const INSTANCE = 'my-very-long-article-slug';
+
+  it('parses an instance-scoped slug and its trailing-slash spelling', () => {
+    expect(seoRoute(`/${INSTANCE}`, ON)).toEqual({
+      kind: 'slug',
+      slug: INSTANCE,
+      instanceScoped: true,
+    });
+    expect(seoRoute(`/${INSTANCE}/`, ON)).toEqual({
+      kind: 'slug',
+      slug: INSTANCE,
+      instanceScoped: true,
+    });
+  });
+
+  it('parses a profile-scoped slug with and without the @ prefix', () => {
+    const expected = {
+      kind: 'slug',
+      handle: 'alice',
+      slug: 'first-post',
+      instanceScoped: false,
+    } as const;
+    expect(seoRoute('/alice/first-post', ON)).toEqual(expected);
+    expect(seoRoute('/@alice/first-post', ON)).toEqual(expected);
+    expect(seoRoute('/alice/first-post/', ON)).toEqual(expected);
+  });
+
+  it('rejects a handle-shaped bare segment as an instance slug (it is a /:handle route)', () => {
+    expect(seoRoute('/my-slug', ON)).toBeNull();
+    expect(seoRoute('/short', ON)).toBeNull();
+  });
+
+  it('rejects reserved top-level and profile-sub routes as slug paths', () => {
+    expect(seoRoute('/admin/anything', ON)).toBeNull();
+    expect(seoRoute('/articles/anything', ON)).toBeNull();
+    expect(seoRoute('/alice/followers', ON)).toBeNull();
+  });
+
+  it('pins the code-of-conduct page as a non-slug route', () => {
+    // Suggestion #1: `/code-of-conduct` must never resolve as an article slug.
+    expect(seoRoute('/code-of-conduct', ON)).toBeNull();
+    expect(seoRoute('/code-of-conduct', OFF)).toBeNull();
+  });
+
+  it('recognises slug routes even when profile indexing is off (they are post routes the sitemap always lists)', () => {
+    expect(seoRoute(`/${INSTANCE}`, OFF)).toEqual({
+      kind: 'slug',
+      slug: INSTANCE,
+      instanceScoped: true,
+    });
+    expect(seoRoute('/alice/first-post', OFF)).toEqual({
+      kind: 'slug',
+      handle: 'alice',
+      slug: 'first-post',
+      instanceScoped: false,
+    });
+  });
+});

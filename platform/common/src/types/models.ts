@@ -4,6 +4,10 @@ import ISO6391 from 'iso-639-1';
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
 import { isEndBeforeStart } from '../lib/eventTime';
 import { hasVisibleText, postContentWithinBudget } from '../lib/contentLength';
+import {
+  ARTICLE_SLUG_MAX_LENGTH,
+  articleSlugPattern,
+} from '../lib/articleSlug';
 import { groupRelationships } from './capabilities';
 import { capabilitiesSchema, reactionEmojiSchema } from './config';
 import {
@@ -582,6 +586,18 @@ export const articleSchema = noteBaseSchema
     type: z.literal('article'),
     image: z.url().optional(),
     title: z.string().optional(),
+    /** Optional clean URL (`/{slug}` or `/{handle}/{slug}`); enforced unique
+     *  by partial indexes on `posts.body->>'slug'`. Shape/length come from
+     *  `articleSlug.ts` (single source of truth). */
+    slug: z
+      .string()
+      .min(1)
+      .max(ARTICLE_SLUG_MAX_LENGTH)
+      .regex(articleSlugPattern)
+      .optional(),
+    /** `true` = globally unique `/{slug}` route (admin/moderator);
+     *  defaults to profile-scoped `/{handle}/{slug}`. */
+    instanceScoped: z.boolean().optional(),
   })
   .openapi('Article');
 

@@ -21,6 +21,19 @@ type RegistryApi = {
     key: string,
     component: ComponentType<Record<string, unknown>>,
   ) => void;
+  /**
+   * An authenticated `fetch` for same-origin plugin API calls. Plugin assets
+   * are plain scripts (no bundle, no token access), and the app authenticates
+   * with a Bearer token stored in `credentialsStore` — never a cookie — so a
+   * bare `fetch(..., { credentials: 'include' })` from an asset sends nothing
+   * and every secured plugin route 401s. The host assigns this alongside
+   * `window.React`; assets call `authFetch` instead of `fetch` for their
+   * `/api/openpeeps/core/v1/plugins/...` endpoints.
+   */
+  authFetch: (
+    input: RequestInfo | URL,
+    init?: RequestInit,
+  ) => Promise<Response>;
 };
 
 type PluginRegistryContextValue = {
@@ -51,7 +64,24 @@ declare global {
 
 if (typeof window !== 'undefined') {
   if (!window[PLUGIN_REGISTRY_GLOBAL_KEY]) {
+    // An authenticated `fetch` for plugin API calls: the app stores a Bearer
+    // token (no cookie), so assets must attach it themselves to call secured
+    // plugin routes. Reads the live token on every call so sign-in/out is
+    // picked up without a reload.
+    const authFetch = async (
+      input: RequestInfo | URL,
+      init: RequestInit = {},
+    ): Promise<Response> => {
+      const { credentialsStore } = await import('../../auth/credentials');
+      const credentials = await credentialsStore.get();
+      const headers = new Headers(init.headers);
+      if (credentials?.token && !headers.has('Authorization')) {
+        headers.set('Authorization', `Bearer ${credentials.token}`);
+      }
+      return fetch(input, { ...init, headers });
+    };
     window[PLUGIN_REGISTRY_GLOBAL_KEY] = {
+      authFetch,
       registerComponent: (slot, key, component) => {
         if (registryController.current) {
           registryController.current(slot, key, component);
@@ -65,9 +95,8 @@ if (typeof window !== 'undefined') {
   (window as unknown as { React: typeof React }).React = React;
 }
 
-const PluginRegistryContext = createContext<PluginRegistryContextValue | null>(
-  null,
-);
+export const PluginRegistryContext =
+  createContext<PluginRegistryContextValue | null>(null);
 
 export const PluginRegistryProvider = ({
   children,

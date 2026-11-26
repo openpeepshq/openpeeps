@@ -42,6 +42,7 @@ import {
   listOneToOneConversationRootLeaves,
 } from './conversationQueries';
 import { findPost, findPostsForAuth } from './finders';
+import { applyArticleSlugPolicy } from './slugPolicy';
 import { profilesCache } from '../profiles/cache';
 import { findOrCreateHashtag } from '../hashtags';
 import { hub } from '../events';
@@ -95,6 +96,11 @@ export const createPost = async (
 ): Promise<PostWithMeta> => {
   if (data.type === 'event') {
     data = normalizeEventDataForSave(data);
+  }
+  if (data.type === 'article') {
+    // Server-side slug permission model (instance-scoped is role-gated,
+    // handle-shaped slugs are unresolvable). See `applyArticleSlugPolicy`.
+    data = applyArticleSlugPolicy(data, profile);
   }
 
   const { db } = await allpeepDb();
@@ -247,7 +253,9 @@ export const updatePost = async (
           post.visibility,
           profile.roles,
         )
-      : data;
+      : data.type === 'article'
+        ? applyArticleSlugPolicy(data, profile)
+        : data;
   const dataForDb =
     normalized.type === 'event'
       ? eventDataForDbUpdate(previousEvent, normalized)

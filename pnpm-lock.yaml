@@ -315,6 +315,49 @@ importers:
         specifier: ^0.35.2
         version: 0.35.2(typescript@6.0.3)
 
+  examples/slug-support:
+    dependencies:
+      '@openpeepshq/common':
+        specifier: workspace:^
+        version: link:../../platform/common
+      '@openpeepshq/core':
+        specifier: workspace:^
+        version: link:../../platform/core
+      drizzle-orm:
+        specifier: ^0.45.2
+        version: 0.45.4(@opentelemetry/api@1.9.1)(@types/pg@8.20.0)(pg@8.22.0)(postgres@3.4.9)
+      express:
+        specifier: ^5.2.1
+        version: 5.2.1
+    devDependencies:
+      '@eslint/js':
+        specifier: ^9.17.0
+        version: 9.19.0
+      '@types/express':
+        specifier: ^5.0.6
+        version: 5.0.6
+      '@types/node':
+        specifier: ^22.10.10
+        version: 22.19.17
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.72.0
+        version: 8.72.0(@typescript-eslint/parser@8.72.0(eslint@10.15.0(jiti@1.21.7))(typescript@6.0.3))(eslint@10.15.0(jiti@1.21.7))(typescript@6.0.3)
+      '@typescript-eslint/parser':
+        specifier: ^8.72.0
+        version: 8.72.0(eslint@10.15.0(jiti@1.21.7))(typescript@6.0.3)
+      eslint:
+        specifier: ^10.14.0
+        version: 10.15.0(jiti@1.21.7)
+      eslint-config-prettier:
+        specifier: ^9.1.0
+        version: 9.1.0(eslint@10.15.0(jiti@1.21.7))
+      prettier:
+        specifier: ^3.4.2
+        version: 3.8.3
+      typescript:
+        specifier: ^6.0.2
+        version: 6.0.3
+
   libraries/fetch-client:
     dependencies:
       sse.js:

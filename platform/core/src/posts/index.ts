@@ -1,5 +1,6 @@
 export * from './finders';
 export * from './mutations';
+export * from './slugPolicy';
 export * from './mapping';
 export {
   CONTEXT_NODE_CAP,

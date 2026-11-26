@@ -7,7 +7,11 @@ import type {
   PostCreationData,
 } from '@openpeepshq/common';
 import { HEADER_IMAGE_MAX_WIDTH } from '@openpeepshq/common/lib';
-import { applyAudienceSetting, useCurrentProfile } from '@openpeepshq/react';
+import {
+  applyAudienceSetting,
+  PluginSlot,
+  useCurrentProfile,
+} from '@openpeepshq/react';
 import { MegaphoneIcon } from '../../icons/index';
 import { ImageInput } from '../../form/ImageInput';
 import { Input } from '../../ui/input';
@@ -72,6 +76,13 @@ export const ArticleForm = ({
             onChangeText={(title) => patchArticle({ title })}
           />
         </View>
+
+        {/* Slug support (and other article-editor extensions) plug in here.
+            No-op on RN (no plugin registry provider), so nothing renders. */}
+        <PluginSlot
+          name="plugins.articles.editor.slug"
+          props={{ postData, onChange, isEdit }}
+        />
 
         <OpenpeepsComposerInput
           rows={16}

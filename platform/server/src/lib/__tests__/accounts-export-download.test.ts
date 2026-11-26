@@ -123,9 +123,10 @@ describe('account export download endpoint', () => {
     const body = Buffer.from(await res.arrayBuffer());
     expect(body.equals(ZIP_BYTES)).toBe(true);
     // The token is a one-time link: it is invalidated exactly once, and only
-    // after the body has been fully sent (not before streaming starts).
-    await new Promise((r) => setTimeout(r, 20));
-    expect(invalidateToken).toHaveBeenCalledTimes(1);
+    // after the body has been fully sent (not before streaming starts). The
+    // client receiving all bytes does not imply the server's `finish` has
+    // fired yet, so wait for the invalidation instead of a fixed sleep.
+    await vi.waitFor(() => expect(invalidateToken).toHaveBeenCalledTimes(1));
     expect(invalidateToken).toHaveBeenCalledWith('tok-1');
   });
 
@@ -178,8 +179,10 @@ describe('account export download endpoint', () => {
     expect(retry.status).toBe(200);
     const body = Buffer.from(await retry.arrayBuffer());
     expect(body.equals(LARGE_ZIP_BYTES)).toBe(true);
-    await new Promise((r) => setTimeout(r, 20));
-    expect(invalidateToken).toHaveBeenCalledTimes(1);
+    // The client receiving all bytes does not imply the server's `finish`
+    // (which burns the token) has fired yet, so wait for it instead of a fixed
+    // sleep — under a loaded runner the socket flush can lag the last byte.
+    await vi.waitFor(() => expect(invalidateToken).toHaveBeenCalledTimes(1));
     expect(invalidateToken).toHaveBeenCalledWith('tok-2');
   });
 });

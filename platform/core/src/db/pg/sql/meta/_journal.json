@@ -134,6 +134,13 @@
       "when": 1795038881063,
       "tag": "0018_add_calendar_feed_tokens",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1795656890705,
+      "tag": "0022_add_article_slug_indexes",
+      "breakpoints": true
     }
   ]
 }

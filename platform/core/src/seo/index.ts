@@ -1,7 +1,7 @@
 import type { AuthorizationData } from '@openpeepshq/common/types';
 import { capabilitiesConfig } from '../config';
 import { findGroupByHandle, listGroups } from '../groups';
-import { findPost, listPosts } from '../posts';
+import { findPost, findPostBySlug, listPosts } from '../posts';
 import { canReadPost } from '../posts/helpers/filters';
 import { findProfileByHandle, listProfiles } from '../profiles';
 import { getSharedConnection } from '../redis';
@@ -95,6 +95,23 @@ export const crawlableEntries = async ({
       path: `/posts/${post.id}`,
       updatedAt: post.updatedAt,
     })),
+    // Slug URLs for articles that have one — both spellings point at the
+    // same content, but only the canonical one (instance- or profile-scoped)
+    // goes in the sitemap.
+    ...posts.flatMap((post) => {
+      const slug = 'slug' in post.data ? post.data.slug : undefined;
+      if (!slug) return [];
+      const instanceScoped =
+        'instanceScoped' in post.data
+          ? post.data.instanceScoped === true
+          : false;
+      if (instanceScoped)
+        return [{ path: `/${slug}`, updatedAt: post.updatedAt }];
+      const handle = post.profile?.handle;
+      return handle
+        ? [{ path: `/${handle}/${slug}`, updatedAt: post.updatedAt }]
+        : [];
+    }),
     ...groups.slice(0, PER_KIND_LIMIT).map((group) => ({
       path: `/groups/@${group.handle}`,
       updatedAt: group.updatedAt,
@@ -116,38 +133,15 @@ const resolveMeta = async (
   const route = seoRoute(pathname, { indexProfiles });
   if (!route) return { meta: null };
 
-  if (route.kind === 'post') {
-    const post = await findPost(route.handle);
-    // findPost has no visibility gate of its own — `toFilteredPostsList` applies
-    // it for lists — so the read rule is re-applied here rather than trusted.
-    if (
-      !post ||
-      !(await canReadPost(await capabilitiesConfig(), ANONYMOUS)(post))
-    )
-      return { meta: null };
-    const body =
-      'content' in post.data
-        ? post.data.content
-        : 'name' in post.data
-          ? post.data.name
-          : '';
-    const heading =
-      'title' in post.data && post.data.title
-        ? post.data.title
-        : excerpt(body, post.profile?.displayName ?? 'Post');
-    return {
-      meta: {
-        title: heading,
-        description: excerpt(body, heading),
-        kind: 'post',
-        datePublished: post.createdAt,
-        dateModified: post.updatedAt,
-        authorName:
-          post.profile?.displayName ||
-          (post.profile?.handle ? `@${post.profile.handle}` : undefined),
-      },
-    };
-  }
+  // Slug routes are articles, so the post branch below resolves them; a
+  // slug lookup fails (undefined) when no matching article exists, which the
+  // null check in the post branch already handles.
+  const foundPost =
+    route.kind === 'post'
+      ? await findPost(route.handle)
+      : route.kind === 'slug'
+        ? await findPostBySlug(route.slug, route.handle, route.instanceScoped)
+        : undefined;
 
   if (route.kind === 'group') {
     const group = await findGroupByHandle(route.handle);
@@ -164,12 +158,45 @@ const resolveMeta = async (
     };
   }
 
-  const profile = await findProfileByHandle(route.handle);
-  if (!profile) return { meta: null };
+  if (route.kind === 'profile') {
+    const profile = await findProfileByHandle(route.handle);
+    if (!profile) return { meta: null };
+    return {
+      meta: {
+        title: profile.displayName || `@${profile.handle}`,
+        description: excerpt(profile.bio, `@${profile.handle}`),
+      },
+    };
+  }
+
+  const post = foundPost;
+  // findPost has no visibility gate of its own — `toFilteredPostsList` applies
+  // it for lists — so the read rule is re-applied here rather than trusted.
+  if (
+    !post ||
+    !(await canReadPost(await capabilitiesConfig(), ANONYMOUS)(post))
+  )
+    return { meta: null };
+  const body =
+    'content' in post.data
+      ? post.data.content
+      : 'name' in post.data
+        ? post.data.name
+        : '';
+  const heading =
+    'title' in post.data && post.data.title
+      ? post.data.title
+      : excerpt(body, post.profile?.displayName ?? 'Post');
   return {
     meta: {
-      title: profile.displayName || `@${profile.handle}`,
-      description: excerpt(profile.bio, `@${profile.handle}`),
+      title: heading,
+      description: excerpt(body, heading),
+      kind: 'post',
+      datePublished: post.createdAt,
+      dateModified: post.updatedAt,
+      authorName:
+        post.profile?.displayName ||
+        (post.profile?.handle ? `@${post.profile.handle}` : undefined),
     },
   };
 };

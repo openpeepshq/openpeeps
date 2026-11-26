@@ -134,6 +134,23 @@ export const posts = pgTable(
     index('posts_in_reply_to_uri_idx').on(t.inReplyToUri),
     index('posts_search_vector_idx').using('gin', t.searchVector),
     index('posts_last_activity_id_idx').on(t.lastActivityAt, t.id),
+    // Article slugs live in the JSONB body; the two partial indexes pin the
+    // uniqueness rule per scope — instance slugs are globally unique,
+    // profile slugs are unique per creator. `findPostBySlug` mirrors these
+    // predicates, so a matching row is always the only row that can own the
+    // slug. All comparisons use `->>` (text extraction) so both sides of
+    // every comparison are text — `->` returns jsonb and `jsonb = text`
+    // does not match a stored JSON string literal.
+    uniqueIndex('posts_slug_instance_unique')
+      .on(sql`(body ->> 'slug')`)
+      .where(
+        sql`type = 'article' AND body ->> 'slug' IS NOT NULL AND body ->> 'instanceScoped' = 'true'`,
+      ),
+    uniqueIndex('posts_slug_profile_unique')
+      .on(sql`(body ->> 'slug')`, t.creatorId)
+      .where(
+        sql`type = 'article' AND body ->> 'slug' IS NOT NULL AND (body ->> 'instanceScoped' IS NULL OR body ->> 'instanceScoped' = 'false')`,
+      ),
   ],
 );
 

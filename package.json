@@ -11,7 +11,10 @@
     "url": "https://code.openpeeps.org/openpeeps/openpeeps"
   },
   "openpeeps": {
-    "plugins": ["examples/greeter-plugin"]
+    "plugins": [
+      "examples/greeter-plugin",
+      "examples/slug-support"
+    ]
   },
   "dependencies": {
     "eslint": "^10.14.0",

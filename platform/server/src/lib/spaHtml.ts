@@ -7,6 +7,8 @@ import { logger } from '@openpeepshq/core/log';
 import { serverRootUrl } from '@openpeepshq/core/server';
 import type { CrawlableMeta } from '@openpeepshq/core/seo';
 import { seoRoute } from '@openpeepshq/core/seo';
+import { findPostBySlug, canReadPost } from '@openpeepshq/core/posts';
+import { capabilitiesConfig } from '@openpeepshq/core/config';
 import { jsonLdForPage } from './seo';
 
 const log = logger('server:spaHtml');
@@ -141,6 +143,40 @@ export const decideSpaRequest = (pathname: string): SpaRequestDecision => {
     return { action: 'redirect', to: '/' };
   if (UNUSABLE_PATH.test(pathname)) return { action: 'reject' };
   return { action: 'serve' };
+};
+
+/**
+ * A slug URL (`/{slug}` or `/{handle}/{slug}`) resolves to a real article, but
+ * the web router has no client-side route for it — without a redirect a browser
+ * (or a crawler following the sitemap) lands on an error shell. The canonical
+ * `/{handle}/{slug}` and instance `/{slug}` spellings both map to one post, so
+ * a 301 to that post's `/posts/:postId` route is the correct target: it renders
+ * in-app and gives search engines a single canonical URL.
+ *
+ * Only recognised slug routes that resolve to a post produce a redirect; an
+ * unknown slug falls through to the normal SPA shell (a 404-ish page the client
+ * renders), never to a post it doesn't own. `findPostBySlug` already applies
+ * the read/visibility rule, so a post a caller cannot read resolves to nothing.
+ */
+export const slugCanonicalRedirect = async (
+  pathname: string,
+  { indexProfiles }: { indexProfiles: boolean },
+): Promise<string | null> => {
+  const route = seoRoute(pathname, { indexProfiles });
+  if (!route || route.kind !== 'slug') return null;
+  const post = await findPostBySlug(
+    route.slug,
+    route.handle,
+    route.instanceScoped,
+  );
+  if (!post) return null;
+  // Re-apply the read rule for an anonymous caller — exactly as the SEO meta
+  // layer does — so a group/private article's slug never 301s (and leaks its
+  // post id) to a visitor or crawler who cannot read it.
+  const readable = await canReadPost(await capabilitiesConfig(), {
+    scopes: [],
+  })(post);
+  return readable ? `/posts/${post.id}` : null;
 };
 
 /**

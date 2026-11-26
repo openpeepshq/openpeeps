@@ -42,6 +42,8 @@ export {
 
 export * from './hooks';
 export { useDefaultVisibility } from './components/post/visibility';
+export { PluginSlot } from './components/registry/PluginSlot';
+export type { PluginSlotProps } from './components/registry/PluginSlot';
 export { useHasAuthToken } from './contexts/openpeeps';
 export {
   IdentityContext,

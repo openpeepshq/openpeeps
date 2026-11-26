@@ -1,6 +1,6 @@
-import { Component, type FC, type ReactNode } from 'react';
+import { Component, type FC, type ReactNode, useContext } from 'react';
 
-import { usePluginRegistry } from './PluginRegistryProvider';
+import { PluginRegistryContext } from './PluginRegistryProvider';
 import { useT } from '../../i18n';
 
 export interface PluginSlotProps {
@@ -43,7 +43,14 @@ export const PluginSlot: FC<PluginSlotProps> = ({
   props = {},
   className,
 }) => {
-  const { getComponentsForSlot } = usePluginRegistry();
+  // No provider (e.g. the React Native app) means no plugin components are
+  // available: render nothing rather than throw, so shared forms can safely
+  // contain slots on every platform.
+  const context = useContext(PluginRegistryContext);
+  if (!context) {
+    return null;
+  }
+  const { getComponentsForSlot } = context;
   const t = useT();
   const entries = getComponentsForSlot(name);
 

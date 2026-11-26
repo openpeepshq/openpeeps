@@ -1,3 +1,5 @@
+import { sql } from 'drizzle-orm';
+
 import { parseFeedFormat } from '@openpeepshq/common';
 import {
   AuthorizationData,
@@ -17,7 +19,9 @@ import {
   participantIds,
 } from '@openpeepshq/common/lib';
 import { allpeepDb, collectionInfos } from '../db';
+import { posts } from '../db/pg/schema';
 import { edgeFilters, postFilters } from '../db/pg/filters';
+import { findProfileByHandle } from '../profiles/finders';
 import {
   contextRelation,
   conversationLeavesMappingForProfile,
@@ -93,6 +97,57 @@ export const findPost = async (
     .then(({ db }) => postsMappingForProfile(profile).find(db, id))
     .then((post) => (post ? transformPost(post, profile) : undefined))
     .then((post) => hideBlockedAuthorPost(post, profile));
+};
+
+/**
+ * Resolve an article by its slug. Instance-scoped slugs are globally unique;
+ * profile-scoped slugs are unique per creator. The query mirrors the two
+ * partial unique indexes added in `0022_add_article_slug_indexes.sql`, so a
+ * matching row is always the only row that could own the slug.
+ *
+ * Pass `profileHandle` to resolve a profile-scoped slug against that profile;
+ * pass `instanceScoped: true` to resolve a globally-unique slug; omit both for
+ * an unscoped profile-scoped lookup (matches any creator).
+ */
+export const findPostBySlug = async (
+  slug: string,
+  profileHandle?: string,
+  instanceScoped?: boolean,
+): Promise<PostWithMeta | null> => {
+  let profileId: string | undefined;
+  if (profileHandle && !instanceScoped) {
+    const profile = await findProfileByHandle(profileHandle);
+    profileId = profile?.id;
+    // A profile-scoped slug under a non-existent profile cannot resolve.
+    if (!profileId) return null;
+  }
+
+  const bodySlug = sql.raw(`posts.body ->> 'slug'`);
+  const bodyInstanceScoped = sql.raw(`posts.body ->> 'instanceScoped'`);
+  const conditions = sql`
+    ${posts.type} = 'article' AND ${posts.deletedAt} IS NULL AND ${bodySlug} = ${slug}
+  `;
+  // Scope predicates match the two partial unique indexes
+  // (`posts_slug_instance_unique` / `posts_slug_profile_unique`) exactly, so
+  // the planner can use them. `instanceScoped` is schema-constrained to a
+  // boolean, so the profile set is precisely `NULL` or `'false'`.
+  const scope = instanceScoped
+    ? sql`${bodyInstanceScoped} = 'true'`
+    : sql`(${bodyInstanceScoped} IS NULL OR ${bodyInstanceScoped} = 'false')`;
+  const creator = profileId
+    ? sql` AND ${posts.creatorId} = ${profileId}`
+    : sql``;
+  const rows = await allpeepDb().then(({ db }) =>
+    db
+      .select()
+      .from(posts)
+      .where(sql`${conditions} AND (${scope})${creator}`)
+      .limit(1),
+  );
+  const row = rows[0];
+  if (!row) return null;
+  const post = await transformPost(row as unknown as DbPost);
+  return hideBlockedAuthorPost(post, undefined) ?? null;
 };
 
 /** Lean post load for capability checks (no nested reply/repost). */

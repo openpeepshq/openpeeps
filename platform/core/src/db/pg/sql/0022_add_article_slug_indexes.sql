@@ -1,0 +1,2 @@
+CREATE UNIQUE INDEX "posts_slug_instance_unique" ON "posts" USING btree ((body ->> 'slug')) WHERE type = 'article' AND body ->> 'slug' IS NOT NULL AND body ->> 'instanceScoped' = 'true';--> statement-breakpoint
+CREATE UNIQUE INDEX "posts_slug_profile_unique" ON "posts" USING btree ((body ->> 'slug'),"creator_id") WHERE type = 'article' AND body ->> 'slug' IS NOT NULL AND (body ->> 'instanceScoped' IS NULL OR body ->> 'instanceScoped' = 'false');

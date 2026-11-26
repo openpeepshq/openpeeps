@@ -1,0 +1,37 @@
+{
+  "name": "@openpeepshq-examples/slug-support",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Optional clean URL (slug) support for articles: profile- or instance-scoped slugs, availability checks, auto-generation, and an article-editor slot. Enabled by default.",
+  "repository": {
+    "type": "git",
+    "url": "https://code.openpeeps.org/openpeeps/openpeeps",
+    "directory": "examples/slug-support"
+  },
+  "openpeeps": {
+    "enabled": true
+  },
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint .",
+    "format": "prettier --write --ignore-path ../../.prettierignore ."
+  },
+  "dependencies": {
+    "@openpeepshq/common": "workspace:^",
+    "@openpeepshq/core": "workspace:^",
+    "drizzle-orm": "^0.45.2",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.10.10",
+    "@typescript-eslint/eslint-plugin": "^8.72.0",
+    "@typescript-eslint/parser": "^8.72.0",
+    "eslint": "^10.14.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.4.2",
+    "typescript": "^6.0.2",
+    "@eslint/js": "^9.17.0"
+  }
+}

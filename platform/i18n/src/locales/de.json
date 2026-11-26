@@ -3866,11 +3866,22 @@
     "form": {
       "title": "Neuer Artikel",
       "titleInput": "Titel",
+      "slug": "Slug (optional)",
+      "slugPlaceholder": "my-article",
+      "instanceScoped": "Instanzweit (/{slug})",
+      "profileScoped": "Profilbezogen (/@handle/slug)",
+      "autoGenerate": "Automatisch aus Titel generieren",
+      "checking": "Wird geprüft…",
+      "available": "Verfügbar",
+      "taken": "Schon vergeben",
+      "requiresPermission": "Erfordert Berechtigung",
       "uploadCover": "Titelbild hochladen",
       "contentPlaceholder": "Schreiben Sie Ihren Artikel",
       "visibility": "Wer kann das sehen (Erforderlich)",
       "visibilityNotChangeable": "Sobald Sie Ihren Artikel veröffentlicht haben, können Sie die Sichtbarkeit nicht mehr ändern",
-      "content": "Artikelinhalt"
+      "content": "Artikelinhalt",
+      "slugHint": "Eine Slug gibt Ihrem Artikel eine saubere, teilbare URL.",
+      "slugEditHint": "Ändern der Slug aktualisiert die Artikel-URL."
     },
     "create": {
       "title": "Veröffentlichen"
