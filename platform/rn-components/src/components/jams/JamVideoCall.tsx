@@ -1,8 +1,12 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Linking, Platform } from 'react-native';
-import { AudioSession, useRoomContext } from '@livekit/react-native';
+import {
+  AudioSession,
+  RoomContext,
+  useRoomContext,
+} from '@livekit/react-native';
 import type { DisconnectReason } from 'livekit-client';
-import { MediaDeviceFailure } from 'livekit-client';
+import { MediaDeviceFailure, Room } from 'livekit-client';
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
 import { useStableLiveKitRoom } from '../../lib/livekit/useStableLiveKitRoom';
@@ -56,10 +60,19 @@ const showMicPermissionAlertModule = (alert: () => void) => {
 };
 
 /**
- * Connects the app-level LiveKit `Room` (provided by the host via
- * `RoomContext.Provider`) and renders {@link JamConference}. The room object is
- * created once at app start so the first paint is never blank; see
- * `useStableLiveKitRoom` for why the stock `LiveKitRoom` is not used.
+ * Connects to LiveKit for the current join and renders {@link JamConference}.
+ *
+ * Each join owns a fresh {@link Room}: a re-`connect()` on the room the
+ * previous join used rebuilds `remoteParticipants` without re-emitting
+ * `ParticipantConnected`, so the rejoiner sees only themselves (#2088) — a
+ * brand-new Room gets the normal initial-join event flow instead. The room is
+ * created once for the mount (a join), not per render, so it stays connected
+ * while the user navigates within the app during a call; it is torn down only
+ * when the join ends. The host's pre-warmed room (provided at app start, kept
+ * for a non-blank first paint and lobby device listing) is not disconnected
+ * here — it is only read for its options and shadowed below, so any
+ * app-level consumer of the host's `RoomContext` is untouched.
+ * The stock `LiveKitRoom` is not used (see `useStableLiveKitRoom`).
  */
 export const JamVideoCall = ({
   token,
@@ -69,7 +82,11 @@ export const JamVideoCall = ({
   onDisconnected,
 }: JamVideoCallProps) => {
   const { t } = useTranslation();
-  const room = useRoomContext();
+  // Seed the fresh join room from the host's pre-warmed one so capture/publish
+  // tuning (dynacast, simulcast, adaptive stream) is unchanged. The host room
+  // itself is left alone: it is only read, never reconnected or disconnected.
+  const hostRoom = useRoomContext();
+  const [room] = useState(() => new Room(hostRoom.options));
 
   // Session is a hard failure on iPad (#2108): iOS will not capture mic audio
   // without an active audio session, so configure and start it on iOS before
@@ -200,5 +217,9 @@ export const JamVideoCall = ({
     },
   });
 
-  return <JamConference />;
+  return (
+    <RoomContext.Provider value={room}>
+      <JamConference />
+    </RoomContext.Provider>
+  );
 };
