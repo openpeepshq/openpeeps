@@ -1,4 +1,4 @@
-import { hostIsAllowed } from '@openpeepshq/common/lib';
+import { hostFederationAllowed } from '@openpeepshq/common/lib';
 import { config } from '../config';
 
 export const hostnameOf = (value: string | URL): string | null => {
@@ -20,7 +20,11 @@ export const peerHostAllowed = async (
   const host = hostnameOf(value);
   if (!host) return false;
   const cfg = await config();
-  return hostIsAllowed(host, cfg.federation.allowedHosts);
+  return hostFederationAllowed(
+    host,
+    cfg.federation.allowedHosts,
+    cfg.federation.blockedHosts,
+  );
 };
 
 export const federationIsActive = async (): Promise<boolean> =>

@@ -1,11 +1,14 @@
 import { and, eq, isNull, sql } from 'drizzle-orm';
+import { hostIsBlocked } from '@openpeepshq/common/lib';
+import type { Profile } from '@openpeepshq/common/types';
 import { pgDb } from '../db/pg/client';
 import { follows } from '../db/pg/schema/edges';
 import { profiles } from '../db/pg/schema/documents';
+import { config } from '../config';
 import { follow, unfollow } from '../profiles/mutations';
 import { follows as hasFollow } from '../profiles/finders';
 import { recordApActivity } from './activities';
-import type { Profile } from '@openpeepshq/common/types';
+import { hostnameOf } from './peers';
 
 export const ingestIncomingFollow = async (
   follower: Profile,
@@ -56,6 +59,16 @@ export type FollowerRecipient = {
   sharedInboxUrl: string | null;
 };
 
+/** Drop recipients whose host is on the federation blocklist. */
+export const withoutBlockedRecipients = (
+  recipients: FollowerRecipient[],
+  blockedHosts: readonly string[],
+): FollowerRecipient[] =>
+  recipients.filter((recipient) => {
+    const host = hostnameOf(recipient.uri);
+    return !host || !hostIsBlocked(host, blockedHosts);
+  });
+
 export const listFederatedFollowerRecipients = async (
   followedId: string,
 ): Promise<FollowerRecipient[]> => {
@@ -75,7 +88,7 @@ export const listFederatedFollowerRecipients = async (
         isNull(profiles.deletedAt),
       ),
     );
-  return rows.flatMap((row) =>
+  const recipients = rows.flatMap((row) =>
     row.uri && row.inboxUrl
       ? [
           {
@@ -86,4 +99,6 @@ export const listFederatedFollowerRecipients = async (
         ]
       : [],
   );
+  const { blockedHosts } = (await config()).federation;
+  return withoutBlockedRecipients(recipients, blockedHosts);
 };

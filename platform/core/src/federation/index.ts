@@ -30,6 +30,7 @@ export {
   ingestIncomingFollow,
   ingestIncomingUnfollow,
   listFederatedFollowerRecipients,
+  withoutBlockedRecipients,
 } from './ingest';
 export type { FollowerRecipient } from './ingest';
 export { loadPublicNote } from './notes';

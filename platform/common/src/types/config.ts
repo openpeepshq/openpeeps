@@ -198,6 +198,8 @@ export const coreConfigSchemaFactory = (sanitize?: boolean) =>
       active: z.boolean(),
       /** Host patterns (`mastodon.social`, `*.example.com`). Empty = fail closed. */
       allowedHosts: z.array(z.string()).default([]),
+      /** Blocked host patterns, same semantics as `allowedHosts`. Deny wins. */
+      blockedHosts: z.array(z.string()).default([]),
     }),
     activityPub: z.object({
       defaultDomain: z.string(),

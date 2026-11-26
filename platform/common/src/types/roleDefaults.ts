@@ -126,6 +126,19 @@ const adminCanManageMedia = (roles: RoleData[]): RoleData[] =>
       : role,
   );
 
+const adminCanManageFederation = (roles: RoleData[]): RoleData[] =>
+  roles.map((role) =>
+    role.key === 'admin'
+      ? {
+          ...role,
+          capabilities: {
+            add: [...(role.capabilities?.add ?? []), 'core-federation-manage'],
+            remove: [...(role.capabilities?.remove ?? [])],
+          },
+        }
+      : role,
+  );
+
 export const roleDefaultsHistory: RoleDefaultsVersion[] = [
   {
     version: '2026-10-06',
@@ -134,6 +147,13 @@ export const roleDefaultsHistory: RoleDefaultsVersion[] = [
   {
     version: '2026-10-13',
     roles: versionedRoles('2026-10-13', adminCanManageMedia(builtinRoles)),
+  },
+  {
+    version: '2026-11-26',
+    roles: versionedRoles(
+      '2026-11-26',
+      adminCanManageFederation(adminCanManageMedia(builtinRoles)),
+    ),
   },
 ];
 

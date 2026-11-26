@@ -385,6 +385,8 @@ export const federateFollow = async (
 ) => {
   if (followed.type !== 'federated') return;
   if (!followed.uri || !followed.inboxUrl) return;
+  // Never send a Follow to a host on the federation blocklist (deny wins).
+  if (!(await peerHostAllowed(followed.uri))) return;
 
   const ctx = federation.createContext(new URL(`${origin}/`), undefined);
   const followId = uuidv7();

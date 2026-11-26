@@ -4,6 +4,7 @@ import {
   communityProfileAdditionalFieldSchema,
   successResponseSchema,
 } from '@openpeepshq/common/types';
+import { patchTouchesFederation } from '@openpeepshq/common/lib';
 import { forbidden, notFound, badRequest } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
 import { normalizeAllowedReactions } from '#lib/normalizeReactions';
@@ -87,8 +88,13 @@ const validateAutoFollowHandles = async (config: unknown) => {
 
 export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
   async (input, event) => {
-    await ensureRoleCapabilities(event, ['core-config-update']);
     const { config, name, namespace } = input;
+    // Patches touching the federation subtree (allow/blocklist) additionally
+    // require core-federation-manage on top of core-config-update.
+    const required = patchTouchesFederation(config)
+      ? ['core-config-update', 'core-federation-manage']
+      : ['core-config-update'];
+    await ensureRoleCapabilities(event, required);
     rejectEmptyProfileFieldKeys(config);
     normalizeAdditionalForbiddenHandles(config);
     await validateAutoFollowHandles(config);
