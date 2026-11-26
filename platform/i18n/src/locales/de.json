@@ -1339,6 +1339,15 @@
       "error": "Plugins konnten nicht geladen werden",
       "repository": "Repository",
       "description": "Plugins aktivieren oder deaktivieren. Änderungen werden nach dem Neuladen wirksam.",
+      "store": {
+        "title": "Plugin-Store",
+        "description": "Signierte Plugins aus dem Store, an den diese Instanz gebunden ist. Installierte Plugins bleiben deaktiviert, bis du sie aktivierst.",
+        "empty": "Der Store hat noch keine veröffentlichten Plugins.",
+        "error": "Der Plugin-Store konnte nicht geladen werden.",
+        "free": "Kostenlos",
+        "installed": "Installiert",
+        "keyMissing": "Das Installieren aus dem Store ist deaktiviert, bis der Betreiber PLUGIN_STORE_PUBLIC_KEY setzt."
+      },
       "reload": "Neu laden",
       "reloadRequired": "Gespeichert. Drücke \"Neu laden\", um die Änderungen anzuwenden.",
       "restartRequired": "Gespeichert. Das Plugin wird erst nach dem nächsten Neustart des Dienstes geladen (bzw. entladen).",

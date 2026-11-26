@@ -63,6 +63,14 @@ const gitPluginInstallAuthSchema = z.discriminatedUnion('type', [
   }),
 ]);
 
+// Both become URL path segments of the store API, so keep them narrow.
+const pluginStoreListingIdSchema = z
+  .string()
+  .regex(/^[a-z0-9-]+\/[a-z0-9-]+$/, 'Listing must be namespace/name');
+const pluginStoreVersionSchema = z
+  .string()
+  .regex(/^[0-9A-Za-z][0-9A-Za-z.+-]*$/, 'Invalid version');
+
 export const pluginInstallSourceSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('npm'),
@@ -109,9 +117,36 @@ export const pluginInstallSourceSchema = z.discriminatedUnion('type', [
         });
       }
     }),
+  z.object({
+    type: z.literal('store'),
+    listing: pluginStoreListingIdSchema,
+    version: pluginStoreVersionSchema,
+  }),
 ]);
 
 export type PluginInstallSource = z.infer<typeof pluginInstallSourceSchema>;
+
+export const pluginStoreListingSchema = z.object({
+  id: pluginStoreListingIdSchema,
+  title: z.string(),
+  description: z.string(),
+  category: z.string(),
+  priceCents: z.number().int().nonnegative(),
+  currency: z.string(),
+  latest: z.object({ version: pluginStoreVersionSchema }).nullable(),
+});
+
+export type PluginStoreListing = z.infer<typeof pluginStoreListingSchema>;
+
+export const pluginStoreCatalogSchema = z.object({
+  /** False when the operator has not pinned PLUGIN_STORE_URL. */
+  enabled: z.boolean(),
+  /** False when PLUGIN_STORE_PUBLIC_KEY is unset; installs fail closed. */
+  installable: z.boolean(),
+  listings: z.array(pluginStoreListingSchema),
+});
+
+export type PluginStoreCatalog = z.infer<typeof pluginStoreCatalogSchema>;
 
 export const pluginManifestSchema = z.object({
   components: z

@@ -1,6 +1,6 @@
 {
   "name": "@openpeepshq/core",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "type": "module",
   "license": "GPL-3.0-or-later",
   "dependencies": {
@@ -37,6 +37,7 @@
     "safe-json-stringify": "^1.2.0",
     "sharp": "^0.35.5",
     "stripe": "^18.4.0",
+    "tar": "^7.5.22",
     "tweetnacl": "^1.0.3",
     "type-fest": "^4.31.0",
     "uuidv7": "^1.0.2",

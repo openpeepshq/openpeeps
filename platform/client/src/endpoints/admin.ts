@@ -56,6 +56,7 @@ import {
   PublicAccount,
   AdminPluginInfo,
   PluginInstallSource,
+  PluginStoreCatalog,
 } from '@openpeepshq/common';
 import { FetchClient } from '@openpeepshq/fetch-client';
 import { allpeepNoPayloadEndpoint } from './helpers';
@@ -266,6 +267,7 @@ export type Admin = {
   };
   plugins: {
     list: OpenpeepsNoPayloadEndpoint<AdminPluginInfo[]>;
+    store: OpenpeepsNoPayloadEndpoint<PluginStoreCatalog>;
     install: OpenpeepsPayloadEndpoint<
       SuccessResponse & { pluginKey?: string },
       PluginInstallSource
@@ -622,6 +624,10 @@ export const admin = (rawClient: FetchClient): Admin => ({
     list: allpeepNoPayloadEndpoint<AdminPluginInfo[]>(
       rawClient,
       '/admin/plugins',
+    ),
+    store: allpeepNoPayloadEndpoint<PluginStoreCatalog>(
+      rawClient,
+      '/admin/plugins/store',
     ),
     install: allpeepPayloadEndpoint<
       SuccessResponse & { pluginKey?: string },

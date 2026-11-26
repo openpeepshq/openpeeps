@@ -10,6 +10,7 @@ import { configs } from '../db/pg/schema/documents';
 import { nowIso } from '../db/pg/mappers';
 import { eq } from 'drizzle-orm';
 import { setPluginEnabledOverride } from './state';
+import { downloadStoreArtifact, extractStoreArchive } from './store';
 
 const log = logger('core:plugins:install');
 const requireFromHost = createRequire(
@@ -135,16 +136,31 @@ const redactUrl = (url: string): string => {
   return parsed.toString();
 };
 
-const sourceLabel = (source: PluginInstallSource): string =>
-  source.type === 'npm'
+const sourceLabel = (source: PluginInstallSource): string => {
+  if (source.type === 'store') {
+    return `store:${source.listing}@${source.version}`;
+  }
+  return source.type === 'npm'
     ? `npm:${source.package}${source.version ? `@${source.version}` : ''}`
     : `git:${redactUrl(source.url)}${source.ref ? `#${source.ref}` : ''}`;
+};
 
 /**
  * Inverse of sourceLabel for credentials-free sources; undefined when the
  * stored label is not a label this version produced.
  */
 const parseInstallSource = (label: string): PluginInstallSource | undefined => {
+  if (label.startsWith('store:')) {
+    const spec = label.slice('store:'.length);
+    const at = spec.lastIndexOf('@');
+    return at <= 0
+      ? undefined
+      : {
+          type: 'store',
+          listing: spec.slice(0, at),
+          version: spec.slice(at + 1),
+        };
+  }
   if (label.startsWith('npm:')) {
     const spec = label.slice('npm:'.length);
     const at = spec.lastIndexOf('@');
@@ -170,6 +186,9 @@ const parseInstallSource = (label: string): PluginInstallSource | undefined => {
 };
 
 const sourceSecrets = (source: PluginInstallSource): string[] => {
+  if (source.type === 'store') {
+    return [];
+  }
   if (source.type === 'npm') {
     return source.auth ? [source.auth.token] : [];
   }
@@ -388,6 +407,14 @@ export const installPlugin = async (
       }
 
       installDir = path.join(tempDir, 'node_modules', source.package);
+    } else if (source.type === 'store') {
+      log.info(`Downloading store plugin ${label} to temp dir ${tempDir}`);
+      installDir = path.join(tempDir, 'package');
+      await fs.mkdir(installDir);
+      await extractStoreArchive(
+        await downloadStoreArtifact(source.listing, source.version),
+        installDir,
+      );
     } else {
       const repositoryUrl = redactUrl(source.url);
       log.info(`Cloning git repo ${repositoryUrl} to temp dir ${tempDir}`);
@@ -426,6 +453,13 @@ export const installPlugin = async (
     const pluginKey = `${namespace}/${name}`;
     const destDir = path.join(pluginsDir, namespace, name);
 
+    if (source.type === 'store' && pluginKey !== source.listing) {
+      return {
+        success: false,
+        error: `Store listing "${source.listing}" contains plugin "${pluginKey}"; refusing to install.`,
+      };
+    }
+
     // Check if already exists in the plugins dir (built-in)
     const existingEntries = await fs
       .readdir(pluginsDir)
@@ -446,8 +480,22 @@ export const installPlugin = async (
       }
     }
 
-    // Build the plugin if it has a build script
-    if (pkgJson.scripts?.build) {
+    if (source.type === 'store') {
+      // Signed store artifacts are prebuilt: no npm install or build scripts
+      // run, only the host peer dependencies are linked.
+      const linked = await linkHostPeerDependencies(
+        installDir,
+        peerDependencyNames(pkgJson),
+      );
+      if (!linked.success) {
+        log.error(
+          new Error(linked.error),
+          `Plugin ${pluginKey} peer link failed.`,
+        );
+        return linked;
+      }
+    } else if (pkgJson.scripts?.build) {
+      // Build the plugin if it has a build script
       log.info(`Building plugin ${pluginKey}...`);
       const buildDeps = await runCommand(
         'npm',

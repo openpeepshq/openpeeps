@@ -94,6 +94,28 @@ describe('pluginInstallSourceSchema', () => {
     ).toBe(false);
   });
 
+  it('accepts a store listing at an exact version', () => {
+    expect(
+      pluginInstallSourceSchema.safeParse({
+        type: 'store',
+        listing: 'peeps/greeter',
+        version: '1.0.0-beta.1',
+      }).success,
+    ).toBe(true);
+  });
+
+  it.each([
+    { listing: 'peeps/greeter' },
+    { listing: 'peeps', version: '1.0.0' },
+    { listing: 'peeps/../greeter', version: '1.0.0' },
+    { listing: 'peeps/greeter', version: '../1.0.0' },
+    { listing: 'peeps/greeter', version: '1.0.0/x' },
+  ])('rejects a store source that could escape the API path: %j', (rest) => {
+    expect(
+      pluginInstallSourceSchema.safeParse({ type: 'store', ...rest }).success,
+    ).toBe(false);
+  });
+
   it('accepts package names rather than arbitrary npm specs', () => {
     expect(
       pluginInstallSourceSchema.safeParse({

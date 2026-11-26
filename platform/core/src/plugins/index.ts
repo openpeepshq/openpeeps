@@ -19,6 +19,7 @@ import { clearPluginLocales, registerPluginLocales } from '../i18n';
 export * from './pluginAuth';
 export * from './state';
 export * from './install';
+export * from './store';
 
 const log = logger('core:plugins');
 

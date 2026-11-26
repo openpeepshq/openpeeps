@@ -1393,6 +1393,15 @@
       "privateKeyPlaceholder": "Unencrypted SSH private key",
       "sshTrustHint": "The repository host key is trusted on first use for this installation.",
       "credentialsHint": "Credentials are used only for this installation and are not stored.",
+      "store": {
+        "title": "Plugin store",
+        "description": "Signed plugins from the store this instance is pinned to. Installed plugins stay disabled until you enable them.",
+        "empty": "The store has no published plugins yet.",
+        "error": "Could not load the plugin store.",
+        "free": "Free",
+        "installed": "Installed",
+        "keyMissing": "Installing from the store is turned off until the operator sets PLUGIN_STORE_PUBLIC_KEY."
+      },
       "reload": "Reload",
       "reloadRequired": "Toggle saved. Press \"Reload\" to apply changes.",
       "restartRequired": "Saved. The plugin is only loaded (or unloaded) after the next service restart.",

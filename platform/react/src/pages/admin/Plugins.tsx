@@ -9,6 +9,7 @@ import {
   Input,
   Textarea,
 } from '@openpeepshq/react-ui';
+import { PluginStore } from './PluginStore';
 
 type PluginStatus = NonNullable<AdminPluginInfo['status']>;
 type InstallAuthType = 'none' | 'token' | 'ssh';
@@ -472,6 +473,14 @@ export const AdminPlugins = () => {
           </Button>
         </div>
       )}
+
+      <PluginStore
+        installedKeys={new Set(plugins.map((plugin) => plugin.key))}
+        onInstalled={() => {
+          setChangedKeys(new Set());
+          void pluginsQuery.refetch();
+        }}
+      />
 
       {pluginsQuery.isLoading ? (
         <LoadingSpinner />

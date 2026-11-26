@@ -135,6 +135,13 @@ vi.mock('../db', () => ({
   })),
 }));
 
+vi.mock('./store', () => ({
+  downloadStoreArtifact: vi.fn(async () => Buffer.from('signed-tarball')),
+  extractStoreArchive: vi.fn(async (_archive: Buffer, destination: string) => {
+    await writePlugin(destination);
+  }),
+}));
+
 vi.mock('./state', () => ({
   setPluginEnabledOverride: vi.fn(async () => undefined),
 }));
@@ -160,6 +167,7 @@ const writePlugin = async (directory: string) => {
 
 const { installPlugin, selfHealInstalledPlugins } = await import('./install');
 const { setPluginEnabledOverride } = await import('./state');
+const { downloadStoreArtifact } = await import('./store');
 
 beforeEach(async () => {
   await fs.rm(testState.pluginsDir, { recursive: true, force: true });
@@ -504,6 +512,89 @@ describe('selfHealInstalledPlugins', () => {
     const failures = await selfHealInstalledPlugins();
 
     expect(failures['acme/private-plugin']).toContain('404 Not Found');
+    expect(await fs.readdir(testState.pluginsDir)).toEqual([]);
+  });
+
+  it('re-downloads a missing store plugin at its recorded version', async () => {
+    seedInstalledRecord({
+      source: 'store:acme/private-plugin@1.2.0',
+      requiresAuth: false,
+    });
+
+    const failures = await selfHealInstalledPlugins();
+
+    expect(failures).toEqual({});
+    expect(downloadStoreArtifact).toHaveBeenCalledWith(
+      'acme/private-plugin',
+      '1.2.0',
+    );
+    expect(setPluginEnabledOverride).not.toHaveBeenCalled();
+  });
+});
+
+describe('installPlugin from the plugin store', () => {
+  it('installs the prebuilt artifact without npm install or build, disabled by default', async () => {
+    testState.pluginBuild = true;
+
+    const result = await installPlugin({
+      type: 'store',
+      listing: 'acme/private-plugin',
+      version: '1.2.0',
+    });
+
+    expect(result).toEqual({ success: true, pluginKey: 'acme/private-plugin' });
+    expect(downloadStoreArtifact).toHaveBeenCalledWith(
+      'acme/private-plugin',
+      '1.2.0',
+    );
+    expect(testState.spawnCalls).toEqual([]);
+    expect(setPluginEnabledOverride).toHaveBeenCalledWith(
+      'acme/private-plugin',
+      false,
+    );
+    expect(testState.persistedValues).toContainEqual(
+      expect.objectContaining({
+        body: {
+          'acme/private-plugin': expect.objectContaining({
+            source: 'store:acme/private-plugin@1.2.0',
+            requiresAuth: false,
+          }),
+        },
+      }),
+    );
+  });
+
+  it('refuses an artifact whose package is not the signed listing', async () => {
+    const result = await installPlugin({
+      type: 'store',
+      listing: 'acme/other-plugin',
+      version: '1.0.0',
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('refusing to install');
+    expect(await fs.readdir(testState.pluginsDir)).toEqual([]);
+    expect(setPluginEnabledOverride).not.toHaveBeenCalled();
+  });
+
+  it('reports a store failure without leaving files behind', async () => {
+    vi.mocked(downloadStoreArtifact).mockRejectedValueOnce(
+      new Error(
+        'Store installs are disabled until PLUGIN_STORE_PUBLIC_KEY is set.',
+      ),
+    );
+
+    const result = await installPlugin({
+      type: 'store',
+      listing: 'acme/private-plugin',
+      version: '1.0.0',
+    });
+
+    expect(result).toEqual({
+      success: false,
+      error:
+        'Store installs are disabled until PLUGIN_STORE_PUBLIC_KEY is set.',
+    });
     expect(await fs.readdir(testState.pluginsDir)).toEqual([]);
   });
 });

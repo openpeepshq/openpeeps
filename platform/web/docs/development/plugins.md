@@ -134,6 +134,33 @@ keys portable across git providers, but an intercepted first connection could
 be trusted. Prefer HTTPS token authentication when host identity cannot be
 verified independently.
 
+### Installing from the plugin store
+
+The admin Plugins page can browse and install plugins from
+`plugins.openpeeps.org`. The operator pins the store with two environment
+variables; the instance never trusts either value from the store origin:
+
+- `PLUGIN_STORE_URL` — the store origin (HTTPS, or HTTP on loopback). The store
+  is hidden while it is unset.
+- `PLUGIN_STORE_PUBLIC_KEY` — the store's Ed25519 public key (PEM; `\n` escapes
+  are accepted). Store installs fail closed while it is unset.
+
+An install asks the store for a one-shot download grant for this instance's
+origin (`POST /v1/entitlements`; paid listings answer `402` until purchased),
+downloads `GET /v1/artifacts/<namespace>/<name>/<version>`, and verifies the
+base64 Ed25519 signature over UTF-8 `listing\nversion\nsha256` against the
+pinned key, so an artifact cannot be replayed under another listing or version.
+The download is capped at 100 MiB. Before anything is written, every tarball
+member must be a regular file or directory with a relative path inside one
+top-level directory, and the extracted size is capped at 1 GiB.
+
+Store plugins are prebuilt: no `npm install` or build script runs, so the
+tarball must bundle its own dependencies (host peer dependencies are linked).
+The package inside must be the listing's own `namespace/name`. Like every
+installed plugin it stays disabled until an admin enables it, can be
+uninstalled, and is re-downloaded from the store at the recorded version when
+its files go missing.
+
 ---
 
 ## 3. Plugin Routes and Security
