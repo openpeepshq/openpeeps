@@ -35,6 +35,12 @@ export type UseEventRsvpArgs = {
   post: PublicPost;
   recurrenceId?: string;
   lockToOccurrence?: boolean;
+  /**
+   * Whether the event's jam is currently in session (from `useJamState`).
+   * Suppresses the "This event has ended." label while a live jam is active,
+   * without reopening RSVPs (`rsvpClosed` stays schedule-locked).
+   */
+  jamActive?: boolean;
   /** Native shows toasts; web renders `error` inline. */
   onSuccess?: () => void;
   onError?: (message: string) => void;
@@ -44,6 +50,7 @@ export const useEventRsvp = ({
   post,
   recurrenceId,
   lockToOccurrence = false,
+  jamActive = false,
   onSuccess,
   onError,
 }: UseEventRsvpArgs) => {
@@ -204,6 +211,10 @@ export const useEventRsvp = ({
     myRsvp,
     canRsvp,
     rsvpClosed,
+    // The "This event has ended." label: the schedule says ended and no jam
+    // session is currently active. A live jam suppresses the label so it does
+    // not contradict the Join Jam button.
+    showEndedLabel: rsvpClosed && !jamActive,
     hideRsvpButton: rsvpClosed || viewedEnded,
     recurring,
     defaultId,

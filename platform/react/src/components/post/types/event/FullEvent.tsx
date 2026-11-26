@@ -262,7 +262,11 @@ export function FullEvent({ post, occurrence }: FullEventProps) {
           timeZone={displayTz}
         />
       ) : null}
-      <EventRsvpButton post={post} recurrenceId={occurrenceId} />
+      <EventRsvpButton
+        post={post}
+        recurrenceId={occurrenceId}
+        jamActive={!!jamState?.active}
+      />
 
       {event.jam && (myEvent || iAmModerator) ? (
         livekitEnabled ? (

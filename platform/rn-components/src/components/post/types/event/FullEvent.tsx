@@ -403,7 +403,11 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
           timeZone={displayTz}
         />
       ) : null}
-      <EventRsvpButton post={post as PublicPost} recurrenceId={occurrence} />
+      <EventRsvpButton
+        post={post as PublicPost}
+        recurrenceId={occurrence}
+        jamActive={!!jamState?.active}
+      />
       {event.jam && (myEvent || iAmModerator) ? (
         livekitEnabled ? (
           jamState?.active ? (

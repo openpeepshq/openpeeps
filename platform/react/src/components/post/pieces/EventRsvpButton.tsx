@@ -9,12 +9,15 @@ export interface EventRsvpButtonProps {
   post: PublicPost;
   recurrenceId?: string;
   lockToOccurrence?: boolean;
+  /** Live jam session active — suppresses the "ended" label. */
+  jamActive?: boolean;
 }
 
 export const EventRsvpButton = ({
   post,
   recurrenceId,
   lockToOccurrence = false,
+  jamActive,
 }: EventRsvpButtonProps) => {
   const t = useT();
   const {
@@ -24,6 +27,7 @@ export const EventRsvpButton = ({
     canRsvp,
     rsvpClosed,
     hideRsvpButton,
+    showEndedLabel,
     recurring,
     defaultId,
     occurrences,
@@ -42,7 +46,7 @@ export const EventRsvpButton = ({
     confirmJoinWaitlist,
     claimSpot,
     confirmScope,
-  } = useEventRsvp({ post, recurrenceId, lockToOccurrence });
+  } = useEventRsvp({ post, recurrenceId, lockToOccurrence, jamActive });
 
   if (myEvent || !profile) return null;
   if (!canRsvp && !(myRsvp && myRsvp.response !== 'no')) return null;
@@ -58,28 +62,33 @@ export const EventRsvpButton = ({
   }
 
   if (rsvpClosed) {
+    const status =
+      myRsvp && myRsvp.response !== 'no' ? (
+        <p className="text-center text-sm">
+          {myRsvp.response === 'yes'
+            ? t('posts.rsvp.attendingMessage', {
+                defaultValue: 'You are attending.',
+              })
+            : myRsvp.response === 'waitlist'
+              ? t('events.rsvp.onWaitlist', {
+                  defaultValue: 'You are on the waitlist.',
+                })
+              : t('posts.rsvp.maybeMessage', {
+                  defaultValue: 'You responded maybe.',
+                })}
+        </p>
+      ) : null;
+    if (!status && !showEndedLabel) return null;
     return (
       <div className="mt-4 w-full">
-        {myRsvp && myRsvp.response !== 'no' ? (
-          <p className="text-center text-sm">
-            {myRsvp.response === 'yes'
-              ? t('posts.rsvp.attendingMessage', {
-                  defaultValue: 'You are attending.',
-                })
-              : myRsvp.response === 'waitlist'
-                ? t('events.rsvp.onWaitlist', {
-                    defaultValue: 'You are on the waitlist.',
-                  })
-                : t('posts.rsvp.maybeMessage', {
-                    defaultValue: 'You responded maybe.',
-                  })}
+        {status}
+        {showEndedLabel ? (
+          <p className="text-muted-foreground mt-2 text-center text-sm">
+            {t('events.rsvp.ended', {
+              defaultValue: 'This event has ended.',
+            })}
           </p>
         ) : null}
-        <p className="text-muted-foreground mt-2 text-center text-sm">
-          {t('events.rsvp.ended', {
-            defaultValue: 'This event has ended.',
-          })}
-        </p>
       </div>
     );
   }

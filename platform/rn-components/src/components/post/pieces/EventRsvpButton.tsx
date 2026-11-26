@@ -18,12 +18,15 @@ export interface EventRsvpButtonProps {
   post: PublicPost;
   recurrenceId?: string;
   lockToOccurrence?: boolean;
+  /** Live jam session active — suppresses the "ended" label. */
+  jamActive?: boolean;
 }
 
 export const EventRsvpButton = ({
   post,
   recurrenceId,
   lockToOccurrence = false,
+  jamActive,
 }: EventRsvpButtonProps) => {
   const { t } = useTranslation();
   const scopeSheetRef = useRef<BottomSheetModal>(null);
@@ -35,6 +38,7 @@ export const EventRsvpButton = ({
     canRsvp,
     rsvpClosed,
     hideRsvpButton,
+    showEndedLabel,
     recurring,
     defaultId,
     occurrences,
@@ -56,6 +60,7 @@ export const EventRsvpButton = ({
     post,
     recurrenceId,
     lockToOccurrence,
+    jamActive,
     onSuccess: () =>
       Toast.show({ type: 'success', text1: t('posts.rsvp.success') }),
     onError: (message) => Toast.show({ type: 'error', text1: message }),
@@ -86,20 +91,25 @@ export const EventRsvpButton = ({
   }
 
   if (rsvpClosed) {
+    const status =
+      myRsvp && myRsvp.response !== 'no' ? (
+        <ThemedText className="text-center text-sm">
+          {myRsvp.response === 'yes'
+            ? t('posts.rsvp.attendingMessage')
+            : myRsvp.response === 'waitlist'
+              ? t('events.rsvp.onWaitlist')
+              : t('posts.rsvp.maybeMessage')}
+        </ThemedText>
+      ) : null;
+    if (!status && !showEndedLabel) return null;
     return (
       <View className="mt-4 w-full">
-        {myRsvp && myRsvp.response !== 'no' ? (
-          <ThemedText className="text-center text-sm">
-            {myRsvp.response === 'yes'
-              ? t('posts.rsvp.attendingMessage')
-              : myRsvp.response === 'waitlist'
-                ? t('events.rsvp.onWaitlist')
-                : t('posts.rsvp.maybeMessage')}
+        {status}
+        {showEndedLabel ? (
+          <ThemedText className="mt-2 text-center text-sm text-muted-foreground">
+            {t('events.rsvp.ended')}
           </ThemedText>
         ) : null}
-        <ThemedText className="mt-2 text-center text-sm text-muted-foreground">
-          {t('events.rsvp.ended')}
-        </ThemedText>
       </View>
     );
   }
