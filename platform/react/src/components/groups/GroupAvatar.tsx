@@ -54,7 +54,11 @@ export function GroupAvatar({
       }}
     >
       <div
-        className={`bg-surface-2 relative inline-flex h-full w-full items-center justify-center overflow-hidden rounded-full ${borderClass}`}
+        // `flex` (block-level), not `inline-flex`: as an inline box this disc
+        // forms an anonymous line box in its parent and is aligned by baseline,
+        // which sits the initials fallback lower than the `object-cover` image
+        // (issue #1666 — "initials avatars sit low while image avatars align").
+        className={`bg-surface-2 relative flex h-full w-full items-center justify-center overflow-hidden rounded-full ${borderClass}`}
         style={{ backgroundColor }}
       >
         {src ? (

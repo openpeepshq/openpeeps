@@ -60,7 +60,11 @@ export function Avatar({
 
   const inner = (
     <div
-      className={`bg-surface-2 relative inline-flex items-center justify-center overflow-hidden rounded-full ${borderClass}`}
+      // `flex` (block-level), not `inline-flex`: as an inline box this disc
+      // forms an anonymous line box in its parent and is aligned by baseline,
+      // which sits the initials fallback lower than the `object-cover` image
+      // (issue #1666 — "initials avatars sit low while image avatars align").
+      className={`bg-surface-2 relative flex items-center justify-center overflow-hidden rounded-full ${borderClass}`}
       style={{
         width: `${size}rem`,
         height: `${size}rem`,
