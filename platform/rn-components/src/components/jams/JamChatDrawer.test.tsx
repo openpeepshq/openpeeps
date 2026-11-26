@@ -75,6 +75,13 @@ interface MockElementProps {
 
 const platformState = { os: 'ios' as 'ios' | 'android' };
 const flatListState = { handles: [] as Array<{ scrollToEnd: jest.Mock }> };
+// Per-test useJamChat state so a test can drive delete permissions and a
+// rejecting remove without re-rendering.
+const jamChatState = {
+  messages: [] as unknown[],
+  canDelete: false,
+  removeMessage: jest.fn(async () => {}),
+};
 // Records the Keyboard listeners the drawer subscribes to, so a test can
 // fire keyboardDidShow the way the platform does (not by calling a
 // component prop directly).
@@ -102,7 +109,18 @@ jest.mock('react-native', () => ({
         ref as React.Ref<{ scrollToEnd: jest.Mock }>,
         () => handle
       );
-      return React.createElement('FlatList', props, props.children);
+      // The real FlatList renders each data row through renderItem; the mock
+      // does the same so a test can drive a row's handler end to end.
+      const data = (props.data as unknown[] | undefined) ?? [];
+      const renderItem = props.renderItem as
+        | ((args: { item: unknown }) => React.ReactElement)
+        | undefined;
+      return React.createElement(
+        'FlatList',
+        props,
+        props.children,
+        ...(renderItem ? data.map((item) => renderItem({ item })) : [])
+      );
     }),
     { displayName: 'FlatList' }
   ),
@@ -128,7 +146,7 @@ jest.mock('react-i18next', () => ({
 
 jest.mock('@openpeepshq/react', () => ({
   useJamChat: () => ({
-    messages: [],
+    messages: jamChatState.messages,
     mentionProfiles: [],
     isLoading: false,
     isFetchingNextPage: false,
@@ -137,6 +155,8 @@ jest.mock('@openpeepshq/react', () => ({
     setNewMessage: jest.fn(),
     isSending: false,
     send: jest.fn(async () => true),
+    canDeleteMessage: jest.fn(() => jamChatState.canDelete),
+    removeMessage: jamChatState.removeMessage,
   }),
 }));
 
@@ -146,6 +166,36 @@ jest.mock('@livekit/react-native', () => ({
 
 jest.mock('@openpeepshq/common', () => ({}));
 
+jest.mock('@gorhom/bottom-sheet', () => ({
+  BottomSheetModal: (props: MockElementProps) =>
+    React.createElement('BottomSheetModal', props, props.children),
+}));
+
+jest.mock('react-native-toast-message', () => ({
+  __esModule: true,
+  default: { show: jest.fn() },
+}));
+
+jest.mock('./DeleteMessageSheet', () => ({
+  DeleteMessageSheet: (props: MockElementProps) =>
+    React.createElement(
+      'DeleteMessageSheet',
+      null,
+      // Confirm button carrying the drawer's handleDeleteMessage as onDelete,
+      // so the failure-path test drives the delete end to end.
+      React.createElement(
+        'Pressable',
+        {
+          'data-testid': 'delete-sheet-confirm',
+          'onPress': () => {
+            void (props.onDelete as () => Promise<void>)();
+          },
+        },
+        'delete'
+      )
+    ),
+}));
+
 jest.mock('./JamDrawer', () => ({
   JamDrawer: (props: MockElementProps) =>
     React.createElement('JamDrawer', props, props.children),
@@ -153,7 +203,16 @@ jest.mock('./JamDrawer', () => ({
 
 jest.mock('./JamChatMessage', () => ({
   JamChatMessage: (props: MockElementProps) =>
-    React.createElement('JamChatMessage', props),
+    // The real component forwards its `onDelete` prop to the long-press
+    // handler; the mock surfaces the same contract as a Pressable.
+    React.createElement(
+      'JamChatMessage',
+      {
+        'data-message-id': (props.message as { id?: string } | undefined)?.id,
+        'onPress': props.onDelete,
+      },
+      'message'
+    ),
 }));
 
 jest.mock('../icons/index', () => ({
@@ -226,6 +285,10 @@ describe('JamChatDrawer keyboard handling (issue #1705)', () => {
     platformState.os = 'ios';
     flatListState.handles = [];
     keyboardState.listeners = [];
+    jamChatState.messages = [];
+    jamChatState.canDelete = false;
+    jamChatState.removeMessage.mockReset();
+    require('react-native-toast-message').default.show.mockClear();
     throwingUseSafeAreaInsets.mockClear();
   });
 
@@ -331,5 +394,45 @@ describe('JamChatDrawer keyboard handling (issue #1705)', () => {
     expect(tree.root.findByType('FlatList')).toBeDefined();
     // Read-only has no composer to re-pin; no keyboard subscription.
     expect(keyboardState.listeners).toHaveLength(0);
+  });
+
+  it('shows the delete-error toast and no success toast when remove rejects (issue #1587)', async () => {
+    // Failure-path pin (round-2 suggestion 3): the drawer owns RN's
+    // delete-error surface — a rejecting removeMessage shows
+    // `jams.chat.deleteError` and never rethrows (the sheet's catch was
+    // removed because the drawer's handler swallows the rejection).
+    jamChatState.messages = [{ id: 'evt-1' }];
+    jamChatState.canDelete = true;
+    jamChatState.removeMessage.mockImplementation(async () => {
+      throw new Error('delete failed');
+    });
+    const Toast = require('react-native-toast-message').default;
+    const tree = renderDrawer();
+    // Long-press on the message opens the sheet; the mock row forwards the
+    // drawer's handleLongPressMessage as onPress.
+    const row = tree.root.findByProps({ 'data-message-id': 'evt-1' });
+    ReactTestRenderer.act(() => {
+      row.props.onPress?.();
+    });
+    expect(Toast.show).not.toHaveBeenCalled();
+    // Confirm the delete; await the act so the async handler's rejection +
+    // catch (the Toast.show) flushes before asserting.
+    const confirm = tree.root.findByProps({
+      'data-testid': 'delete-sheet-confirm',
+    });
+    await ReactTestRenderer.act(async () => {
+      confirm.props.onPress?.();
+    });
+    expect(jamChatState.removeMessage).toHaveBeenCalledWith('evt-1');
+    expect(Toast.show).toHaveBeenCalledWith({
+      type: 'error',
+      text1: 'jams.chat.deleteError',
+    });
+    // The drawer's own handler swallowed the rejection: exactly one toast
+    // (no success toast, no second error path).
+    expect(Toast.show.mock.calls).toHaveLength(1);
+    ReactTestRenderer.act(() => {
+      tree.unmount();
+    });
   });
 });

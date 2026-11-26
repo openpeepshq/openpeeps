@@ -25,6 +25,7 @@ export interface JamEventsContextValue {
   reactionsForParticipant: (participantId: string) => JamEvent[];
   sendMessage: (message: string) => Promise<void>;
   sendReactionEmoji: (emoji: string) => Promise<void>;
+  removeSessionEvent: (jamEventId: string) => void;
 }
 
 const JamEventsContext = createContext<JamEventsContextValue | null>(null);
@@ -187,6 +188,12 @@ export function JamEventsProvider({
     [participantReactions],
   );
 
+  const removeSessionEvent = useCallback((jamEventId: string) => {
+    setSessionEvents((events) =>
+      events.filter((event) => event.id !== jamEventId),
+    );
+  }, []);
+
   const value = useMemo(
     () => ({
       sessionEvents,
@@ -194,10 +201,12 @@ export function JamEventsProvider({
       reactionsForParticipant,
       sendMessage,
       sendReactionEmoji,
+      removeSessionEvent,
     }),
     [
       ownReactions,
       reactionsForParticipant,
+      removeSessionEvent,
       sendMessage,
       sendReactionEmoji,
       sessionEvents,

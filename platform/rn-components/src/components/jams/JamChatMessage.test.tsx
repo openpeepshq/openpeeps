@@ -27,10 +27,28 @@ let mockProfile:
   | undefined;
 let mockLoading = false;
 
-jest.mock('react-native', () => ({
-  View: (props: { children?: unknown }) =>
-    React.createElement('View', null, props.children),
-}));
+jest.mock('react-native', () => {
+  // Capture the props passed to the message-row TouchableOpacity so the
+  // delete-affordance cases can assert on (and drive) `onLongPress`.
+  const touchableProps: { onLongPress?: () => void } = {};
+  const Touchable = (props: {
+    children?: unknown;
+    onLongPress?: () => void;
+    accessibilityRole?: string;
+    accessibilityLabel?: string;
+    activeOpacity?: number;
+    className?: string;
+  }) => {
+    touchableProps.onLongPress = props.onLongPress;
+    return React.createElement('TouchableOpacity', null, props.children);
+  };
+  return {
+    View: (props: { children?: unknown }) =>
+      React.createElement('View', null, props.children),
+    TouchableOpacity: Touchable,
+    __getTouchableProps: () => touchableProps,
+  };
+});
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -91,12 +109,15 @@ const baseMessage = {
   updatedAt: '2026-11-22T20:00:00.000Z',
 };
 
-const renderMessage = (message: Record<string, unknown>) => {
+const renderMessage = (
+  message: Record<string, unknown>,
+  onDelete?: () => void
+) => {
   mockRenderedTexts.length = 0;
   let tree!: ReactTestRenderer.ReactTestRenderer;
   ReactTestRenderer.act(() => {
     tree = ReactTestRenderer.create(
-      React.createElement(JamChatMessage, { message })
+      React.createElement(JamChatMessage, { message, onDelete })
     );
   });
   return tree;
@@ -135,5 +156,44 @@ describe('JamChatMessage kicked branch (RN)', () => {
     const rendered = mockRenderedTexts.join('');
     expect(rendered).toContain('joined');
     expect(rendered).not.toContain('was removed from the jam');
+  });
+});
+
+// RN pin for the long-press delete affordance (issue #1587). The message row is
+// a `TouchableOpacity` whose `onLongPress` fires the drawer's confirm+delete
+// flow; when the viewer cannot delete, `onDelete` is omitted and the bubble has
+// no long-press handler (renders exactly as before).
+describe('JamChatMessage delete affordance (RN, issue #1587)', () => {
+  const getTouchableProps = () =>
+    (
+      require('react-native') as unknown as {
+        __getTouchableProps: () => { onLongPress?: () => void };
+      }
+    ).__getTouchableProps();
+
+  beforeEach(() => {
+    mockProfile = {
+      id: 'author-1',
+      displayName: 'Author',
+      handle: 'author',
+    };
+    mockLoading = false;
+  });
+
+  it('wires onLongPress to onDelete when onDelete is provided', () => {
+    const onDelete = jest.fn();
+    renderMessage({ ...baseMessage, type: 'message', content: 'hi' }, onDelete);
+    const { onLongPress } = getTouchableProps();
+    expect(typeof onLongPress).toBe('function');
+    ReactTestRenderer.act(() => {
+      onLongPress?.();
+    });
+    expect(onDelete).toHaveBeenCalledTimes(1);
+  });
+
+  it('leaves the bubble without a long-press handler when onDelete is omitted', () => {
+    renderMessage({ ...baseMessage, type: 'message', content: 'hi' });
+    const { onLongPress } = getTouchableProps();
+    expect(onLongPress).toBeUndefined();
   });
 });

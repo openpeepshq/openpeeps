@@ -99,6 +99,11 @@ export const jams = (
         rawClient,
         '/jams/:id/events',
       ),
+      remove: allpeepNoPayloadEndpoint<
+        SuccessResponse,
+        { id: string; eventJamEventId: string },
+        undefined
+      >(rawClient, '/jams/:id/events/:eventJamEventId', 'delete'),
       attendance: allpeepNoPayloadEndpoint<JamEvent[], { id: string }>(
         rawClient,
         '/jams/:id/events/attendance',

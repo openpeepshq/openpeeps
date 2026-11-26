@@ -1,9 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Loader, SendHorizontal, X } from 'lucide-react';
 import { useParticipants } from '@livekit/components-react';
 import { useT } from '../../i18n';
 import { useJamChat } from '../../hooks/jams/useJamChat';
 import { JamChatMessage } from './JamChatMessage';
+import { DeleteMessageModal } from './DeleteMessageModal';
 
 export interface JamChatDrawerProps {
   open: boolean;
@@ -29,7 +30,12 @@ export function JamChatDrawer({
     setNewMessage,
     isSending,
     send,
+    canDeleteMessage,
+    removeMessage,
   } = useJamChat({ participants, readOnly });
+  const [deletableMessageId, setDeletableMessageId] = useState<string | null>(
+    null,
+  );
   const endRef = useRef<HTMLDivElement>(null);
   const topSentinelRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -57,6 +63,16 @@ export function JamChatDrawer({
     if (!(await send())) return;
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
     window.setTimeout(() => textareaRef.current?.focus(), 25);
+  };
+
+  const handleDeleteMessage = async () => {
+    if (!deletableMessageId) return;
+    try {
+      await removeMessage(deletableMessageId);
+    } catch {
+      console.error('Failed to delete jam chat message');
+    }
+    setDeletableMessageId(null);
   };
 
   if (!open) {
@@ -108,6 +124,11 @@ export function JamChatDrawer({
                 key={message.id}
                 message={message}
                 mentionProfiles={mentionProfiles}
+                onDelete={
+                  canDeleteMessage(message)
+                    ? () => setDeletableMessageId(message.id)
+                    : undefined
+                }
               />
             ))
           )}
@@ -151,6 +172,11 @@ export function JamChatDrawer({
           </button>
         </div>
       )}
+      <DeleteMessageModal
+        open={deletableMessageId !== null}
+        onClose={() => setDeletableMessageId(null)}
+        onDelete={handleDeleteMessage}
+      />
     </div>
   );
 }

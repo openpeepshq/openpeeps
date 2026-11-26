@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
   truncateText,
@@ -24,11 +24,18 @@ const attendanceMap = {
 export interface JamChatMessageProps {
   message: JamEvent;
   mentionProfiles?: PublicProfile[];
+  /**
+   * Set when the viewer may delete this message (host / moderator / author).
+   * Long-pressing the bubble then fires it so the drawer can confirm and
+   * delete; when omitted the message renders exactly as before.
+   */
+  onDelete?: () => void;
 }
 
 export const JamChatMessage = ({
   message,
   mentionProfiles = [],
+  onDelete,
 }: JamChatMessageProps) => {
   const { t } = useTranslation();
   const { openpeepsApi } = useOpenpeeps();
@@ -49,7 +56,13 @@ export const JamChatMessage = ({
 
   if (message.type === 'message') {
     return (
-      <View className="w-full flex-row gap-x-1">
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onLongPress={onDelete}
+        accessibilityRole={onDelete ? 'button' : undefined}
+        accessibilityLabel={onDelete ? t('jams.chat.deleteTitle') : undefined}
+        className="w-full flex-row gap-x-1"
+      >
         <View className="w-1/5 items-center">
           <ProfileAvatar profile={profile} className="size-8" />
         </View>
@@ -68,7 +81,7 @@ export const JamChatMessage = ({
             linkPreviewMode="none"
           />
         </View>
-      </View>
+      </TouchableOpacity>
     );
   }
 

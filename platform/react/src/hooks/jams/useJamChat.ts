@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { dateSorter, type JamEvent } from '@openpeepshq/common';
+import { jamFromEvent } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useJamContext } from '../../components/jams/JamContext';
 import { useJamEventsContext } from '../../components/jams/JamEventsContext';
@@ -32,9 +33,12 @@ export const useJamChat = ({
   readOnly = false,
 }: UseJamChatArgs) => {
   const { jamPost } = useJamContext();
-  const { sessionEvents, sendMessage } = useJamEventsContext();
+  const { sessionEvents, sendMessage, removeSessionEvent } =
+    useJamEventsContext();
   const { openpeepsApi } = useOpenpeeps();
+  const { data: currentProfile } = openpeepsApi.useCurrentProfile();
   const eventsQuery = openpeepsApi.useInfiniteJamEvents(jamPost.id, 100);
+  const removeJamEvent = openpeepsApi.removeJamEventAction();
   const mentionProfiles = useMemo(
     () => mentionProfilesFromParticipants(participants),
     [participants],
@@ -47,6 +51,39 @@ export const useJamChat = ({
     const persisted = (eventsQuery.data?.pages ?? []).flat();
     return mergeJamEvents(persisted, sessionEvents);
   }, [eventsQuery.data, sessionEvents]);
+
+  /**
+   * The jam host, a jam moderator, or the message author may delete a chat
+   * message. Mirrors the server-side gate in `deleteJamEvent`; the server
+   * re-checks regardless, so a client-side slip never widens access.
+   */
+  const canDeleteMessage = useCallback(
+    (jamEvent: JamEvent): boolean => {
+      if (readOnly || jamEvent.type !== 'message' || !currentProfile) {
+        return false;
+      }
+      const isAuthor = jamEvent.profileId === currentProfile.id;
+      const isHost = jamPost.profile.id === currentProfile.id;
+      const isModerator =
+        jamFromEvent(jamPost)?.moderators?.includes(currentProfile.id) ?? false;
+      return isAuthor || isHost || isModerator;
+    },
+    [currentProfile, jamPost, readOnly],
+  );
+
+  /**
+   * Deletes a chat message. Optimistically removes it from the live session
+   * buffer so it vanishes immediately, then persists the soft-delete +
+   * content-blank server-side and invalidates the paginated chat query so
+   * other clients and re-fetches drop it too.
+   */
+  const removeMessage = useCallback(
+    async (jamEventId: string) => {
+      removeSessionEvent(jamEventId);
+      await removeJamEvent({ id: jamPost.id, eventJamEventId: jamEventId });
+    },
+    [removeJamEvent, removeSessionEvent, jamPost.id],
+  );
 
   /** Resolves `true` when a message was sent. */
   const send = async () => {
@@ -78,5 +115,7 @@ export const useJamChat = ({
     setNewMessage,
     isSending,
     send,
+    canDeleteMessage,
+    removeMessage,
   };
 };

@@ -1,4 +1,12 @@
 import { useMemo } from 'react';
+import { Ellipsis } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  UpdatingDate,
+} from '@openpeepshq/react-ui';
 import {
   truncateText,
   type JamEvent,
@@ -8,7 +16,6 @@ import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n';
 import { OpenpeepsMarkdown } from '../markdown/OpenpeepsMarkdown';
 import { Avatar } from '../profile/Avatar';
-import { UpdatingDate } from '@openpeepshq/react-ui';
 
 const attendance = ['join', 'leave', 'start', 'close'] as const;
 
@@ -22,11 +29,18 @@ const attendanceMap = {
 export interface JamChatMessageProps {
   message: JamEvent;
   mentionProfiles?: PublicProfile[];
+  /**
+   * Set when the viewer may delete this message (host / moderator / author).
+   * Renders a three-dot "Delete" menu when present; otherwise the message
+   * renders exactly as before.
+   */
+  onDelete?: () => void;
 }
 
 export function JamChatMessage({
   message,
   mentionProfiles = [],
+  onDelete,
 }: JamChatMessageProps) {
   const t = useT();
   const { openpeepsApi } = useOpenpeeps();
@@ -59,7 +73,7 @@ export function JamChatMessage({
             <Avatar profile={profile} borderless size={2} />
           </div>
           <div className="col-span-4 w-full">
-            <div className="flex w-full gap-x-1">
+            <div className="flex w-full items-center gap-x-1">
               <h4 className="hidden md:flex">
                 {truncateText(profile.displayName || `@${profile.handle}`, 20)}
               </h4>
@@ -77,6 +91,32 @@ export function JamChatMessage({
             />
           </div>
         </div>
+        {onDelete ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                title={t('jams.chat.deleteTitle', {
+                  defaultValue: 'Delete message',
+                })}
+                aria-label={t('jams.chat.deleteTitle', {
+                  defaultValue: 'Delete message',
+                })}
+                className="text-muted-foreground hover:text-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded"
+              >
+                <Ellipsis className="size-4" aria-hidden="true" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="right" align="end" className="w-40">
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onSelect={onDelete}
+              >
+                {t('jams.chat.delete', { defaultValue: 'Delete' })}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : null}
       </div>
     );
   }

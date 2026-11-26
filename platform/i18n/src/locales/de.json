@@ -1162,7 +1162,13 @@
       "sendTitle": "Nachricht senden",
       "openEveryoneTitle": "Mit allen chatten",
       "noMessages": "Keine Nachrichten gefunden",
-      "wasRemoved": "wurde aus dem Jam entfernt"
+      "wasRemoved": "wurde aus dem Jam entfernt",
+      "deleteTitle": "Nachricht löschen",
+      "deleteConfirm": "Möchten Sie diese Nachricht wirklich löschen?",
+      "delete": "Löschen",
+      "cancel": "Abbrechen",
+      "deleted": "Nachricht gelöscht",
+      "deleteError": "Nachricht konnte nicht gelöscht werden"
     },
     "people": {
       "inJam": "IM JAM",

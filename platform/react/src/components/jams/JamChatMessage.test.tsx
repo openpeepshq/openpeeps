@@ -42,15 +42,41 @@ const h = vi.hoisted(() => ({
   loading: { value: false },
 }));
 
-vi.mock('@openpeepshq/react-ui', () => ({
-  UpdatingDate: () => null,
-}));
+// The DropdownMenu primitives are rendered by the delete affordance. Mock them
+// as thin passthroughs so the real `<button>` trigger and the menu item (which
+// carries `onSelect`) are reachable without pulling in the radix runtime.
+vi.mock('@openpeepshq/react-ui', async () => {
+  const React = await import('react');
+  return {
+    UpdatingDate: () => null,
+    DropdownMenu: ({ children }: { children?: unknown }) =>
+      (children ?? null) as unknown as React.ReactElement,
+    DropdownMenuTrigger: ({ children }: { children?: unknown }) =>
+      (children ?? null) as unknown as React.ReactElement,
+    DropdownMenuContent: ({ children }: { children?: unknown }) =>
+      (children ?? null) as unknown as React.ReactElement,
+    DropdownMenuItem: (props: {
+      children?: unknown;
+      onSelect?: (e: unknown) => void;
+      className?: string;
+    }) =>
+      React.createElement(
+        'button',
+        {
+          type: 'button',
+          'data-testid': 'delete-item',
+          onClick: () => props.onSelect?.({ preventDefault: () => {} }),
+        },
+        (props.children ?? null) as React.ReactNode,
+      ),
+  };
+});
 
 vi.mock('../markdown/OpenpeepsMarkdown', () => ({
   OpenpeepsMarkdown: () => null,
 }));
 
-vi.mock('../profile', () => ({
+vi.mock('../profile/Avatar', () => ({
   Avatar: () => null,
 }));
 
@@ -80,13 +106,13 @@ const baseMessage = {
   updatedAt: '2026-11-22T20:00:00.000Z',
 } as Pick<JamEvent, 'id' | 'jamId' | 'profileId' | 'createdAt' | 'updatedAt'>;
 
-const renderMessage = (message: JamEvent) => {
+const renderMessage = (message: JamEvent, onDelete?: () => void) => {
   const container = document.createElement('div');
   document.body.appendChild(container);
   let root: Root | undefined;
   act(() => {
     root = createRoot(container);
-    root.render(<JamChatMessage message={message} />);
+    root.render(<JamChatMessage message={message} onDelete={onDelete} />);
   });
   return {
     container,
@@ -142,6 +168,61 @@ describe('JamChatMessage kicked branch (web)', () => {
       type: 'join',
     });
     expect(container.textContent).toContain('Kicked Person joined the jam');
+    unmount();
+  });
+});
+
+describe('JamChatMessage delete affordance (web, issue #1587)', () => {
+  const message = {
+    ...baseMessage,
+    type: 'message',
+    content: 'hello',
+  } as JamEvent;
+
+  beforeEach(() => {
+    (
+      globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
+    ).IS_REACT_ACT_ENVIRONMENT = true;
+    h.profile.value = {
+      id: 'author-1',
+      displayName: 'Author',
+      handle: 'author',
+    };
+    h.loading.value = false;
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('renders the three-dot delete trigger only when onDelete is provided', () => {
+    const { container, unmount } = renderMessage(message);
+    expect(
+      container.querySelector('button[title="Delete message"]'),
+    ).toBeNull();
+    unmount();
+
+    const { container: withDelete, unmount: u2 } = renderMessage(
+      message,
+      () => undefined,
+    );
+    expect(
+      withDelete.querySelector('button[title="Delete message"]'),
+    ).not.toBeNull();
+    u2();
+  });
+
+  it('fires onDelete exactly once when the Delete item is chosen', () => {
+    const onDelete = vi.fn();
+    const { container, unmount } = renderMessage(message, onDelete);
+    const item = container.querySelector(
+      '[data-testid="delete-item"]',
+    ) as HTMLButtonElement | null;
+    expect(item).not.toBeNull();
+    act(() => {
+      item?.click();
+    });
+    expect(onDelete).toHaveBeenCalledTimes(1);
     unmount();
   });
 });

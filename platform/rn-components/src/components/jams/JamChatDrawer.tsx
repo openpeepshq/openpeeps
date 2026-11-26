@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -12,6 +12,8 @@ import {
   SafeAreaProvider,
 } from 'react-native-safe-area-context';
 import { useParticipants } from '@livekit/react-native';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
 import { useJamChat } from '@openpeepshq/react';
 import type { JamEvent } from '@openpeepshq/common';
@@ -20,6 +22,7 @@ import { Textarea } from '../ui/textarea';
 import { ThemedText } from '../ui/themed-text';
 import { JamChatMessage } from './JamChatMessage';
 import { JamDrawer } from './JamDrawer';
+import { DeleteMessageSheet } from './DeleteMessageSheet';
 
 export interface JamChatDrawerProps {
   open: boolean;
@@ -73,8 +76,14 @@ const JamChatDrawerBody = ({
     setNewMessage,
     isSending,
     send,
+    canDeleteMessage,
+    removeMessage,
   } = useJamChat({ participants, readOnly });
   const listRef = useRef<FlatList<JamEvent>>(null);
+  const deleteMessageSheetRef = useRef<BottomSheetModal>(null);
+  const [deletableMessageId, setDeletableMessageId] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     if (!open || messages.length === 0) return;
@@ -100,6 +109,25 @@ const JamChatDrawerBody = ({
   const handleSendMessage = async () => {
     if (!(await send())) return;
     listRef.current?.scrollToEnd({ animated: true });
+  };
+
+  const handleLongPressMessage = (message: JamEvent) => {
+    if (canDeleteMessage(message)) {
+      setDeletableMessageId(message.id);
+      deleteMessageSheetRef.current?.present();
+    }
+  };
+
+  const handleDeleteMessage = async () => {
+    if (!deletableMessageId) return;
+    try {
+      await removeMessage(deletableMessageId);
+      Toast.show({ type: 'success', text1: t('jams.chat.deleted') });
+    } catch {
+      Toast.show({ type: 'error', text1: t('jams.chat.deleteError') });
+    } finally {
+      setDeletableMessageId(null);
+    }
   };
 
   if (!open) {
@@ -147,7 +175,15 @@ const JamChatDrawerBody = ({
             ) : null
           }
           renderItem={({ item }) => (
-            <JamChatMessage message={item} mentionProfiles={mentionProfiles} />
+            <JamChatMessage
+              message={item}
+              mentionProfiles={mentionProfiles}
+              onDelete={
+                canDeleteMessage(item)
+                  ? () => handleLongPressMessage(item)
+                  : undefined
+              }
+            />
           )}
         />
 
@@ -177,6 +213,10 @@ const JamChatDrawerBody = ({
           </View>
         ) : null}
       </KeyboardAvoidingView>
+      <DeleteMessageSheet
+        ref={deleteMessageSheetRef}
+        onDelete={handleDeleteMessage}
+      />
     </JamDrawer>
   );
 };
