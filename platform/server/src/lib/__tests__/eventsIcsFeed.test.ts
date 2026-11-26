@@ -47,6 +47,11 @@ vi.mock('#lib/auth', () => ({
 vi.mock('@openpeepshq/core/jwt', () => ({
   jwtUtil: vi.fn(async () => ({ verify: vi.fn(async () => undefined) })),
 }));
+// The middleware's OAuth revocation check; mocked so loading it does not pull
+// the DB and Redis stack into this test (its cold import outlasts the timeout).
+vi.mock('@openpeepshq/core/accessTokens', () => ({
+  isRevoked: vi.fn(async () => false),
+}));
 
 import type {
   PostWithMeta,

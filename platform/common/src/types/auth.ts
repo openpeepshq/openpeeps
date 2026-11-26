@@ -7,6 +7,8 @@ export const authorizationSchema = z.object({
     profile: z.string().optional(),
     account: z.string().optional(),
     service: z.string().optional(),
+    /** OAuth client the token was delegated to (OpenPeeps as OIDC provider). */
+    client: z.string().optional(),
   }),
   scopes: z.array(scopeSchema),
 });

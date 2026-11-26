@@ -1,0 +1,1 @@
+ALTER TABLE "oauth_clients" ADD COLUMN "secret_expires_at" timestamp with time zone;

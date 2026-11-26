@@ -94,6 +94,7 @@ export const defaultConfig: CoreConfig = {
     },
   },
   sso: { generic: [], oidc: [] },
+  oauth: { dynamicRegistration: false, clientSecretLifetimeSeconds: 31536000 },
   services: {
     sentry: {
       // Opt-in only — no shared default DSN (privacy for self-hosted deploys).

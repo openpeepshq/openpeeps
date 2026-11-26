@@ -1,12 +1,15 @@
 import type { NextFunction, Request, Response } from 'express';
 import type { JWTPayload } from 'jose';
+import { isUndelegatedOrFullAccess } from '@openpeepshq/common/lib';
+import type { Scope } from '@openpeepshq/common/types';
 
 import { jwtUtil } from '../jwt';
 
 type PluginProfile = { id: string };
 
 type AuthorizationPayload = JWTPayload & {
-  identities?: { profile?: string; service?: string };
+  identities?: { profile?: string; service?: string; client?: string };
+  scopes?: Scope[];
 };
 
 /* eslint-disable @typescript-eslint/no-namespace */
@@ -57,7 +60,10 @@ export const ensurePluginAuth =
       const jwt = await jwtUtil();
       const verified = await jwt.verify(token);
       const payload = verified?.payload as AuthorizationPayload | undefined;
-      if (!payload?.identities?.profile) {
+      if (
+        !payload?.identities?.profile ||
+        !isUndelegatedOrFullAccess(payload)
+      ) {
         res.status(401).json({ success: false, message: 'Invalid token' });
         return;
       }

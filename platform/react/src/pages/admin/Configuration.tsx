@@ -50,6 +50,10 @@ export function AdminConfiguration() {
         action="/admin/configuration/sso"
       />
       <ConfigMenuButton
+        translationPrefix="configuration.oauthClients"
+        action="/admin/configuration/oauth-clients"
+      />
+      <ConfigMenuButton
         translationPrefix="configuration.i18n"
         action="/admin/configuration/i18n"
       />

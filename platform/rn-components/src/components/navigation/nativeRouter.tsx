@@ -13,6 +13,7 @@ export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 const SETTINGS_SCREENS: Record<string, keyof MainStackParamList | undefined> = {
   'account': 'AccountSettings',
   'access-tokens': 'AccessTokensSettings',
+  'connected-apps': 'ConnectedAppsSettings',
   'blocked': 'BlockedSettings',
   'notifications': 'NotificationSettings',
   'notifications/preferences': 'NotificationsSettings',

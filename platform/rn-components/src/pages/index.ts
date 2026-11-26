@@ -42,6 +42,7 @@ export { NotificationPreferences } from './settings/NotificationPreferences';
 export { AccountSettings } from './settings/Account';
 export { ThemeSettings } from './settings/Theme';
 export { AccessTokensSettings } from './settings/AccessTokens';
+export { ConnectedAppsSettings } from './settings/ConnectedApps';
 export { CalendarFeedSettings } from './settings/CalendarFeed';
 export { FeedSettings } from './settings/Feed';
 export { BlockedSettings } from './settings/Blocked';

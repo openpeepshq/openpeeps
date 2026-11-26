@@ -148,6 +148,20 @@
       "when": 1795656890705,
       "tag": "0022_add_article_slug_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1795756816037,
+      "tag": "0023_add_oauth_provider",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1795855989088,
+      "tag": "0024_add_oauth_client_secret_expires",
+      "breakpoints": true
     }
   ]
 }

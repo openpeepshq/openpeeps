@@ -53,6 +53,10 @@ export const Settings = (
           onPress={() => navigation.navigate('AccessTokensSettings')}
         />
         <ConfigMenuButton
+          translationPrefix="settings.connectedApps"
+          onPress={() => navigation.navigate('ConnectedAppsSettings')}
+        />
+        <ConfigMenuButton
           translationPrefix="settings.theme"
           onPress={() => navigation.navigate('ThemeSettings')}
         />

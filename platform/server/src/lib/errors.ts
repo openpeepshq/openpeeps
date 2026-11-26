@@ -1,5 +1,6 @@
 import type { OpenpeepsError } from '@openpeepshq/common/types';
 import { isOpenpeepsError } from '@openpeepshq/core/errors';
+import { isOAuthError } from '@openpeepshq/core/oauth';
 
 /**
  * HTTP error helpers — produces error objects compatible with Riddl's
@@ -49,6 +50,13 @@ export const fromOpenpeepsError = (allPeepError: OpenpeepsError) =>
     (allPeepError as { message?: string }).message ?? allPeepError.errorKey,
     allPeepError.errorKey,
   );
+
+export const rethrowIfOAuthError = (err: unknown): never => {
+  if (isOAuthError(err)) {
+    throw badRequest(err.message);
+  }
+  throw err;
+};
 
 export const rethrowIfOpenpeepsError = (err: unknown): never => {
   if (isOpenpeepsError(err)) {

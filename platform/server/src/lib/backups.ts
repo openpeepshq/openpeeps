@@ -2,7 +2,10 @@ import { createReadStream } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import type { Express, Request, Response } from 'express';
 import type { Authorization } from '@openpeepshq/common/types';
-import { checkRoleCapabilities } from '@openpeepshq/common/lib';
+import {
+  checkRoleCapabilities,
+  isUndelegatedOrFullAccess,
+} from '@openpeepshq/common/lib';
 import { downloadBackup, listAllBackups } from '@openpeepshq/core/backups';
 import { jwtUtil } from '@openpeepshq/core/jwt';
 import { findProfile } from '@openpeepshq/core/profiles';
@@ -35,7 +38,7 @@ const authorizeBackupDownload = async (
   const verified = await jwt.verify(token);
   const authorization = verified?.payload as Authorization | undefined;
   const profileId = authorization?.identities.profile;
-  if (!profileId) {
+  if (!profileId || !isUndelegatedOrFullAccess(authorization)) {
     res.status(401).send('Unauthorized');
     return false;
   }

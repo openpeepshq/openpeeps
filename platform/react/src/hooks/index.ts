@@ -85,6 +85,8 @@ export { useLanguagePreference } from './settings/useLanguagePreference';
 export { useAccountExport } from './settings/useAccountExport';
 export { usePushEnabledDevices } from './settings/usePushEnabledDevices';
 export { useCalendarFeedLink } from './settings/useCalendarFeedLink';
+export { useConnectedApps } from './settings/useConnectedApps';
+export { oauthScopeLabelKey, useOAuthConsent } from './auth/useOAuthConsent';
 export type { CalendarFeedStatus } from './settings/useCalendarFeedLink';
 export {
   ACCESS_TOKEN_EXPIRATION_OPTIONS,

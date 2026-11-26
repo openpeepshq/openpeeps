@@ -20,7 +20,9 @@
       "loginWith": "Login with {{provider}}",
       "loginLink": "Continue to sign in",
       "redirectingToSso": "Redirecting you to sign in…",
-      "adminLogin": "Administrator login"
+      "adminLogin": "Administrator login",
+      "continueInBrowser": "Continue in browser",
+      "browserError": "Browser sign-in failed. Please try again."
     },
     "register": {
       "title": "Sign Up",
@@ -2441,6 +2443,27 @@
     },
     "pluginPage": {
       "description": "Configure this plugin."
+    },
+    "oauthClients": {
+      "title": "OAuth clients",
+      "description": "Register apps that can sign in members with their account.",
+      "dynamicRegistration": "Allow dynamic client registration",
+      "dynamicRegistrationHint": "Lets any app register itself as a public client. Users still have to approve every app.",
+      "createTitle": "Register a client",
+      "redirectUris": "Redirect URIs (one per line)",
+      "confidential": "Confidential (server-side app with a secret)",
+      "firstParty": "First-party (may request full account access)",
+      "create": "Register",
+      "clientId": "Client ID",
+      "clientSecret": "Client secret",
+      "listTitle": "Registered clients",
+      "empty": "No OAuth clients yet.",
+      "confidentialBadge": "confidential",
+      "firstPartyBadge": "first-party",
+      "dynamicBadge": "self-registered",
+      "rotate": "Rotate secret",
+      "rotatedTitle": "New client secret",
+      "rotatedWarning": "The old secret no longer works. Copy this one now — it will not be shown again."
     }
   },
   "diagnostics": {
@@ -3085,6 +3108,13 @@
       "revokeSuccess": "Calendar link deleted.",
       "revokeError": "Could not delete the calendar link.",
       "copy": "Copy"
+    },
+    "connectedApps": {
+      "title": "Connected apps",
+      "description": "Apps you signed in to with your account. Revoking access signs the app out.",
+      "empty": "No connected apps.",
+      "since": "Connected since {{date}}",
+      "revoke": "Revoke access"
     }
   },
   "form": {
@@ -4144,6 +4174,35 @@
   "feeds": {
     "drafts": {
       "filter": "Filter your drafts…"
+    }
+  },
+  "oauth": {
+    "consent": {
+      "title": "{{client}} wants to access your account",
+      "scopesIntro": "This will allow it to:",
+      "approve": "Allow",
+      "deny": "Deny"
+    },
+    "scopes": {
+      "openid": "Confirm who you are",
+      "profile": "See your name, username and avatar",
+      "email": "See your email address",
+      "offline_access": "Stay signed in",
+      "*_admin": "Full access to your account",
+      "posts_read": "Read your posts",
+      "posts_write": "Create and change your posts",
+      "profiles_read": "Read your profiles",
+      "profiles_write": "Create and change your profiles",
+      "groups_read": "Read your groups",
+      "groups_write": "Create and change your groups",
+      "jams_read": "Read your jams",
+      "jams_write": "Create and change your jams",
+      "conversations_read": "Read your conversations",
+      "conversations_write": "Create and change your conversations",
+      "reports_read": "Read your reports",
+      "reports_write": "Create and change your reports",
+      "notifications_read": "Read your notifications",
+      "notifications_write": "Create and change your notifications"
     }
   }
 }

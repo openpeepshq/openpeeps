@@ -15,6 +15,10 @@ import type {
   GroupWithMeta,
   NotificationStats,
   NotificationType,
+  OAuthAuthorizationDecision,
+  OAuthAuthorizationInfo,
+  OAuthGrant,
+  OAuthRedirect,
   ProfileActivitySummary,
   ProfileData,
   ProfileSettings,
@@ -102,6 +106,16 @@ export type ProfileHooks = {
   revokeCurrentProfileAccessTokenAction: (defaultPathParams?: {
     accessTokenId: string;
   }) => (pathParams?: { accessTokenId: string }) => Promise<SuccessResponse>;
+  useOAuthAuthorizationInfo: (
+    request: Record<string, string>,
+  ) => Query<OAuthAuthorizationInfo>;
+  authorizeOAuthAction: (
+    defaultPathParams?: undefined,
+  ) => (input: OAuthAuthorizationDecision) => Promise<OAuthRedirect>;
+  useOAuthGrants: () => Query<OAuthGrant[]>;
+  revokeOAuthGrantAction: (defaultPathParams?: {
+    clientId: string;
+  }) => (pathParams?: { clientId: string }) => Promise<SuccessResponse>;
   createCurrentProfileCalendarFeedAction: () => () => Promise<CalendarFeedTokenResponse>;
   revokeCurrentProfileCalendarFeedAction: () => () => Promise<SuccessResponse>;
 };
@@ -200,6 +214,20 @@ export const profileHooks = (
     client.profiles.current.revokeAccessToken,
     [['profiles', 'current', 'accessTokens']],
   ),
+  useOAuthAuthorizationInfo: (request: Record<string, string>) => {
+    const hasToken = useHasAuthToken();
+    return apiHook(client.oauth.authorizationInfo, {
+      queryParams: request,
+      enabled: hasToken,
+    });
+  },
+  authorizeOAuthAction: payloadMutation(client.oauth.authorize, [
+    ['oauth', 'grants'],
+  ]),
+  useOAuthGrants: () => apiHook(client.oauth.grants),
+  revokeOAuthGrantAction: noPayloadMutation(client.oauth.revokeGrant, [
+    ['oauth', 'grants'],
+  ]),
   createCurrentProfileCalendarFeedAction: noPayloadMutation(
     client.profiles.current.calendarFeed,
   ),

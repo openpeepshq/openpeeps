@@ -24,6 +24,7 @@ export * from './eventWaitlist';
 export * from './tokenHelpers';
 export * from './jamHelpers';
 export * from './scopeHelpers';
+export * from './oauth';
 export * from './pushHelpers';
 export * from './mediaDimensions';
 export * from './csvHelpers';

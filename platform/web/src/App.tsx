@@ -132,7 +132,10 @@ import {
   AdminConfigurationEmail,
   AdminConfigurationSso,
   AdminConfigurationSsoNew,
+  AdminOAuthClients,
   AccessTokensSettings,
+  ConnectedAppsSettings,
+  OAuthAuthorize,
   CalendarFeedSettings,
   BlockedSettings,
   LanguageSettings,
@@ -333,6 +336,7 @@ const SettingsPages = {
   Feed: FeedSettings,
   Billing: BillingSettings,
   AccessTokens: AccessTokensSettings,
+  ConnectedApps: ConnectedAppsSettings,
   CalendarFeed: CalendarFeedSettings,
   Blocked: BlockedSettings,
 };
@@ -421,6 +425,7 @@ const Admin = {
     Email: AdminConfigurationEmail,
     Sso: AdminConfigurationSso,
     SsoNew: AdminConfigurationSsoNew,
+    OAuthClients: AdminOAuthClients,
   },
 };
 
@@ -456,6 +461,7 @@ function AppShell() {
               element={<MiscPages.SsoGeneric />}
             />
             <Route path="/auth/sso/oidc/pending" element={<OidcPending />} />
+            <Route path="/oauth/authorize" element={<OAuthAuthorize />} />
             <Route
               path="/auth/sso/oidc/:id/callback"
               element={<OidcCallback />}
@@ -672,6 +678,10 @@ function AppShell() {
                     <Route
                       path="/settings/access-tokens"
                       element={<SettingsPages.AccessTokens />}
+                    />
+                    <Route
+                      path="/settings/connected-apps"
+                      element={<SettingsPages.ConnectedApps />}
                     />
                     <Route
                       path="/settings/calendar-feed"
@@ -893,6 +903,10 @@ function AppShell() {
                       <Route
                         path="/admin/configuration/sso"
                         element={<Admin.Config.Sso />}
+                      />
+                      <Route
+                        path="/admin/configuration/oauth-clients"
+                        element={<Admin.Config.OAuthClients />}
                       />
                       <Route
                         path="/admin/configuration/:pluginPage"

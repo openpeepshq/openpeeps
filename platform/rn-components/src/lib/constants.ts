@@ -6,6 +6,9 @@ export const isProduction = Config.APP_ENV === 'production';
 export const LOGIN_EMAIL = Config.LOGIN_EMAIL;
 export const LOGIN_PASSWORD = Config.LOGIN_PASSWORD;
 
+export const OAUTH_CLIENT_ID = Config.OAUTH_CLIENT_ID;
+export const OAUTH_REDIRECT_URI = Config.OAUTH_REDIRECT_URI;
+
 export type PostBoxTriggeredFrom =
   | 'reply'
   | 'community'

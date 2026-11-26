@@ -41,6 +41,10 @@ import {
   InviteLinkData,
   InviteLinkWithMeta,
   LogRow,
+  OAuthClient,
+  OAuthClientCreated,
+  OAuthClientCreation,
+  OAuthClientSecretRotated,
   ProfileWithMeta,
   PublicAccessToken,
   Resource,
@@ -263,6 +267,15 @@ export type Admin = {
       SuccessResponse,
       { accessTokenId: string }
     >;
+  };
+  oauthClients: {
+    list: OpenpeepsNoPayloadEndpoint<OAuthClient[]>;
+    create: OpenpeepsPayloadEndpoint<OAuthClientCreated, OAuthClientCreation>;
+    rotateSecret: OpenpeepsNoPayloadEndpoint<
+      OAuthClientSecretRotated,
+      { clientId: string }
+    >;
+    delete: OpenpeepsNoPayloadEndpoint<SuccessResponse, { clientId: string }>;
   };
   plugins: {
     list: OpenpeepsNoPayloadEndpoint<AdminPluginInfo[]>;
@@ -617,6 +630,25 @@ export const admin = (rawClient: FetchClient): Admin => ({
       SuccessResponse,
       { accessTokenId: string }
     >(rawClient, '/admin/service-access-tokens/:accessTokenId', 'delete'),
+  },
+  oauthClients: {
+    list: allpeepNoPayloadEndpoint<OAuthClient[]>(
+      rawClient,
+      '/admin/oauth/clients',
+    ),
+    create: allpeepPayloadEndpoint<OAuthClientCreated, OAuthClientCreation>(
+      rawClient,
+      '/admin/oauth/clients',
+    ),
+    rotateSecret: allpeepNoPayloadEndpoint<
+      OAuthClientSecretRotated,
+      { clientId: string }
+    >(rawClient, '/admin/oauth/clients/:clientId', 'put'),
+    delete: allpeepNoPayloadEndpoint<SuccessResponse, { clientId: string }>(
+      rawClient,
+      '/admin/oauth/clients/:clientId',
+      'delete',
+    ),
   },
   plugins: {
     list: allpeepNoPayloadEndpoint<AdminPluginInfo[]>(

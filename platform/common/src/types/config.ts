@@ -306,6 +306,26 @@ export const coreConfigSchemaFactory = (sanitize?: boolean) =>
           .array(),
       })
       .describe('hidden'),
+    oauth: z
+      .object({
+        /** Allow anonymous RFC 7591 client registration at `/oauth/register`. */
+        dynamicRegistration: z.boolean().default(false),
+        /**
+         * Lifetime of dynamically registered client secrets, in seconds;
+         * `0` keeps the secret non-expiring. `client_secret_expires_at` in the
+         * RFC 7591 response is derived from it, and `authenticateOAuthClient`
+         * rejects an expired secret.
+         */
+        clientSecretLifetimeSeconds: z
+          .number()
+          .int()
+          .nonnegative()
+          .default(365 * 24 * 60 * 60),
+      })
+      .default({
+        dynamicRegistration: false,
+        clientSecretLifetimeSeconds: 365 * 24 * 60 * 60,
+      }),
     services: z.object({
       sentry: z.object({
         enabled: z.boolean(),

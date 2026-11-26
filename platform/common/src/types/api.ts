@@ -640,6 +640,9 @@ export type JamWaitingRoomJoinEvent = z.infer<
 
 export interface Credentials {
   token: string;
+  /** Set when the token came from the OAuth flow; renewed via the token endpoint. */
+  refreshToken?: string;
+  clientId?: string;
 }
 
 const focusCoordinatesPattern = /^-?\d+,-?\d+$/;

@@ -58,12 +58,12 @@ export const createSignedAccessToken = async ({
 
   const expiresAt = new Date(result.payload.exp * 1000).toISOString();
 
-  return createAccessToken(profile, {
-    name,
-    description,
-    signedToken,
-    expiresAt,
-  });
+  // The row id is the JWT `jti`, so revocation by `jti` finds the record.
+  return createAccessToken(
+    profile,
+    { name, description, signedToken, expiresAt },
+    id,
+  );
 };
 
 export const createSignedProfileAccessToken = async ({
@@ -203,6 +203,11 @@ export const refreshSignedAccessToken = async (
     return undefined;
   }
   const authorization = authParsed.data;
+  // Delegated tokens renew only via the OAuth refresh grant, which honours
+  // consent revocation.
+  if (authorization.identities.client) {
+    return undefined;
+  }
 
   const existing = await findAccessToken(jti);
   if (!existing?.signedToken || existing.revokedAt) {

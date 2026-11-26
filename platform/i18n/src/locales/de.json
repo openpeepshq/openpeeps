@@ -20,7 +20,9 @@
       "loginWith": "Mit {{provider}} anmelden",
       "loginLink": "Weiter zur Anmeldung",
       "redirectingToSso": "Sie werden zur Anmeldung weitergeleitet…",
-      "adminLogin": "Administratoranmeldung"
+      "adminLogin": "Administratoranmeldung",
+      "continueInBrowser": "Im Browser fortfahren",
+      "browserError": "Die Anmeldung im Browser ist fehlgeschlagen. Bitte versuchen Sie es erneut."
     },
     "register": {
       "title": "Registrieren",
@@ -2544,6 +2546,27 @@
           "avatar": "Avatar-Claim"
         }
       }
+    },
+    "oauthClients": {
+      "title": "OAuth-Clients",
+      "description": "Registrieren Sie Apps, bei denen sich Mitglieder mit ihrem Konto anmelden können.",
+      "dynamicRegistration": "Dynamische Client-Registrierung erlauben",
+      "dynamicRegistrationHint": "Jede App kann sich selbst als öffentlicher Client registrieren. Mitglieder müssen jede App weiterhin bestätigen.",
+      "createTitle": "Client registrieren",
+      "redirectUris": "Weiterleitungs-URIs (eine pro Zeile)",
+      "confidential": "Vertraulich (serverseitige App mit Secret)",
+      "firstParty": "Eigene App (darf Vollzugriff anfordern)",
+      "create": "Registrieren",
+      "clientId": "Client-ID",
+      "clientSecret": "Client-Secret",
+      "listTitle": "Registrierte Clients",
+      "empty": "Noch keine OAuth-Clients.",
+      "confidentialBadge": "vertraulich",
+      "firstPartyBadge": "eigene App",
+      "dynamicBadge": "selbst registriert",
+      "rotate": "Secret erneuern",
+      "rotatedTitle": "Neues Client-Secret",
+      "rotatedWarning": "Das alte Secret funktioniert nicht mehr. Kopieren Sie dieses jetzt — es wird nicht erneut angezeigt."
     }
   },
   "common": {
@@ -3085,7 +3108,14 @@
       "revokeError": "Der Kalender-Link konnte nicht gelöscht werden.",
       "copy": "Kopieren"
     },
-    "menu": "Einstellungen"
+    "menu": "Einstellungen",
+    "connectedApps": {
+      "title": "Verbundene Apps",
+      "description": "Apps, bei denen Sie sich mit Ihrem Konto angemeldet haben. Wenn Sie den Zugriff widerrufen, wird die App abgemeldet.",
+      "empty": "Keine verbundenen Apps.",
+      "since": "Verbunden seit {{date}}",
+      "revoke": "Zugriff widerrufen"
+    }
   },
   "form": {
     "imageEditModal": {
@@ -4144,6 +4174,35 @@
   "feeds": {
     "drafts": {
       "filter": "Filtere deine Entwürfe…"
+    }
+  },
+  "oauth": {
+    "consent": {
+      "title": "{{client}} möchte auf Ihr Konto zugreifen",
+      "scopesIntro": "Dadurch kann die App:",
+      "approve": "Erlauben",
+      "deny": "Ablehnen"
+    },
+    "scopes": {
+      "openid": "Bestätigen, wer Sie sind",
+      "profile": "Ihren Namen, Benutzernamen und Avatar sehen",
+      "email": "Ihre E-Mail-Adresse sehen",
+      "offline_access": "Angemeldet bleiben",
+      "*_admin": "Vollzugriff auf Ihr Konto",
+      "posts_read": "Beiträge lesen",
+      "posts_write": "Beiträge erstellen und ändern",
+      "profiles_read": "Profile lesen",
+      "profiles_write": "Profile erstellen und ändern",
+      "groups_read": "Gruppen lesen",
+      "groups_write": "Gruppen erstellen und ändern",
+      "jams_read": "Jams lesen",
+      "jams_write": "Jams erstellen und ändern",
+      "conversations_read": "Unterhaltungen lesen",
+      "conversations_write": "Unterhaltungen erstellen und ändern",
+      "reports_read": "Meldungen lesen",
+      "reports_write": "Meldungen erstellen und ändern",
+      "notifications_read": "Benachrichtigungen lesen",
+      "notifications_write": "Benachrichtigungen erstellen und ändern"
     }
   }
 }

@@ -23,6 +23,7 @@ Here you should find everything useful to work on the AllPeep Community Server.
 - [Data Storage](/docs/development/data-storage) - PostgreSQL and Redis usage
 - [Roles and Capabilities](/docs/development/capabilities) - Capability strings, wildcards, and gating features by capability
 - [Notifications](/docs/development/notifications) - Notification system development guide
+- [OAuth / OIDC provider](/docs/development/oauth-provider) - Sign in with OpenPeeps, scopes, clients, and native app login
 
 ## Extensibility
 

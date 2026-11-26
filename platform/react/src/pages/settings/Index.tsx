@@ -47,6 +47,11 @@ export function Settings() {
         action="/settings/access-tokens"
       />
       <ConfigMenuButton
+        translationPrefix="settings.connectedApps"
+        action="/settings/connected-apps"
+        testId="settings-link-connected-apps"
+      />
+      <ConfigMenuButton
         translationPrefix="settings.theme"
         action="/settings/theme"
         testId="settings-link-theme"

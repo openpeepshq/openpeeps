@@ -16,6 +16,7 @@ import { plugins } from './endpoints/plugins';
 import { server } from './endpoints/server';
 import { profiles } from './endpoints/profiles';
 import { sso } from './endpoints/sso';
+import { oauth } from './endpoints/oauth';
 import { location } from './endpoints/location';
 import { reports } from './endpoints/reports';
 import { media } from './endpoints/media';
@@ -76,6 +77,7 @@ export const openpeepsClient = (
     profiles: profiles(rawClient, allPeepNoPayloadEventSource),
     server: serverEndpoints,
     sso: sso(rawClient),
+    oauth: oauth(rawClient),
     location: location(rawClient),
     reports: reports(rawClient),
     search: search(rawClient),

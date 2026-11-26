@@ -1224,6 +1224,9 @@ importers:
       '@livekit/react-native-webrtc':
         specifier: 144.1.1
         version: 144.1.1(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6))
+      '@noble/hashes':
+        specifier: ^1.8.0
+        version: 1.8.0
       '@notifee/react-native':
         specifier: ^9.1.8
         version: 9.1.8(react-native@0.85.2(@babel/core@7.29.7)(@react-native-community/cli@20.1.3(typescript@6.0.3))(@react-native/jest-preset@0.85.2(@babel/core@7.29.7)(react@19.2.6))(@react-native/metro-config@0.85.2(@babel/core@7.29.7))(@types/react@19.2.14)(react@19.2.6))

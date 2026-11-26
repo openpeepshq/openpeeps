@@ -9,6 +9,7 @@ export * from './internal';
 export * from './utils';
 export * from './config';
 export * from './auth';
+export * from './oauth';
 export * from './stats';
 export * from './analytics';
 export * from './notifications';

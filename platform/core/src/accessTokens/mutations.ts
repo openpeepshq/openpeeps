@@ -11,9 +11,9 @@ import { addToBloomFilter } from './revokations';
 export const createAccessToken = (
   profile: ProfileWithMeta | undefined,
   data: AccessTokenData,
+  id: string = uuidv7(),
 ) =>
   allpeepDb().then(async ({ db }) => {
-    const id = uuidv7();
     const accessToken = await accessTokensMapping.create(db, { ...data, id });
     if (profile) {
       await profileAccessTokenConnector(db, profile, accessToken);

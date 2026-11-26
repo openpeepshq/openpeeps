@@ -16,6 +16,7 @@ import {
   View,
 } from 'react-native';
 import {
+  useCredentialsStore,
   useOpenpeeps,
   usePasswordLogin,
   useServerInfo,
@@ -23,7 +24,14 @@ import {
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
 import { unregisterPushForLogout } from '../../lib/push-notifications';
-import { LOGIN_EMAIL, LOGIN_PASSWORD } from '../../lib/constants';
+import { isSupersededLogin, loginInBrowser } from '../../lib/oauthLogin';
+import {
+  BASE_URL,
+  LOGIN_EMAIL,
+  LOGIN_PASSWORD,
+  OAUTH_CLIENT_ID,
+  OAUTH_REDIRECT_URI,
+} from '../../lib/constants';
 
 export const Login = ({
   navigation: { navigate },
@@ -33,6 +41,11 @@ export const Login = ({
   const { login, submitting } = usePasswordLogin();
   const { openpeepsApi, client } = useOpenpeeps();
   const logout = openpeepsApi.logoutAction();
+  const { credentialsStore } = useCredentialsStore();
+  const browserLogin =
+    OAUTH_CLIENT_ID && OAUTH_REDIRECT_URI
+      ? { clientId: OAUTH_CLIENT_ID, redirectUri: OAUTH_REDIRECT_URI }
+      : undefined;
   const isRegistrationOpen =
     !!useServerInfo().communityConfig?.settings?.openRegistrations;
 
@@ -44,28 +57,50 @@ export const Login = ({
     },
   });
 
+  const endPreviousSession = async () => {
+    // Best-effort cleanup (never throws); clears stale subscriptions from
+    // any previous session before switching accounts. The RN side owns FCM
+    // cleanup, so this outcome — not the web pushCleanup flag — is what the
+    // logout toast reflects on native.
+    const pushResult = await unregisterPushForLogout(client);
+    await logout();
+    if (pushResult === 'failed') {
+      Toast.show({
+        type: 'error',
+        text1: t('settings.notifications.pushCleanupFailed', {
+          defaultValue: 'Could not remove push notifications for this device.',
+        }),
+      });
+    }
+  };
+
   const onSubmit = async (values: LoginRequest) => {
     try {
-      // Best-effort cleanup (never throws); clears stale subscriptions from
-      // any previous session before switching accounts. The RN side owns FCM
-      // cleanup, so this outcome — not the web pushCleanup flag — is what the
-      // logout toast reflects on native.
-      const pushResult = await unregisterPushForLogout(client);
-      await logout();
-      if (pushResult === 'failed') {
-        Toast.show({
-          type: 'error',
-          text1: t('settings.notifications.pushCleanupFailed', {
-            defaultValue:
-              'Could not remove push notifications for this device.',
-          }),
-        });
-      }
+      await endPreviousSession();
       await login(values);
     } catch (err) {
       Toast.show({
         type: 'error',
         text1: t('auth.login.error', { defaultValue: 'Error' }),
+        text2: (err as Error).message,
+      });
+    }
+  };
+
+  const onBrowserLogin = async () => {
+    if (!browserLogin) return;
+    try {
+      const credentials = await loginInBrowser({
+        serverUrl: BASE_URL ?? '',
+        ...browserLogin,
+      });
+      await endPreviousSession();
+      await credentialsStore.set(credentials);
+    } catch (err) {
+      if (isSupersededLogin(err)) return;
+      Toast.show({
+        type: 'error',
+        text1: t('auth.login.browserError'),
         text2: (err as Error).message,
       });
     }
@@ -133,7 +168,7 @@ export const Login = ({
             <Button
               onPress={form.handleSubmit(onSubmit)}
               disabled={submitting}
-              className="w-full py-4 mb-10 flex-row rounded-lg"
+              className={`w-full py-4 flex-row rounded-lg ${browserLogin ? 'mb-4' : 'mb-10'}`}
             >
               {submitting && (
                 <ActivityIndicator className="mr-2" size={'small'} />
@@ -142,6 +177,17 @@ export const Login = ({
                 {t('auth.login.logIn')}
               </ThemedText>
             </Button>
+            {browserLogin && (
+              <Button
+                variant="outline"
+                onPress={onBrowserLogin}
+                className="w-full py-4 mb-10 rounded-lg"
+              >
+                <ThemedText className="font-medium text-base">
+                  {t('auth.login.continueInBrowser')}
+                </ThemedText>
+              </Button>
+            )}
           </View>
           {isRegistrationOpen && (
             <ThemedText className="text-lg -mt-2 mb-2 text-muted-foreground tracking-wider ">

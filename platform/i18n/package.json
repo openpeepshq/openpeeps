@@ -1,7 +1,6 @@
 {
   "name": "@openpeepshq/i18n",
-  "version": "0.31.1",
-  "license": "MIT",
+  "version": "0.32.0",  "license": "MIT",
   "type": "module",
   "dependencies": {},
   "main": "dist/index.js",

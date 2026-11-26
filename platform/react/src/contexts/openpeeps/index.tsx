@@ -20,20 +20,18 @@ import {
 } from '../../auth/credentials';
 import { buildOpenpeepsApi } from './hooks';
 import { CredentialsStoreProvider } from '../credentialsStore';
+import { decideSessionRefresh, isTerminalOAuthRefreshError } from './refresh';
 
 export { useHasAuthToken } from './hooks/useHasAuthToken';
 import {
   isAccountlessJwt,
   isServiceOnlyJwt,
-  jwtHasRemainingValidityAtLeast,
+  requestOAuthToken,
   type ProfileWithMeta,
   type PublicAccount,
 } from '@openpeepshq/common';
 import { useSessionEvents } from '../../session/useSessionEvents';
 import { useNotificationBadgeSync } from '../../pwa/useNotificationBadgeSync';
-
-/** Refresh when less than this many seconds remain (login JWTs are 1w). */
-const REFRESH_WHEN_REMAINING_BELOW_SEC = 24 * 60 * 60;
 
 const isAuthFailure = (error: unknown): boolean => {
   if (!error || typeof error !== 'object') return false;
@@ -197,24 +195,38 @@ export const OpenpeepsProvider: React.FC<{
 
   useEffect(() => {
     const refreshIfExpiringSoon = async () => {
-      const token = (await credentialsStore.get())?.token;
-      if (!token?.trim()) return;
-      // Observer/egress service JWTs and guest passes are not refreshed via
-      // /auth/refresh (guest TTL is 1d; the 24h login window would fire immediately).
-      if (isServiceOnlyJwt(token) || isAccountlessJwt(token)) {
-        if (!jwtHasRemainingValidityAtLeast(token, 1)) {
+      const credentials = await credentialsStore.get();
+      const decision = decideSessionRefresh(credentials);
+      switch (decision.action) {
+        case 'noop':
+          return;
+        case 'end-session':
           await endSession();
+          return;
+        case 'oauth-refresh': {
+          const creds = credentials;
+          if (!creds?.token || !creds.clientId || !creds.refreshToken) return;
+          try {
+            const res = await requestOAuthToken(baseUrl, {
+              grant_type: 'refresh_token',
+              client_id: creds.clientId,
+              refresh_token: creds.refreshToken,
+            });
+            await credentialsStore.set({
+              token: res.access_token,
+              refreshToken: res.refresh_token ?? creds.refreshToken,
+              clientId: creds.clientId,
+            });
+          } catch (err) {
+            // A definitive rejection (rejected grant, or a client that no
+            // longer exists) ends the session; network errors and transient
+            // failures retry on the next interval.
+            if (isTerminalOAuthRefreshError(err)) await endSession();
+          }
+          return;
         }
-        return;
-      }
-      if (!jwtHasRemainingValidityAtLeast(token, 1)) {
-        await endSession();
-        return;
-      }
-      if (
-        jwtHasRemainingValidityAtLeast(token, REFRESH_WHEN_REMAINING_BELOW_SEC)
-      ) {
-        return;
+        case 'login-jwt-refresh':
+          break;
       }
       const res = await client.auth.refresh({});
       if (!('data' in res)) {
@@ -266,6 +278,7 @@ export const OpenpeepsProvider: React.FC<{
     };
   }, [
     client,
+    baseUrl,
     credentialsStore,
     queryClient,
     subscribeToForeground,

@@ -1,7 +1,6 @@
 {
   "name": "@openpeepshq/common",
-  "version": "0.30.0",
-  "license": "MIT",
+  "version": "0.31.0",  "license": "MIT",
   "type": "module",
   "sideEffects": false,
   "dependencies": {

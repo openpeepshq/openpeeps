@@ -75,6 +75,7 @@ export type MainStackParamList = {
   PushEnabledDevices: undefined;
   AccountSettings: undefined;
   AccessTokensSettings: undefined;
+  ConnectedAppsSettings: undefined;
   CalendarFeedSettings: undefined;
   ThemeSettings: undefined;
   FeedSettings: undefined;
@@ -137,6 +138,7 @@ export const MAIN_ROUTES = {
   PUSH_ENABLED_DEVICES: 'PushEnabledDevices',
   ACCOUNT_SETTINGS: 'AccountSettings',
   ACCESS_TOKENS_SETTINGS: 'AccessTokensSettings',
+  CONNECTED_APPS_SETTINGS: 'ConnectedAppsSettings',
   THEME_SETTINGS: 'ThemeSettings',
   FEED_SETTINGS: 'FeedSettings',
   BLOCKED_SETTINGS: 'BlockedSettings',

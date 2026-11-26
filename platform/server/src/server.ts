@@ -25,6 +25,7 @@ import { installBackupsEndpoint } from './lib/backups';
 import { installAccountExportDownloadEndpoint } from './lib/accounts-export-download';
 import { installS3Endpoint } from './lib/s3';
 import { installStreamingEndpoint } from './lib/streaming';
+import { installOAuthEndpoints } from './lib/oauth';
 import { installPwaEndpoint } from './lib/pwa';
 import { installSeoEndpoint, spaMetaForRequest } from './lib/seoEndpoint';
 import {
@@ -107,6 +108,10 @@ const startServer = async () => {
   app.get('/health', (_req, res) => {
     res.status(200).json({ status: 'ok' });
   });
+
+  // OAuth/OIDC protocol endpoints carry their own open CORS, so they are
+  // registered ahead of the narrow API CORS below.
+  installOAuthEndpoints(app);
 
   // Narrow API CORS (Riddl's default is `*`). See `lib/cors.ts` / CORS_ORIGINS.
   app.use('/api', corsMiddleware());

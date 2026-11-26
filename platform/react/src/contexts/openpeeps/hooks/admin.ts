@@ -219,6 +219,17 @@ const adminDiagnostics = (client: OpenpeepsClientInstance) => ({
     client.admin.serviceAccessTokens.revoke,
     [['admin', 'serviceAccessTokens']],
   ),
+  useOAuthClients: () => apiHook(client.admin.oauthClients.list),
+  createOAuthClientAction: payloadMutation(client.admin.oauthClients.create, [
+    ['admin', 'oauth', 'clients'],
+  ]),
+  deleteOAuthClientAction: noPayloadMutation(client.admin.oauthClients.delete, [
+    ['admin', 'oauth', 'clients'],
+  ]),
+  rotateOAuthClientSecretAction: noPayloadMutation(
+    client.admin.oauthClients.rotateSecret,
+    [['admin', 'oauth', 'clients']],
+  ),
   usePluginsList: () => apiHook(client.admin.plugins.list),
   installPluginAction: payloadMutation(client.admin.plugins.install, [
     ['admin', 'plugins'],
