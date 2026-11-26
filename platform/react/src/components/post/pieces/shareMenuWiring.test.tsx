@@ -30,6 +30,7 @@ import {
   it,
   vi,
 } from 'vitest';
+import { groupCapabilityTemplates } from '@openpeepshq/common/lib';
 
 const state = {
   me: { id: 'me-1' } as Record<string, unknown>,
@@ -43,6 +44,8 @@ const state = {
 const mockCreatePost = vi.fn();
 /** the mutation fn a `createConversationPostAction({ id })` returns */
 const mockCreateConversationPostFn = vi.fn();
+/** the mutation fn `repostPostAction({ id })` returns (ordinary repost path) */
+const mockRepostPost = vi.fn();
 
 vi.mock('../../../i18n', () => ({
   useT: () => (key: string, opts?: Record<string, unknown>) => {
@@ -71,10 +74,19 @@ vi.mock('../../layout/IdentityContext', () => ({
   useAuthData: () => state.authData,
 }));
 
+// `ShareMenu` calls `useNavigate()` after a "Repost to community" success
+// (issue #654). The mock is assertable so the wiring test pins the success
+// navigation itself (the mocked-hook suite covers the same handler, but the
+// real-menu path must not swallow a broken navigation).
+const mockNavigate = vi.fn();
+vi.mock('../../../contexts/router', () => ({
+  useNavigate: () => mockNavigate,
+}));
+
 vi.mock('../../../contexts/openpeeps', () => ({
   useOpenpeeps: () => ({
     openpeepsApi: {
-      repostPostAction: () => vi.fn(),
+      repostPostAction: () => mockRepostPost,
       createPostAction: () => mockCreatePost,
       createConversationPostAction: () => mockCreateConversationPostFn,
       useConversations: () => ({
@@ -177,7 +189,25 @@ const PUBLIC_POST = {
   data: { type: 'note', content: 'Hello world' },
 } as never;
 
-describe('ShareMenu → picker → shared-hook wiring (issue #1851 round 7)', () => {
+/**
+ * A note in a public (discoverable) group — the one post shape the
+ * "Repost to community" branch targets (issue #654): the group is readable by
+ * the `none` role, so the shared hook's `isPublicPostGroup` gate is true.
+ */
+const PUBLIC_GROUP_POST = {
+  id: 'post-1',
+  type: 'note',
+  visibility: 'public',
+  profile: { id: 'author' },
+  data: { type: 'note', content: 'Hello world' },
+  group: {
+    id: 'group-public-1',
+    handle: 'publicgroup',
+    capabilities: groupCapabilityTemplates.publicGroup.capabilities,
+  },
+} as never;
+
+describe('ShareMenu → picker → shared-hook wiring (issues #1851 + #654)', () => {
   let root: Root;
   let container: HTMLDivElement;
   // jsdom default origin; the hook builds the post link from `window.location.origin`.
@@ -195,6 +225,8 @@ describe('ShareMenu → picker → shared-hook wiring (issue #1851 round 7)', ()
   beforeEach(() => {
     mockCreatePost.mockReset();
     mockCreateConversationPostFn.mockReset();
+    mockRepostPost.mockReset();
+    mockNavigate.mockReset();
     state.toasts = [];
     state.postableGroupIds = new Set();
     state.conversations = [];
@@ -215,9 +247,9 @@ describe('ShareMenu → picker → shared-hook wiring (issue #1851 round 7)', ()
     container.innerHTML = '';
   });
 
-  const render = () => {
+  const render = (post = PUBLIC_POST) => {
     act(() => {
-      root.render(createElement(ShareMenu, { post: PUBLIC_POST }));
+      root.render(createElement(ShareMenu, { post }));
     });
   };
 
@@ -351,5 +383,111 @@ describe('ShareMenu → picker → shared-hook wiring (issue #1851 round 7)', ()
     ]);
     expect(container.querySelector('[data-testid="dialog"]')).not.toBeNull();
     expect(mockCreateConversationPostFn).toHaveBeenCalledTimes(1);
+  });
+
+  // Review round 16 S1: the link-only `createPost` payload is the core of the
+  // human-approved endpoint-reuse decision. The hook suite pins it in
+  // isolation; these cases pin it at the MENU level (real `ShareMenu` + real
+  // `useShareMenu`), where a future menu-level regression could bypass the
+  // hook's contract, and pin the mutual exclusivity of the two paths (S2):
+  // "Repost to community" must not also fire the ordinary repost, and the
+  // ordinary "Repost" must not also fire the community republish.
+  it('community republish via the real menu pins the exact createPost payload and fires no repost (#654 round 16 S1/S2)', async () => {
+    state.authData = {
+      profile: {
+        id: 'profile-1',
+        roles: [{ capabilities: { add: ['core-posts-create-note-public'] } }],
+      },
+      scopes: [{ scopeLevel: 'write', resource: { type: 'posts' } }],
+    } as never;
+    mockCreatePost.mockResolvedValue({ id: 'created-42' });
+    render(PUBLIC_GROUP_POST);
+    // The public-group + passing-gate menu surfaces the community label.
+    expect(menuButton('Repost to community')).toBeTruthy();
+    await click(menuButton('Repost to community')!);
+
+    // The menu routes the click to the shared hook's community action, which
+    // calls createPost with the link-only public note — no repostId/groupId,
+    // no repost edge — exactly as the hook suite pins it.
+    expect(mockCreatePost).toHaveBeenCalledTimes(1);
+    expect(mockCreatePost).toHaveBeenCalledWith({
+      visibility: 'public',
+      type: 'note',
+      data: { type: 'note', content: `${origin}/posts/post-1` },
+    });
+    // Mutual exclusivity: choosing "Repost to community" never fires the
+    // ordinary repost mutation.
+    expect(mockRepostPost).not.toHaveBeenCalled();
+    // Success surface: toast + navigate to the created note.
+    expect(state.toasts).toEqual([
+      { type: 'success', message: 'Shared to the community' },
+    ]);
+    expect(mockNavigate).toHaveBeenCalledWith('/posts/created-42');
+  });
+
+  it('ordinary "Repost" on a non-public-group post fires repost and no community republish (#654 round 16 S2)', async () => {
+    state.authData = {
+      profile: {
+        id: 'profile-1',
+        roles: [{ capabilities: { add: ['core-posts-create-note-public'] } }],
+      },
+      scopes: [{ scopeLevel: 'write', resource: { type: 'posts' } }],
+    } as never;
+    render(PUBLIC_POST);
+    // No public group -> the plain "Repost" label, not the community one.
+    expect(menuButton('Repost')).toBeTruthy();
+    expect(menuButton('Repost to community')).toBeFalsy();
+    await click(menuButton('Repost')!);
+
+    // The ordinary repost path runs…
+    expect(mockRepostPost).toHaveBeenCalledTimes(1);
+    // …and the community republish is never created (mutual exclusivity,
+    // matching the issue's non-goal that no repost/community note is recorded
+    // on this path).
+    expect(mockCreatePost).not.toHaveBeenCalled();
+  });
+
+  // Review round 20 S1: the community-republish rejection path was pinned
+  // only through the mocked hook (ShareMenu.test.tsx) — the sibling pickers
+  // each pin a real-menu rejection case above, so keep the wiring symmetric.
+  it('a rejecting community republish surfaces the error toast, no success toast, no navigation (#654 round 20 S1)', async () => {
+    state.authData = {
+      profile: {
+        id: 'profile-1',
+        roles: [{ capabilities: { add: ['core-posts-create-note-public'] } }],
+      },
+      scopes: [{ scopeLevel: 'write', resource: { type: 'posts' } }],
+    } as never;
+    mockCreatePost.mockRejectedValue(new Error('boom'));
+    render(PUBLIC_GROUP_POST);
+    expect(menuButton('Repost to community')).toBeTruthy();
+    await click(menuButton('Repost to community')!);
+
+    // The menu owns the failure surface: the community error toast fires,
+    // the success toast never does, and the created-note navigation is
+    // skipped — mirroring the two sibling real-menu rejection cases.
+    expect(state.toasts).toEqual([
+      { type: 'error', message: "Couldn't share to the community" },
+    ]);
+    expect(mockNavigate).not.toHaveBeenCalled();
+    expect(mockCreatePost).toHaveBeenCalledTimes(1);
+    expect(mockRepostPost).not.toHaveBeenCalled();
+  });
+
+  // Review round 20 S2: the `isPublicPostGroup && !canRepostToCommunity`
+  // decision was pinned only via the mocked hook (RN ShareMenu.test.tsx);
+  // pin it at the real-menu level too — public group, signed in, posts-write
+  // scope, but the role lacks core-posts-create-note-public.
+  it('public-group post falls back to plain Repost when the public-note gate is not met (#654 round 20 S2)', async () => {
+    state.authData = {
+      profile: { id: 'profile-1', roles: [{ capabilities: { add: [] } }] },
+      scopes: [{ scopeLevel: 'write', resource: { type: 'posts' } }],
+    } as never;
+    render(PUBLIC_GROUP_POST);
+    expect(menuButton('Repost to community')).toBeFalsy();
+    expect(menuButton('Repost')).toBeTruthy();
+    await click(menuButton('Repost')!);
+    expect(mockRepostPost).toHaveBeenCalledTimes(1);
+    expect(mockCreatePost).not.toHaveBeenCalled();
   });
 });

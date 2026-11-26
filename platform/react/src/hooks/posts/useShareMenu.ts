@@ -6,11 +6,16 @@ import type {
 } from '@openpeepshq/common/types';
 import {
   buildEventIcs,
+  canCreatePost,
+  isGroupDiscoverable,
   isPubliclyShareable,
   truncateMarkdown,
 } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '../../contexts/openpeeps';
-import { useCurrentProfile } from '../../components/layout/IdentityContext';
+import {
+  useAuthData,
+  useCurrentProfile,
+} from '../../components/layout/IdentityContext';
 
 export type EventIcsFile = { filename: string; content: string };
 
@@ -30,9 +35,18 @@ export const postPublicPath = (
   return `/posts/${post.id}?occurrence=${encodeURIComponent(occurrence)}`;
 };
 
+/**
+ * Whether a post's group is public (non-members can read it). Drives the
+ * "Repost to community" label: republishing a public-group post lands in the
+ * community feed, while a private-group repost stays in the group.
+ */
+const isPublicPostGroup = (post: PublicPost): boolean =>
+  !!post.group && isGroupDiscoverable(post.group);
+
 /** Share actions for a post; `postUrl` is the platform's canonical public link. */
 export const useShareMenu = (post: PublicPost, postUrl: string) => {
   const me = useCurrentProfile();
+  const authData = useAuthData();
   const { openpeepsApi } = useOpenpeeps();
   const repostPost = openpeepsApi.repostPostAction({ id: post.id });
   const createPost = openpeepsApi.createPostAction();
@@ -97,12 +111,49 @@ export const useShareMenu = (post: PublicPost, postUrl: string) => {
     });
   };
 
+  // "Repost to community" (issue #654): republish a public-group post to the
+  // community feed as a plain public note whose only content is the source
+  // link. It reuses the ordinary post-creation endpoint (`createPost`) rather
+  // than overloading the repost endpoint — the note has no repost
+  // relationship, so it never touches the source post's repost state.
+  //
+  // Record of plan decisions (review 2026-11-25, items 1–2): the link-only
+  // content format is intentional — it is the human-approved 2026-11-16
+  // decision on the issue ("the link to the group post as its only context"),
+  // reaffirmed by the 2026-11-23 instruction to reuse the post-creation
+  // endpoint; adding group-handle attribution would contradict it. The
+  // gate is likewise intentional: any authenticated user with the
+  // instance-level public-note capability (`core-posts-create-note-public`
+  // + posts write scope, exactly what the ordinary public-note path in
+  // `createPost` enforces) may republish, regardless of source-group
+  // membership — confirmed by the issue owner on 2026-11-25 (issue comment
+  // 36734: "2. can stay as is"). Membership is deliberately not part of the
+  // gate, so no `groupId` is passed and the group capability is not checked.
+  const canRepostToCommunity =
+    !!me && canCreatePost(authData, 'note', 'public');
+
+  const repostToCommunity = async (): Promise<PublicPost> =>
+    createPost({
+      visibility: 'public',
+      type: 'note',
+      // Host-config-dependent: `postUrl` is built from `window.location.origin`
+      // (web) or the native `BASE_URL` (native, set from
+      // `globals.serverData.rootUrl` at build time). Keep both in sync with
+      // the notification pipeline's root URL (`globals.serverData.rootUrl`),
+      // or republished notes can contain links that are unresolvable outside
+      // the host network (proxies, custom domains, local compose).
+      data: { type: 'note', content: postUrl },
+    });
+
   return {
     signedIn: !!me,
     isEvent: post.type === 'event',
     repost,
     shareIntoGroup,
     sendToConversation,
+    isPublicPostGroup: isPublicPostGroup(post),
+    canRepostToCommunity,
+    repostToCommunity: () => repostToCommunity(),
     eventIcsFile,
   };
 };

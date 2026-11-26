@@ -6,10 +6,21 @@
  * while repost / send-in-message stay available for any post the viewer can
  * see, and the "Other options" header only renders when something follows it.
  *
- * Mirrors the inline-mock pattern of FullEvent.test.tsx on main: node jest
- * env, every external import mocked; the built common package ships ESM, so
- * the predicate is mirrored inline (its real semantics are exhaustively
- * unit-tested in platform/common).
+ * Also covers the "Repost to community" branch (issue #654): public-group
+ * posts get the republish action (success toasts + navigates to the created
+ * note; failure toasts without navigating), all other posts keep the plain
+ * repost.
+ *
+ * Node jest env (mirroring the inline-mock pattern of FullEvent.test.tsx on
+ * main): the other externals (react-native, clipboard, toast, i18n,
+ * navigation) are mocked. `isPubliclyShareable` is mocked inline because the
+ * built common package ships ESM (its real semantics are exhaustively
+ * unit-tested in platform/common). The community-republish branch is driven
+ * by the shared hook contract consumed through @openpeepshq/react — the
+ * isPublicPostGroup / canRepostToCommunity / repostToCommunity values and the
+ * navigate('Post', …) call come from that seam, not an inline predicate
+ * mirror — so those cases exercise the hook-driven behavior the component
+ * renders, not a copy of the logic.
  */
 import { type ReactNode } from 'react';
 import ReactTestRenderer from 'react-test-renderer';
@@ -22,6 +33,12 @@ import path from 'node:path';
 let mockSignedIn = true;
 let mockShareIntoGroup: jest.Mock = jest.fn();
 let mockSendToConversation: jest.Mock = jest.fn();
+let mockIsPublicPostGroup = false;
+let mockCanRepostToCommunity = false;
+let mockRepostToCommunity: () => Promise<{ id: string }> = () =>
+  Promise.resolve({ id: 'repost-42' });
+const mockNavigate = jest.fn();
+const mockRepost = jest.fn();
 
 jest.mock('react-native', () => ({
   Share: { share: jest.fn() },
@@ -50,7 +67,7 @@ jest.mock('react-i18next', () => ({
 }));
 
 jest.mock('@react-navigation/native', () => ({
-  useNavigation: () => ({ navigate: jest.fn() }),
+  useNavigation: () => ({ navigate: mockNavigate }),
 }));
 
 jest.mock('@react-navigation/native-stack', () => ({}));
@@ -65,9 +82,12 @@ jest.mock('@openpeepshq/react', () => ({
   useShareMenu: () => ({
     signedIn: mockSignedIn,
     isEvent: false,
-    repost: jest.fn(),
+    repost: mockRepost,
     shareIntoGroup: mockShareIntoGroup,
     sendToConversation: mockSendToConversation,
+    isPublicPostGroup: mockIsPublicPostGroup,
+    canRepostToCommunity: mockCanRepostToCommunity,
+    repostToCommunity: () => mockRepostToCommunity(),
     eventIcsFile: () => null,
   }),
 }));
@@ -177,10 +197,15 @@ const render = (post: unknown) => {
 
 beforeEach(() => {
   mockSignedIn = true;
+  mockIsPublicPostGroup = false;
+  mockCanRepostToCommunity = false;
+  mockRepostToCommunity = () => Promise.resolve({ id: 'repost-42' });
   (Toast.show as jest.Mock).mockClear();
   (Clipboard.setString as jest.Mock).mockClear();
   mockShareIntoGroup.mockClear();
   mockSendToConversation.mockClear();
+  mockNavigate.mockClear();
+  mockRepost.mockClear();
 });
 
 test('public post: external items, in-community items, and the section header render', () => {
@@ -308,4 +333,98 @@ test('RN wires "Send to conversation…" to the shared useShareMenu hook, not a 
   // No local re-implementation of the share payload in this file (the hook
   // owns the API call).
   expect(src).not.toMatch(/createConversationPostAction/);
+});
+
+test('RN routes "Repost to community" to the shared useShareMenu hook, not a local createPost (#654 round 16 S1)', () => {
+  const src = fs.readFileSync(path.join(__dirname, 'ShareMenu.tsx'), 'utf8');
+  // The community-republish action is the shared hook's `repostToCommunity`
+  // (destructured, called on tap), which builds the exact link-only
+  // `createPost` payload in the shared hook — so the payload the web suite
+  // pins at the menu level is reused, not re-implemented, on native.
+  expect(src).toMatch(/\brepostToCommunity\b/);
+  expect(src).toMatch(/repostToCommunity\(\)/);
+  // No local post-creation call in this file — the hook owns the API call
+  // (the payload the hook builds is pinned in the web shareMenuWiring suite).
+  expect(src).not.toMatch(/createPostAction/);
+});
+
+test('public-group post shows "Repost to community" and navigates to the created note on success (#654)', async () => {
+  mockIsPublicPostGroup = true;
+  mockCanRepostToCommunity = true;
+  mockRepostToCommunity = () => Promise.resolve({ id: 'repost-42' });
+  const tree = render({ id: 'post-1', visibility: 'public' });
+  const json = tree.toJSON();
+  expect(findByTestID(json, 'menu-Repost to community')).toBeTruthy();
+  expect(findByTestID(json, 'menu-Repost')).toBeUndefined();
+
+  const item = findByTestID(json, 'menu-Repost to community');
+  await ReactTestRenderer.act(async () => {
+    await (item?.props?.onPress as () => Promise<void>)();
+  });
+  expect(Toast.show).toHaveBeenCalledWith(
+    expect.objectContaining({
+      type: 'success',
+      text1: 'Shared to the community',
+    })
+  );
+  expect(mockNavigate).toHaveBeenCalledWith('Post', { id: 'repost-42' });
+  // Mutual exclusivity (#654 round 16 S2): choosing "Repost to community"
+  // must not also fire the ordinary repost mutation (no repost edge recorded).
+  expect(mockRepost).not.toHaveBeenCalled();
+  tree.unmount();
+});
+
+test('public-group post toasts an error and does not navigate when the community republish fails (#654)', async () => {
+  mockIsPublicPostGroup = true;
+  mockCanRepostToCommunity = true;
+  mockRepostToCommunity = () => Promise.reject(new Error('403'));
+  const tree = render({ id: 'post-1', visibility: 'public' });
+  const item = findByTestID(tree.toJSON(), 'menu-Repost to community');
+  await ReactTestRenderer.act(async () => {
+    await (item?.props?.onPress as () => Promise<void>)();
+  });
+  expect(Toast.show).toHaveBeenCalledWith(
+    expect.objectContaining({
+      type: 'error',
+      text1: "Couldn't share to the community",
+    })
+  );
+  expect(mockNavigate).not.toHaveBeenCalled();
+  tree.unmount();
+});
+
+test('non-public-group post keeps the plain Repost action and takes no community action (#654)', async () => {
+  mockIsPublicPostGroup = false;
+  mockCanRepostToCommunity = true;
+  const tree = render({ id: 'post-1', visibility: 'public' });
+  const json = tree.toJSON();
+  expect(findByTestID(json, 'menu-Repost')).toBeTruthy();
+  expect(findByTestID(json, 'menu-Repost to community')).toBeUndefined();
+
+  const item = findByTestID(json, 'menu-Repost');
+  await ReactTestRenderer.act(async () => {
+    await (item?.props?.onPress as () => Promise<void>)();
+  });
+  expect(mockRepost).toHaveBeenCalledTimes(1);
+  expect(mockNavigate).not.toHaveBeenCalled();
+  expect(Toast.show).not.toHaveBeenCalled();
+  tree.unmount();
+});
+
+test('public-group post falls back to plain Repost when the public-note gate is not met (#654)', async () => {
+  mockIsPublicPostGroup = true;
+  mockCanRepostToCommunity = false;
+  const tree = render({ id: 'post-1', visibility: 'public' });
+  const json = tree.toJSON();
+  expect(findByTestID(json, 'menu-Repost')).toBeTruthy();
+  expect(findByTestID(json, 'menu-Repost to community')).toBeUndefined();
+
+  const item = findByTestID(json, 'menu-Repost');
+  await ReactTestRenderer.act(async () => {
+    await (item?.props?.onPress as () => Promise<void>)();
+  });
+  expect(mockRepost).toHaveBeenCalledTimes(1);
+  expect(mockNavigate).not.toHaveBeenCalled();
+  expect(Toast.show).not.toHaveBeenCalled();
+  tree.unmount();
 });

@@ -45,11 +45,51 @@ export const ShareMenu = ({ post, menuButton }: ShareMenuProps) => {
   const {
     signedIn,
     isEvent,
+    isPublicPostGroup,
+    canRepostToCommunity,
     repost,
     shareIntoGroup,
     sendToConversation,
+    repostToCommunity,
     eventIcsFile,
   } = useShareMenu(post, postUrl);
+
+  // Public-group posts surface "Repost to community" (republishes to the
+  // community feed as a plain public note, issue #654); everything else keeps
+  // the ordinary "Repost" action.
+  const repostToCommunityEnabled = isPublicPostGroup && canRepostToCommunity;
+  const repostAction = async () => {
+    if (!repostToCommunityEnabled) {
+      await repost();
+      return;
+    }
+    try {
+      const created = await repostToCommunity();
+      Toast.show({
+        type: 'success',
+        text1: t('posts.shareMenu.repostToCommunitySuccess', {
+          defaultValue: 'Shared to the community',
+        }),
+      });
+      navigation.navigate('Post', { id: created.id });
+    } catch {
+      // This menu owns the failure path: the action is invoked fire-and-forget
+      // by the menu button, so the error is handled here (toast) and not
+      // rethrown — rethrowing would surface as an unhandled rejection (a
+      // redbox in dev builds).
+      Toast.show({
+        type: 'error',
+        text1: t('posts.shareMenu.repostToCommunityError', {
+          defaultValue: "Couldn't share to the community",
+        }),
+      });
+    }
+  };
+  const repostLabel = repostToCommunityEnabled
+    ? t('posts.shareMenu.repostToCommunity', {
+        defaultValue: 'Repost to community',
+      })
+    : t('posts.shareMenu.repostToFeed', { defaultValue: 'Repost' });
   // Repost/DM are valid for any post the viewer can see; handing the link to
   // the outside world only makes sense for publicly readable posts.
   const externallyShareable = isPubliclyShareable(post);
@@ -106,14 +146,10 @@ export const ShareMenu = ({ post, menuButton }: ShareMenuProps) => {
               })}
             />
             <PopupMenuButton
-              title={t('posts.shareMenu.repostToFeed', {
-                defaultValue: 'Repost',
-              })}
-              text={t('posts.shareMenu.repostToFeed', {
-                defaultValue: 'Repost',
-              })}
+              title={repostLabel}
+              text={repostLabel}
               icon={Repeat2Icon}
-              action={repost}
+              action={() => void repostAction()}
             />
             <PopupMenuButton
               title={t('posts.shareMenu.sendInMessage', {

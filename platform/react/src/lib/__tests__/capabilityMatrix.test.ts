@@ -60,6 +60,7 @@ describe('capabilityMatrix helpers', () => {
         'core-local',
         'core-profiles-read',
         'core-posts-create-note-local',
+        'core-posts-create-note-public',
         'core-groups-read',
       ]),
     );

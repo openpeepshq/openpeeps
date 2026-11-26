@@ -41,6 +41,10 @@ vi.mock('../../contexts/openpeeps', () => ({
 
 vi.mock('../../components/layout/IdentityContext', () => ({
   useCurrentProfile: () => mockProfile,
+  // `useShareMenu` calls `useAuthData()` for the "Repost to community" gate
+  // (issue #654); an empty authData yields `canRepostToCommunity === false`,
+  // which is the signed-out / no-permission path these tests don't exercise.
+  useAuthData: () => ({}),
 }));
 
 const makePost = (overrides: Partial<PublicPost> = {}): PublicPost =>

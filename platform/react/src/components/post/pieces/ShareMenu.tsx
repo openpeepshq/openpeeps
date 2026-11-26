@@ -31,6 +31,7 @@ import { useCreateNewConversation } from '../../conversations/CreateNewConversat
 import { useToast } from '../../layout/ToastProvider';
 import { ShareIntoGroupPicker } from './ShareIntoGroupPicker';
 import { SendToConversationPicker } from './SendToConversationPicker';
+import { useNavigate } from '../../../contexts/router';
 
 export interface ShareMenuProps {
   post: PublicPost;
@@ -58,6 +59,7 @@ export const ShareMenu = ({
   const t = useT();
   const { success, error: toastError } = useToast();
   const { openCreateConversation } = useCreateNewConversation();
+  const navigate = useNavigate();
   const postUrl = absolutePostUrl(post);
   const [copyModalOpen, setCopyModalOpen] = useState(false);
   const [groupPickerOpen, setGroupPickerOpen] = useState(false);
@@ -65,11 +67,48 @@ export const ShareMenu = ({
   const {
     signedIn,
     isEvent,
+    isPublicPostGroup,
+    canRepostToCommunity,
     repost,
     shareIntoGroup,
     sendToConversation,
+    repostToCommunity,
     eventIcsFile,
   } = useShareMenu(post, postUrl);
+
+  // Public-group posts surface "Repost to community" (republishes to the
+  // community feed as a plain public note, issue #654); everything else keeps
+  // the ordinary "Repost" action.
+  const repostToCommunityEnabled = isPublicPostGroup && canRepostToCommunity;
+  const repostAction = async () => {
+    if (!repostToCommunityEnabled) {
+      await repost();
+      return;
+    }
+    try {
+      const created = await repostToCommunity();
+      success(
+        t('posts.shareMenu.repostToCommunitySuccess', {
+          defaultValue: 'Shared to the community',
+        }),
+      );
+      navigate(`/posts/${created.id}`);
+    } catch {
+      // This menu owns the failure path: the action is invoked fire-and-forget
+      // by the menu button, so the error is handled here (toast) and not
+      // rethrown — rethrowing would surface as an unhandled rejection.
+      toastError(
+        t('posts.shareMenu.repostToCommunityError', {
+          defaultValue: "Couldn't share to the community",
+        }),
+      );
+    }
+  };
+  const repostLabel = repostToCommunityEnabled
+    ? t('posts.shareMenu.repostToCommunity', {
+        defaultValue: 'Repost to community',
+      })
+    : t('posts.shareMenu.repostToFeed', { defaultValue: 'Repost' });
   // Feature-detect. Desktop browsers often have no Web Share API; copy stays
   // in the menu either way.
   const canSystemShare =
@@ -142,14 +181,10 @@ export const ShareMenu = ({
               })}
             />
             <PopupMenuButton
-              title={t('posts.shareMenu.repostToFeed', {
-                defaultValue: 'Repost',
-              })}
-              text={t('posts.shareMenu.repostToFeed', {
-                defaultValue: 'Repost',
-              })}
+              title={repostLabel}
+              text={repostLabel}
               icon={Repeat2}
-              action={repost}
+              action={() => void repostAction()}
             />
             <PopupMenuButton
               title={t('posts.shareMenu.sendInMessage', {
