@@ -268,8 +268,18 @@ overrides:
   "jws@<3.2.3": "3.2.3"
   # firebase-admin>busboy chain (3 advisories: 2 high DoS + CRLF moderate)
   "@fastify/busboy@<3.2.2": "3.2.5"
-  # firestore/grpc chain (5 high + 1 low; firebase uses ^1.13, RN firebase 0.x)
-  "@grpc/grpc-js@<1.13.6": "1.14.7"
+  # @grpc/grpc-js: pin 1.14.7 tree-wide. Every instance must clear
+  # GHSA-h4xc-g2mq-pc4p (high, getAuthContext unauthorized) + the
+  # error-transmission advisory (both patched >=1.13.6): the firebase-admin
+  # leg declares ^1.13 and the RN leg (@react-native-firebase/app >
+  # firebase > @firebase/firestore) declares ~1.9.0, which @firebase/firestore
+  # still ships in all current versions. A range-qualified key only rewrites
+  # edges whose declared range intersects the qualifier, so the blanket pin
+  # is the form that covers every current and future consumer unconditionally.
+  # 1.14.7 is the latest published 1.x (no 2.x exists), so no fresh
+  # resolution enters the tree — both legs already resolve to it.
+  # Long-term: watch @firebase/firestore for a grpc-js bump, then shrink.
+  "@grpc/grpc-js": "1.14.7"
   # @babel/preset-env pins <7.29.4 (generator crash)
   "@babel/plugin-transform-modules-systemjs@<7.29.4": "7.29.4"
   # fast-xml-parser's builder (attr value injection; RN CLI chain)
