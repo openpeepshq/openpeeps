@@ -5,8 +5,13 @@ import ical, {
 } from 'ical-generator';
 import { TZDate } from '@date-fns/tz';
 import { tzlib_get_ical_block } from 'timezones-ical-library';
-import type { Event, PublicPost, RecurrenceWeekday } from '../types';
-import { effectiveEventTimes } from './eventRecurrence';
+import type {
+  Event,
+  EventOccurrenceException,
+  PublicPost,
+  RecurrenceWeekday,
+} from '../types';
+import { effectiveEventTimes, sameRecurrenceId } from './eventRecurrence';
 import { getJamUrl } from './jamHelpers';
 import { isIanaTimeZone } from './timeZone';
 
@@ -118,6 +123,20 @@ const eventLocation = (
     }
   }
   return event.url?.trim() || undefined;
+};
+
+/**
+ * The override's own location when one was set for that occurrence;
+ * otherwise the series-level location the rest of the builder resolves.
+ */
+const occurrenceLocation = (
+  exception: EventOccurrenceException | undefined,
+  fallback?: string,
+): string | undefined => {
+  // Only a non-empty (trimmed) exception location overrides the series
+  // location; whitespace-only text falls through, matching eventLocation.
+  const text = exception?.physicalLocation?.text?.trim();
+  return text ? text : fallback;
 };
 
 const repeatingFreq: Record<
@@ -237,6 +256,7 @@ export const buildEventIcs = (
 
   for (const exception of event.exceptions ?? []) {
     if (exception.cancelled || !exception.start) continue;
+    const overrideLocation = occurrenceLocation(exception, location);
     if (event.wholeDay) {
       // Rescheduled all-day occurrence: an all-day override whose day range
       // is the exception's new start day through its end day (inclusive).
@@ -252,7 +272,7 @@ export const buildEventIcs = (
         end: exclusiveEndAfterInclusiveDay(excLastInclusiveYmd),
         summary,
         ...(description ? { description } : {}),
-        ...(location ? { location } : {}),
+        ...(overrideLocation ? { location: overrideLocation } : {}),
         ...(link ? { url: link } : {}),
         ...stamp,
         recurrenceId: utcDateFromYmd(exception.recurrenceId.slice(0, 10)),
@@ -269,7 +289,7 @@ export const buildEventIcs = (
         ...(timeZone ? { timezone: timeZone } : {}),
         summary,
         ...(description ? { description } : {}),
-        ...(location ? { location } : {}),
+        ...(overrideLocation ? { location: overrideLocation } : {}),
         ...(link ? { url: link } : {}),
         ...stamp,
         recurrenceId: instantInZone(exception.recurrenceId, timeZone),
@@ -295,6 +315,12 @@ const addOccurrenceEvent = (
   const summary = event.name?.trim() || 'Event';
   const description = event.content?.trim();
   const location = eventLocation(post, event, options?.postUrl);
+  // A booked occurrence may be a rescheduled one; its RECURRENCE-ID is the
+  // original slot, the key the exception is stored under.
+  const exception = event.exceptions?.find((e) =>
+    sameRecurrenceId(e.recurrenceId, recurrenceId),
+  );
+  const occLocation = occurrenceLocation(exception, location);
   const times = effectiveEventTimes(event, recurrenceId);
   const id = `openpeeps-event-${post.id}-${recurrenceId}@openpeepshq`;
   const timeZone = event.wholeDay ? undefined : eventTimeZone(event);
@@ -309,7 +335,7 @@ const addOccurrenceEvent = (
       end: exclusiveEndAfterInclusiveDay(lastInclusiveYmd),
       summary,
       ...(description ? { description } : {}),
-      ...(location ? { location } : {}),
+      ...(occLocation ? { location: occLocation } : {}),
       ...(link ? { url: link } : {}),
     });
     return;
@@ -326,7 +352,7 @@ const addOccurrenceEvent = (
     ...(timeZone ? { timezone: timeZone } : {}),
     summary,
     ...(description ? { description } : {}),
-    ...(location ? { location } : {}),
+    ...(occLocation ? { location: occLocation } : {}),
     ...(link ? { url: link } : {}),
   });
 };
@@ -385,12 +411,23 @@ export const rsvpConfirmationContent = (
     occurrenceIds.length > 0
       ? effectiveEventTimes(event, occurrenceIds[0])
       : { start: event.start, end: event.end };
+  // The first booked occurrence may be a rescheduled one with its own
+  // location; otherwise the series location stands.
+  const location =
+    occurrenceIds.length > 0
+      ? occurrenceLocation(
+          event.exceptions?.find((e) =>
+            sameRecurrenceId(e.recurrenceId, occurrenceIds[0]),
+          ),
+          event.physicalLocation?.text?.trim() ?? undefined,
+        )
+      : (event.physicalLocation?.text?.trim() ?? undefined);
   return {
     ics,
     eventName: event.name?.trim() || 'Event',
     start: times.start,
     end: times.end ?? null,
-    location: event.physicalLocation?.text ?? null,
+    location: location ?? null,
     allDay: event.wholeDay ?? false,
     occurrenceCount: occurrenceIds.length,
   };

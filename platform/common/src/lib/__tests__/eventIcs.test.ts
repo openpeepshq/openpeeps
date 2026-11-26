@@ -14,6 +14,34 @@ process.env.TZ = 'Europe/Berlin';
 /** ICS folds long lines with CRLF + space; unwrap for assertions. */
 const unfoldIcs = (ics: string): string => ics.replace(/\r?\n[ \t]/g, '');
 
+/** Split an ICS into its VEVENT blocks (unfolded). */
+const vevents = (ics: string): string[] => {
+  const blocks: string[] = [];
+  let current: string[] | null = null;
+  for (const line of unfoldIcs(ics).split('\n')) {
+    if (line.startsWith('BEGIN:VEVENT')) {
+      current = [line];
+    } else if (line.startsWith('END:VEVENT')) {
+      if (current) {
+        current.push(line);
+        blocks.push(current.join('\n'));
+      }
+      current = null;
+    } else if (current) {
+      current.push(line);
+    }
+  }
+  return blocks;
+};
+
+/** The VEVENT that carries a RECURRENCE-ID (a rescheduled override), if any. */
+const overrideVevent = (ics: string): string | undefined =>
+  vevents(ics).find((block) => block.includes('RECURRENCE-ID'));
+
+/** The VEVENT without a RECURRENCE-ID (the series definition), if any. */
+const seriesVevent = (ics: string): string | undefined =>
+  vevents(ics).find((block) => !block.includes('RECURRENCE-ID'));
+
 const mockPublicProfile = {
   id: 'profile1',
   displayName: 'Test User',
@@ -272,6 +300,82 @@ describe('buildEventIcs', () => {
     expect(ics).toContain('DTEND;TZID=America/Los_Angeles:20260714T170000');
   });
 
+  it('uses the exception location for a rescheduled occurrence and the series location for the series', () => {
+    const ics = unfoldIcs(
+      buildEventIcs({
+        ...baseEventPost,
+        data: {
+          ...timedEventFields,
+          timeZone: 'America/Los_Angeles',
+          physicalLocation: { text: '[TEST] Room A' },
+          recurrence: { freq: 'WEEKLY' as const, interval: 1, count: 4 },
+          exceptions: [
+            {
+              recurrenceId: '2026-07-14T21:00:00.000Z',
+              start: '2026-07-14T23:00:00.000Z',
+              end: '2026-07-15T00:00:00.000Z',
+              physicalLocation: { text: '[TEST] Room B' },
+            },
+          ],
+        },
+      } as PublicPost)!,
+    );
+    expect(overrideVevent(ics)).toContain('LOCATION:[TEST] Room B');
+    expect(seriesVevent(ics)).toContain('LOCATION:[TEST] Room A');
+    // The series VEVENT must not pick up the override's room.
+    expect(seriesVevent(ics)).not.toContain('Room B');
+  });
+
+  it('falls back to the series location when the exception has none', () => {
+    const ics = unfoldIcs(
+      buildEventIcs({
+        ...baseEventPost,
+        data: {
+          ...timedEventFields,
+          physicalLocation: { text: '[TEST] Room A' },
+          recurrence: { freq: 'WEEKLY' as const, interval: 1, count: 4 },
+          exceptions: [
+            {
+              recurrenceId: '2026-07-14T21:00:00.000Z',
+              start: '2026-07-14T23:00:00.000Z',
+              end: '2026-07-15T00:00:00.000Z',
+            },
+          ],
+        },
+      } as PublicPost)!,
+    );
+    // Time-only edit: the override keeps the series room.
+    expect(overrideVevent(ics)).toContain('LOCATION:[TEST] Room A');
+    expect(overrideVevent(ics)).not.toContain('Room B');
+  });
+
+  it('treats a whitespace-only exception location as absent', () => {
+    const ics = unfoldIcs(
+      buildEventIcs({
+        ...baseEventPost,
+        data: {
+          ...timedEventFields,
+          physicalLocation: { text: '[TEST] Room A' },
+          recurrence: { freq: 'WEEKLY' as const, interval: 1, count: 4 },
+          exceptions: [
+            {
+              recurrenceId: '2026-07-14T21:00:00.000Z',
+              start: '2026-07-14T23:00:00.000Z',
+              end: '2026-07-15T00:00:00.000Z',
+              // Blank-ish text (not forbidden by the schema, seeded by
+              // useEventTypeSwitcher) must fall through like a missing
+              // location, never emit a blank LOCATION line.
+              physicalLocation: { text: '   ' },
+            },
+          ],
+        },
+      } as PublicPost)!,
+    );
+    // The override falls back to the series room, with no blank LOCATION.
+    expect(overrideVevent(ics)).toContain('LOCATION:[TEST] Room A');
+    expect(overrideVevent(ics)).not.toMatch(/LOCATION:\s*(\r?\n|$)/);
+  });
+
   it('keeps UTC times for timed events without a timezone', () => {
     const ics = unfoldIcs(
       buildEventIcs({
@@ -405,6 +509,35 @@ describe('buildEventIcs', () => {
     expect(raw).not.toMatch(/\r(?!\n)/);
   });
 
+  it('uses the exception location for a rescheduled all-day occurrence', () => {
+    const ics = unfoldIcs(
+      buildEventIcs({
+        ...baseEventPost,
+        data: {
+          type: 'event' as const,
+          name: 'All week',
+          content: '',
+          start: '2026-07-06T12:00:00.000Z',
+          end: '2026-07-12T12:00:00.000Z',
+          wholeDay: true,
+          physicalLocation: { text: '[TEST] Room A' },
+          recurrence: { freq: 'WEEKLY' as const, interval: 1, count: 4 },
+          exceptions: [
+            {
+              recurrenceId: '2026-07-13T12:00:00.000Z',
+              start: '2026-07-16T12:00:00.000Z',
+              end: '2026-07-16T12:00:00.000Z',
+              physicalLocation: { text: '[TEST] Room B' },
+            },
+          ],
+        },
+      } as PublicPost)!,
+    );
+    expect(overrideVevent(ics)).toContain('LOCATION:[TEST] Room B');
+    expect(seriesVevent(ics)).toContain('LOCATION:[TEST] Room A');
+    expect(seriesVevent(ics)).not.toContain('Room B');
+  });
+
   it('keeps clean CRLF line endings for a mix of all-day and timed events in the feed', () => {
     const feed = buildEventsFeedIcs(
       [
@@ -417,12 +550,14 @@ describe('buildEventIcs', () => {
             start: '2026-07-06T12:00:00.000Z',
             end: '2026-07-12T12:00:00.000Z',
             wholeDay: true,
+            physicalLocation: { text: '[TEST] Room A' },
             recurrence: { freq: 'WEEKLY' as const, interval: 1, count: 4 },
             exceptions: [
               {
                 recurrenceId: '2026-07-13T12:00:00.000Z',
                 start: '2026-07-16T12:00:00.000Z',
                 end: '2026-07-16T12:00:00.000Z',
+                physicalLocation: { text: '[TEST] Room B' },
               },
             ],
           },
@@ -437,6 +572,13 @@ describe('buildEventIcs', () => {
     );
     // No double carriage return anywhere in the mixed feed.
     expect(feed).not.toMatch(/\r(?!\n)/);
+    // The feed composes buildEventIcs, so the override's own location must
+    // pin through the feed path, not just the single-event export.
+    const feedVevents = vevents(unfoldIcs(feed));
+    expect(feed).toContain('LOCATION:[TEST] Room B');
+    expect(
+      feedVevents.find((block) => block.includes('RECURRENCE-ID')),
+    ).not.toContain('Room A');
   });
 
   it('emits EXDATE;VALUE=DATE for a cancelled occurrence of an all-day series', () => {
@@ -512,6 +654,133 @@ describe('buildRsvpIcs', () => {
       'UID:openpeeps-event-019f3e5e-b11f-7e8a-b3ca-a9cc0c77a5e7-2026-07-14T21:00:00.000Z@openpeepshq',
     );
   });
+
+  it('uses the exception location for a booked rescheduled occurrence', () => {
+    const ics = unfoldIcs(
+      buildRsvpIcs(
+        {
+          ...baseEventPost,
+          data: {
+            ...recurringFields,
+            physicalLocation: { text: '[TEST] Room A' },
+            exceptions: [
+              {
+                recurrenceId: '2026-07-14T21:00:00.000Z',
+                start: '2026-07-14T23:00:00.000Z',
+                end: '2026-07-15T00:00:00.000Z',
+                physicalLocation: { text: '[TEST] Room B' },
+              },
+            ],
+          },
+        } as PublicPost,
+        { occurrenceIds: ['2026-07-14T21:00:00.000Z'] },
+      )!,
+    );
+    // The booked, moved occurrence gets the override room at the new time...
+    expect(ics).toContain('DTSTART:20260714T230000Z');
+    expect(ics).toContain('LOCATION:[TEST] Room B');
+    // ...and not the series room.
+    expect(ics).not.toContain('LOCATION:[TEST] Room A');
+  });
+
+  it('keeps the series location for a booked non-overridden occurrence', () => {
+    const ics = unfoldIcs(
+      buildRsvpIcs(
+        {
+          ...baseEventPost,
+          data: {
+            ...recurringFields,
+            physicalLocation: { text: '[TEST] Room A' },
+            exceptions: [
+              {
+                recurrenceId: '2026-07-14T21:00:00.000Z',
+                start: '2026-07-14T23:00:00.000Z',
+                end: '2026-07-15T00:00:00.000Z',
+                physicalLocation: { text: '[TEST] Room B' },
+              },
+            ],
+          },
+        } as PublicPost,
+        { occurrenceIds: ['2026-07-21T21:00:00.000Z'] },
+      )!,
+    );
+    // The 2026-07-21 slot has no exception, so the series room stands.
+    expect(ics).toContain('DTSTART:20260721T210000Z');
+    expect(ics).toContain('LOCATION:[TEST] Room A');
+    expect(ics).not.toContain('LOCATION:[TEST] Room B');
+  });
+
+  it('falls back to the series location for a time-only rescheduled occurrence', () => {
+    const ics = unfoldIcs(
+      buildRsvpIcs(
+        {
+          ...baseEventPost,
+          data: {
+            ...recurringFields,
+            physicalLocation: { text: '[TEST] Room A' },
+            exceptions: [
+              {
+                recurrenceId: '2026-07-14T21:00:00.000Z',
+                start: '2026-07-14T23:00:00.000Z',
+                end: '2026-07-15T00:00:00.000Z',
+              },
+            ],
+          },
+        } as PublicPost,
+        { occurrenceIds: ['2026-07-14T21:00:00.000Z'] },
+      )!,
+    );
+    expect(ics).toContain('DTSTART:20260714T230000Z');
+    expect(ics).toContain('LOCATION:[TEST] Room A');
+  });
+
+  it('pins independent per-VEVENT locations when several booked occurrences are exported together', () => {
+    const ics = unfoldIcs(
+      buildRsvpIcs(
+        {
+          ...baseEventPost,
+          data: {
+            ...recurringFields,
+            physicalLocation: { text: '[TEST] Room A' },
+            exceptions: [
+              {
+                recurrenceId: '2026-07-14T21:00:00.000Z',
+                start: '2026-07-14T23:00:00.000Z',
+                end: '2026-07-15T00:00:00.000Z',
+                physicalLocation: { text: '[TEST] Room B' },
+              },
+              // Time-only reschedule: the 21st keeps the series room.
+              {
+                recurrenceId: '2026-07-21T21:00:00.000Z',
+                start: '2026-07-21T22:00:00.000Z',
+                end: '2026-07-21T23:00:00.000Z',
+              },
+            ],
+          },
+        } as PublicPost,
+        {
+          occurrenceIds: [
+            '2026-07-14T21:00:00.000Z',
+            '2026-07-21T21:00:00.000Z',
+            '2026-07-28T21:00:00.000Z',
+          ],
+        },
+      )!,
+    );
+    // Booked exports are plain discrete VEVENTs (no RECURRENCE-ID), so the
+    // location pins per block matched on DTSTART.
+    const blocks = vevents(ics);
+    expect(blocks).toHaveLength(3);
+    const byDtstart = (prefix: string) =>
+      blocks.find((block) => block.includes(`DTSTART:${prefix}`));
+    expect(byDtstart('20260714T230000Z')).toContain('LOCATION:[TEST] Room B');
+    expect(byDtstart('20260721T220000Z')).toContain('LOCATION:[TEST] Room A');
+    expect(byDtstart('20260728T210000Z')).toContain('LOCATION:[TEST] Room A');
+    // No cross-contamination between the two rooms.
+    expect(byDtstart('20260714T230000Z')).not.toContain('Room A');
+    expect(byDtstart('20260721T220000Z')).not.toContain('Room B');
+    expect(byDtstart('20260728T210000Z')).not.toContain('Room B');
+  });
 });
 
 describe('rsvpConfirmationContent', () => {
@@ -552,6 +821,63 @@ describe('rsvpConfirmationContent', () => {
     );
     expect(content?.occurrenceCount).toBe(2);
     expect(content?.start).toBe('2026-07-14T21:00:00.000Z');
+  });
+
+  it('uses the exception location when the first booked occurrence was rescheduled', () => {
+    const content = rsvpConfirmationContent(
+      {
+        ...baseEventPost,
+        data: {
+          ...timedEventFields,
+          physicalLocation: { text: '[TEST] Room A' },
+          recurrence: { freq: 'WEEKLY', interval: 1, count: 4 },
+          exceptions: [
+            {
+              recurrenceId: '2026-07-14T21:00:00.000Z',
+              start: '2026-07-14T23:00:00.000Z',
+              end: '2026-07-15T00:00:00.000Z',
+              physicalLocation: { text: '[TEST] Room B' },
+            },
+          ],
+        },
+      } as PublicPost,
+      {
+        postUrl: 'https://example.com/posts/event1',
+        occurrenceIds: ['2026-07-14T21:00:00.000Z'],
+      },
+    );
+    expect(content?.location).toBe('[TEST] Room B');
+    expect(content?.start).toBe('2026-07-14T23:00:00.000Z');
+    expect(content?.end).toBe('2026-07-15T00:00:00.000Z');
+    expect(content?.occurrenceCount).toBe(1);
+    // The attached .ics carries the same room.
+    expect(unfoldIcs(content!.ics)).toContain('LOCATION:[TEST] Room B');
+  });
+
+  it('keeps the series location for a booked occurrence without an override location', () => {
+    const content = rsvpConfirmationContent(
+      {
+        ...baseEventPost,
+        data: {
+          ...timedEventFields,
+          physicalLocation: { text: '[TEST] Room A' },
+          recurrence: { freq: 'WEEKLY', interval: 1, count: 4 },
+          exceptions: [
+            {
+              recurrenceId: '2026-07-14T21:00:00.000Z',
+              start: '2026-07-14T23:00:00.000Z',
+              end: '2026-07-15T00:00:00.000Z',
+            },
+          ],
+        },
+      } as PublicPost,
+      {
+        postUrl: 'https://example.com/posts/event1',
+        occurrenceIds: ['2026-07-14T21:00:00.000Z'],
+      },
+    );
+    expect(content?.location).toBe('[TEST] Room A');
+    expect(content?.occurrenceCount).toBe(1);
   });
 });
 describe('buildEventsFeedIcs', () => {

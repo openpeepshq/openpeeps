@@ -12,6 +12,7 @@ import {
   canCreatePostTypeIgnoringScopes,
   effectiveEventTimes,
   normalizeEventDataForSave,
+  sameRecurrenceId,
   upsertEventException,
 } from '@openpeepshq/common/lib';
 import { useOpenpeeps } from '../../contexts/openpeeps';
@@ -151,6 +152,13 @@ export const useEditEvent = (eventId: string, occurrence?: string) => {
       const times = occurrence
         ? effectiveEventTimes(series, occurrence)
         : { start: series.start, end: series.end };
+      // A rescheduled occurrence carries its own location; prefill it so a
+      // time-only edit does not silently overwrite it with the series value.
+      const exception = occurrence
+        ? series.exceptions?.find((e) =>
+            sameRecurrenceId(e.recurrenceId, occurrence),
+          )
+        : undefined;
       setPostData({
         visibility: postQuery.data.visibility,
         type: 'event',
@@ -160,6 +168,9 @@ export const useEditEvent = (eventId: string, occurrence?: string) => {
           ...series,
           start: times.start,
           end: times.end,
+          ...(exception?.physicalLocation
+            ? { physicalLocation: exception.physicalLocation }
+            : {}),
         },
       });
       setLoadedEventId(postQuery.data.id);
