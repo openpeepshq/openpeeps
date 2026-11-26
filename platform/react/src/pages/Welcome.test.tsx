@@ -11,6 +11,7 @@ let currentProfile: unknown = undefined;
 let currentAccount: unknown = undefined;
 let serverInfo: {
   publicContent?: boolean;
+  federation?: { active: boolean };
   communityConfig?: {
     info?: { privacyPolicy?: string; termsAndConditions?: string };
   };
@@ -166,6 +167,31 @@ describe('Welcome', () => {
       '/feeds/local',
     );
     expect(linkByLabel(el, 'Change your name, photo and bio')).toBeUndefined();
+  });
+
+  it('shows the federated/public status lines for guests', async () => {
+    serverInfo = { federation: { active: true }, publicContent: true };
+
+    const el = await render();
+
+    const status = el.querySelector('[data-testid="welcome-community-status"]');
+    expect(status).toBeTruthy();
+    expect(status?.textContent).toContain('Federated with other communities');
+    expect(status?.textContent).toContain(
+      'Public — visitors can read public posts',
+    );
+  });
+
+  it('shows the not-federated/private status lines for guests', async () => {
+    serverInfo = { federation: { active: false }, publicContent: false };
+
+    const el = await render();
+
+    const status = el.querySelector('[data-testid="welcome-community-status"]');
+    expect(status?.textContent).toContain('Not federated');
+    expect(status?.textContent).toContain(
+      'Private — only members can read posts',
+    );
   });
 
   it('pins the terms-and-conditions anchor when configured, and omits it when not', async () => {

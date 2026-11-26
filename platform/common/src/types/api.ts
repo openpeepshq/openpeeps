@@ -341,6 +341,8 @@ export const serverInfoSchema = z.object({
   build: z.string().optional(),
   environment: z.string(),
   publicContent: z.boolean(),
+  /** Whether this instance syncs with the wider ActivityPub network. Public, sanitized — no peer/allowlist data. */
+  federation: z.object({ active: z.boolean() }),
   /** Process start time (ISO). */
   startedAt: z.iso.datetime(),
   uptimeSeconds: z.number().nonnegative(),

@@ -28,6 +28,20 @@ export const AuthWelcome = ({
           {server?.communityConfig?.info?.tagLine ?? ''}
         </ThemedText>
       </View>
+      {/* Community status: shown to guests and members alike (mirrors the
+          web /welcome block), so it is not gated on sign-in. */}
+      {!isLoading && (
+        <View className="items-center gap-1 mt-4">
+          <ThemedText className="text-sm text-muted-foreground">
+            {server?.federation?.active
+              ? t('welcome.federated')
+              : t('welcome.notFederated')}
+          </ThemedText>
+          <ThemedText className="text-sm text-muted-foreground">
+            {server?.publicContent ? t('welcome.public') : t('welcome.private')}
+          </ThemedText>
+        </View>
+      )}
       {!isLoading && (
         <View className="w-full flex mt-8  items-center">
           <Button

@@ -24,6 +24,23 @@ let mockCurrentProfile: {
   handle?: string;
 } | null = null;
 const mockNavigate = jest.fn();
+// Drives the status lines per test (mirrors the web Welcome.test.tsx, which
+// flips a module-level serverInfo between the positive and negative cases).
+let mockServerInfo: {
+  communityConfig?: {
+    info?: { name: string };
+    content?: { welcomePage: string };
+  };
+  federation?: { active: boolean };
+  publicContent?: boolean;
+} = {
+  communityConfig: {
+    info: { name: 'TestCo' },
+    content: { welcomePage: 'Welcome to TestCo' },
+  },
+  federation: { active: true },
+  publicContent: true,
+};
 
 // --- react-native: host elements render as plain host tags, props kept ----
 jest.mock('react-native', () => {
@@ -46,12 +63,7 @@ jest.mock('@openpeepshq/react', () => ({
     currentAccount: { emailValidated: true },
     openpeepsApi: {
       useServerInfo: () => ({
-        data: {
-          communityConfig: {
-            info: { name: 'TestCo' },
-            content: { welcomePage: 'Welcome to TestCo' },
-          },
-        },
+        data: mockServerInfo,
         isLoading: false,
       }),
       // Disabled for guests (empty profile id) — mirrors the production
@@ -72,6 +84,10 @@ jest.mock('react-i18next', () => ({
         'welcome.guestSignIn':
           'Sign in to complete your account setup and see the checklist.',
         'auth.register.signIn': 'Sign In',
+        'welcome.federated': 'Federated with other communities',
+        'welcome.notFederated': 'Not federated',
+        'welcome.public': 'Public — visitors can read public posts',
+        'welcome.private': 'Private — only members can read posts',
       };
       return opts?.defaultValue ?? known[_key] ?? _key;
     },
@@ -124,6 +140,16 @@ import { Welcome } from './Welcome';
 describe('RN Welcome (Onboarding) guest parity', () => {
   beforeEach(() => {
     mockCurrentProfile = null;
+    // Reset the server-info mock to the default (federated + public) so the
+    // negative-branch case above can't leak into the next test.
+    mockServerInfo = {
+      communityConfig: {
+        info: { name: 'TestCo' },
+        content: { welcomePage: 'Welcome to TestCo' },
+      },
+      federation: { active: true },
+      publicContent: true,
+    };
     mockNavigate.mockClear();
   });
 
@@ -149,6 +175,49 @@ describe('RN Welcome (Onboarding) guest parity', () => {
     // … while the guest copy and the CTA label are present.
     expect(json).toContain('Sign in to complete your account setup');
     expect(json).toContain('Sign In');
+  });
+
+  it('shows the federation and access status lines for a signed-out visitor', () => {
+    // The mock serverInfo above is federated + publicContent, so the guest
+    // mirror must render the "on" wording for both lines — the same two
+    // facts the web /welcome block shows (plan step 4 / review suggestion 2).
+    let tree: ReturnType<typeof ReactTestRenderer.create>;
+    ReactTestRenderer.act(() => {
+      tree = ReactTestRenderer.create(React.createElement(Welcome));
+    });
+
+    const json = JSON.stringify(tree.toJSON());
+    expect(json).toContain('Federated with other communities');
+    expect(json).toContain('Public — visitors can read public posts');
+    // … and never the opposite wording at the same time.
+    expect(json).not.toContain('Not federated');
+    expect(json).not.toContain('Private — only members can read posts');
+  });
+
+  it('shows the not-federated/private status lines when the server is not federated and private', () => {
+    // Negative branch of the status ternaries — mirrors the web
+    // Welcome.test.tsx negative-branch case (same mock pattern, second
+    // serverInfo), so a wording/logic regression on the "off" path is pinned
+    // in the RN suite too.
+    mockServerInfo = {
+      communityConfig: {
+        info: { name: 'TestCo' },
+        content: { welcomePage: 'Welcome to TestCo' },
+      },
+      federation: { active: false },
+      publicContent: false,
+    };
+    let tree: ReturnType<typeof ReactTestRenderer.create>;
+    ReactTestRenderer.act(() => {
+      tree = ReactTestRenderer.create(React.createElement(Welcome));
+    });
+
+    const json = JSON.stringify(tree.toJSON());
+    expect(json).toContain('Not federated');
+    expect(json).toContain('Private — only members can read posts');
+    // … and never the opposite wording at the same time.
+    expect(json).not.toContain('Federated with other communities');
+    expect(json).not.toContain('Public — visitors can read public posts');
   });
 
   it('shows the setup checklist (and no guest CTA) when signed in', () => {

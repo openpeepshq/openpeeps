@@ -151,6 +151,21 @@ export const Welcome = () => {
               source={serverInfo?.communityConfig?.content?.welcomePage || ''}
             />
           </ThemedView>
+          {/* Community status: same two lines as the web /welcome block and the
+              auth-stack mirror, shown to the guest here too (spec: everybody sees
+              the same info). serverInfo is already loaded for the heading above. */}
+          <View className="mt-2 gap-1">
+            <ThemedText className="text-sm text-muted-foreground">
+              {serverInfo?.federation?.active
+                ? t('welcome.federated')
+                : t('welcome.notFederated')}
+            </ThemedText>
+            <ThemedText className="text-sm text-muted-foreground">
+              {serverInfo?.publicContent
+                ? t('welcome.public')
+                : t('welcome.private')}
+            </ThemedText>
+          </View>
           <View className="mt-4">
             <ThemedText className="text-base text-muted-foreground">
               {t('welcome.guestSignIn')}

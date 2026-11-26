@@ -104,5 +104,10 @@ describe('serverInfo community-config lenient path', () => {
     expect(info.version).toBe(defaultConfig.version);
     expect(info.jams.livekit.url).toBe(defaultConfig.jams.livekit.url);
     expect(info.lastAccessed).toBeNull();
+    // Federation status surfaces from the (default, inactive) core config —
+    // the welcome page's "Federated" line reads this public payload field.
+    expect(info.federation).toEqual({
+      active: defaultConfig.federation.active,
+    });
   });
 });

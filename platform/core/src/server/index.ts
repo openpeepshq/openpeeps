@@ -70,6 +70,7 @@ export const serverInfo = () =>
       build: process.env.BUILD?.trim() || undefined,
       environment: coreConfig.environment,
       publicContent: coreConfig.server.publicContent,
+      federation: { active: coreConfig.federation.active },
       startedAt: processStartedAt,
       uptimeSeconds: roundDownUptimeSeconds(Math.floor(process.uptime())),
       disk,

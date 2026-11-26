@@ -139,6 +139,32 @@ export function Welcome() {
         <Markdown source={welcomePage} />
       </div>
 
+      {/* Community status: shown to guests and members alike (the spec asks
+          for the same info for everybody), so it is not gated on signedIn. */}
+      <ul
+        data-testid="welcome-community-status"
+        className="mt-4 list-none space-y-1 text-left text-sm text-muted-foreground"
+      >
+        <li>
+          {serverInfo.federation?.active
+            ? t('welcome.federated', {
+                defaultValue: 'Federated with other communities',
+              })
+            : t('welcome.notFederated', {
+                defaultValue: 'Not federated',
+              })}
+        </li>
+        <li>
+          {serverInfo.publicContent
+            ? t('welcome.public', {
+                defaultValue: 'Public — visitors can read public posts',
+              })
+            : t('welcome.private', {
+                defaultValue: 'Private — only members can read posts',
+              })}
+        </li>
+      </ul>
+
       {signedIn && !account?.emailValidated ? (
         <div className="my-4">
           {t('auth.register.verificationReminder', {
