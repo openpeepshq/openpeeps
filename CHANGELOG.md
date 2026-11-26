@@ -44,6 +44,12 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **events**: render feed event cards in the viewer's display time zone
+- **rn-components**: retry the first late screen share attach longer
+- **deps**: update i18next to ^26.3.4 to fix GHSA-6jcc-5g8w-32mx DoS advisory
+- **rn-components**: vertically center initials in avatar fallback tiles
+- **rn-components**: contain DM conversation previews within the screen width (issue #2107)
+- **push**: remove stale push subscriptions on logout
 - **rn-components**: remount camera tile when a late mid-Jam camera track attaches
 - **react**: single-line caption in member picker rows (issue #1666)
 - **settings**: make notification save bar span full width on mobile
@@ -169,6 +175,7 @@ Changelog for OpenPeeps
 
 ### Chores
 
+- **rn-components**: bump version to 0.28.0
 - **deps**: override glob 9/10 to 14.0.6 (GHSA-3g3m-2fjr-6pw4)
 - **deps**: upgrade @sentry/node from 9.13.0 to 10.78.0 to resolve opentelemetry vulnerabilities
 - **deps**: upgrade bullmq 5.34.7 to 5.81.5 and override uuid to 11.1.1
