@@ -33,6 +33,7 @@ export const jamHooks = (client: OpenpeepsClient) => ({
     ['jams'],
     ['posts'],
   ]),
+  setJamSpotlightAction: payloadMutation(client.jams.spotlight),
   liftJamBanAction: noPayloadMutation(client.jams.liftBan, [
     ['jams'],
     ['posts'],

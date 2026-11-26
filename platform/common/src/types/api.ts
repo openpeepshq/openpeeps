@@ -461,6 +461,13 @@ export type RemoveParticipantRequest = z.infer<
   typeof removeParticipantRequestSchema
 >;
 
+/** Sets or clears the room-wide host spotlight (LiveKit room metadata). */
+export const jamSpotlightRequestSchema = z.object({
+  identity: z.string().uuid().nullable(),
+});
+
+export type JamSpotlightRequest = z.infer<typeof jamSpotlightRequestSchema>;
+
 export interface Thread extends PublicPost {
   children: Thread[];
 }

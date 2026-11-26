@@ -10,6 +10,8 @@ import type {
   PublicProfile,
   RemoveParticipantRequest,
   SuccessResponse,
+  SuccessFailureResponse,
+  JamSpotlightRequest,
   JamRecording,
   JamObserverResponseData,
   JamRtmpStreamRequest,
@@ -55,6 +57,12 @@ export const jams = (
       { id: string },
       OccurrenceQuery
     >(rawClient, '/jams/:id/remove-participant'),
+    spotlight: allpeepPayloadEndpoint<
+      SuccessFailureResponse,
+      JamSpotlightRequest,
+      { id: string },
+      OccurrenceQuery
+    >(rawClient, '/jams/:id/spotlight'),
     liftBan: allpeepNoPayloadEndpoint<
       SuccessResponse,
       { id: string; profileId: string }

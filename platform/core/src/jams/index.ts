@@ -50,6 +50,7 @@ export {
   JAM_ROOM_DEPARTURE_TIMEOUT_SEC,
 } from './livekit';
 export { rtmpStreamOutput } from './rtmp';
+export { setJamSpotlight } from './spotlight';
 export {
   jamRecordingStopQueue,
   jamRecordingStopWorker,
