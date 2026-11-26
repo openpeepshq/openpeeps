@@ -1137,6 +1137,291 @@ jobs:
           } > .npmrc
           eval pnpm -r publish "$publish_filters" --access public --no-git-checks --ignore-scripts
 
+      # Publish-lag drift guard (issue #2147, 2026-11-25): a `fix:` merged with
+      # no version bump makes publish-packages skip the package, so post-fix
+      # code stays orphaned on main until a human re-tests the shipped app.
+      # After publish, flag any version-locked package whose shipped content
+      # moved after its npm publish time. Hard-fail for the React Native app's
+      # full published dependency closure — rn-components + everything its
+      # published manifest pulls in (react, client, common, fetch-client,
+      # react-ui, greenscreen) — where an unpublished fix or a stale published
+      # dependency range means users keep the old behavior; report (warn) the
+      # rest: per the readiness decision table, fix: without new API surface is
+      # conventionally merged without a bump, so server-side packages (core,
+      # worker, i18n, cli) and leaf libraries may legitimately run ahead of
+      # their published version; a blanket fail would red main permanently.
+      #
+      # Drift is measured two ways per package (reviews of heads 6934e860c /
+      # 79100b3a2, 2026-11-25; reworked per review 38180):
+      #   1. Shipped dependency declarations: the published manifest's
+      #      dependencies/peerDependencies/optionalDependencies compared
+      #      against local, excluding workspace-internal @openpeepshq ranges
+      #      (a `workspace:^` sibling ships as `^<ver at publish>` and
+      #      resolves to the latest published sibling, so its staleness is
+      #      the cross-PR pairing concern owned by the PR-body merge-order
+      #      rule, not by this guard). npm does not publish devDependencies
+      #      (unless bundled via bundledDependencies or altered by
+      #      publishConfig, in which case they would count), so devDeps-only
+      #      sweeps (e.g. the i18next advisory bumps in common/client) do
+      #      not count — but a shipped-range change does; historically
+      #      react's i18next ^24.2.3 -> ^26.3.4, merged after the 0.26.0
+      #      publish while still vulnerable (GHSA-6jcc-5g8w-32mx) — and the
+      #      same check fires for a shipped-range change in any
+      #      version-locked package.
+      #   2. Shipped source: last commit touching the package's src/ plus any
+      #      root-level entry the package ships — the union of the `files`
+      #      field's non-negated root entries (rn-components' metro.js,
+      #      metro/, tailwind.config.js, react-native.config.js; react-ui's
+      #      tailwind.preset.cjs) and the exports map's root entries, which
+      #      the union covers. Negated (`!...`) and glob (`*`) `files`
+      #      entries are skipped by design: they only exclude or widen the
+      #      scope, never name additional shipped surface. Only root
+      #      entries are tracked: exports
+      #      subpath entries ("." and "./subpath/*") are deliberately
+      #      filtered out, since they resolve into src/ (already covered by
+      #      the src/ pathspec) or dist/ (build output, never committed).
+      #      package.json is never among these (it is check 1's job).
+      #      Scoping to shipped files keeps tooling/lint/test-file-only
+      #      commits out — a blanket directory check would flag the
+      #      ESLint/TS upgrade commits that every package's tree still
+      #      carries after its publish.
+      #
+      # Both checks use the invariant that a version-bump commit for a version
+      # can never postdate that version's publish (publish runs after the bump
+      # merges), so any post-publish shipped change for a still-published
+      # version is by definition undelivered. Node normalizes ISO 8601 with
+      # any time zone to epoch ms; busybox date cannot be relied on here.
+      #
+      # The shipped-source check needs real history: it reads the commit date
+      # of the last change, which a shallow clone truncates to the shallowest
+      # fetched commit. It requires full history (this job checks out with
+      # fetch-depth: 0); run the extracted step locally on a full clone — a
+      # shallow one reports false "shipped source moved after publish" drift
+      # for packages whose shallow commit postdates their publish (review
+      # 39505, suggestion 4).
+      - name: Check for unpublished content drift
+        run: |
+          set -e
+          drift=""
+          # The mobile app's published dependency closure — the hard-fail set.
+          in_closure() {
+            case "$1" in
+              react|rn-components|client|common|fetch-client|react-ui|greenscreen) return 0 ;;
+              *) return 1 ;;
+            esac
+          }
+          # Registry errors must be visible and, for the closure, fatal — a
+          # blip must not turn the guard into a silent no-op (the
+          # silent-skip class it exists to catch). Only a genuinely
+          # unpublished name (404) is not an availability failure: the
+          # publish job's token is scoped to the npmjs registry and an
+          # empty token makes the registry treat the call as anonymous, so
+          # any other hard failure in a healthy run is a blip, not a fact
+          # about the package.
+          registry_unavailable() {
+            local err
+            err=$(npm view "$1" version 2>&1 >/dev/null || true)
+            case "$err" in
+              *404*|*E404*|*"not found"*) return 1 ;;
+              *) return 0 ;;
+            esac
+          }
+          for pair in \
+            "common:platform/common:@openpeepshq/common" \
+            "client:platform/client:@openpeepshq/client" \
+            "react:platform/react:@openpeepshq/react" \
+            "rn-components:platform/rn-components:@openpeepshq/rn-components" \
+            "core:platform/core:@openpeepshq/core" \
+            "worker:platform/worker:@openpeepshq/worker" \
+            "cli:platform/cli:@openpeepshq/cli" \
+            "i18n:platform/i18n:@openpeepshq/i18n" \
+            "fetch-client:libraries/fetch-client:@openpeepshq/fetch-client" \
+            "greenscreen:libraries/greenscreen:@openpeepshq/greenscreen" \
+            "react-ui:libraries/react-ui:@openpeepshq/react-ui" \
+            "geocoder:libraries/geocoder:@openpeepshq/geocoder"; do
+            short=$(echo "$pair" | cut -d: -f1)
+            dir=$(echo "$pair" | cut -d: -f2)
+            pkg=$(echo "$pair" | cut -d: -f3)
+            local_ver=$(node -p "require('./${dir}/package.json').version")
+            if ! pub_ver=$(npm view "$pkg" version 2>/dev/null); then
+              if registry_unavailable "$pkg"; then
+                if in_closure "$short"; then
+                  echo "::error::$short: npm registry metadata unavailable for $pkg; drift state unknown"
+                  drift="$drift $short"
+                else
+                  # Explicitly non-failing registry-failure reports use
+                  # ::warning (the closure variant above uses ::error and
+                  # fails the job).
+                  echo "::warning::$short: npm registry metadata unavailable for $pkg; reported, not failing"
+                fi
+                continue
+              fi
+              pub_ver="not-published"
+            fi
+            if [ "$pub_ver" = "not-published" ] && [ "$local_ver" != "not-published" ]; then
+              # Local ahead of npm: the publish step (or a pending bump) owns
+              # the delivery — only version-locked drift is silent.
+              echo "  $short: ${local_ver} not yet published (publish step owns it) -> ok"
+              continue
+            fi
+            [ "$local_ver" != "$pub_ver" ] && continue
+            pub_time=""
+            if ! pub_time=$(npm view "$pkg" time.modified 2>/dev/null); then
+              # Registry-availability failure on time.modified: the same
+              # fail-closed contract as the version query above — visible,
+              # and counted as drift for closure packages (a blip must not
+              # let a closure package fall through). Non-closure is reported
+              # with a warning, not an error, because it is explicitly
+              # non-failing here. Appends to drift exactly once.
+              if in_closure "$short"; then
+                echo "::error::$short: npm registry metadata unavailable for $pkg (time.modified); drift state unknown"
+                drift="$drift $short"
+              else
+                echo "::warning::$short: npm registry metadata unavailable for $pkg (time.modified); reported, not failing"
+              fi
+              continue
+            fi
+            if [ -z "$pub_time" ]; then
+              # A readable version with no publish time (practically
+              # unreachable — a published version always has a
+              # time.modified): emit the same ::error as the neighboring
+              # failure paths, and count it for closure packages, so no
+              # counted failure path is silent.
+              if in_closure "$short"; then
+                echo "::error::$short: no readable npm publish time for $pkg; drift state unknown"
+                drift="$drift $short"
+              else
+                echo "::warning::$short: no readable npm publish time (reported, not failing)"
+              fi
+              continue
+            fi
+            # (1) Shipped dependency declarations: published manifest's
+            # dependencies/peerDependencies/optionalDependencies vs local,
+            # excluding @openpeepshq/* and workspace:-style internal ranges
+            # (published as ^<ver at publish> for workspace deps). npm never
+            # publishes devDependencies, so the comparison is exactly what
+            # installs into consumers. `npm view <pkg> <field> --json` emits
+            # the field's object (empty output for an absent field), so the
+            # fields are queried one at a time. A failed `dependencies`
+            # query (registry blip) is handled exactly like the version
+            # and time.modified queries above: visible, and counted as
+            # drift for closure packages — a blip must not let a closure
+            # package print -> ok with its dependency state unknown.
+            dep_ok=1
+            deps_json=$(npm view "${pkg}@${local_ver}" dependencies --json 2>/dev/null) || dep_ok=0
+            peers_json=$(npm view "${pkg}@${local_ver}" peerDependencies --json 2>/dev/null) || true
+            optional_json=$(npm view "${pkg}@${local_ver}" optionalDependencies --json 2>/dev/null) || true
+            dep_drift=""
+            if [ "$dep_ok" = 1 ]; then
+              dep_drift=$(node -e '
+                const fs = require("fs");
+                const local = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+                // npm view <pkg> <field> --json emits the field object; newer
+                // npm versions wrap it in a one-element array.
+                const clean = (s) => {
+                  try {
+                    let v = JSON.parse(s);
+                    if (Array.isArray(v)) v = (v[0] && typeof v[0] === "object") ? v[0] : {};
+                    return (v && typeof v === "object") ? v : {};
+                  } catch { return {}; }
+                };
+                const pub = { dependencies: clean(process.argv[2]), peerDependencies: clean(process.argv[3]), optionalDependencies: clean(process.argv[4]) };
+                const internal = (k, v) => k.startsWith("@openpeepshq/") || String(v).startsWith("workspace:");
+                const flat = (m) => {
+                  const out = {};
+                  for (const s of ["dependencies", "peerDependencies", "optionalDependencies"]) {
+                    const sec = m[s] || {};
+                    // Object.keys (not Object.entries): a key whose value is
+                    // "" is a shipped-declaration change too.
+                    for (const k of Object.keys(sec))
+                      if (!internal(k, sec[k])) out[k] = sec[k];
+                  }
+                  return out;
+                };
+                const a = flat(local), b = flat(pub);
+                const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+                console.log([...keys].filter((k) => a[k] !== b[k])
+                  .map((k) => `${k} npm=${b[k] ?? "-"} local=${a[k] ?? "-"}`).join(", "));
+              ' "./${dir}/package.json" "$deps_json" "$peers_json" "$optional_json")
+            elif in_closure "$short"; then
+              echo "::error::$short: npm view dependencies failed for ${pkg}@${local_ver}; dependency drift state unknown"
+              dep_drift="npm view dependencies failed (state unknown)"
+            else
+              echo "  $short: npm view dependencies failed (reported, not failing)"
+            fi
+            # (2) Shipped source: last commit under src/ plus root-level
+            # files the package ships — the union of the `files` field's
+            # root entries and the exports map's root entries (each can
+            # name shipped surface the other does not: rn-components ships
+            # metro.js, metro/, tailwind.config.js and
+            # react-native.config.js only via `files`; react-ui's
+            # tailwind.preset.cjs is in both), excluding package.json
+            # (manifest drift is check 1's job — a version-bump commit for
+            # this version can never postdate this version's publish).
+            # Only entries that resolve to a committed file or directory
+            # under the package root count — dist/ is build output, never
+            # committed, so it drops out, and src/ is already tracked by
+            # the src/ pathspec (a duplicate pathspec is harmless).
+            # Directory entries like metro/ and bin/ are kept as pathspecs:
+            # git matches every file beneath a directory pathspec, so a
+            # post-publish change to a shipped directory (rn-components'
+            # metro/, cli's bin/) moves the date even though the entry
+            # itself is not a file.
+            root_files=$(node -e '
+              const { execFileSync } = require("child_process");
+              const dir = process.argv[1];
+              const m = require("./" + dir + "/package.json");
+              const roots = new Set();
+              for (const f of m.files || []) {
+                if (typeof f !== "string" || f.startsWith("!") || f.includes("*")) continue;
+                roots.add(f.startsWith("/") ? f.slice(1) : f);
+              }
+              const e = m.exports || {};
+              const walk = (o) => { for (const v of Object.values(o)) if (typeof v === "string") roots.add(v); else if (v && typeof v === "object") walk(v); };
+              walk(e);
+              const kept = [];
+              for (const raw of roots) {
+                const r = raw.startsWith("./") ? raw.slice(2) : raw;
+                if (!r || r === "package.json" || r.startsWith(".") || r.includes("*")) continue;
+                // Keep committed regular files and committed directories
+                // (metro/, bin/) alike: a directory pathspec matches every
+                // file beneath it, so dropping directory entries would
+                // leave their post-publish changes invisible to the date.
+                const p = dir + "/" + r;
+                try {
+                  const mode = execFileSync("git", ["ls-tree", "HEAD", "--", p], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+                  if (mode.startsWith("100644") || mode.startsWith("100755") || mode.startsWith("040000")) kept.push(r);
+                } catch { /* not committed (build output) */ }
+              }
+              console.log(kept.join(" "));
+            ' "${dir}")
+            src_pathspecs=""
+            for rf in $root_files; do src_pathspecs="$src_pathspecs ./${dir}/${rf}"; done
+            src_date=$(git log -1 --format=%cI -- ./"${dir}/src" $src_pathspecs -- ':!'"${dir}/package.json" || true)
+            src_ms=0
+            [ -n "$src_date" ] && src_ms=$(node -e "console.log(Date.parse(process.argv[1]) || 0)" "$src_date")
+            pub_ms=$(node -e "console.log(Date.parse(process.argv[1]) || 0)" "$pub_time")
+            if [ -n "$dep_drift" ] || [ "$src_ms" -gt "$pub_ms" ]; then
+              if in_closure "$short"; then
+                reason=""
+                [ -n "$dep_drift" ] && reason="stale published dependency declarations: $dep_drift"
+                [ "$src_ms" -gt "$pub_ms" ] && reason="${reason:+$reason; }shipped source moved after publish ($src_date)"
+                echo "::error::$short ${local_ver}: ${reason} — merged code has not shipped to the mobile app"
+                drift="$drift $short"
+              else
+                echo "  $short: ${local_ver} drift ($src_date, deps: ${dep_drift:-none}) is newer than npm publish ${pub_time} (reported, not failing)"
+              fi
+            else
+              echo "  $short: ${local_ver} -> ok"
+            fi
+          done
+          if [ -n "$drift" ]; then
+            echo "Unpublished drift in the mobile app's published dependency closure:$drift"
+            echo "Bump the affected package(s) per the check-openpeeps-pr-readiness delivery exception and re-run."
+            exit 1
+          fi
+          echo "Publish-lag drift guard: mobile app dependency closure clean."
+
   deploy-docker:
     runs-on: docker
     needs: [merge-gate, set-variables]

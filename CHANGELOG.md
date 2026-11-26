@@ -197,6 +197,10 @@ Changelog for OpenPeeps
 - **pnpm**: force fast-jwt 6.3.6 override to clear multiple advisories (3 critical)
 - **deps**: remove unused turbo devDependency from rn-components
 
+### Package Updates
+
+- **packages**: bump @openpeepshq/react 0.27.1, rn-components 0.37.0, common 0.18.0, fetch-client 0.2.2 to ship the #2147 push-logout fix, plus a publish-packages drift guard
+
 ## 2026-11-23
 
 - No changes

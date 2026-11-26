@@ -175,6 +175,18 @@ Rules:
 - `fix:` with **no new API surface** → **no bump**. Sibling open PRs on the
   same package otherwise conflict on `package.json` and merge order decides
   the published version; the number is release-coordination's job.
+- **Delivery exception (issue #2147, 2026-11-25):** the no-bump rule assumes
+  the fix ships on its next regular publish. If the package's current version
+  is **already published** (check `npm view <pkg> version` and
+  `time.modified`) and the merged code is not in that tarball — e.g. a
+  consumer-facing fix merged with no bump, or the version published from a
+  commit that does not contain the fix — then the post-fix content is
+  orphaned: npm version numbers are immutable, so nothing publishes it. In
+  that case **bump despite the no-bump rule** (minor when the shipped change
+  adds API surface) and treat the published version as consumed. The
+  `publish-packages` drift guard on main exists to make this class red
+  instead of waiting for a human re-test. This is a one-time corrective
+  bump, not a precedent that `fix:` bumps freely.
 - Before bumping, check open sibling PRs touching the same `package.json`
   and align on one target version.
 - The `publish-gate` job re-runs `node scripts/check-publish-gate.mjs
