@@ -358,6 +358,50 @@ describe('feed event card (post/types/Event.tsx)', () => {
   });
 });
 
+// The path reported in #2225: a shared event card reaches FeedEvent through
+// the DM wrapper stack (MessageInThread's min-w-0 flex-1 content column
+// wrapping the w-[80%] p-3 ConversationMessageBubble). The card itself is
+// already covered above, but this pins the same three flex roles inside the
+// wrapper stack it actually renders under, so a regression on the DM path
+// fails here even if a bare-FeedEvent case still passed.
+describe('feed event card in the DM wrapper stack (conversations/, #2225)', () => {
+  const View = el('View');
+  const dmPost = {
+    id: 'post-dm',
+    profile: { id: 'owner', displayName: 'Owner' },
+    visibility: 'public',
+    occurrenceStart: 'start',
+    occurrenceEnd: 'end',
+    data: { type: 'event', name: 'Meetup', timeZone: 'America/Chicago' },
+  };
+
+  const dmWrappers = (card: ReactNode) =>
+    React.createElement(
+      View,
+      { className: 'min-w-0 flex-1 flex-col' },
+      React.createElement(View, { className: 'w-[80%] rounded-t-xl p-3' }, card)
+    );
+
+  test('flex roles survive in the DM bubble: date truncates, button stays inside the edge', () => {
+    const root = render(dmWrappers(<FeedEvent post={dmPost as never} />));
+    expect(containsText(root, 'View Event')).toBe(true);
+
+    // The wrapper stack keeps the width contract of the real DM path
+    // (w-[80%] bubble inside a min-w-0 flex-1 column, both on current main).
+    expect(findWithClass(root, 'View', 'w-[80%]', 'p-3')).toBeDefined();
+
+    const dateText = find(root, 'ThemedText', 'numberOfLines');
+    expect(dateText).toBeDefined();
+    expect(dateText!.props?.numberOfLines).toBe(1);
+    expect(String(dateText!.props?.className)).toContain('min-w-0');
+    expect(String(dateText!.props?.className)).toContain('flex-1');
+
+    const button = find(root, 'Button', 'onPress');
+    expect(button).toBeDefined();
+    expect(String(button!.props?.className)).toContain('shrink-0');
+  });
+});
+
 describe('group card (groups/GroupCard.tsx)', () => {
   const group = {
     id: 'g-1',
