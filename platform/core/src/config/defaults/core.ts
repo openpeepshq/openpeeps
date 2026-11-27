@@ -82,6 +82,19 @@ export const defaultConfig: CoreConfig = {
     allowedHosts: [],
     blockedHosts: [],
   },
+  atproto: {
+    active: false,
+    allowedPdsHosts: [],
+    handleDomain: process.env.ATPROTO_HANDLE_DOMAIN || 'localhost',
+    plcDirectory: process.env.ATPROTO_PLC_DIRECTORY,
+    ingestEnabled: false,
+    relayUrl: process.env.ATPROTO_RELAY_URL,
+    handleDns: {
+      enabled: false,
+      provider: 'cloudflare',
+      apiToken: process.env.ATPROTO_HANDLE_DNS_API_TOKEN,
+    },
+  },
   activityPub: {
     defaultDomain: process.env.ACTIVITY_PUB_DEFAULT_DOMAIN || 'localhost',
     itemsPerPage: readEnvInteger('ACTIVITY_PUB_ITEMS_PER_PAGE', 40),

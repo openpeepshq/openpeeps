@@ -390,6 +390,7 @@ allowBuilds:
   sharp: true
   web-audio-api: true
 
+
 # Supply-chain policy: keep newly published versions (any version whose
 # publish time is newer than this window, in minutes) out of resolution.
 # Fresh resolutions read this from pnpm-workspace.yaml at install time
@@ -419,3 +420,16 @@ minimumReleaseAgeExclude:
   - '@opentelemetry/sdk-metrics'
   - '@opentelemetry/core'
   - '@opentelemetry/resources'
+  # AT Protocol ingest/sync (issue #2122): same name-only rule as above — a
+  # freshly released patch of any @atproto leg (or multiformats) resolves
+  # immediately even when it publishes inside the 24h window.
+  - '@atproto/api'
+  - '@atproto/common'
+  - '@atproto/crypto'
+  - '@atproto/identity'
+  - '@atproto/lexicon'
+  - '@atproto/repo'
+  - '@atproto/sync'
+  - '@atproto/syntax'
+  - multiformats
+

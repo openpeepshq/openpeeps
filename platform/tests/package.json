@@ -32,9 +32,15 @@
     "integration:test": "docker compose -f docker-compose.integration.yml run --rm tests",
     "integration:down": "docker compose -f docker-compose.integration.yml --profile sso down -v --remove-orphans",
     "integration:logs": "docker compose -f docker-compose.integration.yml logs -f web worker",
-    "fixtures:generate-backups": "node scripts/generate-synthetic-backups.mjs"
+    "fixtures:generate-backups": "node scripts/generate-synthetic-backups.mjs",
+    "test:atproto": "node atproto/test-identity.mjs && node atproto/test-lab.mjs",
+    "test:atproto:identity": "node atproto/test-identity.mjs",
+    "test:atproto:lab": "node atproto/test-lab.mjs"
   },
   "devDependencies": {
+    "@atproto/api": "^0.32.2",
+    "@atproto/identity": "^0.4.12",
+    "@atproto/xrpc": "^0.8.18",
     "@livekit/rtc-node": "^0.13.31",
     "@openpeepshq/cli": "workspace:^",
     "@openpeepshq/common": "workspace:^",

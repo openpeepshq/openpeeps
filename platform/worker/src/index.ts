@@ -57,8 +57,23 @@ import {
 } from '@openpeepshq/core/log';
 import { refreshConfig, defaultConfig } from '@openpeepshq/core/config';
 import { initSentry } from '@openpeepshq/core/sentry';
+import {
+  atprotoIngestWorker,
+  atprotoHandleDnsWorker,
+  atprotoProjectWorker,
+  startAllowlistedIngest,
+  enqueueLocalHandleTxtSync,
+} from '@openpeepshq/core/atproto';
 
-const startWorkers = () => {
+const startAtproto = async () => {
+  await atprotoIngestWorker();
+  await atprotoProjectWorker();
+  await atprotoHandleDnsWorker();
+  await startAllowlistedIngest();
+  await enqueueLocalHandleTxtSync();
+};
+
+export const startWorkers = () => {
   console.log('Starting email worker ...');
   sendEmailWorker();
   console.log('Starting once worker ...');
@@ -193,6 +208,8 @@ export const start = async () => {
   setInterval(logJobStats, 60000);
   console.log('Starting workers ...');
   startWorkers();
+  console.log('Starting atproto workers ...');
+  await startAtproto();
   console.log('Started.');
   await logJobStats();
 };

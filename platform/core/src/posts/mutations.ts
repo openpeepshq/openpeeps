@@ -430,7 +430,11 @@ export const retractReaction = async (
     entryConnector(db, profile, post, {
       type: 'unreaction',
       data: { reaction: data.reaction },
-    }),
+    }).then(() =>
+      hub.emit('reactionDeleted', profile, post, {
+        reaction: data.reaction,
+      }),
+    ),
   );
 
 export const bookmarkPost = async (post: PostWithMeta, profile: Profile) =>
@@ -503,6 +507,8 @@ export const deletePost = async (post: PostWithMeta, profile: Profile) => {
   if (post.type === 'question') {
     await cancelPollEnd(post.id);
   }
+
+  hub.emit('postDeleted', post);
 
   return postsMapping.find(db, post.id);
 };

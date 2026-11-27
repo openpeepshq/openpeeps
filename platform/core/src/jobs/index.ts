@@ -1,4 +1,11 @@
-import { MetricsTime, Processor, Queue, QueueOptions, Worker } from 'bullmq';
+import {
+  MetricsTime,
+  Processor,
+  Queue,
+  QueueOptions,
+  Worker,
+  WorkerOptions,
+} from 'bullmq';
 
 export const connection = {
   host: process.env.REDIS_HOST || 'localhost',
@@ -24,7 +31,8 @@ export const closeQueues = async () => {
 export const queueAndWorker = <Input, Output = undefined>(
   queueName: string,
   processor: Processor<Input, Output>,
-  queueOptions?: Omit<QueueOptions, 'connection'>,
+  queueOptions?: Partial<QueueOptions>,
+  workerOptions?: Omit<WorkerOptions, 'connection' | 'processor'>,
 ): [() => Queue, () => Worker] => [
   () => {
     if (!queues[queueName]) {
@@ -77,6 +85,7 @@ export const queueAndWorker = <Input, Output = undefined>(
       connection,
       concurrency: 5,
       metrics: { maxDataPoints: MetricsTime.ONE_WEEK },
+      ...workerOptions,
     }),
 ];
 

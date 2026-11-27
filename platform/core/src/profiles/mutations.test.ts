@@ -214,6 +214,37 @@ describe('followDesignatedProfiles', () => {
     expect(communityConfig).not.toHaveBeenCalled();
     expect(config).not.toHaveBeenCalled();
   });
+
+  it('emits followCreated for each landed follow, so the AT projection hook fires for auto-followed designated profiles', async () => {
+    // The AT projection (server install.ts) hooks only followCreated — the
+    // same event interactive follows emit. This pins that the auto-follow
+    // batch routes through follow() and lands the projected follow for
+    // followable designated targets, so the "instance admin auto-follows a
+    // peer" onboarding path is guarded from silent regression.
+    vi.mocked(hub.emit).mockClear();
+    vi.mocked(getLocalProfileByHandle).mockResolvedValue(news);
+
+    await followDesignatedProfiles(member, ['news']);
+
+    expect(followConnector).toHaveBeenCalledTimes(1);
+    expect(hub.emit).toHaveBeenCalledWith('followCreated', member, news);
+  });
+
+  it('emits no followCreated for targets the capability check skips, so nothing projects for them', async () => {
+    // The capability check inside the batch skips non-followable targets
+    // before follow() runs — the skip must stay silent: no follow, no
+    // followCreated, no projected AT record for a follow that never existed.
+    vi.mocked(capabilitiesConfig).mockResolvedValue({
+      profile: {},
+    } as unknown as CapabilitiesConfig);
+    vi.mocked(hub.emit).mockClear();
+    vi.mocked(getLocalProfileByHandle).mockResolvedValue(news);
+
+    await followDesignatedProfiles(member, ['news']);
+
+    expect(followConnector).not.toHaveBeenCalled();
+    expect(hub.emit).not.toHaveBeenCalledWith('followCreated', member, news);
+  });
 });
 
 describe('canFollowProfile', () => {

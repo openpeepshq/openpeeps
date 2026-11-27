@@ -34,6 +34,7 @@ import {
 } from './lib/spaHtml';
 import { communityConfig } from '@openpeepshq/core/config';
 import { installFederation } from './federation';
+import { installAtproto } from './atproto/install';
 import {
   buildPluginRouters,
   pluginAssetsMiddleware,
@@ -256,6 +257,11 @@ const startServer = async () => {
   // triggers Fedify's OAuth path).
   await installFederation(app);
 
+  // AT Protocol XRPC surface + subscribeRepos WS. Mounted after federation so
+  // both protocol adapters sit behind the same Riddl-then-SPA ordering; the
+  // returned hook needs the raw HTTP server for the WebSocket upgrade.
+  const attachSubscribeRepos = await installAtproto(app);
+
   // Legacy /_db URLs redirect to /admin/db (Postgres admin instructions).
   installDbBrowserProxy(app);
 
@@ -421,9 +427,10 @@ const startServer = async () => {
     res.status(404).send(`Not found: ${req.method} ${req.originalUrl}`);
   });
 
-  app.listen(port, host, () => {
+  const server = app.listen(port, host, () => {
     log.info(`Server listening on http://${host}:${port}`);
   });
+  if (attachSubscribeRepos) attachSubscribeRepos(server);
 };
 
 process.on('unhandledRejection', (reason) => {

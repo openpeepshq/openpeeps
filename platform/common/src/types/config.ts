@@ -190,6 +190,32 @@ export const coreConfigSchemaFactory = (sanitize?: boolean) =>
         recordingEnabled: z.boolean().optional(),
       }),
     }),
+    atproto: z
+      .object({
+        active: z.boolean().default(false),
+        /** PDS host patterns. Empty = fail closed. */
+        allowedPdsHosts: z.array(z.string()).default([]),
+        handleDomain: z.string().default('localhost'),
+        plcDirectory: z.string().optional(),
+        ingestEnabled: z.boolean().default(false),
+        relayUrl: z.string().optional(),
+        handleDns: z
+          .object({
+            enabled: z.boolean().default(false),
+            provider: z
+              .enum(['cloudflare', 'hetzner', 'digitalocean'])
+              .default('cloudflare'),
+            apiToken: password(sanitize).optional(),
+          })
+          .default({ enabled: false, provider: 'cloudflare' }),
+      })
+      .default({
+        active: false,
+        allowedPdsHosts: [],
+        handleDomain: 'localhost',
+        ingestEnabled: false,
+        handleDns: { enabled: false, provider: 'cloudflare' },
+      }),
     vapid: z.object({
       privateKey: password(sanitize).optional(),
       publicKey: z.string().optional(),

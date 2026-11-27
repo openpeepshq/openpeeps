@@ -148,6 +148,13 @@
       "when": 1795656890705,
       "tag": "0022_add_article_slug_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1795764520899,
+      "tag": "0023_atproto",
+      "breakpoints": true
     }
   ]
 }
