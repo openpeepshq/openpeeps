@@ -205,10 +205,19 @@ export const jamEvents = pgTable(
   {
     id: idColumn(),
     postId: text('post_id').notNull(),
+    /**
+     * ISO occurrence id for recurring jams (denormalized from
+     * `body->>'recurrenceId'`); null for one-off events. Lets session
+     * lifecycle and attendance roll up per occurrence without body scans.
+     */
+    recurrenceId: text('recurrence_id'),
     body: jsonb('body').notNull().default({}),
     ...modelTimestamps,
   },
-  (t) => [index('jam_events_post_idx').on(t.postId)],
+  (t) => [
+    index('jam_events_post_idx').on(t.postId),
+    index('jam_events_post_recurrence_idx').on(t.postId, t.recurrenceId),
+  ],
 );
 
 export const mediaAttachments = pgTable('media_attachments', {

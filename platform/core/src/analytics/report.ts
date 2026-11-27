@@ -90,6 +90,11 @@ export const buildAnalyticsBoardReport = async (
       engagement.metrics.impressions.value,
       engagement.metrics.impressions.deltaPct,
     ),
+    narrativeSentence(
+      'Jam sessions',
+      overview.metrics.jamSessions.value,
+      overview.metrics.jamSessions.deltaPct,
+    ),
   ].join('\n');
 
   const pdf = await buildAnalyticsPdf({

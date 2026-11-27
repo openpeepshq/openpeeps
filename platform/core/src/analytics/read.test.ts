@@ -6,8 +6,12 @@ import type {
 import pg from 'pg';
 import { empty } from '../db';
 import { closePostgres, pgConnectionString, pgPool } from '../db/pg/client';
-import { closeRedisConnections } from '../redis';
-import { invalidateAnalyticsCache } from './cache';
+import { closeRedisConnections, getSharedConnection } from '../redis';
+import {
+  analyticsCacheKey,
+  invalidateAnalyticsCache,
+  setAnalyticsCache,
+} from './cache';
 import { eachUtcDay } from './dateRange';
 import { getAnalyticsGrowth, getAnalyticsOverview } from './read';
 
@@ -310,11 +314,6 @@ maybe('getAnalyticsOverview', () => {
     growth = await getAnalyticsGrowth({ from: FROM, to: TO });
   });
 
-  afterAll(async () => {
-    await closePostgres();
-    await closeRedisConnections();
-  });
-
   it('resolves the requested date range and previous period', () => {
     expect(overview.range.from).toBe(FROM);
     expect(overview.range.to).toBe(TO);
@@ -461,5 +460,328 @@ maybe('getAnalyticsOverview', () => {
     expect(card.deltaPct).toBe(100);
     // Series carries the per-day new_members rollups (0 except the two seed days).
     expect(card.series?.map((p) => p.value)).toEqual(CURRENT_NEW);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Jam metrics
+//
+// Isolated describe (own seed, own range) so the jam fixtures cannot disturb
+// the exact-count assertions of the block above: the jam post's creator and
+// attendees are profiles that post nothing else in the window.
+// ---------------------------------------------------------------------------
+
+// Reader wiring fixture for the jam metrics. The deep computeJamStats edge
+// cases (reconnect collapse, guest exclusion, open-session sweep, overlap
+// peak) are pinned in jamMetrics.test.ts; here the fixture just needs to be
+// hand-computable so we can verify the values flow through the readers.
+//
+// Current period (live computeJamStats over [08-01, 08-08)):
+//  - one session (post, OCC-08-03) 10:00–10:30 → 30 min, 1 distinct
+//    (post, occurrence) key → jamSessions 1
+//  - two local attendees join the same jam → jamParticipants 2 (distinct
+//    (profile, jam) pairs), jamUniqueAttendees 2 (distinct profiles)
+//  - one guest join → excluded
+//  - one completed recording in the window → live jamRecordingsCompleted 1
+//  → jamPeakConcurrent 1 (single session, no overlap)
+// Previous period (live over [07-25, 08-01)): one (post, '') session
+// 07-28 10:00–10:05 (5 min), one local join, one recording → 1/1/5/1/1.
+const JAM_FROM = '2026-08-01';
+const JAM_TO = '2026-08-07';
+// jamsOverTime (daily buckets over the 7-day range) sums the jam_sessions
+// rollups: [0,0,1,0,1,1,0].
+const JAM_DAILY = [0, 0, 1, 0, 1, 1, 0];
+const jamSeed = async () => {
+  const pool = pgPool();
+  const day = (d: string) => `${d}T00:00:00.000Z`;
+
+  const creatorId = (
+    await pool.query(
+      `INSERT INTO profiles (id, handle, type, created_at, updated_at)
+       VALUES (gen_random_uuid(), 'jam-creator', 'local', $1, $1) RETURNING id`,
+      [day('2026-07-20')],
+    )
+  ).rows[0].id;
+  const attendeeId = (
+    await pool.query(
+      `INSERT INTO profiles (id, handle, type, created_at, updated_at)
+       VALUES (gen_random_uuid(), 'jam-attendee', 'local', $1, $1) RETURNING id`,
+      [day('2026-07-20')],
+    )
+  ).rows[0].id;
+  const attendee2Id = (
+    await pool.query(
+      `INSERT INTO profiles (id, handle, type, created_at, updated_at)
+       VALUES (gen_random_uuid(), 'jam-attendee-2', 'local', $1, $1) RETURNING id`,
+      [day('2026-07-20')],
+    )
+  ).rows[0].id;
+  const guestId = (
+    await pool.query(
+      `INSERT INTO profiles (id, handle, type, created_at, updated_at)
+       VALUES (gen_random_uuid(), 'jam-guest', 'guest', $1, $1) RETURNING id`,
+      [day('2026-07-20')],
+    )
+  ).rows[0].id;
+  const postId = (
+    await pool.query(
+      `INSERT INTO posts (id, type, visibility, creator_id, created_at, updated_at)
+       VALUES (gen_random_uuid(), 'event', 'public', $1, $2, $2) RETURNING id`,
+      [creatorId, day('2026-07-20')],
+    )
+  ).rows[0].id;
+
+  const ev = (
+    id: string,
+    type: string,
+    at: string,
+    profileId?: string,
+    recurrenceId?: string,
+  ) =>
+    pool.query(
+      `INSERT INTO jam_events (id, post_id, recurrence_id, body, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $5)`,
+      [
+        id,
+        postId,
+        recurrenceId ?? null,
+        JSON.stringify({ type, ...(profileId ? { profileId } : {}) }),
+        at,
+      ],
+    );
+  const rec = (id: string, status: string, updatedAt: string) =>
+    pool.query(
+      `INSERT INTO jam_recordings (id, from_id, to_id, body, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [
+        id,
+        postId,
+        'recording',
+        JSON.stringify({ status }),
+        day('2026-07-20'),
+        updatedAt,
+      ],
+    );
+
+  // Current period: one 30-min session + two local joins + one guest join.
+  await ev(
+    '01970000-0000-7000-8000-0000000000b1',
+    'start',
+    '2026-08-03T10:00:00.000Z',
+    undefined,
+    '2026-08-03T10:00:00.000Z',
+  );
+  await ev(
+    '01970000-0000-7000-8000-0000000000b2',
+    'close',
+    '2026-08-03T10:30:00.000Z',
+    undefined,
+    '2026-08-03T10:00:00.000Z',
+  );
+  await ev(
+    '01970000-0000-7000-8000-0000000000b6',
+    'join',
+    '2026-08-03T10:05:00.000Z',
+    attendeeId,
+    '2026-08-03T10:00:00.000Z',
+  );
+  await ev(
+    '01970000-0000-7000-8000-0000000000b7',
+    'join',
+    '2026-08-03T10:10:00.000Z',
+    attendee2Id,
+    '2026-08-03T10:00:00.000Z',
+  );
+  await ev(
+    '01970000-0000-7000-8000-0000000000b9',
+    'join',
+    '2026-08-03T10:15:00.000Z',
+    guestId,
+    '2026-08-03T10:00:00.000Z',
+  );
+  await rec(
+    '01970000-0000-7000-8000-0000000000c1',
+    'completed',
+    '2026-08-03T11:00:00.000Z',
+  );
+  await rec(
+    '01970000-0000-7000-8000-0000000000c2',
+    'completed',
+    '2026-08-05T11:00:00.000Z',
+  );
+
+  // Previous period: one 5-min session + one local join + one recording.
+  await ev(
+    '01970000-0000-7000-8000-0000000000d1',
+    'start',
+    '2026-07-28T10:00:00.000Z',
+  );
+  await ev(
+    '01970000-0000-7000-8000-0000000000d2',
+    'close',
+    '2026-07-28T10:05:00.000Z',
+  );
+  await ev(
+    '01970000-0000-7000-8000-0000000000d3',
+    'join',
+    '2026-07-28T10:01:00.000Z',
+    attendeeId,
+  );
+  await rec(
+    '01970000-0000-7000-8000-0000000000d4',
+    'completed',
+    '2026-07-28T11:00:00.000Z',
+  );
+
+  // analytics_daily_totals jam rollups — the source for jamsOverTime
+  // (jam_sessions), the growth jamMinutes card (jam_minutes) and the
+  // overview jamRecordings card (jam_recordings_completed). Per-day
+  // sessions [0,0,1,0,1,1,0]; current sums 3/30/2, previous 1/5/1.
+  const totals = [
+    ['2026-07-28', 1, 1, 5, 1],
+    ['2026-08-03', 1, 2, 30, 1],
+    ['2026-08-05', 1, 1, 0, 1],
+    ['2026-08-06', 1, 1, 0, 0],
+  ] as const;
+  for (const [d, sessions, participants, minutes, recordings] of totals) {
+    await pool.query(
+      `INSERT INTO analytics_daily_totals
+         (day, jam_sessions, jam_participants, jam_minutes, jam_recordings_completed)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [d, sessions, participants, minutes, recordings],
+    );
+  }
+};
+
+maybe('getAnalyticsOverview jam metrics', () => {
+  let overview: AnalyticsOverview;
+  let growth: AnalyticsGrowth;
+
+  // Last DB block in this file: close the shared pools here so the second
+  // describe's beforeEach re-initializes cleanly.
+  afterAll(async () => {
+    await closePostgres();
+    await closeRedisConnections();
+  });
+
+  beforeEach(async () => {
+    await empty();
+    try {
+      await Promise.race([
+        invalidateAnalyticsCache(),
+        new Promise((resolve) => setTimeout(resolve, 2000)),
+      ]);
+    } catch {
+      // Redis may be unavailable; the cache layer degrades to a cache miss.
+    }
+    await jamSeed();
+    overview = await getAnalyticsOverview({ from: JAM_FROM, to: JAM_TO });
+    growth = await getAnalyticsGrowth({ from: JAM_FROM, to: JAM_TO });
+  });
+
+  it('exposes the jam metric cards computed over the current and previous period', () => {
+    const m = overview.metrics;
+    // Live computeJamStats over [08-01, 08-08): one distinct (post, occurrence)
+    // session, two local attendees joining the same jam, the guest join
+    // excluded, 30 minutes. Previous [07-25, 08-01): one of each, 5 minutes.
+    expect(m.jamSessions).toMatchObject({ value: 1, previousValue: 1 });
+    expect(m.jamParticipants).toMatchObject({ value: 2, previousValue: 1 });
+    expect(m.jamUniqueAttendees).toMatchObject({ value: 2, previousValue: 1 });
+    expect(m.jamPeakConcurrent).toMatchObject({ value: 1, previousValue: 1 });
+    expect(m.jamMinutes).toMatchObject({ value: 30, previousValue: 5 });
+    // Rollup-driven: sum of the current jam_recordings_completed rollups;
+    // the previous value is the previous period's live recordings (the seed
+    // completes one in [07-25, 08-01)).
+    expect(m.jamRecordings).toMatchObject({ value: 2, previousValue: 1 });
+  });
+
+  it('exposes the jamsOverTime series from the daily rollups', () => {
+    expect(overview.jamsOverTime.map((p) => p.value)).toEqual(JAM_DAILY);
+    expect(overview.jamsOverTime).toHaveLength(7);
+  });
+
+  it('exposes growth jamMinutes from the daily rollups', () => {
+    expect(growth.metrics.jamMinutes).toMatchObject({
+      value: 30,
+      previousValue: 5,
+    });
+  });
+
+  it('isolate the v7->v8 overview cache key so a pre-bump value is never served', async () => {
+    // The overview cache was bumped v7 -> v8 when the jam fields and the
+    // jamsOverTime series were added to the overview shape. withCache never
+    // re-parses a cached value, so the bump protects readers by key isolation:
+    // a pre-bump value still sitting under the old v7 key is simply never read,
+    // and the reader caches its new (jam-populated) shape under the v8 key.
+    // This pins both halves structurally — no runtime schema dependency.
+    const v8Key = analyticsCacheKey('overview-v8', JAM_FROM, JAM_TO);
+    const v7Key = analyticsCacheKey('overview-v7', JAM_FROM, JAM_TO);
+    const conn = await getSharedConnection();
+    const redisUsable = (() => {
+      try {
+        return conn.isOpen;
+      } catch {
+        return false;
+      }
+    })();
+
+    // The v8 reader's output is the new shape: a 7-day jamsOverTime series and
+    // all six jam metric cards present and populated from the seed.
+    expect(Array.isArray(overview.jamsOverTime)).toBe(true);
+    expect(overview.jamsOverTime).toHaveLength(7);
+    expect(overview.metrics.jamSessions.value).toBe(1);
+    expect(overview.metrics.jamPeakConcurrent.value).toBe(1);
+
+    // A pre-bump (v7-shape) value — the current overview minus the jam fields
+    // and the jamsOverTime series — is what a cache written before the bump
+    // would hold. It is structurally distinguishable from the v8 shape.
+    const v7Shaped: Record<string, unknown> = JSON.parse(
+      JSON.stringify(overview),
+    );
+    for (const key of [
+      'jamSessions',
+      'jamParticipants',
+      'jamMinutes',
+      'jamUniqueAttendees',
+      'jamPeakConcurrent',
+      'jamRecordings',
+    ]) {
+      delete (v7Shaped.metrics as Record<string, unknown>)[key];
+    }
+    delete v7Shaped.jamsOverTime;
+    expect('jamsOverTime' in v7Shaped).toBe(false);
+    expect('jamSessions' in (v7Shaped.metrics as Record<string, unknown>)).toBe(
+      false,
+    );
+
+    if (redisUsable) {
+      // Simulate a deployment where the pre-bump value is still cached under
+      // the old v7 key. The v8 reader must not serve it (wrong key) and must
+      // read the new shape it cached under v8 instead.
+      await setAnalyticsCache(v7Key, v7Shaped);
+      await setAnalyticsCache(v8Key, overview);
+      expect(await conn.get(v7Key)).not.toBeNull();
+      expect(await conn.get(v8Key)).not.toBeNull();
+
+      const reread = await getAnalyticsOverview({ from: JAM_FROM, to: JAM_TO });
+      // Served from the v8 key (new shape) — not the stale v7 value.
+      expect(Array.isArray(reread.jamsOverTime)).toBe(true);
+      expect(reread.metrics.jamSessions.value).toBe(1);
+      expect('jamsOverTime' in v7Shaped).toBe(false);
+
+      // The v7 key still holds the pre-bump (jam-less) value, proving the
+      // isolation — not any re-parse — is what protects the reader.
+      const v7Cached = JSON.parse((await conn.get(v7Key)) ?? 'null');
+      const v8Cached = JSON.parse((await conn.get(v8Key)) ?? 'null');
+      expect('jamsOverTime' in v7Cached).toBe(false);
+      expect(
+        'jamSessions' in (v7Cached.metrics as Record<string, unknown>),
+      ).toBe(false);
+      expect('jamsOverTime' in v8Cached).toBe(true);
+      expect(
+        'jamSessions' in (v8Cached.metrics as Record<string, unknown>),
+      ).toBe(true);
+      await invalidateAnalyticsCache();
+    }
   });
 });

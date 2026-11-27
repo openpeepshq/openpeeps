@@ -5,6 +5,7 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **analytics**: add Jam session and recording metrics to admin analytics
 - **jams**: let hosts delete jam chat messages
 - **posts**: add draft status for posts (published_at lifecycle)
 - **federation**: follow any ActivityPub account by handle
@@ -22,35 +23,6 @@ Changelog for OpenPeeps
 - **post**: record voice notes for statuses (up to 90s)
 - **export**: async GDPR personal-data export with zip + one-time token
 - **jams**: let moderators remove a participant and lift the ban (issue #303)
-- **posts**: community-configurable post reactions
-- **jams**: opt-in community jam broadcasts and group-scoped start alerts
-- **jams**: toast moderators when someone joins the waiting room
-- **profiles**: let members opt out of the community directory
-- **events**: server-side ICS feed with per-profile subscription tokens
-- **posts**: choose from a set of post reactions
-- **notifications**: per-type filter for the notifications feed
-- **jams**: stack jam banners through a shared container
-- **profiles**: make new members auto-follow designated local accounts
-- **share**: gate external share actions on public posts
-- **skills**: add generated-at line to milestone stats
-- **jams**: show observer presence indicator to participants
-- **rn-components**: consolidate the mobile layout onto the web layout
-- **skills**: link each needs-human gate to its milestone filter
-- show post edit history on web and mobile
-- **federation**: publish discoverable flag for opted-out profiles (Option 1)
-- **theme**: add configurable Jam Lobby background image
-- **resources**: single image per pick so the crop dialog always shows
-- **i18n**: share 4+ strings under common keys without deleting aliases
-- **rn-components**: make the Jam URL on the single event page tappable
-- **theme**: preview light and dark mode colors with contrast check
-- **skill**: drop the milestone stats table
-- **skill**: split milestone burndown into four pipeline stages
-- **skill**: add forgejo-first-issue skill for label-based issue picking
-- **mcp**: extend community MCP to full member interactions
-- **conversations**: enhance conversation creation with media attachments
-- **posts**: playable video embeds for YouTube/Vimeo links
-- **conversations**: allow reacting to DM messages
-- **community**: bug report form link in side menu
 
 ### Bug Fixes
 
@@ -73,123 +45,10 @@ Changelog for OpenPeeps
 - **settings**: make notification save bar span full width on mobile
 - **skills**: use plural milestone filter + per-mode milestone stats
 - **profiles**: read auto-follow config fresh in worker once-queue handler
-- **deps**: upgrade archiver from 7.0.1 to 8.0.0 in platform/core
-- **deps**: upgrade firebase-admin from 13.10.0 to 14.5.1 in core
-- **resources**: stop long category names overflowing cards, trees and breadcrumbs
-- **rn-components**: stop clipping thread-reply author names in compact strips
-- **rn-components**: keep avatar slot sized while media is loading (issue #1666)
-- **server**: throw real 404s from jam, stream, recording and follow endpoints
-- **deps**: override sdk-metrics to 2.12.0 to clear @opentelemetry/core 2.7.1
-- **rn-components**: stop unread badges clipping in the RN app
-- **rn-components**: keep dropdown menus inside the viewport
-- **rn-components**: remount screen-share video a few times on late native attach
-- **resources**: rename Add files button to Add file
-- **rn-components**: avoid the keyboard in the jam chat drawer on both platforms
-- **deps**: update mermaid to 12.3.0 (fixes katex advisory GHSA-238p-pmpm-9mq7)
-- **auth**: show the welcome page as the first page shown after login
-- **settings**: sticky save bar with unsaved-changes indicator on notification preferences
-- **deps**: force postcss-selector-parser 6.1.5 via @tailwindcss/typography
-- **rn-components**: re-render jam tiles when a remote video track swaps
-- **rn-components**: keep jam chat above the soft keyboard
-- **rn-components**: single-line picker rows with visible selection tint + a11y + SVG avatar (issue #1666)
-- **conversations**: repair the archived conversations query (recursive CTE, text-cast joins)
-- **events**: apply the active tab window to the calendar grid
-- **analytics**: scope active members to live local profiles across card and series
-- **composer**: keep typed text when switching composer type
-- **deps**: refresh stale lockfile resolutions to patched transitive versions
-- **rn**: keep action buttons on screen in overflow-prone rows
-- **jams**: signed-out visitors stuck in waiting room
-- **rn-components**: mount-gate ReactionsModal + RepostModal, fix i18n keys
-- **skills**: stop the gate-link loop from clobbering the milestone API url
-- **skills**: retry the milestone description write on transient HTTP errors
-- **server,react,rn,core,common**: date-range event feed for the calendar (issue #2128)
-- **posts**: count only visible text toward the 500-character note limit
-- **rn-components**: attach the first late screen share by polling the stream
-- **jams**: preserve pre-join mic state and surface mic failures in Jams
-- **events**: filter past events on the Upcoming tab client-side
-- **analytics**: show the report period once in the monthly analytics email
-- **react,rn-components**: render event times in the viewer's time zone
-- **deps**: bump firebase-admin to ^13.10.0 and force fast-xml-parser 5.12.1
-- **deps**: remove @hono/node-server override pinning vulnerable 1.19.19
-- **rn-components**: use localized audience/profile-picker titles for member selection
-- **ci**: pre-push gates in AGENTS.md; fail-fast build; per-worker test DB
-- **deps**: bump vite-plugin-dts to ^4.5.4 in greenscreen and react-ui
-- **seo**: gate post meta on real capability checks; keep shells 200 + noindex
-- **server**: block SSRF and bound url-preview fetches
-- **resources**: injective keys for slash folder names; RN picker parity; blank path validation
-- **rn-components**: give the poor-connection banner an opaque background
-- **rn-components**: constrain ProfileCard bio layout to prevent button clipping
-- **posts**: hide reactions from blocked/muted pairs in transformPost
-- **core**: apply edgeFilter in relationsFrom and traverseRelation
-- **settings**: indicate unsaved notification settings with a sticky save bar
-- **rn-components**: gate resource download action on stable kind, not translated label
-- **events**: reject end times before the start time in event forms
-- **stats**: count needs-specs in the needs-human-intervention line
-- **rn-components**: let attendees join a live jam from the event page
-- **rn-components**: add setSearchParams to the native router adapter
-- **resources**: make file downloads work cross-origin via Content-Disposition
-- **resources**: persist library filters in the URL without breaking the tab hash
-- **resources**: label the folder tree controls for assistive tech
-- **dates**: tick UpdatingDate at minute boundaries instead of polling
-- **i18n**: make the resource library count plural-aware
-- **deps**: vitest 2.1.9 -> 4.1.12 to clear critical UI file-read and both tinypool criticals
-- **deps**: in-range patch sweep to clear brace-expansion, js-yaml, minimatch, fast-uri, hono, joi, ws, qs advisories
-- **deps**: force basic-ftp 6.2.6 tree-wide to clear remaining 3 advisories
-- **deps**: bump @livekit/react-native-webrtc to 144.1.1
-- **deps**: bump concurrently to 9.2.5 to clear shell-quote + lodash advisories
-- **deps**: bump nodemailer to 10.5.0 and remove @types/nodemailer
-- **deps**: force form-data 4.0.6 for jsdom instances in pnpm overrides
-- **deps**: bump jsonpath to 1.3.0 in platform/server, force underscore 1.13.8 (#2068)
-- **deps**: bump drizzle-orm to 0.45.4, clean up lockfile (fix #2008)
-- **deps**: force node-forge 1.4.3 (latest 1.x) to clear the node-forge advisory backlog
-- **deps**: force tar 7.5.22 in pnpm overrides to clear 12 advisories
-- **deps**: force basic-ftp 5.3.1 for the get-uri instance in pnpm overrides
-- **deps**: force protobufjs 7.6.6 in pnpm overrides
-- **deps**: bump i18next-http-backend to 3.0.6 in react + rn-components
-- **deps**: bump MCP SDK to server 2.4.0 + node 2.1.2 in platform/mcp
-- **deps**: bump vite to 6.4.6 / 5.4.21 to clear 19 advisories
-- **deps**: bump eslint to 10.14.0 to clear @humanfs/node advisory
-- **deps**: force @google-cloud/storage>fast-xml-parser 4.5.7 to clear 5 advisories (1 critical)
-- **deps**: bump zod to 4.6.7 (tree-wide override) to clear GHSA-mrhx-c7xc-m3w5
-- **deps**: bump postcss to ^8.5.32 to clear 2 high + 2 moderate
-- **deps**: bump vitest to 2.1.9 in six workspaces to clear critical RCE advisory GHSA-9crc-q9x8-hgqq
-- **skill**: skip null timeline entries in milestone generate-stats
-- **deps**: bump deepmerge-ts to 8.0.2 in core, cli, worker
-- **deps**: force @types/request>form-data 2.5.6 to clear 2 advisories
-- **deps**: force websocket-driver 0.7.5 to clear 2 advisories (1 critical, 1 moderate)
-- **deps**: remove unused validator from platform/client to clear 2 advisories
-- **deps**: bump sharp to 0.35.5 in core + server
-- **deps**: force proxy-addr 2.0.8 in pnpm overrides
-- **deps**: bump handlebars to 4.7.10
-- **events**: preserve the event timezone in generated ICS files
-- **previews**: prefer og:* metadata in link previews
-- **deps**: bump react-router-dom to 7.18.5 to clear 2 high + 3 moderate
-- **react, rn-components**: post-signup email verification reminder
-- **conversations**: treat only replies that exclude their author as conversation leaves
-- **jams**: warn before closing the tab while in a jam
-- **deps**: bump undici to 7.30.2 via tree-wide override
-- **admin**: search invites by invited member name or handle
-- **roles**: prevent duplicate role assignments for a profile
-- **posts**: reject replies to deleted posts
-
-### Refactoring
-
-- **i18n**: consolidate same-feature duplicate keys with divergent hierarchies (pass 3)
-- **participant**: replace parseParticipantMetadata with participantTileProfile for improved profile handling
 
 ### Documentation
 
 - **agents**: mandate PUT-by-id label replace-all in the in-progress protocol
-- **deps**: name issue #2267 in the @sentry/node remediation posture note
-- **agents**: add terminal discipline rules to prevent stuck runs
-- **agents**: document worktree install rules for dependency changes
-- **flow**: let review push test/doc/quality/dependency-only rounds straight back to implement
-- **agents**: require a CI-fix loop — a run never finishes with red CI
-- **agents**: require terse action comments and label-change explanations
-- **skill**: add pre-existing-error verification guidance to openpeeps-pr-rebase
-- **flow**: route RN-only merges to flow/waiting-for-app-build
-- define the simplified issue flow in AGENTS.md
-- codify org-level and issue-flow label rules in AGENTS.md
 
 ### Tests
 
@@ -205,26 +64,6 @@ Changelog for OpenPeeps
 - **rn-components**: ship the merged #2147 push-logout fix (react/rn-components/common/fetch-client) + drift guard
 - **rn-components**: publish the #1808 mid-Jam camera fix
 - **rn-components**: bump version to 0.28.0
-- **deps**: override glob 9/10 to 14.0.6 (GHSA-3g3m-2fjr-6pw4)
-- **deps**: upgrade @sentry/node from 9.13.0 to 10.78.0 to resolve opentelemetry vulnerabilities
-- **deps**: upgrade bullmq 5.34.7 to 5.81.5 and override uuid to 11.1.1
-- **deps**: override esbuild to 0.25.12 in the @esbuild-kit chain
-- **deps**: replace extract-zip with node-stream-zip for backup restore
-- **deps**: force minimatch 11.0.9 for all >=7 consumers
-- **deps**: update @release-it/conventional-changelog to 12.0.2 in rn-components
-- **deps**: add override for @hono/node-server to 1.19.19
-- **deps**: update drizzle-kit to 0.31.11 in core
-- **agents**: catch recurring review findings in the implementation round
-- **deps**: update i18next-http-backend to 4.0.10 in react and rn-components
-- **deps**: update ical-generator to ^11.1.3 and force moment 2.31.0 tree-wide
-- **skill**: stats-only milestone skill; drop find-ready-to-test + rename
-- remove __pycache__ .pyc files and ignore them
-- **skill**: scale burndown bars to max count, mark ideal in-bar
-- **deps**: wave-3 transitive security override batch
-- **pnpm**: force shell-quote 1.12.0 tree-wide to clear 2 critical advisories
-- **deps**: remove redundant pnpm overrides and pin dompurify (fix #2025)
-- **pnpm**: force fast-jwt 6.3.6 override to clear multiple advisories (3 critical)
-- **deps**: remove unused turbo devDependency from rn-components
 
 ## 2026-11-23
 

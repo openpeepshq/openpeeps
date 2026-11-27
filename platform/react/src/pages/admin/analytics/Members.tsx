@@ -157,6 +157,18 @@ export const AnalyticsMembersPage = () => {
           )}
         />
         <MetricCard
+          label={t('admin.analytics.metrics.jamMinutes', {
+            defaultValue: 'Jam minutes',
+          })}
+          value={data.metrics.jamMinutes.value}
+          deltaPct={data.metrics.jamMinutes.deltaPct}
+          subtitle={thisPeriod}
+          info={info(
+            'jamMinutes',
+            'Total minutes of jam sessions that started in the selected range (close minus start per occurrence, clamped at zero).',
+          )}
+        />
+        <MetricCard
           label={t('admin.analytics.engagementRate', {
             defaultValue: 'Engagement rate',
           })}

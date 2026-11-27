@@ -121,6 +121,15 @@ export const createJamToken = async (
   const jamId = event.id;
   const roomName = jamRoomName(event.id, recurrenceId);
   const jam = event.data?.type === 'event' && event.data?.jam;
+  const eventData = event.data?.type === 'event' ? event.data : undefined;
+  // Recurring jams resolve the occurrence from the event schedule so a
+  // re-opened occurrence is stamped with that occurrence (not whatever the
+  // query param carried); one-off jams have no schedule, so the raw param —
+  // the room key — stands in.
+  const startedOccurrenceId =
+    eventData && eventData.recurrence
+      ? occurrenceForJamStart(eventData, { recurrenceId })?.recurrenceId
+      : recurrenceId;
 
   if (!jam) {
     throw notFound({ errorKey: 'error.jamNotFound', parameters: { jamId } });
@@ -175,7 +184,7 @@ export const createJamToken = async (
       jamId,
       type: 'start',
       profileId: profile.id,
-      recurrenceId,
+      recurrenceId: startedOccurrenceId,
     });
   }
 
@@ -203,11 +212,16 @@ export const createJamToken = async (
   });
 
   if (!jamOpen) {
-    const eventData = event.data?.type === 'event' ? event.data : undefined;
-    const startedOccurrenceId = eventData
-      ? occurrenceForJamStart(eventData, { recurrenceId })?.recurrenceId
-      : undefined;
-    hub.emit('jamStarted', profile, event, startedOccurrenceId);
+    // The same resolved occurrence the persisted start row carries. The one
+    // difference: a one-off jam's raw room key is not an occurrence, so the
+    // notification omits it for those (a recurring jam's resolution is the
+    // identical value the start event was stamped with).
+    hub.emit(
+      'jamStarted',
+      profile,
+      event,
+      eventData?.recurrence ? startedOccurrenceId : undefined,
+    );
   }
 
   return accessToken.toJwt();

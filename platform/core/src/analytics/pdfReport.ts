@@ -24,7 +24,11 @@ const COLORS = {
   soft: '#f3f4f6',
   card: '#f9fafb',
   white: '#ffffff',
-  accent: '#2563eb',
+  // Semantic `primary` theme token (--color-primary in
+  // libraries/react-ui/src/styles/globals.css), not a direct Tailwind color —
+  // the PDF generator has no CSS runtime, so the token is resolved to its hex
+  // here. Keep in sync if the theme's primary changes.
+  accent: '#0c90a7',
   positive: '#059669',
   negative: '#dc2626',
 };
@@ -1000,6 +1004,45 @@ const drawEngagementPage = (
   ]);
 };
 
+const drawJamsPage = (layout: Layout, overview: AnalyticsOverview) => {
+  startSection(layout, 'Jams');
+  drawMetricCards(layout, [
+    {
+      label: 'Sessions',
+      value: formatNum(overview.metrics.jamSessions.value),
+      deltaPct: overview.metrics.jamSessions.deltaPct,
+      subtitle: 'This period',
+    },
+    {
+      label: 'Participants',
+      value: formatNum(overview.metrics.jamParticipants.value),
+      deltaPct: overview.metrics.jamParticipants.deltaPct,
+      subtitle: 'This period',
+    },
+    {
+      label: 'Minutes',
+      value: formatNum(overview.metrics.jamMinutes.value),
+      deltaPct: overview.metrics.jamMinutes.deltaPct,
+      subtitle: 'This period',
+    },
+    {
+      label: 'Peak concurrent',
+      value: formatNum(overview.metrics.jamPeakConcurrent.value),
+      deltaPct: overview.metrics.jamPeakConcurrent.deltaPct,
+      subtitle: 'This period',
+    },
+  ]);
+
+  drawSectionTitle(layout, 'Sessions over time');
+  drawBarChart(
+    layout,
+    overview.jamsOverTime.map((p) => ({
+      label: p.label,
+      value: p.value,
+    })),
+  );
+};
+
 const drawGroupsPage = (layout: Layout, overview: AnalyticsOverview) => {
   startSection(layout, 'Groups');
 
@@ -1087,6 +1130,7 @@ export const buildAnalyticsPdf = async (
   drawOverviewPage(layout, data.overview);
   drawMembersPage(layout, data.overview, data.growth);
   drawContentPage(layout, data.overview);
+  drawJamsPage(layout, data.overview);
   drawEngagementPage(layout, data.engagement);
   drawGroupsPage(layout, data.overview);
 

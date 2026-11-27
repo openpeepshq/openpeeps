@@ -1,4 +1,5 @@
-import { afterAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, describe, expect, it, vi } from 'vitest';
+import { addDays, parseISO } from 'date-fns';
 import pg from 'pg';
 import { empty } from '../db';
 import { closePostgres, pgConnectionString, pgPool } from '../db/pg/client';
@@ -24,7 +25,13 @@ const DAY = '2026-08-03';
  * is pinned on more than the posts branch (a broken join only for the non-post
  * branches — entries/repost/reply_to/bookmarks — would still fail the rollup).
  */
-const seed = async () => {
+const seed = async (): Promise<{
+  member1: string;
+  member2: string;
+  fed: string;
+  deleted: string;
+  guest: string;
+}> => {
   const pool = pgPool();
 
   const memberRes = await pool.query(
@@ -37,11 +44,13 @@ const seed = async () => {
 
   // Second live local member: part of the member population, but posts nothing
   // in the window — active_members must stay strictly below the population.
-  await pool.query(
+  const member2Res = await pool.query(
     `INSERT INTO profiles (id, handle, type, created_at, updated_at)
-     VALUES (gen_random_uuid(), 'member-2', 'local', $1, $1)`,
+     VALUES (gen_random_uuid(), 'member-2', 'local', $1, $1)
+     RETURNING id`,
     ['2026-07-01T00:00:00.000Z'],
   );
+  const member2Id = member2Res.rows[0].id;
 
   const fedRes = await pool.query(
     `INSERT INTO profiles (id, handle, type, created_at, updated_at)
@@ -101,6 +110,14 @@ const seed = async () => {
      VALUES (gen_random_uuid(), 'note', 'public', $1, $2, $2)`,
     [memberId, '2026-08-03T12:00:00.000Z'],
   );
+
+  return {
+    member1: memberId,
+    member2: member2Id,
+    fed: fedId,
+    deleted: deletedId,
+    guest: guestId,
+  };
 };
 
 // Integration tests require a real PostgreSQL instance.
@@ -122,9 +139,200 @@ const hasPostgres = await (async () => {
 
 const maybe = hasPostgres ? describe : describe.skip;
 
+// Jam fixture for the daily-compile wiring: seeds the same session shape as
+// the computeJamStats fixture in jamMetrics.test.ts, in addition to the
+// minimal actor population the active_members seed builds. Expected daily
+// values for DAY are hand-computed from this seed:
+//  - jam_sessions 4: POST_J1 (recurring, occurrence J_OCC), POST_J2
+//    (one-off, recurrence_id NULL → '' key), POST_J3 (midnight-spanning:
+//    starts 23:30 on DAY, closes 00:15 the next day) and POST_J4 (open:
+//    starts 10:25, never closes — its end is the pinned `now`). Distinct
+//    (post, occurrence).
+//  - jam_participants 3: member-1@J1, member-1@J2, member-2@J2 —
+//    member-1's second join of J1 is a reconnect (collapsed), the guest
+//    and the deleted local profile are excluded by the profiles join.
+//  - jam_unique_attendees 2: member-1, member-2.
+//  - jam_minutes 90: J1 10:00–10:30 (30), J2 10:20–10:35 (15), J3
+//    23:30→00:15 next day (45, attributed to the start day). The open J4
+//    contributes no minutes — an open session has no settled duration — but it
+//    does carry the `now`-capped concurrency interval below.
+//  - jam_peak_concurrent 3: J1 (10:00–10:30), J2 (10:20–10:35) and the open
+//    J4 (10:25–12:00, `now`-capped) all overlap from 10:25 to 10:30 — the open
+//    session's `now`-capped interval is what lifts the peak from 2 to 3.
+//  - jam_recordings_completed 1: exactly one completed recording is updated
+//    in the window (the in_progress one and the previous-day completed one
+//    are not counted).
+const seedJam = async (profileIds: {
+  member1: string;
+  member2: string;
+  guest: string;
+  deleted: string;
+}) => {
+  const pool = pgPool();
+  const POST_J1 = '01970000-0000-7000-8000-0000000000a1';
+  const POST_J2 = '01970000-0000-7000-8000-0000000000a2';
+  const POST_J3 = '01970000-0000-7000-8000-0000000000a3';
+  const POST_J4 = '01970000-0000-7000-8000-0000000000a4';
+  const J_OCC = '2026-08-03T10:00:00.000Z';
+
+  const ev = (
+    id: string,
+    post: string,
+    type: string,
+    at: string,
+    extra: { profileId?: string; recurrenceId?: string } = {},
+  ) =>
+    // recurrence_id and body.recurrenceId are written from the same value on
+    // purpose: this seed exercises the analytics SQL, not the rowToDocument
+    // column-overrides-body rule (which the jam_events read path never
+    // reaches here). That rule's intentional mismatch fixture lives in
+    // registry.jams.test.ts; do not diverge the two values in this seed.
+    pool.query(
+      `INSERT INTO jam_events (id, post_id, recurrence_id, body, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $5)`,
+      [
+        id,
+        post,
+        extra.recurrenceId ?? null,
+        JSON.stringify({ type, ...extra }),
+        at,
+      ],
+    );
+
+  const at = (time: string) => `${DAY}T${time}`;
+  const nextDay = (time: string) =>
+    `${addDays(parseISO(`${DAY}T00:00:00.000Z`), 1)
+      .toISOString()
+      .slice(0, 10)}T${time}`;
+  await ev(
+    '01970000-0000-7000-8000-0000000000e1',
+    POST_J1,
+    'start',
+    at('10:00:00.000Z'),
+    { recurrenceId: J_OCC },
+  );
+  await ev(
+    '01970000-0000-7000-8000-0000000000e2',
+    POST_J2,
+    'start',
+    at('10:20:00.000Z'),
+  );
+  // J3 spans midnight: it starts at the end of DAY and closes after the day
+  // boundary, so its 45 minutes must still be attributed to DAY.
+  await ev(
+    '01970000-0000-7000-8000-0000000000eb',
+    POST_J3,
+    'start',
+    at('23:30:00.000Z'),
+  );
+  await ev(
+    '01970000-0000-7000-8000-0000000000ec',
+    POST_J3,
+    'close',
+    nextDay('00:15:00.000Z'),
+  );
+  // J4 never closes: its interval end is the pinned wall clock (12:00), so it
+  // overlaps J1/J2 from 10:25 — the `now`-cap branch. An open session adds no
+  // settled minutes, only a `now`-capped concurrency interval.
+  await ev(
+    '01970000-0000-7000-8000-0000000000ed',
+    POST_J4,
+    'start',
+    at('10:25:00.000Z'),
+  );
+  await ev(
+    '01970000-0000-7000-8000-0000000000e3',
+    POST_J1,
+    'close',
+    at('10:30:00.000Z'),
+    { recurrenceId: J_OCC },
+  );
+  await ev(
+    '01970000-0000-7000-8000-0000000000e4',
+    POST_J2,
+    'close',
+    at('10:35:00.000Z'),
+  );
+  await ev(
+    '01970000-0000-7000-8000-0000000000e5',
+    POST_J1,
+    'join',
+    at('10:05:00.000Z'),
+    { profileId: profileIds.member1, recurrenceId: J_OCC },
+  );
+  await ev(
+    '01970000-0000-7000-8000-0000000000e6',
+    POST_J1,
+    'join',
+    at('10:15:00.000Z'),
+    { profileId: profileIds.member1, recurrenceId: J_OCC },
+  );
+  await ev(
+    '01970000-0000-7000-8000-0000000000e7',
+    POST_J2,
+    'join',
+    at('10:25:00.000Z'),
+    { profileId: profileIds.member2 },
+  );
+  await ev(
+    '01970000-0000-7000-8000-0000000000e8',
+    POST_J2,
+    'join',
+    at('10:28:00.000Z'),
+    { profileId: profileIds.member1 },
+  );
+  await ev(
+    '01970000-0000-7000-8000-0000000000e9',
+    POST_J2,
+    'join',
+    at('10:31:00.000Z'),
+    { profileId: profileIds.guest },
+  );
+  await ev(
+    '01970000-0000-7000-8000-0000000000ea',
+    POST_J2,
+    'join',
+    at('10:33:00.000Z'),
+    { profileId: profileIds.deleted },
+  );
+
+  const rec = (id: string, status: string, updatedAt: string) =>
+    pool.query(
+      `INSERT INTO jam_recordings (id, from_id, to_id, body, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [
+        id,
+        POST_J1,
+        'recording',
+        JSON.stringify({ status }),
+        '2026-08-01T00:00:00.000Z',
+        updatedAt,
+      ],
+    );
+  await rec(
+    '01970000-0000-7000-8000-0000000000f1',
+    'completed',
+    at('12:00:00.000Z'),
+  );
+  await rec(
+    '01970000-0000-7000-8000-0000000000f2',
+    'in_progress',
+    at('12:05:00.000Z'),
+  );
+  await rec(
+    '01970000-0000-7000-8000-0000000000f3',
+    'completed',
+    '2026-08-02T12:00:00.000Z',
+  );
+};
+
 maybe('compileAnalyticsDay', () => {
   afterAll(async () => {
+    vi.useRealTimers();
     await closePostgres();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('scopes the active_members rollup to live local members', async () => {
@@ -165,5 +373,41 @@ maybe('compileAnalyticsDay', () => {
     expect(Number(row.posts)).toBe(4);
     // No profile was created on the target day, so new_members stays 0.
     expect(Number(row.new_members)).toBe(0);
+  });
+
+  it('fills the daily row jam columns from the jam_events seed', async () => {
+    // The open session (J4) has no settled minutes, but its concurrency
+    // interval is capped at the compile wall clock, so pin `Date.now` to
+    // 12:00 UTC on the day under test: J4 (10:25, never closed) then overlaps
+    // J1/J2 from 10:25 to 10:30, lifting the peak to 3 deterministically.
+    vi.useFakeTimers('date');
+    vi.setSystemTime(new Date(`${DAY}T12:00:00.000Z`));
+    await empty();
+    const profileIds = await seed();
+    await seedJam(profileIds);
+    await compileAnalyticsDay(DAY);
+
+    const pool = pgPool();
+    const totals = await pool.query(
+      `SELECT jam_sessions, jam_participants, jam_unique_attendees,
+              jam_minutes, jam_peak_concurrent, jam_recordings_completed
+       FROM analytics_daily_totals WHERE day = $1`,
+      [DAY],
+    );
+    expect(totals.rows).toHaveLength(1);
+    const row = totals.rows[0] as Record<string, unknown>;
+
+    // The wiring: compileAnalyticsDay → computeJamStats → the day's INSERT.
+    // A broken column mapping (name typo, dropped field) would land 0 here
+    // while jamMetrics.test.ts still passes, so the values are the
+    // hand-computed ones from the seed, not a re-query of the same tables.
+    // J3 (midnight-spanning) pins the start-day attribution; J4 (open) pins
+    // the `now`-capped end branch and lifts the peak to 3.
+    expect(Number(row.jam_sessions)).toBe(4);
+    expect(Number(row.jam_participants)).toBe(3);
+    expect(Number(row.jam_unique_attendees)).toBe(2);
+    expect(Number(row.jam_minutes)).toBe(90);
+    expect(Number(row.jam_peak_concurrent)).toBe(3);
+    expect(Number(row.jam_recordings_completed)).toBe(1);
   });
 });

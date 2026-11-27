@@ -189,10 +189,24 @@ export const analyticsOverviewSchema = z.object({
     unverifiedMembers: analyticsMetricCardSchema,
     activeMembers: analyticsMetricCardSchema,
     totalGroups: analyticsMetricCardSchema,
+    /** Distinct (jam, occurrence) sessions started in the range. */
+    jamSessions: analyticsMetricCardSchema,
+    /** Distinct (member, jam) pairings from attended joins in the range. */
+    jamParticipants: analyticsMetricCardSchema,
+    /** Total minutes of jam sessions that started in the range. */
+    jamMinutes: analyticsMetricCardSchema,
+    /** Distinct members who joined at least one jam in the range. */
+    jamUniqueAttendees: analyticsMetricCardSchema,
+    /** Highest number of concurrent jam sessions overlapping in the range. */
+    jamPeakConcurrent: analyticsMetricCardSchema,
+    /** Jam recordings that reached "completed" in the range. */
+    jamRecordings: analyticsMetricCardSchema,
   }),
   postsOverTime: analyticsStackedPointSchema.array(),
   postTypes: analyticsPostTypeCountSchema.array(),
   activeUsersSeries: analyticsBucketedPointSchema.array(),
+  /** Jam sessions over time, bucketed like activeUsersSeries. */
+  jamsOverTime: analyticsBucketedPointSchema.array(),
   topMembers: analyticsMemberRowSchema.array(),
   topPosts: analyticsPostRowSchema.array(),
   /** @deprecated kept for report/CSV compatibility */
@@ -212,6 +226,8 @@ export const analyticsGrowthSchema = z.object({
     dau: analyticsMetricCardSchema,
     mau: analyticsMetricCardSchema,
     dauMau: analyticsMetricCardSchema,
+    /** Total minutes of jam sessions that started in the range. */
+    jamMinutes: analyticsMetricCardSchema,
   }),
   /** New-member counts for every day in the selected range. */
   signupsByDay: analyticsDayHeatmapCellSchema.array(),

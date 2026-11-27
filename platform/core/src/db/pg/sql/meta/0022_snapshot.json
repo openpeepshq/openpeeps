@@ -1,6 +1,6 @@
 {
   "id": "4a5587e2-755d-42e0-a8e0-4940132dbb19",
-  "prevId": "cbe40fa6-6a27-404d-82fd-48551e54d6d2",
+  "prevId": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -680,6 +680,12 @@
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
+        },
+        "recurrence_id": {
+          "name": "recurrence_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -688,6 +694,27 @@
           "columns": [
             {
               "expression": "post_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "jam_events_post_recurrence_idx": {
+          "name": "jam_events_post_recurrence_idx",
+          "columns": [
+            {
+              "expression": "post_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "recurrence_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -4340,6 +4367,34 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "jam_peak_concurrent": {
+          "name": "jam_peak_concurrent",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'::integer"
+        },
+        "jam_recordings_completed": {
+          "name": "jam_recordings_completed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'::integer"
+        },
+        "jam_minutes": {
+          "name": "jam_minutes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'::integer"
+        },
+        "jam_unique_attendees": {
+          "name": "jam_unique_attendees",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'::integer"
         }
       },
       "indexes": {},

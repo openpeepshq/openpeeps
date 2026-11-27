@@ -28,6 +28,16 @@ export const analyticsDailyTotals = pgTable('analytics_daily_totals', {
   viewEvents: integer('view_events').notNull().default(0),
   jamSessions: integer('jam_sessions').notNull().default(0),
   jamParticipants: integer('jam_participants').notNull().default(0),
+  /** Sum of per-occurrence (close − start) minutes, attributed to the start day. */
+  jamMinutes: integer('jam_minutes').notNull().default(0),
+  /** Distinct profiles with a persisted join event on the day. */
+  jamUniqueAttendees: integer('jam_unique_attendees').notNull().default(0),
+  /** Max overlap of the day's per-occurrence start…close intervals. */
+  jamPeakConcurrent: integer('jam_peak_concurrent').notNull().default(0),
+  /** jam_recordings edges reaching status 'completed' on the day. */
+  jamRecordingsCompleted: integer('jam_recordings_completed')
+    .notNull()
+    .default(0),
   compiledAt: timestamp('compiled_at', { withTimezone: true, mode: 'string' })
     .notNull()
     .default(sql`now()`),

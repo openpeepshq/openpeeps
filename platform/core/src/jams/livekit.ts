@@ -20,7 +20,11 @@ import { allpeepDb } from '../db';
 import { serverRootUrl } from '../server';
 import { uuidv7 } from 'uuidv7';
 import { createJamEvent, updateJamRecording } from './mutations';
-import { findActiveRecording, findActiveRtmpStream } from './finders';
+import {
+  findActiveRecording,
+  findActiveRtmpStream,
+  listJamStarts,
+} from './finders';
 import { cancelRecordingAutoStop, scheduleRecordingAutoStop } from './jobs';
 import { finalizeJamRecording } from './recording';
 import { jamRecordingUploadSecret } from './recordingUploadAuth';
@@ -399,13 +403,43 @@ export const stopRecording = async (
 };
 
 /**
- * Stops leftover egress and deletes an egress-only LiveKit room.
+ * Record the best-effort 'close' for a reclaimed (crashed) session so the
+ * start…close duration is not left dangling.
+ *
+ * The room name does not carry the occurrence (`jamRoomName` collapses it), so
+ * when the caller has no occurrence it is resolved from the jam's most recent
+ * persisted 'start' — the start of the crashed session. `computeJamStats`
+ * pairs a close with the start of the same occurrence, so a close written
+ * without the occurrence would latch onto the wrong one (or none) for a
+ * recurring series.
+ */
+export const writeReclaimClose = async (
+  jam: PostWithMeta,
+  recurrenceId?: string,
+): Promise<void> => {
+  const closeRecurrenceId =
+    recurrenceId ?? (await listJamStarts(jam.id))[0]?.recurrenceId;
+  await createJamEvent({
+    id: uuidv7(),
+    jamId: jam.id,
+    type: 'close',
+    profileId: 'system',
+    recurrenceId: closeRecurrenceId,
+  });
+};
+
+/**
+ * Stops leftover egress, deletes an egress-only LiveKit room, and emits a
+ * 'close' session event so an abandoned session (participants crashed before
+ * closeJam ran) still gets a duration in analytics instead of hanging open.
  * Do not call this for a room with zero participants — that room is still
- * inside emptyTimeout or departureTimeout. Safe to call repeatedly.
+ * inside emptyTimeout or departureTimeout. Safe to call repeatedly; a session
+ * with no matching 'start' simply records no duration.
  */
 export const reclaimOrphanJamRoom = async (
   jam: PostWithMeta,
   roomName = jam.id,
+  recurrenceId?: string,
 ) => {
   try {
     await stopRecording(jam);
@@ -427,6 +461,15 @@ export const reclaimOrphanJamRoom = async (
   } catch (e) {
     log.warn(
       `Failed to delete orphan jam room ${roomName}: ${(e as Error).message}`,
+    );
+  }
+  // Best-effort: a crashed session still records a close so the start…close
+  // duration is not left dangling. Never fail the reclaim on this.
+  try {
+    await writeReclaimClose(jam, recurrenceId);
+  } catch (e) {
+    log.warn(
+      `Failed to record close for reclaimed jam ${jam.id}: ${(e as Error).message}`,
     );
   }
 };
@@ -476,7 +519,7 @@ export const jamState = async (
     const identities = await listParticipantIdentities(roomName);
     const { humans, observers } = splitJamParticipants(identities);
     if (shouldReclaimJamRoom(room.numParticipants, humans.length)) {
-      void reclaimOrphanJamRoom(jam, roomName);
+      void reclaimOrphanJamRoom(jam, roomName, recurrenceId);
       return inactive;
     }
     return {

@@ -35,6 +35,9 @@ export const listJamEvents = (
 
 export const listJamStarts = (jamId: string) =>
   allpeepDb().then(({ db }) =>
+    // baseListJam orders by idDesc — the unique primary key is a total order,
+    // so bulk-inserted rows (same createdAt in one transaction) cannot flip
+    // order and a downstream start/close pairing stays stable.
     baseListJam({ jamId, type: 'start' }, { limit: 200 }).all(db),
   );
 

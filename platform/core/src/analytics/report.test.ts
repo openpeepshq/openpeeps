@@ -84,6 +84,12 @@ const overviewFixture: AnalyticsOverview = {
     totalMembers: metric(120, 100),
     activeMembers: metric(45, 40),
     totalGroups: metric(8, 7),
+    jamSessions: metric(6, 5),
+    jamParticipants: metric(12, 10),
+    jamMinutes: metric(180, 150),
+    jamUniqueAttendees: metric(9, 8),
+    jamPeakConcurrent: metric(3, 2),
+    jamRecordings: metric(2, 1),
   },
   postsOverTime: [
     {
@@ -118,6 +124,10 @@ const overviewFixture: AnalyticsOverview = {
   activeUsersSeries: [
     { day: '2026-07-01', label: 'W27', value: 20 },
     { day: '2026-07-08', label: 'W28', value: 25 },
+  ],
+  jamsOverTime: [
+    { day: '2026-07-01', label: 'W27', value: 3 },
+    { day: '2026-07-08', label: 'W28', value: 4 },
   ],
   topMembers: [
     {

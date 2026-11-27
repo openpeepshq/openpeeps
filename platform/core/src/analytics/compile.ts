@@ -5,6 +5,7 @@ import { analyticsDailyTotals } from '../db/pg/schema/analytics';
 import { logger } from '../log';
 import { invalidateAnalyticsCache } from './cache';
 import { localMemberScope } from './memberScope';
+import { computeJamStats } from './jamMetrics';
 
 const log = logger('app:analytics:compile');
 
@@ -27,7 +28,11 @@ const countScalar = async (db: PgDb, query: ReturnType<typeof sql>) => {
 export const compileAnalyticsDay = async (day: string): Promise<void> => {
   const db = await database();
   const { start, end } = dayBounds(day);
-  const now = new Date().toISOString();
+  // Capture wall-clock once at entry: it stamps the rollup row AND caps the
+  // open-session end inside computeJamStats, so one compile pass is
+  // internally consistent.
+  const compileTimestampMs = Date.now();
+  const now = new Date(compileTimestampMs).toISOString();
 
   const newMembers = await countScalar(
     db,
@@ -90,19 +95,14 @@ export const compileAnalyticsDay = async (day: string): Promise<void> => {
         where created_at >= ${start} and created_at < ${end}`,
   );
 
-  const jamSessions = await countScalar(
-    db,
-    sql`select count(*)::int as c from jam_events
-        where deleted_at is null and body->>'type' = 'start'
-          and created_at >= ${start} and created_at < ${end}`,
-  );
-
-  const jamParticipants = await countScalar(
-    db,
-    sql`select count(*)::int as c from jam_events
-        where deleted_at is null and body->>'type' = 'join'
-          and created_at >= ${start} and created_at < ${end}`,
-  );
+  const {
+    jamSessions,
+    jamParticipants,
+    jamUniqueAttendees,
+    jamMinutes,
+    jamPeakConcurrent,
+    jamRecordingsCompleted,
+  } = await computeJamStats(db, start, end, compileTimestampMs);
 
   // Scope to the same population as newMembers/totalMembersAt (local,
   // non-deleted profiles) so the daily active_members rollup — and hence the
@@ -152,6 +152,10 @@ export const compileAnalyticsDay = async (day: string): Promise<void> => {
       viewEvents,
       jamSessions,
       jamParticipants,
+      jamMinutes,
+      jamUniqueAttendees,
+      jamPeakConcurrent,
+      jamRecordingsCompleted,
       compiledAt: now,
     })
     .onConflictDoUpdate({
@@ -170,6 +174,10 @@ export const compileAnalyticsDay = async (day: string): Promise<void> => {
         viewEvents,
         jamSessions,
         jamParticipants,
+        jamMinutes,
+        jamUniqueAttendees,
+        jamPeakConcurrent,
+        jamRecordingsCompleted,
         compiledAt: now,
       },
     });

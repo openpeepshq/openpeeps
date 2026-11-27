@@ -154,6 +154,123 @@ export const AnalyticsOverviewPage = () => {
         />
       </div>
 
+      <AnalyticsSection
+        title={t('admin.analytics.jams', { defaultValue: 'Jams' })}
+        info={info(
+          'jams',
+          'Jam activity in the selected range. Sessions are distinct (jam, occurrence) starts, participants are distinct (member, jam) pairings, minutes are session durations attributed to the day the session started, and unique attendees are distinct members who joined at least one jam. The time series counts sessions per bucket. Note: session and participant counts are live distinct counts, while the chart and CSV re-bucket the daily rollup — a bucket can hold a session whose duration or attendees span multiple days, so the two views can legitimately disagree on the edges.',
+        )}
+      >
+        <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <MetricCard
+            label={t('admin.analytics.metrics.jamSessions', {
+              defaultValue: 'Jam sessions',
+            })}
+            value={data.metrics.jamSessions.value}
+            deltaPct={data.metrics.jamSessions.deltaPct}
+            subtitle={t('admin.analytics.period.thisPeriod', {
+              defaultValue: 'This period',
+            })}
+            info={info(
+              'jamSessions',
+              'Distinct (jam, occurrence) sessions started in the selected range. A recurring jam that met in 12 occurrences counts as 12 sessions.',
+            )}
+          />
+          <MetricCard
+            label={t('admin.analytics.metrics.jamParticipants', {
+              defaultValue: 'Jam participants',
+            })}
+            value={data.metrics.jamParticipants.value}
+            deltaPct={data.metrics.jamParticipants.deltaPct}
+            subtitle={t('admin.analytics.period.thisPeriod', {
+              defaultValue: 'This period',
+            })}
+            info={info(
+              'jamParticipants',
+              'Distinct (member, jam) pairings from attended joins in the selected range. The same member attending three different jams counts as three pairings.',
+            )}
+          />
+          <MetricCard
+            label={t('admin.analytics.metrics.jamMinutes', {
+              defaultValue: 'Jam minutes',
+            })}
+            value={data.metrics.jamMinutes.value}
+            deltaPct={data.metrics.jamMinutes.deltaPct}
+            subtitle={t('admin.analytics.period.thisPeriod', {
+              defaultValue: 'This period',
+            })}
+            info={info(
+              'jamMinutes',
+              'Total minutes of jam sessions that started in the selected range (close minus start per occurrence, clamped at zero).',
+            )}
+          />
+          <MetricCard
+            label={t('admin.analytics.metrics.jamUniqueAttendees', {
+              defaultValue: 'Unique attendees',
+            })}
+            value={data.metrics.jamUniqueAttendees.value}
+            deltaPct={data.metrics.jamUniqueAttendees.deltaPct}
+            subtitle={t('admin.analytics.period.thisPeriod', {
+              defaultValue: 'This period',
+            })}
+            info={info(
+              'jamUniqueAttendees',
+              'Distinct members who joined at least one jam in the selected range, regardless of how many jams they attended.',
+            )}
+          />
+          <MetricCard
+            label={t('admin.analytics.metrics.jamPeakConcurrent', {
+              defaultValue: 'Peak concurrent',
+            })}
+            value={data.metrics.jamPeakConcurrent.value}
+            deltaPct={data.metrics.jamPeakConcurrent.deltaPct}
+            subtitle={t('admin.analytics.period.thisPeriod', {
+              defaultValue: 'This period',
+            })}
+            info={info(
+              'jamPeakConcurrent',
+              'Highest number of jam sessions overlapping at the same moment in the selected range.',
+            )}
+          />
+          <MetricCard
+            label={t('admin.analytics.metrics.jamRecordings', {
+              defaultValue: 'Completed recordings',
+            })}
+            value={data.metrics.jamRecordings.value}
+            deltaPct={data.metrics.jamRecordings.deltaPct}
+            subtitle={t('admin.analytics.period.thisPeriod', {
+              defaultValue: 'This period',
+            })}
+            info={info(
+              'jamRecordings',
+              'Jam recordings that reached the completed state in the selected range.',
+            )}
+          />
+        </div>
+      </AnalyticsSection>
+
+      <AnalyticsSection
+        title={t('admin.analytics.jamsOverTime', {
+          defaultValue: 'Jam sessions over time',
+        })}
+        info={info(
+          'jamsOverTime',
+          'Jam sessions started in each time bucket of the range (sessions whose start fell in the bucket).',
+        )}
+        csvFilename="jam-sessions-over-time.csv"
+        csvRows={[
+          ['bucket', 'label', 'jam_sessions'],
+          ...data.jamsOverTime.map((p) => [p.day, p.label, p.value]),
+        ]}
+      >
+        <AnalyticsLineChart
+          data={data.jamsOverTime.map((p) => ({
+            label: p.label,
+            value: p.value,
+          }))}
+        />
+      </AnalyticsSection>
+
       <div className="grid min-w-0 gap-4 lg:grid-cols-3">
         <AnalyticsSection
           className="lg:col-span-2"

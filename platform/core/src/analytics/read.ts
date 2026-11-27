@@ -31,6 +31,7 @@ import {
 import { metricCard, sumSeries, averageSeries } from './metrics';
 import { isPublicAnalyticsGroup } from './privacy';
 import { localMemberScope } from './memberScope';
+import { computeJamStats } from './jamMetrics';
 
 const POST_TYPE_KEYS = [
   'jam',
@@ -123,20 +124,28 @@ const seriesFromTotals = (
   return days.map((day) => ({ day, value: map.get(day) ?? 0 }));
 };
 
+type TotalsColumn =
+  | 'newMembers'
+  | 'activeMembers'
+  | 'posts'
+  | 'likes'
+  | 'comments'
+  | 'reposts'
+  | 'bookmarks'
+  | 'dms'
+  | 'uniqueViewers'
+  | 'viewEvents'
+  | 'jamSessions'
+  | 'jamParticipants'
+  | 'jamMinutes'
+  | 'jamUniqueAttendees'
+  | 'jamPeakConcurrent'
+  | 'jamRecordingsCompleted';
+
 const loadTotalsSeries = async (
   from: string,
   to: string,
-  column:
-    | 'newMembers'
-    | 'activeMembers'
-    | 'posts'
-    | 'likes'
-    | 'comments'
-    | 'reposts'
-    | 'bookmarks'
-    | 'dms'
-    | 'uniqueViewers'
-    | 'viewEvents',
+  column: TotalsColumn,
 ): Promise<AnalyticsSeriesPoint[]> => {
   const db = await database();
   const days = eachUtcDay(from, to);
@@ -157,21 +166,8 @@ const loadTotalsSeries = async (
   );
 };
 
-const sumColumn = async (
-  from: string,
-  to: string,
-  column:
-    | 'newMembers'
-    | 'activeMembers'
-    | 'posts'
-    | 'likes'
-    | 'comments'
-    | 'reposts'
-    | 'bookmarks'
-    | 'dms'
-    | 'uniqueViewers'
-    | 'viewEvents',
-) => sumSeries(await loadTotalsSeries(from, to, column));
+const sumColumn = async (from: string, to: string, column: TotalsColumn) =>
+  sumSeries(await loadTotalsSeries(from, to, column));
 
 const totalMembersAt = async (day: string): Promise<number> => {
   const db = await database();
@@ -735,7 +731,11 @@ export const getAnalyticsOverview = async (
   const range = await resolveQueryRange(query);
   // Unique people in the window — summing daily rollups would count a
   // member once per day they were active.
-  return withCache('overview-v7', range.from, range.to, async () => {
+  return withCache('overview-v8', range.from, range.to, async () => {
+    // Captured once so both computeJamStats calls share the same open-session
+    // cap — the pass is internally consistent and does not shift as real time
+    // elapses between the two calls before the result is cached.
+    const now = Date.now();
     const [
       activeMembersSeries,
       postsSeries,
@@ -760,6 +760,12 @@ export const getAnalyticsOverview = async (
       unverifiedMembers,
       prevVerifiedMembers,
       prevUnverifiedMembers,
+      jamSessionsSeries,
+      jamParticipantsSeries,
+      jamMinutesSeries,
+      jamRecordingsSeries,
+      curJam,
+      prevJam,
     ] = await Promise.all([
       loadTotalsSeries(range.from, range.to, 'activeMembers'),
       loadTotalsSeries(range.from, range.to, 'posts'),
@@ -784,6 +790,22 @@ export const getAnalyticsOverview = async (
       unverifiedMembersAt(range.to),
       verifiedMembersAt(range.previousTo),
       unverifiedMembersAt(range.previousTo),
+      loadTotalsSeries(range.from, range.to, 'jamSessions'),
+      loadTotalsSeries(range.from, range.to, 'jamParticipants'),
+      loadTotalsSeries(range.from, range.to, 'jamMinutes'),
+      loadTotalsSeries(range.from, range.to, 'jamRecordingsCompleted'),
+      computeJamStats(
+        await database(),
+        `${range.from}T00:00:00.000Z`,
+        exclusiveEnd(range.to),
+        now,
+      ),
+      computeJamStats(
+        await database(),
+        `${range.previousFrom}T00:00:00.000Z`,
+        exclusiveEnd(range.previousTo),
+        now,
+      ),
     ]);
 
     const totalPosts = sumSeries(postsSeries);
@@ -834,6 +856,8 @@ export const getAnalyticsOverview = async (
       buckets,
     );
 
+    const jamsOverTime = aggregateSeriesIntoBuckets(jamSessionsSeries, buckets);
+
     const engagementRateSeries = postsSeries.map((p, i) => {
       const engagements =
         (likesSeries[i]?.value ?? 0) + (commentsSeries[i]?.value ?? 0);
@@ -883,10 +907,67 @@ export const getAnalyticsOverview = async (
           activeMembersSeries,
         ),
         totalGroups: metricCard('totalGroups', totalGroups, prevTotalGroups),
+        jamSessions: metricCard(
+          'jamSessions',
+          curJam.jamSessions,
+          prevJam.jamSessions,
+          jamSessionsSeries,
+        ),
+        jamParticipants: metricCard(
+          'jamParticipants',
+          curJam.jamParticipants,
+          prevJam.jamParticipants,
+          jamParticipantsSeries,
+        ),
+        jamMinutes: metricCard(
+          'jamMinutes',
+          curJam.jamMinutes,
+          prevJam.jamMinutes,
+          jamMinutesSeries,
+        ),
+        jamUniqueAttendees: metricCard(
+          'jamUniqueAttendees',
+          curJam.jamUniqueAttendees,
+          prevJam.jamUniqueAttendees,
+        ),
+        jamPeakConcurrent: metricCard(
+          'jamPeakConcurrent',
+          curJam.jamPeakConcurrent,
+          prevJam.jamPeakConcurrent,
+        ),
+        /**
+         * The jam cards intentionally mix two sources (kept, not unified, on
+         * purpose). jamSessions/jamParticipants/jamMinutes/jamUniqueAttendees/
+         * jamPeakConcurrent come from live computeJamStats; only jamRecordings
+         * sums the daily rollups. The split is deliberate, not an oversight:
+         * the daily rollup rows do not carry unique-attendees or
+         * peak-concurrent, and neither can be reconstructed by summing day
+         * rows (a person in 3 jams is 3 in rollup sums but 1 here; peak
+         * concurrent is a cross-day max), so those cards must stay live.
+         * jamRecordings is the only card whose value is a plain sum of the
+         * daily rollup.
+         *
+         * The same split also explains value-vs-series and value-vs-CSV
+         * reconciliation. For the live cards (jamSessions/jamParticipants/
+         * jamMinutes) the `value` is a live distinct count over the raw
+         * jam_events rows, while `series` (and the re-bucketed CSV columns
+         * jam_sessions/jam_participants/jam_minutes) is a sum of the
+         * pre-aggregated daily rollup — the two can legitimately disagree on
+         * the edges (a session whose duration or attendees span days, a close
+         * that lands on a different day than its start). Only jamRecordings
+         * has value === sum(series), because it is defined as the rollup sum.
+         */
+        jamRecordings: metricCard(
+          'jamRecordings',
+          sumSeries(jamRecordingsSeries),
+          prevJam.jamRecordingsCompleted,
+          jamRecordingsSeries,
+        ),
       },
       postsOverTime,
       postTypes,
       activeUsersSeries,
+      jamsOverTime,
       topMembers: topMemberRows,
       topPosts: topPostRows,
       activitySeries: activeMembersSeries,
@@ -902,7 +983,7 @@ export const getAnalyticsGrowth = async (
   query: AnalyticsDateQuery = {},
 ): Promise<AnalyticsGrowth> => {
   const range = await resolveQueryRange(query);
-  return withCache('growth-v7', range.from, range.to, async () => {
+  return withCache('growth-v8', range.from, range.to, async () => {
     const db = await database();
     const mauFrom = rollingMauFrom(range.to);
     const prevMauFrom = rollingMauFrom(range.previousTo);
@@ -915,6 +996,8 @@ export const getAnalyticsGrowth = async (
       prevMau,
       compiledAt,
       recentRows,
+      jamMinutesSeries,
+      prevJamMinutes,
     ] = await Promise.all([
       loadTotalsSeries(range.from, range.to, 'newMembers'),
       loadTotalsSeries(range.from, range.to, 'activeMembers'),
@@ -935,6 +1018,8 @@ export const getAnalyticsGrowth = async (
         order by p.created_at desc
         limit 25
       `),
+      loadTotalsSeries(range.from, range.to, 'jamMinutes'),
+      sumColumn(range.previousFrom, range.previousTo, 'jamMinutes'),
     ]);
 
     const newSignups = sumSeries(newMembersSeries);
@@ -978,6 +1063,16 @@ export const getAnalyticsGrowth = async (
         dau: metricCard('dau', dau, prevDau, activeMembersSeries),
         mau: metricCard('mau', mau, prevMau),
         dauMau: metricCard('dauMau', dauMau, prevDauMau),
+        // Rollup-sourced previous period, matching the rollup sumSeries(value)
+        // above — the overview jamMinutes card's previousValue is a live
+        // computeJamStats count, so the two previousPeriod values are
+        // intentionally different sources (see the overview JSDoc).
+        jamMinutes: metricCard(
+          'jamMinutes',
+          sumSeries(jamMinutesSeries),
+          prevJamMinutes,
+          jamMinutesSeries,
+        ),
       },
       signupsByDay,
       recentSignups,
@@ -1153,8 +1248,32 @@ export const exportAnalyticsCsv = async (
   query: AnalyticsDateQuery = {},
 ): Promise<string> => {
   const overview = await getAnalyticsOverview(query);
+  // The CSV is one row per chart bucket; the jam metric cards carry daily
+  // series, so re-bucket them to align with the active-users rows. This makes
+  // the CSV columns re-bucketed *rollup* sums while each card's value/
+  // previousValue is a live distinct count — different aggregations, so a CSV
+  // row or chart bucket can legitimately not reconcile with its card's value
+  // (e.g. cross-day attendees/peak). All three re-bucketed jam columns
+  // (jam_sessions, jam_participants, jam_minutes) carry this difference. See
+  // the jamRecordings JSDoc and computeJamStats for the full rationale.
+  const { buckets } = selectChartBuckets(
+    overview.range.from,
+    overview.range.to,
+  );
+  const jamSessionsByBucket = aggregateSeriesIntoBuckets(
+    overview.metrics.jamSessions.series ?? [],
+    buckets,
+  );
+  const jamParticipantsByBucket = aggregateSeriesIntoBuckets(
+    overview.metrics.jamParticipants.series ?? [],
+    buckets,
+  );
+  const jamMinutesByBucket = aggregateSeriesIntoBuckets(
+    overview.metrics.jamMinutes.series ?? [],
+    buckets,
+  );
   const lines = [
-    'bucket,label,active_members,posts,jams,articles,notes,polls,events,resources',
+    'bucket,label,active_members,posts,jams,articles,notes,polls,events,resources,jam_sessions,jam_participants,jam_minutes',
     ...overview.activeUsersSeries.map((p, i) => {
       const posts = overview.postsOverTime[i];
       const postTotal = posts
@@ -1176,6 +1295,9 @@ export const exportAnalyticsCsv = async (
         posts?.poll ?? 0,
         posts?.event ?? 0,
         posts?.resource ?? 0,
+        jamSessionsByBucket[i]?.value ?? 0,
+        jamParticipantsByBucket[i]?.value ?? 0,
+        jamMinutesByBucket[i]?.value ?? 0,
       ].join(',');
     }),
   ];

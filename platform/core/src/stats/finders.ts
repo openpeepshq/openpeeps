@@ -8,6 +8,7 @@ import {
   publicPostWithActivityScoreSchema,
 } from '@openpeepshq/common/types';
 import { sub } from 'date-fns';
+import { sql } from 'drizzle-orm';
 import type { PgDb } from '../db/pg/client';
 import { hostResources } from '../server/status';
 import { baseProfilesMapping } from '../profiles';
@@ -26,10 +27,6 @@ import {
   repostsMapping,
 } from './mapping';
 import { compileStatsWithAll, createdAtFilter } from './helpers';
-import {
-  jamParticipantsMapping,
-  jamSessionStartsMapping,
-} from '../jams/mapping';
 import { edgeFilters, postFilters, profileFilters } from '../db/pg/filters';
 import { sorts } from '../db/pg/queries';
 import { entries, follows, repost } from '../db/pg/schema/edges';
@@ -125,17 +122,47 @@ export const serverCounts = async (): Promise<ServerCounts> =>
     };
   });
 
-const jamSessionStarts = (db: PgDb, start?: Date, end?: Date) =>
-  jamSessionStartsMapping
-    .filter(createdAtFilter(jamEvents, start, end))
-    .count(db);
+// Distinct (post, occurrence): a recurring series counts N sessions, not 1.
+// The time bounds come from the shared createdAtFilter so day/week/month
+// windows behave like every other stat.
+const jamSessionStarts = (db: PgDb, start?: Date, end?: Date) => {
+  const bounds = createdAtFilter(jamEvents, start, end);
+  return db
+    .select({
+      value: sql<number>`count(distinct (post_id, coalesce(recurrence_id, '')))::int`,
+    })
+    .from(jamEvents)
+    .where(
+      bounds
+        ? sql`deleted_at is null and body->>'type' = 'start' and ${bounds.where}`
+        : sql`deleted_at is null and body->>'type' = 'start'`,
+    )
+    .then((rows) => Number(rows[0]?.value ?? 0));
+};
 export const jamSessionsStats = (): Promise<ObjectStatsWithAll> =>
   compileStatsWithAll(jamSessionStarts);
 
-const jamParticipants = (db: PgDb, start?: Date, end?: Date) =>
-  jamParticipantsMapping
-    .filter(createdAtFilter(jamEvents, start, end))
-    .count(db);
+// Distinct profiles who joined: reconnects/tabs no longer inflate the count.
+// Joins profiles to count only live local profiles — guests and deleted
+// profiles are excluded, matching the analytics dashboard's computeJamStats
+// so both admin surfaces show the same number for the same window.
+const jamParticipants = (db: PgDb, start?: Date, end?: Date) => {
+  const bounds = createdAtFilter(jamEvents, start, end);
+  const scope = sql`jam_events.deleted_at is null
+        and jam_events.body->>'type' = 'join'
+        and profiles.type = 'local' and profiles.deleted_at is null`;
+  return db
+    .select({
+      value: sql<number>`count(distinct jam_events.body->>'profileId')::int`,
+    })
+    .from(jamEvents)
+    .innerJoin(
+      profiles,
+      sql`${profiles.id}::text = ${jamEvents.body}->>'profileId'`,
+    )
+    .where(bounds ? sql`${scope} and ${bounds.where}` : scope)
+    .then((rows) => Number(rows[0]?.value ?? 0));
+};
 export const jamParticipantsStats = (): Promise<ObjectStatsWithAll> =>
   compileStatsWithAll(jamParticipants);
 

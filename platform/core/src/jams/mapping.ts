@@ -17,24 +17,6 @@ export const jamEventsMapping = map<JamEventData, JamEvent>({
   collection: collectionInfos.jamEventsCollection.name,
 });
 
-export const jamSessionStartsMapping = jamEventsMapping.filter({
-  matches: {
-    type: 'start',
-  },
-});
-
-export const jamSessionClosesMapping = jamEventsMapping.filter({
-  matches: {
-    type: 'close',
-  },
-});
-
-export const jamParticipantsMapping = jamEventsMapping.filter({
-  matches: {
-    type: 'join',
-  },
-});
-
 export const jamRecordingRelation: RelationWithMapping<
   PostWithMeta,
   JamRecording

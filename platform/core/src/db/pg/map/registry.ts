@@ -138,11 +138,14 @@ const hashtagsSplit = (data: Record<string, unknown>) => {
 
 /** Older jam events stored jamId; the column is post_id. */
 const jamEventsSplit = (data: Record<string, unknown>) => {
-  const { postId, jamId, ...rest } = data;
+  const { postId, jamId, recurrenceId, ...rest } = data;
   const scalars: Record<string, unknown> = {};
   const resolvedPostId = postId ?? jamId;
   if (resolvedPostId !== undefined) {
     scalars.postId = resolvedPostId;
+  }
+  if (recurrenceId !== undefined) {
+    scalars.recurrenceId = recurrenceId;
   }
   return { scalars, body: { ...rest } };
 };
@@ -564,6 +567,13 @@ export const rowToDocument = (
         {
           jamId: row.postId,
           ...((row.body ?? {}) as Record<string, unknown>),
+          // recurrence_id is the denormalized source of truth; a stale body
+          // value from a pre-migration write must not shadow it. The column is
+          // null for one-off jams, so only a real occurrence id overrides the
+          // body (an explicit null would fail the optional-string schema).
+          ...(typeof row.recurrenceId === 'string'
+            ? { recurrenceId: row.recurrenceId }
+            : {}),
         },
         timestamps,
       );

@@ -205,6 +205,9 @@ export const closeJam = async (
     return undefined;
   }
 
+  // jamRoomName drops the occurrence (recurring jams share one LiveKit room
+  // per event), so stopRecording/stopRtmpStream/deleteRoom resolve the same
+  // room as the live jam while this close event keeps its own recurrenceId.
   await stopRecording(jamEvent, recurrenceId);
   await stopRtmpStream(jamEvent);
 
