@@ -94,6 +94,8 @@ export { AdminReports } from './admin/Reports';
 export { AdminApiKeys } from './admin/ApiKeys';
 export { AdminPlugins } from './admin/Plugins';
 export { AdminDiagnostics } from './admin/Diagnostics';
+export { AdminDiagnosticsAi } from './admin/DiagnosticsAi';
+export { AdminConfigurationAi } from './admin/ConfigurationAi';
 export { AdminDiagnosticsEmail } from './admin/DiagnosticsEmail';
 export { AdminDiagnosticsLivekit } from './admin/DiagnosticsLivekit';
 export { AdminDiagnosticsLogs } from './admin/DiagnosticsLogs';

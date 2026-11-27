@@ -64,6 +64,14 @@ From the repo root:
    `postgresql://openpeeps:openpeeps@localhost:5432/openpeeps`). Drizzle
    migrations run automatically when the server starts.
 
+   The local and production Postgres images are
+   [`pgvector/pgvector:pg16`](https://hub.docker.com/r/pgvector/pgvector)
+   because the schema includes a migration that runs
+   `CREATE EXTENSION IF NOT EXISTS vector` and an HNSW (halfvec) embedding
+   index. A stock `postgres:16` image fails that migration, so point
+   `DATABASE_URL` at a pgvector-enabled instance (or the compose service) if
+   you reuse an existing database.
+
    Mailpit catches outbound mail: SMTP on `localhost:1025`, UI at
    `http://localhost:8025`. `.env.dev.example` points SMTP at Mailpit.
 

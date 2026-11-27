@@ -1,5 +1,6 @@
 import type { ZodObject, ZodRawShape } from '@openpeepshq/common/zod';
 import {
+  aiConfigSanitizedSchema,
   capabilitiesConfigSchema,
   communityConfigSanitizedSchema,
   coreConfigSanitizedSchema,
@@ -9,6 +10,7 @@ const configSchemas: Record<string, ZodObject<ZodRawShape>> = {
   'openpeeps-core': coreConfigSanitizedSchema,
   'openpeeps-community': communityConfigSanitizedSchema,
   'openpeeps-capabilities': capabilitiesConfigSchema,
+  'openpeeps-ai': aiConfigSanitizedSchema,
 };
 
 /** Client-side schemas registered in `@openpeepshq/core` config (mirrors Svelte admin). */

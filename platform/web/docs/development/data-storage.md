@@ -9,6 +9,11 @@ Schema design and migration rationale are documented in `platform/core/docs/post
 PostgreSQL stores documents (accounts, profiles, posts, groups, …) in typed
 tables and relationships in edge/join tables. Drizzle ORM defines the schema.
 
+Self-hosted databases need the [pgvector](https://github.com/pgvector/pgvector)
+extension. The compose files and CI use `pgvector/pgvector:pg16`. The
+`enable_pgvector` migration runs `CREATE EXTENSION IF NOT EXISTS vector`.
+Plain `postgres:16` images fail that migration.
+
 Most existing domain code still loads entities through the document/edge
 compatibility layer in `platform/core/src/db/pg/map/`. **New features and
 hot-path work should prefer Drizzle / SQL-native queries** (see

@@ -2433,6 +2433,10 @@
       "title": "Server Settings",
       "description": "Configure your community's server.  This is where you can connect LiveKit, Sentry and other critical services, as well as add Apple and Google Play store links and push notification config."
     },
+    "ai": {
+      "title": "AI",
+      "description": "Configure chat, embedding, transcription, and sentiment providers. Features stay off until a provider is set and its probe passes."
+    },
     "i18n": {
       "title": "Custom Text",
       "description": "Change the text throughout the community",
@@ -2462,6 +2466,17 @@
       "path": "Path",
       "status": "Status",
       "duration": "Duration"
+    },
+    "ai": {
+      "title": "AI",
+      "description": "Whether chat, embedding, transcription, and sentiment probes passed in this process.",
+      "loadError": "Could not load the AI probe.",
+      "embedding": "Embedding",
+      "transcription": "Transcription",
+      "sentiment": "Sentiment",
+      "language": "Language",
+      "rag": "Retrieval",
+      "topics": "Topics"
     },
     "email": {
       "title": "Email",

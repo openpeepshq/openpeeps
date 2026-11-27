@@ -148,6 +148,20 @@
       "when": 1795656890705,
       "tag": "0022_add_article_slug_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1795694714230,
+      "tag": "0024_enable_pgvector",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1795694714240,
+      "tag": "0025_add_ai_vector_store",
+      "breakpoints": true
     }
   ]
 }

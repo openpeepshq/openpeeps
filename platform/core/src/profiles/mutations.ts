@@ -88,7 +88,9 @@ export const updateProfile = async (
   if (data.handle) {
     await profilesCache.del(data.handle);
   }
-  return profilesMapping.update(db, profileId, data);
+  const updated = await profilesMapping.update(db, profileId, data);
+  if (updated) await hub.emit('profileUpdated', updated);
+  return updated;
 };
 
 export const pinPostOnProfile = async (

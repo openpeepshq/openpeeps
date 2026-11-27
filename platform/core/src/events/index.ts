@@ -18,7 +18,20 @@ const log = logger('app:events');
 
 export type CoreEvents = {
   profileCreated: (profile: Profile) => void;
+  /** Emitted after any profile mutation (display name, bio, handle, …). */
+  profileUpdated: (profile: Profile) => void;
+  /**
+   * Emitted when a profile's embeddable content may have changed outside the
+   * local create/update paths — currently the federation actor upsert, which
+   * writes `profilesMapping` directly and must not fire the local
+   * `profileCreated` side effects (admin "new user" notice, auto-follow).
+   * Consumers that key off searchable profile text (the AI data plane)
+   * re-embed from here.
+   */
+  profileContentChanged: (profile: Profile) => void;
   postCreated: (post: PostWithMeta) => void;
+  /** Second arg is the jam moderator id list from before this save. */
+  postUpdated: (post: PostWithMeta, previousModeratorIds: string[]) => void;
   jamRecordingCompleted: (recording: JamRecordingWithMeta) => void;
   followCreated: (follower: Profile, followed: Profile) => void;
   /** Follow edge removed (unfollow). Federation reacts by sending Undo(Follow) for outbound follows only. */
@@ -54,7 +67,10 @@ export type CoreEventKey = keyof CoreEvents;
 // event key is present and that no unexpected keys can slip in.
 const validEventKeyMap = {
   profileCreated: true,
+  profileUpdated: true,
+  profileContentChanged: true,
   postCreated: true,
+  postUpdated: true,
   jamRecordingCompleted: true,
   followCreated: true,
   followDeleted: true,

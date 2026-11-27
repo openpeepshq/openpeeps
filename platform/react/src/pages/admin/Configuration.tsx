@@ -42,6 +42,10 @@ export function AdminConfiguration() {
         action="/admin/configuration/server-settings"
       />
       <ConfigMenuButton
+        translationPrefix="configuration.ai"
+        action="/admin/configuration/ai"
+      />
+      <ConfigMenuButton
         translationPrefix="configuration.email"
         action="/admin/configuration/email"
       />

@@ -196,6 +196,10 @@ const adminDiagnostics = (client: OpenpeepsClientInstance) => ({
     apiHook(client.admin.diagnostics.performance, {
       refetchInterval: 15_000,
     }),
+  useAiProbe: () =>
+    apiHook(client.admin.diagnostics.ai, {
+      refetchInterval: 15_000,
+    }),
   useLivekitDiagnosis: () => apiHook(client.admin.diagnostics.livekit),
   useJobDetail: (queue: string, jobId: string) =>
     apiHook(client.admin.diagnostics.jobs.jobDetail, {

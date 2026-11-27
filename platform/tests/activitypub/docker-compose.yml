@@ -104,7 +104,7 @@ services:
   # PostgreSQL — shared, creates per-instance databases via init script
   # ────────────────────────────────────────────────────────────────────
   postgres:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg16
     networks:
       ap-net:
         ipv4_address: 172.50.0.10

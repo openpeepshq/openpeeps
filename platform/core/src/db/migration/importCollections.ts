@@ -256,6 +256,12 @@ const liveColumnNames = async (table: string): Promise<Set<string>> => {
  * migration adds (e.g. `search_vector` in 0001) breaks the load. Add those as
  * nullable placeholders and drop them again before migrating forward, so the
  * migration still creates them itself and runs its backfill.
+ *
+ * The `halfvec` embedding columns require the pgvector `vector` extension,
+ * which 0024 creates — but a pre-pgvector restore migrates only *to* the
+ * backup's schema, so 0024 has not run yet. `prepareSchemaForRestore` ensures
+ * the extension up front so these columns can be added here (a host without
+ * pgvector cannot boot this server at all, as 0024 needs it too).
  */
 const addPlaceholderColumns = async (): Promise<PlaceholderColumn[]> => {
   const db = pgDb();
@@ -312,6 +318,11 @@ const prepareSchemaForRestore = async (
   const schemaVersion = resolveRestoreSchemaVersion(schemaVersionFromBackup);
   log.info('Preparing postgres restore at schema %s', schemaVersion);
   await resetAndMigrateToSchemaVersion(schemaVersion);
+  // The `halfvec` placeholder columns below need the pgvector extension, but a
+  // pre-pgvector restore migrates only *to* the backup's schema, so 0024
+  // (CREATE EXTENSION vector) has not run yet. 0024 runs again on the forward
+  // migrate and is a no-op then.
+  await pgDb().execute(sql.raw('CREATE EXTENSION IF NOT EXISTS vector'));
   // 0006 added a unique (from_id, to_id) on post_seen; that was wrong for
   // impressions. Drop it before import so pre-0007 backups with duplicate
   // view rows can restore. 0007 (and later) drop it permanently.

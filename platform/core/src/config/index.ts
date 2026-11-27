@@ -9,6 +9,8 @@ import {
   ConfigSchemaFactory,
   CapabilitiesConfig,
   capabilitiesConfigSchemaFactory,
+  AiConfig,
+  aiConfigSchemaFactory,
 } from '@openpeepshq/common/types';
 import { restorePasswordPlaceholders } from '@openpeepshq/common/lib';
 
@@ -22,6 +24,7 @@ import { hub } from '../events';
 import { stablePublicServerInfo } from '../server/stablePublicServerInfo';
 import { loadConfig, storeConfig } from './db';
 import { defaultCapabilitiesConfig } from './defaults/capabilities';
+import { defaultAiConfig } from './defaults/ai';
 import { pruneEmptyConfigStrings } from './pruneEmptyConfigStrings';
 
 export { defaultConfig, defaultCommunityConfig, logsConfig, dbConfig };
@@ -67,6 +70,7 @@ registerConfigSchema(
   capabilitiesConfigSchemaFactory,
   defaultCapabilitiesConfig,
 );
+registerConfigSchema('openpeeps', 'ai', aiConfigSchemaFactory, defaultAiConfig);
 
 const initConfig = async <T = CoreConfig>(
   namespace: string,
@@ -170,6 +174,9 @@ export const communityConfig = () =>
  */
 export const communityConfigFresh = () =>
   initConfig<CommunityConfig>('openpeeps', 'community');
+
+export const aiConfig = (): Promise<AiConfig> =>
+  config<AiConfig>('openpeeps', 'ai');
 
 export const capabilitiesConfig = (): Promise<CapabilitiesConfig> =>
   config<CapabilitiesConfig>('openpeeps', 'capabilities').then(

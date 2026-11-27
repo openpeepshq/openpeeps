@@ -57,6 +57,23 @@ import {
 } from '@openpeepshq/core/log';
 import { refreshConfig, defaultConfig } from '@openpeepshq/core/config';
 import { initSentry } from '@openpeepshq/core/sentry';
+import {
+  transcribeJobQueue,
+  transcribeJobWorker,
+} from '@openpeepshq/core/transcription';
+import {
+  kbReindexJobQueue,
+  kbReindexJobWorker,
+  nlpIngestCatchupQueueHandle,
+  nlpIngestCatchupWorker,
+  nlpIngestJobQueue,
+  nlpIngestJobWorker,
+  reportJobQueue,
+  reportJobWorker,
+  startAiDataPlane,
+  topicClusterJobQueue,
+  topicClusterJobWorker,
+} from '@openpeepshq/core/vectors';
 
 const startWorkers = () => {
   console.log('Starting email worker ...');
@@ -89,6 +106,18 @@ const startWorkers = () => {
   waitlistOfferWorker();
   console.log('Starting account export worker ...');
   accountExportWorker();
+  console.log('Starting AI ingest worker ...');
+  nlpIngestJobWorker();
+  console.log('Starting AI ingest catch-up worker ...');
+  nlpIngestCatchupWorker();
+  console.log('Starting topic cluster worker ...');
+  topicClusterJobWorker();
+  console.log('Starting transcription worker ...');
+  transcribeJobWorker();
+  console.log('Starting knowledge-base reindex worker ...');
+  kbReindexJobWorker();
+  console.log('Starting report worker ...');
+  reportJobWorker();
 };
 
 const setupQueues = async () => {
@@ -106,6 +135,12 @@ const setupQueues = async () => {
   pollEndQueue();
   logRetentionQueue();
   waitlistOfferQueue();
+  nlpIngestJobQueue();
+  nlpIngestCatchupQueueHandle();
+  topicClusterJobQueue();
+  transcribeJobQueue();
+  kbReindexJobQueue();
+  reportJobQueue();
   accountExportQueue();
   // Register the daily cron schedule. Idempotent under upsertJobScheduler so
   // it's safe to call on every worker boot.
@@ -191,6 +226,8 @@ export const start = async () => {
   initJobLogs();
   console.log('Setting interval to log queue stats ...');
   setInterval(logJobStats, 60000);
+  console.log('Starting AI data plane ...');
+  await startAiDataPlane('worker');
   console.log('Starting workers ...');
   startWorkers();
   console.log('Started.');

@@ -5,6 +5,7 @@ import { pgDb } from '../db/pg/client';
 import { nowIso } from '../db/pg/mappers';
 import { profiles } from '../db/pg/schema/documents';
 import { profilesMapping } from '../profiles/mapping';
+import { hub } from '../events';
 import { findProfileByHandleAndDomain, findProfileByUri } from './profiles';
 import type { ProfileWithMeta } from '@openpeepshq/common/types';
 
@@ -167,7 +168,8 @@ export const upsertRemoteActor = async (
         fetchedAt: nowIso(),
       })
       .where(eq(profiles.id, existing.id));
-    if (displayName || input.bio || input.avatar) {
+    const bodyChanged = Boolean(displayName || input.bio || input.avatar);
+    if (bodyChanged) {
       await profilesMapping.update(
         await allpeepDb().then((d) => d.db),
         existing.id,
@@ -178,7 +180,12 @@ export const upsertRemoteActor = async (
         },
       );
     }
-    return findProfileByUri(input.uri);
+    const updated = await findProfileByUri(input.uri);
+    // Key off embeddable content only — inbox/key refreshes do not change
+    // what the AI data plane searches over.
+    if (updated && bodyChanged)
+      await hub.emit('profileContentChanged', updated);
+    return updated;
   }
 
   const handleTaken = await findProfileByHandleAndDomain(
@@ -207,5 +214,9 @@ export const upsertRemoteActor = async (
     avatar: input.avatar ?? undefined,
     ...actorFields,
   });
-  return findProfileByUri(input.uri);
+  const created = await findProfileByUri(input.uri);
+  // A freshly-seen remote actor is new embeddable content — let the AI data
+  // plane embed it without the local `profileCreated` side effects.
+  if (created) await hub.emit('profileContentChanged', created);
+  return created;
 };

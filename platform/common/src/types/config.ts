@@ -559,6 +559,55 @@ export const capabilitiesConfigSchemaFactory = (_sanitize?: boolean) =>
 export type CapabilitiesConfig = z.infer<typeof capabilitiesConfigSchema>;
 export type CapabilitiesConfigInput = z.input<typeof capabilitiesConfigSchema>;
 
+const aiProviderSchema = (sanitize?: boolean) =>
+  z.object({
+    endpoint: z.string().default(''),
+    credential: sanitize ? password(true) : z.string().default(''),
+    model: z.string().default(''),
+  });
+
+/**
+ * Platform AI providers and feature gates. Empty defaults leave every
+ * feature off, so a community with no AI config behaves as before.
+ * Embedding instructions are not fields here: they are hardcoded in core.
+ */
+export const aiConfigSchemaFactory = (sanitize?: boolean) =>
+  z.object({
+    chat: aiProviderSchema(sanitize),
+    embedding: aiProviderSchema(sanitize).extend({
+      dimension: z.number().int().positive().default(2560),
+    }),
+    transcription: aiProviderSchema(sanitize).extend({
+      language: z.string().default(''),
+    }),
+    sentiment: aiProviderSchema(sanitize),
+    language: aiProviderSchema(sanitize),
+    rag_enabled: z.boolean().default(false),
+    topics_enabled: z.boolean().default(false),
+    transcription_enabled: z.boolean().default(false),
+    reranker: z.enum(['lexical', 'none']).default('lexical'),
+    topic_cluster_k: z.number().int().positive().default(8),
+    cluster_use_umap: z.boolean().default(false),
+    topic_label_prompt: z.string().default(''),
+  });
+
+export const aiConfigSchema = aiConfigSchemaFactory(false);
+export const aiConfigSanitizedSchema = aiConfigSchemaFactory(true);
+export type AiConfig = z.infer<typeof aiConfigSchema>;
+/** Closed set of rerank strategies; `lexical` fuses dense + ts_rank, `none` is pure dense. */
+export type AiReranker = AiConfig['reranker'];
+
+export const aiProbeStatusSchema = z.enum(['off', 'ok', 'mismatch', 'failed']);
+export const aiProbeReportSchema = z.object({
+  embedding: aiProbeStatusSchema,
+  transcription: aiProbeStatusSchema,
+  sentiment: aiProbeStatusSchema,
+  language: aiProbeStatusSchema,
+  rag: z.enum(['off', 'ok']),
+  topics: z.enum(['off', 'ok']),
+});
+export type AiProbeReport = z.infer<typeof aiProbeReportSchema>;
+
 export interface MediaStorage {
   store: (data: ArrayBuffer | SharedArrayBuffer) => Promise<string>;
   /**

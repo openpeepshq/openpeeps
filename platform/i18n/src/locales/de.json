@@ -2038,6 +2038,17 @@
       "status": "Status",
       "duration": "Dauer"
     },
+    "ai": {
+      "title": "KI",
+      "description": "Ob die Prüfungen für Chat, Embedding, Transkription und Sentiment in diesem Prozess bestanden wurden.",
+      "loadError": "Die KI-Prüfung konnte nicht geladen werden.",
+      "embedding": "Embedding",
+      "transcription": "Transkription",
+      "sentiment": "Sentiment",
+      "language": "Sprache",
+      "rag": "Suche",
+      "topics": "Themen"
+    },
     "email": {
       "title": "E-Mail",
       "description": "Postausgangs-Warteschlange überprüfen und eine Test-E-Mail über den regulären Zustellungsprozess in die Warteschlange setzen.",
@@ -2383,6 +2394,10 @@
     "serverSettings": {
       "title": "Servereinstellungen",
       "description": "Konfigurieren Sie den Server Ihrer Community. Hier können Sie LiveKit, SMTP, Sentry und andere wichtige Dienste verbinden sowie Apple- und Google Play Store-Links und Push-Benachrichtigungskonfigurationen hinzufügen."
+    },
+    "ai": {
+      "title": "KI",
+      "description": "Chat-, Embedding-, Transkriptions- und Sentiment-Anbieter konfigurieren. Funktionen bleiben aus, bis ein Anbieter gesetzt ist und seine Prüfung besteht."
     },
     "i18n": {
       "title": "Benutzerdefinierter Text",

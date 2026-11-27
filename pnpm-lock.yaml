@@ -1761,6 +1761,43 @@ importers:
         specifier: ^6.0.2
         version: 6.0.3
 
+  platform/transcriber:
+    dependencies:
+      '@openpeepshq/common':
+        specifier: workspace:*
+        version: link:../common
+      '@openpeepshq/core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@eslint/js':
+        specifier: ^9.17.0
+        version: 9.19.0
+      '@types/node':
+        specifier: ^22.19.17
+        version: 22.19.17
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.72.0
+        version: 8.72.0(@typescript-eslint/parser@8.72.0(eslint@10.15.0(jiti@1.21.7))(typescript@6.0.3))(eslint@10.15.0(jiti@1.21.7))(typescript@6.0.3)
+      '@typescript-eslint/parser':
+        specifier: ^8.72.0
+        version: 8.72.0(eslint@10.15.0(jiti@1.21.7))(typescript@6.0.3)
+      eslint:
+        specifier: ^10.14.0
+        version: 10.15.0(jiti@1.21.7)
+      eslint-config-prettier:
+        specifier: ^9.1.0
+        version: 9.1.0(eslint@10.15.0(jiti@1.21.7))
+      prettier:
+        specifier: ^3.4.2
+        version: 3.8.3
+      tsc-alias:
+        specifier: ^1.8.10
+        version: 1.8.16
+      typescript:
+        specifier: ^6.0.2
+        version: 6.0.3
+
   platform/web:
     dependencies:
       '@fontsource/inter':

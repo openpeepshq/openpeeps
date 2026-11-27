@@ -269,7 +269,7 @@ jobs:
     # real services; without these the job fails on ECONNREFUSED 127.0.0.1:5432.
     services:
       postgres:
-        image: postgres:16-alpine
+        image: pgvector/pgvector:pg16
         env:
           POSTGRES_USER: openpeeps
           POSTGRES_PASSWORD: openpeeps
@@ -360,7 +360,7 @@ jobs:
         password: ${{ secrets.REGISTRY_PASSWORD }}
     services:
       postgres:
-        image: postgres:16-alpine
+        image: pgvector/pgvector:pg16
         env:
           POSTGRES_USER: openpeeps
           POSTGRES_PASSWORD: openpeeps
@@ -501,7 +501,7 @@ jobs:
         password: ${{ secrets.REGISTRY_PASSWORD }}
     services:
       postgres:
-        image: postgres:16-alpine
+        image: pgvector/pgvector:pg16
         env:
           POSTGRES_USER: openpeeps
           POSTGRES_PASSWORD: openpeeps
@@ -636,7 +636,7 @@ jobs:
         password: ${{ secrets.REGISTRY_PASSWORD }}
     services:
       postgres:
-        image: postgres:16-alpine
+        image: pgvector/pgvector:pg16
         env:
           POSTGRES_USER: openpeeps
           POSTGRES_PASSWORD: openpeeps
@@ -769,7 +769,7 @@ jobs:
         password: ${{ secrets.REGISTRY_PASSWORD }}
     services:
       postgres:
-        image: postgres:16-alpine
+        image: pgvector/pgvector:pg16
         env:
           POSTGRES_USER: openpeeps
           POSTGRES_PASSWORD: openpeeps
@@ -958,6 +958,19 @@ jobs:
         run: pnpm exec prettier --check .
       - name: ESLint
         run: pnpm run -r lint
+      - name: Transcriber typecheck
+        run: |
+          # platform/transcriber is a separate deploy unit (plan P3) — it is not
+          # in the Docker app image or the publish list, so nothing else compiles
+          # it in CI (its source file was lint-only). Build its workspace closure
+          # (its `tsc` resolves @openpeepshq/core and @openpeepshq/common against
+          # their dist .d.ts, so those must be compiled first) then typecheck.
+          pnpm --filter @openpeepshq/common build
+          pnpm --filter @openpeepshq/fetch-client build
+          pnpm --filter @openpeepshq/geocoder build
+          pnpm --filter @openpeepshq/i18n build
+          pnpm --filter @openpeepshq/core build
+          pnpm --filter @openpeepshq/transcriber typecheck
 
   # The single required job for branch protection: everything that must pass
   # before merge fans in here. i18n-check, lint, publish-gate and commit-check

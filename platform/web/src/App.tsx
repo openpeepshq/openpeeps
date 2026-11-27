@@ -106,6 +106,7 @@ import {
   EditGroupInfo,
   EditGroupRoles,
   AdminConfiguration,
+  AdminConfigurationAi,
   ConfigurationPluginPage,
   AdminConfigurationCommunity,
   AdminConfigEditor,
@@ -126,6 +127,7 @@ import {
   AdminApiKeys,
   AdminPlugins,
   AdminDiagnostics,
+  AdminDiagnosticsAi,
   AdminDiagnosticsEmail,
   AdminDiagnosticsLivekit,
   AdminDiagnosticsLogs,
@@ -340,6 +342,7 @@ const SettingsPages = {
 const Admin = {
   Index: AdminDashboard,
   Diagnostics: AdminDiagnostics,
+  DiagnosticsAi: AdminDiagnosticsAi,
   DiagnosticsEmail: AdminDiagnosticsEmail,
   DiagnosticsLivekit: AdminDiagnosticsLivekit,
   DiagnosticsLogs: AdminDiagnosticsLogs,
@@ -375,6 +378,7 @@ const Admin = {
         name="core"
       />
     ),
+    Ai: AdminConfigurationAi,
     I18n: AdminConfigurationI18n,
     Community: AdminConfigurationCommunity,
     CommunityAccess: AdminConfigurationCommunityAccess,
@@ -807,6 +811,10 @@ function AppShell() {
                         element={<Admin.Config.ServerSettings />}
                       />
                       <Route
+                        path="/admin/configuration/ai"
+                        element={<Admin.Config.Ai />}
+                      />
+                      <Route
                         path="/admin/configuration/i18n"
                         element={<Admin.Config.I18n />}
                       />
@@ -927,6 +935,10 @@ function AppShell() {
                       <Route
                         path="/admin/diagnostics/performance"
                         element={<Admin.DiagnosticsPerformance />}
+                      />
+                      <Route
+                        path="/admin/diagnostics/ai"
+                        element={<Admin.DiagnosticsAi />}
                       />
                     </Route>
 

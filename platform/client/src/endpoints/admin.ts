@@ -29,6 +29,7 @@ import {
   AdminEmailTestInput,
   AdminJobDetail,
   AdminPerformanceStats,
+  AiProbeReport,
   LivekitDiagnosis,
   ConfigData,
   ConfigDataWithDefaults,
@@ -132,6 +133,7 @@ export type Admin = {
       >;
     };
     performance: OpenpeepsNoPayloadEndpoint<AdminPerformanceStats>;
+    ai: OpenpeepsNoPayloadEndpoint<AiProbeReport>;
     livekit: OpenpeepsNoPayloadEndpoint<LivekitDiagnosis>;
   };
   db: {
@@ -365,6 +367,10 @@ export const admin = (rawClient: FetchClient): Admin => ({
     performance: allpeepNoPayloadEndpoint<AdminPerformanceStats>(
       rawClient,
       '/admin/diagnostics/performance',
+    ),
+    ai: allpeepNoPayloadEndpoint<AiProbeReport>(
+      rawClient,
+      '/admin/diagnostics/ai',
     ),
     livekit: allpeepNoPayloadEndpoint<LivekitDiagnosis>(
       rawClient,

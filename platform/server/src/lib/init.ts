@@ -4,6 +4,7 @@ import { logger } from '@openpeepshq/core/log';
 import { registerDefaultNotifications } from '@openpeepshq/core/notifications';
 import { initSentry } from '@openpeepshq/core/sentry';
 import { defaultConfig } from '@openpeepshq/core/config';
+import { startAiDataPlane } from '@openpeepshq/core/vectors';
 
 import { registerDefaultEmailTemplates } from '../emails';
 
@@ -32,6 +33,7 @@ export const initializeServer = async () => {
   await initializePlugins();
   await registerDefaultNotifications();
   registerDefaultEmailTemplates();
+  await startAiDataPlane('api');
 
   log.info('Server initialized.');
   initialized = true;

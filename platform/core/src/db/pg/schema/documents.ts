@@ -9,7 +9,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
-import { idColumn, modelTimestamps, tsvector } from './base';
+import { idColumn, modelTimestamps, tsvector, halfvec } from './base';
 
 export const configs = pgTable('configs', {
   key: text('key').primaryKey(),
@@ -58,6 +58,10 @@ export const profiles = pgTable(
     fetchedAt: timestamp('fetched_at', { withTimezone: true, mode: 'string' }),
     body: jsonb('body').notNull().default({}),
     searchVector: tsvector('search_vector'),
+    embedding: halfvec('embedding'),
+    indexedContentHash: text('indexed_content_hash'),
+    producerOutcome: text('producer_outcome'),
+    spaceId: uuid('space_id'),
     ...modelTimestamps,
   },
   (t) => [
@@ -67,6 +71,10 @@ export const profiles = pgTable(
     ),
     uniqueIndex('profiles_uri_unique').on(t.uri),
     index('profiles_search_vector_idx').using('gin', t.searchVector),
+    index('profiles_embedding_cosine_idx').using(
+      'hnsw',
+      t.embedding.op('halfvec_cosine_ops'),
+    ),
   ],
 );
 
@@ -123,6 +131,10 @@ export const posts = pgTable(
     }),
     body: jsonb('body').notNull().default({}),
     searchVector: tsvector('search_vector'),
+    embedding: halfvec('embedding'),
+    indexedContentHash: text('indexed_content_hash'),
+    producerOutcome: text('producer_outcome'),
+    spaceId: uuid('space_id'),
     lastActivityAt: timestamp('last_activity_at', {
       withTimezone: true,
       mode: 'string',
@@ -138,6 +150,10 @@ export const posts = pgTable(
     uniqueIndex('posts_uri_unique').on(t.uri),
     index('posts_in_reply_to_uri_idx').on(t.inReplyToUri),
     index('posts_search_vector_idx').using('gin', t.searchVector),
+    index('posts_embedding_cosine_idx').using(
+      'hnsw',
+      t.embedding.op('halfvec_cosine_ops'),
+    ),
     index('posts_last_activity_id_idx').on(t.lastActivityAt, t.id),
     // Article slugs live in the JSONB body; the two partial indexes pin the
     // uniqueness rule per scope — instance slugs are globally unique,
