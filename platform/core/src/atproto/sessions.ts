@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { SignJWT, jwtVerify, importJWK, type JWTPayload } from 'jose';
+import { SignJWT, jwtVerify, importJWK, type JWTPayload, type JWK } from 'jose';
 import nacl from 'tweetnacl';
 import { uuidv7 } from 'uuidv7';
 import { config } from '../config';
@@ -134,9 +134,13 @@ export const verifyAtprotoRefresh = async (
   };
 };
 
-export const dpopThumbprint = async (
-  jwk: { kty: string } & Record<string, unknown>,
-) => {
+/**
+ * JWK thumbprint (RFC 7638, `jkt`) of a proof key. Shared single source of
+ * truth for the thumbprint algorithm — the server's DPoP module uses this
+ * rather than importing `jose`'s `calculateJwkThumbprint` directly, so the
+ * binding math has exactly one implementation.
+ */
+export const dpopThumbprint = async (jwk: JWK) => {
   const { calculateJwkThumbprint } = await import('jose');
   return calculateJwkThumbprint(jwk);
 };
