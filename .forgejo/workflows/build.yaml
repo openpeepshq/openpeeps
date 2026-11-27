@@ -185,38 +185,10 @@ jobs:
           if docker manifest inspect "${app_tag}" >/dev/null 2>&1 && docker manifest inspect "${test_tag}" >/dev/null 2>&1; then
             echo "Both images already exist; skipping build."
           else
-            # Persistent builder (create-if-missing, never removed): buildkitd
-            # runs on the runner host with a named volume, so its layer cache
-            # and the pnpm-store cache mount survive across jobs AND across
-            # container recreation (docker rm keeps named volumes). Recreate
-            # it only when missing or stopped.
-            if ! docker inspect buildkitd >/dev/null 2>&1; then
-              docker run -d --name buildkitd --privileged --network host \
-                -v buildkit-cache:/var/lib/buildkit \
-                moby/buildkit:buildx-stable-1
-            elif [ "$(docker inspect -f '{{.State.Running}}' buildkitd)" != "true" ]; then
-              docker rm -f buildkitd >/dev/null 2>&1 || true
-              docker run -d --name buildkitd --privileged --network host \
-                -v buildkit-cache:/var/lib/buildkit \
-                moby/buildkit:buildx-stable-1
-            fi
-            # The buildx CLI record is ephemeral (fresh job container each
-            # run); recreate it each time — this never touches the buildkitd
-            # container or its cache. create pings the daemon, so retry until
-            # buildkitd accepts connections (cold starts take a moment).
-            create_ok=""
-            for i in $(seq 1 30); do
-              if docker buildx create --name ci --driver remote docker-container://buildkitd >/dev/null 2>&1; then
-                create_ok="1"
-                break
-              fi
-              docker buildx rm -f ci >/dev/null 2>&1 || true
-              sleep 1
-            done
-            if [ -z "$create_ok" ]; then
-              echo "Could not connect to buildkitd after 30s" >&2
-              exit 1
-            fi
+            # Shared buildkitd + buildx bootstrap (see scripts/docker-bootstrap.sh),
+            # also sourced by build-images-arm64 — one source of truth.
+            . "$(git rev-parse --show-toplevel)/scripts/docker-bootstrap.sh"
+            docker_ensure_builder ci || exit 1
 
             # Static cache refs, derived once: main maintains the
             # buildcache-main registry tag (mode=max); PR/branch builds only
@@ -258,6 +230,214 @@ jobs:
           # inspect-or-pull covers runners that do not have them yet.
           docker image inspect "${app_tag}" >/dev/null 2>&1 || docker pull "${app_tag}"
           docker image inspect "${test_tag}" >/dev/null 2>&1 || docker pull "${test_tag}"
+
+  # Builds the app image for linux/arm64 and assembles it with the amd64
+  # manifest into a multi-arch ${IMAGE}:${SHA} list. Release refs only
+  # (main/staging/stable); PR/branch builds stay amd64-only. Runs as its own
+  # job (not a second platform on the build-images bake) so that when a
+  # native ARM runner exists, this job moves there — a runs-on flip plus
+  # dropping the QEMU step — with nothing else changing.
+  #
+  # No job-level if: an early exit in the first build step keeps the job
+  # "successful" on every ref, so the plain needs of deploy-docker never
+  # cascade a skip into the retag step on branch pushes. A failed build on
+  # a release ref still fails the whole workflow (build-images' consumers
+  # all run on release refs too, so no deploy can follow a red arm64 leg).
+  #
+  # This job is deliberately NOT in merge-gate's needs and its failure is not
+  # enumerated in merge-gate's detect-failures step: it is release-ref-only,
+  # so on every branch/PR push it exits 0 immediately and would show as
+  # "skipped"/optional in the gate, while a genuine release-ref failure still
+  # fails the workflow through deploy-docker's needs. A "fix" that adds it to
+  # merge-gate would re-introduce a branch-push skip cascade — the exact
+  # failure class the no-job-level-if design above avoids.
+  #
+  # The job-setup steps below (Install Docker CLI and git, checkout at
+  # full_sha, Generate changelog, Set image and version, Docker login) are a
+  # verbatim copy of build-images' — Forgejo Actions has no reusable-step
+  # construct, so build-images is the reference copy: keep the two in sync
+  # when either changes (the same drift class the docker-bootstrap.sh
+  # extraction just removed). One intentional exception: "Install Docker CLI
+  # and git" here also installs jq — the guard and the acceptance check below
+  # both parse the raw manifest JSON with it — and must be kept when syncing.
+  build-images-arm64:
+    runs-on: docker
+    needs: [set-variables, build-images]
+    container:
+      image: node:24-alpine
+    steps:
+      - name: Install Docker CLI and git
+        run: apk add --no-cache docker-cli docker-cli-buildx git jq
+      - uses: actions/checkout@releases/v6
+        with:
+          ref: ${{ needs.set-variables.outputs.full_sha }}
+          fetch-depth: 0
+      - name: Generate changelog (baked into image via COPY . .)
+        run: |
+          git fetch --tags --force
+          node scripts/generate-changelog.mjs
+      - name: Set image and version
+        run: |
+          echo "REGISTRY_IMAGE_BASE=${{ needs.set-variables.outputs.registry_image_base }}" >> $GITHUB_ENV
+          echo "REGISTRY_IMAGE=${{ secrets.REGISTRY }}/${{ needs.set-variables.outputs.image_repo }}" >> $GITHUB_ENV
+          echo "SHORT_SHA=${{ needs.set-variables.outputs.short_sha }}" >> $GITHUB_ENV
+          echo "VERSION=${{ needs.set-variables.outputs.version }}" >> $GITHUB_ENV
+          echo "TAG=${{ needs.set-variables.outputs.tag }}" >> $GITHUB_ENV
+      - name: Docker login
+        run: |
+          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login -u "${{ vars.REGISTRY_USER }}" --password-stdin "code.openpeeps.org"
+      - name: Build arm64 image and assemble the multi-arch tag
+        env:
+          # Consumed by the variables in docker-bake.hcl (tags + app args).
+          IMAGE: ${{ needs.set-variables.outputs.registry_image_base }}
+          SHA: ${{ needs.set-variables.outputs.short_sha }}
+          VERSION: ${{ needs.set-variables.outputs.version }}
+          ENVIRONMENT: ${{ needs.set-variables.outputs.environment }}
+        run: |
+          app_tag="${IMAGE}:${SHA}"
+          arm64_tag="${IMAGE}:${SHA}-arm64"
+
+          # Not a release ref: no multi-arch publishing here (branch/PR
+          # builds stay amd64-only), but the job must still succeed so
+          # deploy-docker's needs do not cascade a skip.
+          if [ "${{ needs.set-variables.outputs.is_release_branch }}" != "true" ]; then
+            echo "Not a release branch; skipping arm64 build."
+            exit 0
+          fi
+
+          # Arch-aware guard: a tag that is already multi-arch (a re-run of
+          # the same commit) needs no work. The old existence check in
+          # build-images passes for amd64-only tags, so it cannot serve
+          # here once multi-arch publishing exists.
+          #
+          # Count real IMAGE manifests only. Since buildx v0.36 a single-arch
+          # --push also exports attestation manifests (Platform:
+          # unknown/unknown in the human `imagetools inspect` output); grepping
+          # that output for `linux/arm64` could match an attestation entry
+          # listed before its image manifest (e.g. a partially pushed tag from
+          # a crashed run) and skip a build of an actually amd64-only tag.
+          # `imagetools inspect --raw` on a manifest list gives JSON where every
+          # entry has a .platform — image manifests carry the real os/arch
+          # (e.g. os:"linux", architecture:"arm64") while attestation manifests
+          # carry os:"unknown"/architecture:"unknown". The jq filters to real
+          # images (os != "unknown") and lists only their architectures.
+          guard_archs="$(docker buildx imagetools inspect --raw "${app_tag}" 2>/dev/null | jq -r '.manifests[]? | select((.platform?.os // "unknown") != "unknown") | .platform.architecture' 2>/dev/null || true)"
+          if echo "$guard_archs" | grep -q '^arm64$'; then
+            echo "${app_tag} is already multi-arch; skipping build."
+            exit 0
+          fi
+
+          # Register the QEMU user-mode handlers on the runner host so the
+          # persistent buildkitd can emulate arm64. No-op when already
+          # registered (binfmt mounts persist in /sys). Runs once per host,
+          # idempotent per job.
+          #
+          # This step's `docker` reaches the *host* daemon (the buildkitd
+          # container below is started host-side the same way), so the
+          # binfmt registration lands on the host kernel. Reaching the host
+          # /sys from this job *container* requires the privileged path the
+          # buildkitd container already relies on — the same assumption that
+          # makes the shared privileged builder work. A `workflow_dispatch`
+          # smoke run on a release ref verifies the whole path before the
+          # first real merge to main.
+          docker run --privileged --rm tonistiigi/binfmt:qemu-v10.2.3 --install arm64
+
+          # Shared buildkitd + buildx bootstrap (see scripts/docker-bootstrap.sh),
+          # also sourced by build-images — one source of truth.
+          . "$(git rev-parse --show-toplevel)/scripts/docker-bootstrap.sh"
+          docker_ensure_builder ci || exit 1
+
+          # arm64 legs only: app, never test (its glibc apt layers are the
+          # slowest thing to emulate and its only consumer runs on amd64
+          # runners). Naming the `app` target positionally selects exactly
+          # that target — bake builds the `default` group (app + test) only
+          # when no target is given, and `docker buildx bake` has no
+          # --filter flag. The cache goes to a separate registry tag so the
+          # two jobs' cache records never mix. VERSION/ENVIRONMENT reach
+          # bake through the step env (same mechanism as build-images), so
+          # the app stage bakes the same metadata the amd64 image does.
+          # Cache export is scoped to release refs — the job's own scope
+          # (is_release_branch), not just the default branch — so staging and
+          # stable also export to buildcache-arm64 instead of re-emulating
+          # from scratch on their first arm64 build. (build-images keeps its
+          # pre-existing DEFAULT_BRANCH-scoped cache block.)
+          cache_args="--set app.cache-from=type=registry,ref=${IMAGE}:buildcache-arm64"
+          if [ "${{ needs.set-variables.outputs.is_release_branch }}" = "true" ]; then
+            cache_args="$cache_args --set app.cache-to=type=registry,ref=${IMAGE}:buildcache-arm64,mode=max"
+          fi
+
+          # Transient Docker errors (layer blob, network, QEMU flakiness on
+          # long g++ runs) cause build failures; retry up to 3 times. With
+          # the persistent builder a retry reuses the layer cache for fast
+          # recovery.
+          for attempt in 1 2 3; do
+            if docker buildx bake -f docker-bake.hcl --builder ci \
+                app --push \
+                ${cache_args} \
+                --set app.platforms=linux/arm64 \
+                --set "app.tags=${arm64_tag}"; then
+              break
+            elif [ "$attempt" -eq 3 ]; then
+              echo "arm64 build/push failed after 3 attempts"
+              exit 1
+            else
+              echo "arm64 build attempt $attempt failed, retrying in 10s..."
+              sleep 10
+            fi
+          done
+
+          # Assemble the multi-arch tag: imagetools merges the amd64
+          # manifest (source 1, already pushed by build-images) and the
+          # arm64 image (source 2) into one manifest list — no re-build.
+          # Deliberately no `--builder` here: imagetools is a registry-side
+          # operation that talks straight to the registry and never touches
+          # the buildkitd, so it must not be given a builder "for
+          # consistency" (see the matching ci-invariant).
+          docker buildx imagetools create \
+            --tag "${app_tag}" \
+            "${app_tag}" "${arm64_tag}"
+
+          # Acceptance check: the assembled tag must be EXACTLY the two
+          # release architectures — this is the observable acceptance
+          # criterion and stops a silently single-arch (or surplus-arch)
+          # list from propagating to the version and tag retags in
+          # deploy-docker. Same raw-manifest mechanism as the guard above:
+          # `imagetools inspect` human output formats the platform line with
+          # aligned spacing and a /v8 variant suffix (format drift across
+          # buildx versions), and its `Platform: unknown/unknown` attestation
+          # lines make a "contains both" grep pass a surplus-arch list. The
+          # raw JSON carries the platform on every entry; filtering
+          # .platform.os != "unknown" lists only real image architectures,
+          # and the comparison below fails unless that set is EXACTLY
+          # amd64 + arm64 (an extra architecture — attestation leftovers, a
+          # --set app.platforms typo — is a deviation too).
+          docker buildx imagetools inspect "${app_tag}"
+          # Hardened read (same posture as the guard above, which tolerates a
+          # read failure in its safe direction — an empty list means "no
+          # arm64", so the build proceeds): here a jq/registry failure must
+          # fail LOUDLY instead of dying on the comparison as "observed
+          # platforms: none". Stderr is silenced and the pipeline guarded
+          # with `|| true` so the failure is the EMPTY SET, and the explicit
+          # non-empty check below names it with its own message, distinct
+          # from the platform-set deviation the comparison reports.
+          arch_list="$(docker buildx imagetools inspect --raw "${app_tag}" 2>/dev/null | jq -r '.manifests[]? | select((.platform?.os // "unknown") != "unknown") | .platform.architecture' 2>/dev/null | sort -u || true)"
+          [ -n "$arch_list" ] || \
+            { echo "could not read the raw manifest for ${app_tag} (imagetools inspect --raw / jq returned no architectures) — a read failure, not an observed platform set" >&2; exit 1; }
+          expected_arch_list="$(printf '%s\n' "amd64" "arm64" | sort -u)"
+          [ "$arch_list" = "$expected_arch_list" ] || \
+            { echo "Assembled tag ${app_tag} does not have exactly linux/amd64 + linux/arm64; observed platforms: ${arch_list:-none}" >&2; exit 1; }
+
+          # Prune on release refs so the persistent builder's cache stays
+          # bounded: the arm64 build shares the same buildkitd volume as
+          # build-images and adds QEMU layers on top of build-images' prune,
+          # so the arm64 job applies the same bound (same builder, same
+          # 20GB policy). Release-ref scope matches the rest of the job's
+          # release-scoped decisions (is_release_branch).
+          if [ "${{ needs.set-variables.outputs.is_release_branch }}" = "true" ]; then
+            docker buildx prune --builder ci --max-used-space 20GB --force
+          fi
+
+          echo "Multi-arch tag verified: ${app_tag} (linux/amd64 + linux/arm64)"
 
   test-unit:
     if: needs.set-variables.outputs.is_release_branch == 'false'
@@ -970,7 +1150,7 @@ jobs:
   merge-gate:
     if: ${{ always() && !cancelled() }}
     runs-on: docker
-    needs: [set-variables, i18n-check, lint, publish-gate, commit-check, build-images, test-unit, test-integration, test-integration-small, test-integration-public-perf, test-integration-jams]
+    needs: [set-variables, i18n-check, lint, publish-gate, commit-check, ci-invariants, build-images, test-unit, test-integration, test-integration-small, test-integration-public-perf, test-integration-jams]
     container:
       image: node:24-alpine
     steps:
@@ -978,7 +1158,7 @@ jobs:
         if: ${{ success() }}
         run: echo "All merge-gate checks succeeded."
       - name: Detect failures
-        if: ${{ always() && (needs.set-variables.result == 'failure' || needs.i18n-check.result == 'failure' || needs.lint.result == 'failure' || needs.publish-gate.result == 'failure' || needs.commit-check.result == 'failure' || needs.build-images.result == 'failure' || needs.test-unit.result == 'failure' || needs.test-integration.result == 'failure' || needs.test-integration-small.result == 'failure' || needs.test-integration-public-perf.result == 'failure' || needs.test-integration-jams.result == 'failure') }}
+        if: ${{ always() && (needs.set-variables.result == 'failure' || needs.i18n-check.result == 'failure' || needs.lint.result == 'failure' || needs.publish-gate.result == 'failure' || needs.commit-check.result == 'failure' || needs.ci-invariants.result == 'failure' || needs.build-images.result == 'failure' || needs.test-unit.result == 'failure' || needs.test-integration.result == 'failure' || needs.test-integration-small.result == 'failure' || needs.test-integration-public-perf.result == 'failure' || needs.test-integration-jams.result == 'failure') }}
         run: |
           echo "One or more merge-gate checks failed:"
           echo "  set-variables: ${{ needs.set-variables.result }}"
@@ -986,6 +1166,7 @@ jobs:
           echo "  lint: ${{ needs.lint.result }}"
           echo "  publish-gate: ${{ needs.publish-gate.result }}"
           echo "  commit-check: ${{ needs.commit-check.result }}"
+          echo "  ci-invariants: ${{ needs.ci-invariants.result }}"
           echo "  build-images: ${{ needs.build-images.result }}"
           echo "  test-unit: ${{ needs.test-unit.result }}"
           echo "  test-integration: ${{ needs.test-integration.result }}"
@@ -1026,6 +1207,29 @@ jobs:
           node scripts/check-branch.mjs
           node scripts/check-pr-references.mjs
           node scripts/check-esbuild-patch.mjs
+
+  # Workflow-shape regression guard (see scripts/check-ci-invariants.sh): the
+  # multi-arch guarantee depends on several workflow/script shapes that a
+  # plain diff review does not observe — deploy-docker keeping its needs on
+  # build-images-arm64, the arm64 job staying OUT of merge-gate, the
+  # skip-guard and acceptance check counting real image platforms from the
+  # raw manifest (attestation manifests must not count), the acceptance
+  # check requiring EXACTLY two release architectures, and the shared
+  # bootstrap pinning buildkitd to a released tag. A future edit that drops
+  # any of these would silently revert the app to single-arch publishes (or
+  # break the builder mid-flight); this job makes the invariants observable
+  # in CI. Runs on every ref (cheap, checkout-only).
+  ci-invariants:
+    runs-on: docker
+    needs: [set-variables]
+    container:
+      image: node:24-alpine
+    steps:
+      - uses: actions/checkout@releases/v6
+        with:
+          ref: ${{ needs.set-variables.outputs.full_sha }}
+      - name: Check CI invariants
+        run: sh scripts/check-ci-invariants.sh
 
   publish-packages:
     runs-on: docker
@@ -1424,7 +1628,13 @@ jobs:
 
   deploy-docker:
     runs-on: docker
-    needs: [merge-gate, set-variables]
+    # build-images-arm64 runs before the retags on release refs: it
+    # assembles the multi-arch ${IMAGE}:${SHA} list that the version/tag
+    # retags copy from (imagetools create copies the full manifest list, so
+    # :latest and the version tags inherit both architectures). On branch
+    # pushes it exits early without touching the registry, so amd64-only
+    # retags proceed exactly as before.
+    needs: [merge-gate, set-variables, build-images-arm64]
     container:
       image: docker:latest
     steps:
