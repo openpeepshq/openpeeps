@@ -14,12 +14,15 @@ import { OpenpeepsRichMarkdownInput } from './OpenpeepsRichMarkdownInput';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
 import { PostAudienceSelector } from './PostAudienceSelector';
 import { VisibilitySelector } from './VisibilitySelector';
-import { PluginSlot } from '../../registry/PluginSlot';
+import { ArticleSlugField } from './ArticleSlugField';
 
 export interface ArticleFormProps {
   postData: PostCreationData;
   onChange: (data: PostCreationData) => void;
   isEdit?: boolean;
+  /** Id of the article being edited (the slug field excludes it from
+   *  availability checks). */
+  articleId?: string;
   showNotify?: boolean;
   notify?: boolean;
   onNotifyChange?: (value: boolean) => void;
@@ -29,6 +32,7 @@ export function ArticleForm({
   postData,
   onChange,
   isEdit = false,
+  articleId,
   showNotify = false,
   notify = false,
   onNotifyChange,
@@ -80,11 +84,11 @@ export function ArticleForm({
           />
         </Label>
 
-        {/* Slug support (and other article-editor extensions) plug in here.
-            No-op on platforms without a plugin registry (e.g. RN). */}
-        <PluginSlot
-          name="plugins.articles.editor.slug"
-          props={{ postData, onChange, isEdit }}
+        <ArticleSlugField
+          postData={postData}
+          onChange={onChange}
+          isEdit={isEdit}
+          articleId={articleId}
         />
 
         <OpenpeepsRichMarkdownInput

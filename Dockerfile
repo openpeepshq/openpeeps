@@ -61,7 +61,6 @@ RUN --mount=type=cache,id=pnpm-store,target=/pnpm-store \
     --filter "@openpeepshq/web..." \
     --filter "*plugins*" \
     --filter "./examples/greeter-plugin" \
-    --filter "./examples/slug-support" \
     install --frozen-lockfile --prefer-offline
 
 # ─────────────────────────────────────────────────────────────
@@ -126,9 +125,6 @@ RUN pnpm --filter @openpeepshq/cli build
 
 COPY examples/greeter-plugin examples/greeter-plugin
 RUN pnpm --filter "./examples/greeter-plugin" build
-
-COPY examples/slug-support examples/slug-support
-RUN pnpm --filter "./examples/slug-support" build
 
 # Level 3: depend on Level 2
 COPY platform/server platform/server

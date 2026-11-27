@@ -139,6 +139,29 @@ const adminCanManageFederation = (roles: RoleData[]): RoleData[] =>
       : role,
   );
 
+/**
+ * Grant the ability to claim an *instance-scoped* (globally unique `/{slug}`)
+ * article slug. The owner inherits it via its `*` capability, so only admin
+ * and moderator need it spelled out here (admin would also pick it up from
+ * `core-posts-*`, but it is named explicitly because owning the global slug
+ * namespace is a meaningful, separately-grantable permission).
+ */
+const grantInstanceSlugToAdminAndModerator = (roles: RoleData[]): RoleData[] =>
+  roles.map((role) =>
+    role.key === 'admin' || role.key === 'moderator'
+      ? {
+          ...role,
+          capabilities: {
+            add: [
+              ...(role.capabilities?.add ?? []),
+              'core-posts-slug-instance',
+            ],
+            remove: [...(role.capabilities?.remove ?? [])],
+          },
+        }
+      : role,
+  );
+
 export const roleDefaultsHistory: RoleDefaultsVersion[] = [
   {
     version: '2026-10-06',
@@ -153,6 +176,15 @@ export const roleDefaultsHistory: RoleDefaultsVersion[] = [
     roles: versionedRoles(
       '2026-11-26',
       adminCanManageFederation(adminCanManageMedia(builtinRoles)),
+    ),
+  },
+  {
+    version: '2026-11-27',
+    roles: versionedRoles(
+      '2026-11-27',
+      grantInstanceSlugToAdminAndModerator(
+        adminCanManageFederation(adminCanManageMedia(builtinRoles)),
+      ),
     ),
   },
 ];

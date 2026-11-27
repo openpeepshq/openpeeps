@@ -81,13 +81,13 @@ These are the slots the web app renders today. A component registered for any ot
 | ------------------------------------ | ----------------------------------- | ----------------------------------- |
 | `plugins.header`                     | Community feed and the Plugins page | —                                   |
 | `plugins.footer`                     | Plugins page                        | —                                   |
-| `plugins.articles.editor.slug`       | Article editor (new + edit)         | `postData`, `onChange`, `isEdit`    |
 | `plugins.admin.analytics.<slug>`     | `/admin/analytics/<slug>`           | `analyticsRange`, `analyticsGroups` |
 | `plugins.admin.configuration.<slug>` | `/admin/configuration/<slug>`       | —                                   |
 
 ### Article editor
 
-`plugins.articles.editor.slug` renders inside the article composer, between the title and the body. The host passes `postData` (the current article draft, `{ data: Article }`), `onChange` (call with a full article object to update the draft), and `isEdit` (boolean). The example `examples/slug-support` plugin uses it to add a slug input, scope picker, and availability check.
+Clean-URL (slug) support is a core feature rendered directly in the article
+composer (between the title and the body) — it is no longer a plugin slot.
 
 The registry also exposes `window.__OPENPEEPS_PLUGINS__.authFetch(url, init)` — a `fetch` that attaches the signed-in user's Bearer token. The app authenticates with a token (not a cookie), so use `authFetch` for any call to a secured plugin API route; a bare `fetch` with `credentials: 'include'` sends no token and will 401.
 

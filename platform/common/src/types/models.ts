@@ -601,8 +601,9 @@ export const articleSchema = noteBaseSchema
       .max(ARTICLE_SLUG_MAX_LENGTH)
       .regex(articleSlugPattern)
       .optional(),
-    /** `true` = globally unique `/{slug}` route (admin/moderator);
-     *  defaults to profile-scoped `/{handle}/{slug}`. */
+    /** `true` = globally unique `/{slug}` route (role-gated by the
+     *  `core-posts-slug-instance` capability); defaults to profile-scoped
+     *  `/{handle}/{slug}`. */
     instanceScoped: z.boolean().optional(),
   })
   .openapi('Article');

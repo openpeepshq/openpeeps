@@ -64,7 +64,12 @@ export const EditArticle: React.FC<EditArticleProps> = ({ route }) => {
           contentContainerClassName="grow"
           className="pb-12"
         >
-          <ArticleForm postData={postData} onChange={setPostData} isEdit />
+          <ArticleForm
+            postData={postData}
+            onChange={setPostData}
+            isEdit
+            articleId={id}
+          />
         </KeyboardAwareScrollView>
       )}
     </ThemedView>

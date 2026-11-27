@@ -60,7 +60,12 @@ export function EditArticle() {
 
   return (
     <div className="pb-12">
-      <ArticleForm postData={postData} onChange={setPostData} isEdit />
+      <ArticleForm
+        postData={postData}
+        onChange={setPostData}
+        isEdit
+        articleId={articleId}
+      />
 
       {error ? (
         <div className="px-3">

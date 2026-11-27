@@ -107,12 +107,15 @@ export const findPost = async (
  *
  * Pass `profileHandle` to resolve a profile-scoped slug against that profile;
  * pass `instanceScoped: true` to resolve a globally-unique slug; omit both for
- * an unscoped profile-scoped lookup (matches any creator).
+ * an unscoped profile-scoped lookup (matches any creator). Pass
+ * `excludePostId` to ignore one post — the availability check on an edit
+ * form must not report the article's own current slug as taken.
  */
 export const findPostBySlug = async (
   slug: string,
   profileHandle?: string,
   instanceScoped?: boolean,
+  excludePostId?: string,
 ): Promise<PostWithMeta | null> => {
   let profileId: string | undefined;
   if (profileHandle && !instanceScoped) {
@@ -137,11 +140,14 @@ export const findPostBySlug = async (
   const creator = profileId
     ? sql` AND ${posts.creatorId} = ${profileId}`
     : sql``;
+  const exclude = excludePostId
+    ? sql` AND ${posts.id} <> ${excludePostId}`
+    : sql``;
   const rows = await allpeepDb().then(({ db }) =>
     db
       .select()
       .from(posts)
-      .where(sql`${conditions} AND (${scope})${creator}`)
+      .where(sql`${conditions} AND (${scope})${creator}${exclude}`)
       .limit(1),
   );
   const row = rows[0];

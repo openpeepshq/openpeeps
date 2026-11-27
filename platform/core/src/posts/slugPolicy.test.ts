@@ -2,10 +2,21 @@ import { describe, expect, it } from 'vitest';
 import type { Article, Profile, Role } from '@openpeepshq/common/types';
 import { applyArticleSlugPolicy } from './slugPolicy';
 
-const profile = (roles: string[]): Profile & { roles?: Role[] } =>
+/**
+ * The gate is capability-based (`core-posts-slug-instance`), so a profile
+ * needs a role that grants it — owner carries `*`, admin/moderator carry the
+ * capability in the role defaults, member carries nothing.
+ */
+const profile = (
+  roles: Array<{ key: string; add?: string[]; remove?: string[] }>,
+): Profile & { roles?: Role[] } =>
   ({
     id: 'p1',
-    roles: roles.map((key) => ({ id: `r-${key}`, key })),
+    roles: roles.map((role) => ({
+      id: `r-${role.key}`,
+      key: role.key,
+      capabilities: { add: role.add ?? [], remove: role.remove ?? [] },
+    })),
   }) as Profile & { roles?: Role[] };
 
 const article = (slug: string | undefined, instanceScoped?: boolean): Article =>
@@ -31,41 +42,52 @@ describe('applyArticleSlugPolicy', () => {
     expect(out.instanceScoped).toBeUndefined();
   });
 
-  it('drops instanceScoped from a profile without an instance-scoped role', () => {
+  it('drops instanceScoped from a profile without the instance-slug capability', () => {
     const out = applyArticleSlugPolicy(
       article('a-long-enough-slug', true),
-      profile(['member']),
+      profile([{ key: 'member' }]),
     );
     expect(out.instanceScoped).toBeUndefined();
   });
 
-  it('keeps instanceScoped for an admin or moderator', () => {
-    expect(
+  it('keeps instanceScoped for owner (via `*`), admin, or moderator', () => {
+    const keep = (roles: Array<{ key: string; add?: string[] }>) =>
       applyArticleSlugPolicy(
         article('a-long-enough-slug', true),
-        profile(['admin']),
-      ).instanceScoped,
+        profile(roles),
+      ).instanceScoped;
+    expect(keep([{ key: 'owner', add: ['*'] }, { key: 'member' }])).toBe(true);
+    expect(
+      keep([
+        { key: 'admin', add: ['core-posts-slug-instance'] },
+        { key: 'member' },
+      ]),
     ).toBe(true);
     expect(
-      applyArticleSlugPolicy(
-        article('a-long-enough-slug', true),
-        profile(['moderator']),
-      ).instanceScoped,
+      keep([
+        { key: 'moderator', add: ['core-posts-slug-instance'] },
+        { key: 'member' },
+      ]),
     ).toBe(true);
   });
 
   it('drops a handle-shaped slug only when it is effectively instance-scoped', () => {
-    // An admin asking for an instance-scoped `my-slug` would collide with the
-    // `/:handle` route → slug dropped, instanceScoped kept.
-    const admin = applyArticleSlugPolicy(
+    // A profile-scoped role that grants the instance-slug capability asking
+    // for an instance-scoped `my-slug` would collide with the `/:handle`
+    // route → slug dropped, instanceScoped kept.
+    const granted = applyArticleSlugPolicy(
       article('my-slug', true),
-      profile(['admin']),
+      profile([{ key: 'member', add: ['core-posts-slug-instance'] }]),
     );
-    expect(admin.slug).toBeUndefined();
-    expect(admin.instanceScoped).toBe(true);
-    // A profile-scoped `my-slug` resolves as `/{handle}/my-slug`, so it is kept.
+    expect(granted.slug).toBeUndefined();
+    expect(granted.instanceScoped).toBe(true);
+    // Without the capability the slug is not effectively instance-scoped,
+    // so it is kept (it resolves as `/{handle}/my-slug`).
     expect(
-      applyArticleSlugPolicy(article('my-slug', false), profile([])).slug,
+      applyArticleSlugPolicy(
+        article('my-slug', true),
+        profile([{ key: 'member' }]),
+      ).slug,
     ).toBe('my-slug');
   });
 

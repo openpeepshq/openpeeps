@@ -1,22 +1,23 @@
 import type { Article, Profile, Role } from '@openpeepshq/common/types';
-import { isHandleShapedSlug } from '@openpeepshq/common/lib';
+import {
+  canUseInstanceScopedSlug,
+  isHandleShapedSlug,
+} from '@openpeepshq/common/lib';
 
 /**
- * Roles allowed to claim an *instance-scoped* article slug (a globally unique
- * `/{slug}` route). Mirrors the `slug-support` plugin's `instanceScopedRoles`
- * default; the plugin is the friendly UI gate, this is the server-side
- * containment so the permission model cannot be bypassed by writing
- * `instanceScoped: true` straight into the post body through the core
+ * Capability gate for *instance-scoped* article slugs (globally unique
+ * `/{slug}` routes), shared with the editor UI so both sides agree on who
+ * may claim one. Capability-based (not role-key-based) so the `owner` role —
+ * and any custom role granted `core-posts-slug-instance` in the admin
+ * capability matrix — is honored. The default grant lives in
+ * `roleDefaults` (owner via `*`, admin/moderator explicitly). This is also
+ * the server-side containment so the permission model cannot be bypassed by
+ * writing `instanceScoped: true` straight into the post body through the core
  * endpoints (which parse the extended `articleSchema`).
  */
-const INSTANCE_SCOPED_ROLES = ['admin', 'moderator'];
-
 const hasInstanceScopedRole = (
   profile: Profile & { roles?: Role[] },
-): boolean =>
-  (profile.roles ?? []).some((role) =>
-    INSTANCE_SCOPED_ROLES.includes(role.key),
-  );
+): boolean => canUseInstanceScopedSlug(profile.roles ?? []);
 
 /**
  * Enforce the slug permission model on an article body at write time:

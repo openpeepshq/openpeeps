@@ -101,6 +101,12 @@ export { useNewGroup } from './groups/useNewGroup';
 export { useGroupTemplateSelection } from './groups/useGroupTemplateSelection';
 export type { UseGroupTemplateSelectionArgs } from './groups/useGroupTemplateSelection';
 export { useNewArticle, useEditArticle } from './posts/useArticleComposer';
+export { useArticleSlugField } from './posts/postSlugField';
+export type {
+  ArticleSlugStatus,
+  UseArticleSlugField,
+  UseArticleSlugFieldArgs,
+} from './posts/postSlugField';
 export { useNewResource, useEditResource } from './posts/useResourceComposer';
 export {
   useResourceLibrary,

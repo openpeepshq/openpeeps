@@ -56,9 +56,11 @@ export const RESERVED_TOP_LEVEL_ROUTES = [
  * is lowercase/digits/hyphens only, a subset of handle shape). Such a segment
  * can never resolve as an instance-scoped slug — `/my-slug` loads the profile
  * page for handle `my-slug`, or 404s. Longer slug-shaped segments can be no
- * handle, so only those qualify as instance slugs. The plugin's availability
- * check enforces the same rule at write time. The shape is shared from
- * `@openpeepshq/common/lib` (single source of truth).
+ * handle, so only those qualify as instance slugs. The core write path enforces
+ * the same rule at write time: `applyArticleSlugPolicy` drops a handle-shaped
+ * slug from an instance-scoped article (gated by the `core-posts-slug-instance`
+ * capability). The shape is shared from `@openpeepshq/common/lib` (single
+ * source of truth).
  */
 export const isHandleShaped = isHandleShapedSlug;
 

@@ -96,4 +96,19 @@ describe('findPostBySlug scope resolution (mirrors the partial unique indexes)',
       findPostBySlug('my-article', 'ghost', false),
     ).resolves.toBeNull();
   });
+
+  it('excludes the given post id so the article own slug is not a collision', async () => {
+    const where = installDb([]);
+    await findPostBySlug('my-article', undefined, true, 'p-self-id');
+    expect(where()!).toContain('id <>');
+  });
+
+  it('does not add an id exclusion when excludePostId is omitted', async () => {
+    vi.mocked(findProfileByHandle).mockResolvedValue({
+      id: 'creator-1',
+    } as never);
+    const where = installDb([]);
+    await findPostBySlug('my-article', 'alice', false);
+    expect(where()!).not.toContain('id <>');
+  });
 });

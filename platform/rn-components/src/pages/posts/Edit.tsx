@@ -149,6 +149,7 @@ export const EditPost = ({ route, navigation }: PostProps) => {
                   postData={postData}
                   onChange={setPostData}
                   isEdit
+                  articleId={id}
                 />
               )}
               {(postData.type === 'question' || postData.type === 'note') && (

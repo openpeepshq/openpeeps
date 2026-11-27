@@ -12,8 +12,7 @@
   },
   "openpeeps": {
     "plugins": [
-      "examples/greeter-plugin",
-      "examples/slug-support"
+      "examples/greeter-plugin"
     ]
   },
   "dependencies": {

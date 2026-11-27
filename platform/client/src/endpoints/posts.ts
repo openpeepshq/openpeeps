@@ -95,6 +95,15 @@ type Finders = {
     { id: string; recordingId: string }
   >;
   unseenCounts: OpenpeepsNoPayloadEndpoint<UnseenPostCounts>;
+  slugCheck: OpenpeepsNoPayloadEndpoint<
+    { available: boolean; requiresPermission?: boolean },
+    undefined,
+    { slug: string; instanceScoped?: string; excludePostId?: string }
+  >;
+  slugGenerate: OpenpeepsPayloadEndpoint<
+    { slug: string | null },
+    { title: string; instanceScoped?: boolean; excludePostId?: string }
+  >;
   exportRsvps: (args: { id: string; occurrence?: string }) => Promise<string>;
 };
 
@@ -176,6 +185,15 @@ const finders = (rawClient: FetchClient): Finders => ({
 
     return response.text();
   },
+  slugCheck: allpeepNoPayloadEndpoint<
+    { available: boolean; requiresPermission?: boolean },
+    undefined,
+    { slug: string; instanceScoped?: string; excludePostId?: string }
+  >(rawClient, '/posts/slugs/check'),
+  slugGenerate: allpeepPayloadEndpoint<
+    { slug: string | null },
+    { title: string; instanceScoped?: boolean; excludePostId?: string }
+  >(rawClient, '/posts/slugs/generate'),
 });
 
 const eventFeeds = (rawClient: FetchClient): EventFeeds => ({

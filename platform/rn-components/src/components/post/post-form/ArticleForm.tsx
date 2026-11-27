@@ -7,11 +7,7 @@ import type {
   PostCreationData,
 } from '@openpeepshq/common';
 import { HEADER_IMAGE_MAX_WIDTH } from '@openpeepshq/common/lib';
-import {
-  applyAudienceSetting,
-  PluginSlot,
-  useCurrentProfile,
-} from '@openpeepshq/react';
+import { applyAudienceSetting, useCurrentProfile } from '@openpeepshq/react';
 import { MegaphoneIcon } from '../../icons/index';
 import { ImageInput } from '../../form/ImageInput';
 import { Input } from '../../ui/input';
@@ -19,11 +15,15 @@ import { Switch } from '../../ui/switch';
 import { ThemedText } from '../../ui/themed-text';
 import { OpenpeepsComposerInput } from './OpenpeepsMarkdownInput';
 import { VisibilitySelector } from './VisibilitySelector';
+import { ArticleSlugField } from './ArticleSlugField';
 
 export interface ArticleFormProps {
   postData: PostCreationData;
   onChange: (data: PostCreationData) => void;
   isEdit?: boolean;
+  /** Id of the article being edited (the slug field excludes it from
+   *  availability checks). */
+  articleId?: string;
   showNotify?: boolean;
   notify?: boolean;
   onNotifyChange?: (value: boolean) => void;
@@ -33,6 +33,7 @@ export const ArticleForm = ({
   postData,
   onChange,
   isEdit = false,
+  articleId,
   showNotify = false,
   notify = false,
   onNotifyChange,
@@ -77,11 +78,11 @@ export const ArticleForm = ({
           />
         </View>
 
-        {/* Slug support (and other article-editor extensions) plug in here.
-            No-op on RN (no plugin registry provider), so nothing renders. */}
-        <PluginSlot
-          name="plugins.articles.editor.slug"
-          props={{ postData, onChange, isEdit }}
+        <ArticleSlugField
+          postData={postData}
+          onChange={onChange}
+          isEdit={isEdit}
+          articleId={articleId}
         />
 
         <OpenpeepsComposerInput

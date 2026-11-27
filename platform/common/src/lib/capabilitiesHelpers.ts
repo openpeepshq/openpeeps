@@ -91,6 +91,16 @@ export const canAnnouncePosts = (roles: Role[] = []) =>
   checkRoleCapabilities(roles, ['core-posts-announce']).success;
 
 /**
+ * Claiming an *instance-scoped* article slug (a globally unique `/{slug}`
+ * route) needs `core-posts-slug-instance` — held by owner/admin by default,
+ * and grantable per the admin capability matrix. Capability-based so a role
+ * is not keyed by name; the core write path (`applyArticleSlugPolicy`) and
+ * the editor UI both check this.
+ */
+export const canUseInstanceScopedSlug = (roles: Role[] = []) =>
+  checkRoleCapabilities(roles, ['core-posts-slug-instance']).success;
+
+/**
  * Announcements notify the whole community, so composers offer them only for
  * community-wide visibility (public or local).
  */
