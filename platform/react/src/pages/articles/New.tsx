@@ -19,20 +19,36 @@ export function NewArticle() {
     submit,
   } = useNewArticle();
 
+  // Direct messages can't be drafts (error.draftNotDirect). A derived
+  // boolean keeps `headerActions` stable — raw `postData` in the deps would
+  // re-fire useSetPageHeader on every keystroke.
+  const isDirect = postData?.visibility === 'direct';
+
   const headerActions = useMemo(
     () => (
-      <Button
-        title={t('articles.create.title', { defaultValue: 'Create article' })}
-        variant="default"
-        action={submit}
-        disabled={submitting || !canSubmit}
-      >
-        {submitting
-          ? t('common.submitting', { defaultValue: 'Publishing…' })
-          : t('articles.create.title', { defaultValue: 'Create article' })}
-      </Button>
+      <>
+        <Button
+          title={t('posts.create.saveDraft', { defaultValue: 'Save draft' })}
+          variant="ghost"
+          action={() => submit(true)}
+          disabled={submitting || !canSubmit || isDirect}
+          data-testid="articles-save-draft"
+        >
+          {t('posts.create.saveDraft', { defaultValue: 'Save draft' })}
+        </Button>
+        <Button
+          title={t('articles.create.title', { defaultValue: 'Create article' })}
+          variant="default"
+          action={submit}
+          disabled={submitting || !canSubmit}
+        >
+          {submitting
+            ? t('common.submitting', { defaultValue: 'Publishing…' })
+            : t('articles.create.title', { defaultValue: 'Create article' })}
+        </Button>
+      </>
     ),
-    [canSubmit, submit, submitting, t],
+    [canSubmit, submit, submitting, isDirect, t],
   );
 
   useSetPageHeader(

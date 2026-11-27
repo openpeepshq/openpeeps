@@ -244,6 +244,10 @@ export type PostWithMeta = BasePost & {
   uri?: string | null;
   inReplyToUri?: string | null;
   inReplyToId?: string | null;
+  /** ISO publish timestamp. Absent/undefined while the post is a draft. */
+  publishedAt?: string;
+  /** True while the post is an unpublished draft (visible to the creator only). */
+  isDraft?: boolean;
   replyTo?: ReplyPost | null;
   repost?: BasePost | null;
   occurrenceRecurrenceId?: string;

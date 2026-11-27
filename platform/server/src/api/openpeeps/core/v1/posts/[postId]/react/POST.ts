@@ -4,6 +4,7 @@ import {
   forbidden,
   notFound,
   rethrowIfOpenpeepsError,
+  unprocessableRequest,
 } from '#lib/errors';
 import { ensureLocalProfile, ensurePostCapabilities } from '#lib/auth';
 import type { RequestEvent } from '@riddl/core';
@@ -32,6 +33,7 @@ export const Error = {
   400: badRequest(),
   403: forbidden(),
   404: notFound(),
+  422: unprocessableRequest(),
 };
 
 export const apiEndpoint = endpoint({ Input, Param, Output, Error }).handle(

@@ -238,7 +238,7 @@ Disable with `OPENPEEPS_MCP=0`. See [Connect an AI assistant
 #### Posts
 
 - `GET /api/openpeeps/core/v1/posts` - List posts
-- `POST /api/openpeeps/core/v1/posts` - Create post
+- `POST /api/openpeeps/core/v1/posts` - Create post (`draft: true` saves it as an unpublished draft instead of publishing it)
 - `GET /api/openpeeps/core/v1/posts/[postId]` - Get post
 - `PUT /api/openpeeps/core/v1/posts/[postId]` - Update post
 - `DELETE /api/openpeeps/core/v1/posts/[postId]` - Delete post
@@ -250,9 +250,11 @@ Disable with `OPENPEEPS_MCP=0`. See [Connect an AI assistant
 - `GET /api/openpeeps/core/v1/posts/[postId]/context` - Get conversation context
 - `POST /api/openpeeps/core/v1/posts/[postId]/vote` - Vote on poll
 - `POST /api/openpeeps/core/v1/posts/[postId]/rsvp` - RSVP to event
+- `POST /api/openpeeps/core/v1/posts/[postId]/publish` - Publish a draft (sets `published_at`, fires post-creation side effects once)
 - `GET /api/openpeeps/core/v1/posts/feeds/local` - Local feed
 - `GET /api/openpeeps/core/v1/posts/feeds/my` - Personal feed
 - `GET /api/openpeeps/core/v1/posts/bookmarks` - Bookmarked posts
+- `GET /api/openpeeps/core/v1/posts/drafts` - The caller's drafts (own unpublished posts only)
 - `GET /api/openpeeps/core/v1/posts/by-type/[type]` - Posts by type
 - `GET /api/openpeeps/core/v1/posts/by-profile/[profileId]` - Posts by profile
 - `GET /api/openpeeps/core/v1/posts/by-hashtag/[hashtag]` - Posts by hashtag

@@ -4,6 +4,7 @@ import {
   forbidden,
   notFound,
   rethrowIfOpenpeepsError,
+  unprocessableRequest,
 } from '#lib/errors';
 import {
   publicPostSchema,
@@ -27,6 +28,7 @@ export const Error = {
   400: badRequest(),
   403: forbidden(),
   404: notFound(),
+  422: unprocessableRequest(),
 };
 
 export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
@@ -41,7 +43,7 @@ export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
       throw badRequest('invalidCategoryPath');
     }
     const object = postDataSchema.parse({ ...input, creatorId: profile.id });
-    const { inReplyToId, mentions, groupId, audience } = input;
+    const { inReplyToId, mentions, groupId, audience, draft } = input;
 
     if (postData.type !== object.type) {
       object.type = postData.type;
@@ -63,6 +65,7 @@ export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
       mentions,
       groupId,
       audience,
+      draft,
     }).catch(rethrowIfOpenpeepsError);
   },
 );

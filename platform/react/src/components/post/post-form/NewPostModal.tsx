@@ -40,6 +40,7 @@ import {
   defaultNewQuestion,
   useNewPostStores,
 } from '../../../stores/newPosts';
+import { apiErrorMessage } from '../../../lib/apiErrorMessage';
 import { useComposeAttachments } from './ComposeAttachments';
 import { ComposePreviewLinks } from './ComposePreviewLinks';
 import { OpenpeepsRichMarkdownInput } from './OpenpeepsRichMarkdownInput';
@@ -268,7 +269,7 @@ export function NewPostModal({
     attachments.length,
   ]);
 
-  const publish = async () => {
+  const publish = async (saveAsDraft = false) => {
     if (!canSubmit) return;
     setSubmitting(true);
     try {
@@ -317,7 +318,22 @@ export function NewPostModal({
         await joinGroup({ id: targetGroupId });
       }
 
-      const response = await createPost(payload);
+      const response = await createPost({ ...payload, draft: saveAsDraft });
+      if (saveAsDraft) {
+        if (composerType === 'question') {
+          stores.resetNewQuestionState();
+        } else {
+          stores.resetNewNoteState();
+        }
+        onToast({
+          type: 'success',
+          message: t('posts.create.draftSavedToast', {
+            defaultValue: 'Draft saved',
+          }),
+        });
+        onClose();
+        return;
+      }
       if (notify && showNotify && response?.id) {
         await announcePost({ id: response.id });
       }
@@ -333,13 +349,19 @@ export function NewPostModal({
         }),
       });
       onClose();
-    } catch {
-      // Keep the modal open on failure so the draft stays visible and editable.
+    } catch (err) {
+      // Keep the modal open on failure so the draft stays visible and
+      // editable. The toast maps the server's error.* key to a translated
+      // string; mappable keys surface, anything else keeps the generic.
       onToast({
         type: 'error',
-        message: t('posts.create.errorGeneric', {
-          defaultValue: 'An error occurred while creating the post',
-        }),
+        message: apiErrorMessage(
+          err,
+          t,
+          t('posts.create.errorGeneric', {
+            defaultValue: 'An error occurred while creating the post',
+          }),
+        ),
       });
     } finally {
       setSubmitting(false);
@@ -528,6 +550,16 @@ export function NewPostModal({
             <div className="border-border-2 my-2 w-full border-t" />
 
             <div className="flex items-center justify-end gap-x-2">
+              <Button
+                variant="ghost"
+                action={() => publish(true)}
+                // The server hard-rejects a direct-message draft
+                // (error.draftNotDirect), so don't offer it here.
+                disabled={!canSubmit || submitting || visibility === 'direct'}
+                data-testid="posts-composer-save-draft"
+              >
+                {t('posts.create.saveDraft', { defaultValue: 'Save draft' })}
+              </Button>
               <Button
                 variant="default"
                 action={publish}

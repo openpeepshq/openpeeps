@@ -1393,6 +1393,23 @@ describe('postHelpers', () => {
       expect(result.canReply).toBe(true);
       expect(result.canRepost).toBe(true);
     });
+
+    it('disables all actions for a draft, even for its author', () => {
+      // The author's `self` relationship grants the full post capabilities,
+      // so without the draft short-circuit this would return all-true.
+      const draft = { ...mockPost, isDraft: true } as PublicPost;
+
+      const result = getPostActionAvailability(
+        { profile: mockProfile, scopes: writeScopes },
+        draft,
+        mockCapabilitiesConfig,
+      );
+      expect(result).toEqual({
+        canReply: false,
+        canRepost: false,
+        canReact: false,
+      });
+    });
   });
 
   describe('hidden block tombstones', () => {

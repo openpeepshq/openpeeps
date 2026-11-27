@@ -318,6 +318,9 @@ maybe('listLeftConversations (postgres)', () => {
     // Timestamps are now(): created_at carries no ordering semantics in
     // this suite — the walk orders by uuid (leaf_id/depth), not by time,
     // so the id ordering below is the only ordering that matters.
+    // published_at mirrors production: createPost sets it for every
+    // non-draft post, and the shared posts defaultFilter (drafts hidden)
+    // would otherwise treat these legacy rows as drafts.
     const note = (
       postId: string,
       creatorId: string,
@@ -326,8 +329,8 @@ maybe('listLeftConversations (postgres)', () => {
     ) =>
       pool.query(
         `INSERT INTO posts (id, type, visibility, creator_id, body,
-                            created_at, updated_at, last_activity_at)
-         VALUES ($1, 'note', $2, $3, $4, now(), now(), now())`,
+                            created_at, updated_at, last_activity_at, published_at)
+         VALUES ($1, 'note', $2, $3, $4, now(), now(), now(), now())`,
         [
           postId,
           visibility,

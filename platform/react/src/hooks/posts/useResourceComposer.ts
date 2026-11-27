@@ -190,29 +190,38 @@ export const useNewResource = () => {
     stores.resource = data;
   };
 
-  const submit = useCallback(async () => {
-    setError(null);
-    if (!audienceReady) return;
-    const issue = issuesFor(postData)[0];
-    if (!resource || issue) {
-      if (issue) setError(issueMessage(issue, t));
-      return;
-    }
-    setSubmitting(true);
-    try {
-      const created = await createPost({
-        ...postData,
-        type: 'resource',
-        data: preparedResource(resource),
-      });
-      stores.resetNewResourceState();
-      navigate({ type: 'post', id: created.id });
-    } catch (err) {
-      setError(submitErrorMessage(err, t));
-    } finally {
-      setSubmitting(false);
-    }
-  }, [audienceReady, createPost, navigate, postData, resource, stores, t]);
+  const submit = useCallback(
+    async (saveAsDraft = false) => {
+      setError(null);
+      if (!audienceReady) return;
+      const issue = issuesFor(postData)[0];
+      if (!resource || issue) {
+        if (issue) setError(issueMessage(issue, t));
+        return;
+      }
+      setSubmitting(true);
+      try {
+        const created = await createPost({
+          ...postData,
+          type: 'resource',
+          data: preparedResource(resource),
+          draft: saveAsDraft || undefined,
+        });
+        if (saveAsDraft) {
+          stores.resetNewResourceState();
+          navigate({ type: 'feed', feed: 'drafts' });
+          return;
+        }
+        stores.resetNewResourceState();
+        navigate({ type: 'post', id: created.id });
+      } catch (err) {
+        setError(submitErrorMessage(err, t));
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [audienceReady, createPost, navigate, postData, resource, stores, t],
+  );
 
   return {
     postData,

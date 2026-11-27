@@ -92,6 +92,7 @@ export const createPost = async (
     repostId?: string;
     audience?: Profile[] | null;
     groupId?: string | null;
+    draft?: boolean;
   } = {},
 ): Promise<PostWithMeta> => {
   if (data.type === 'event') {
@@ -104,6 +105,21 @@ export const createPost = async (
   }
 
   const { db } = await allpeepDb();
+
+  // Drafts must not be nested: a reply/repost target could be invisible to
+  // others (or a draft), and republishing would leak its visibility.
+  if (relations.draft) {
+    if (relations.inReplyToId) {
+      throw unprocessableRequest({ errorKey: 'error.draftNotReply' });
+    }
+    if (relations.repostId) {
+      throw unprocessableRequest({ errorKey: 'error.draftNotRepost' });
+    }
+    if (postData.visibility === 'direct') {
+      throw unprocessableRequest({ errorKey: 'error.draftNotDirect' });
+    }
+  }
+
   const repostedPost = relations.repostId
     ? await postsMapping.find(db, relations.repostId)
     : undefined;
@@ -116,6 +132,18 @@ export const createPost = async (
   // would republish it as a top-level post on the community feed.
   if (relations.inReplyToId && !repliedToPost) {
     throw notFound({ errorKey: 'error.postDeleted' });
+  }
+
+  // A draft parent is invisible to everyone but its author, and the reply
+  // would inherit its visibility — replying/reposting to one would leak the
+  // hidden post. The by-id finder skips the `publishedAt` default filter, so
+  // reject any target that exists but is not yet published. (A deleted reply
+  // target is handled above; a non-existent repost target is a no-op.)
+  if (repliedToPost && repliedToPost.publishedAt == null) {
+    throw unprocessableRequest({ errorKey: 'error.postNotPublished' });
+  }
+  if (repostedPost && repostedPost.publishedAt == null) {
+    throw unprocessableRequest({ errorKey: 'error.postNotPublished' });
   }
 
   if (repliedToPost) {
@@ -168,6 +196,7 @@ export const createPost = async (
     data,
     type: data.type,
     creatorId: profile.id,
+    publishedAt: relations.draft ? null : nowIso(),
   });
 
   await entryConnector(db, profile, post, {
@@ -227,15 +256,60 @@ export const createPost = async (
   const newPost = await postsMapping.find(db, post.id);
   const transformedPost = await transformPost(newPost!);
 
-  if (data.type === 'event') {
-    await rebuildEventOccurrences(transformedPost.id, data);
+  // Drafts are invisible to everyone but the author, so none of the
+  // publish-time side effects run until `publishPost` fires them once.
+  if (relations.draft) {
+    return transformedPost;
   }
 
-  if (data.type === 'question') {
-    await schedulePollEnd(transformedPost.id, data.expiresAt);
+  await announcePostCreation(transformedPost);
+
+  return transformedPost;
+};
+
+/**
+ * Publish-time side effects shared by `createPost` (published immediately)
+ * and `publishPost` (draft → published) so the two cannot drift.
+ */
+const announcePostCreation = async (post: PostWithMeta): Promise<void> => {
+  if (post.data?.type === 'event') {
+    await rebuildEventOccurrences(post.id, post.data);
   }
 
-  hub.emit('postCreated', transformedPost);
+  if (post.data?.type === 'question') {
+    await schedulePollEnd(post.id, post.data.expiresAt);
+  }
+
+  hub.emit('postCreated', post);
+};
+
+/**
+ * Publishes a draft post. Validates that the caller is the author and that
+ * the post is still unpublished (422 if already published, 403 otherwise);
+ * sets `published_at` and fires the shared publish-time side effects once.
+ * The intended-visibility re-check (Q4) lives in the UI's publish guard,
+ * not here.
+ */
+export const publishPost = async (
+  post: PostWithMeta,
+  profile: Profile,
+): Promise<PostWithMeta> => {
+  if (post.publishedAt != null) {
+    throw unprocessableRequest({ errorKey: 'error.alreadyPublished' });
+  }
+  if (post.creatorId !== profile.id && post.profile?.id !== profile.id) {
+    throw forbidden({ errorKey: 'error.notDraftOwner' });
+  }
+
+  const { db } = await allpeepDb();
+  const ts = nowIso();
+  await postsMapping.removeDefaultFilter().update(db, post.id, {
+    publishedAt: ts,
+  });
+
+  const newPost = await postsMapping.find(db, post.id);
+  const transformedPost = await transformPost(newPost!);
+  await announcePostCreation(transformedPost);
 
   return transformedPost;
 };
@@ -289,6 +363,13 @@ export const updatePost = async (
     .find(db, post.id)
     .then(passThroughUndefined(transformPost));
 
+  // Drafts fire none of the publish-time side effects on edit: occurrences,
+  // poll-end jobs, and the `postUpdated` emit all run exactly once when the
+  // draft is published via `publishPost` (through `announcePostCreation`).
+  if (post.isDraft === true) {
+    return newPost!;
+  }
+
   if (normalized.type === 'event') {
     await rebuildEventOccurrences(post.id, normalized);
   }
@@ -309,6 +390,13 @@ export const reactToPost = async (
   profile: Profile,
   data: ReactionData,
 ) => {
+  // A reaction on a draft would store a private entry on an unpublished post
+  // (the author's own `self` capabilities let the endpoint through, so this
+  // guard is the server-side answer to the UI disabling the control): drafts
+  // reject reactions the same way they reject reply/repost targets.
+  if (post.isDraft === true) {
+    throw unprocessableRequest({ errorKey: 'error.postNotPublished' });
+  }
   // Idempotency: one reaction per emoji per profile. Tapping the same emoji
   // twice (a second tab, a stale client, a client retry) must be a no-op —
   // otherwise the entry is stored twice and each row fires `reactionCreated`,
@@ -461,6 +549,11 @@ export const vote = async (
   post: PostWithMeta,
   data: Answer,
 ) => {
+  // Same draft guard as `reactToPost`: a vote would store an answer entry on
+  // an unpublished post (including an undo that mutates a prior one).
+  if (post.isDraft === true) {
+    throw unprocessableRequest({ errorKey: 'error.postNotPublished' });
+  }
   validatePollVote(post, data);
   const { db } = await allpeepDb();
   await entryConnector(db, profile, post, {

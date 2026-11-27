@@ -14,10 +14,17 @@
 import { type ReactNode } from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import Toast from 'react-native-toast-message';
+// Shipped English copy so the disabled-state title can be asserted against the
+// locale file instead of a hardcoded literal (round-9 rework). Jest resolves
+// JSON natively; the path is relative to this file, mirroring the shipped
+// i18n package.
+import enJson from '../../../../../i18n/src/locales/en.json';
 
 // --- shared mutable state read by the module mocks (mock* = hoisting-safe) --
 let mockProfile: { id: string; displayName?: string; handle?: string } | null =
   { id: 'u-1', displayName: 'Me', handle: 'me', following: [] };
+// Draft publish gating (PostMenu's `canCreatePostTypeIgnoringScopes`).
+let mockCanCreateDraft = true;
 const mockClient = {
   posts: { deletePost: jest.fn(), pinPost: jest.fn() },
   profiles: { followProfile: jest.fn() },
@@ -55,6 +62,9 @@ jest.mock('react-i18next', () => ({
 
 // --- openpeeps context -----------------------------------------------------
 jest.mock('@openpeepshq/react', () => ({
+  // PostMenu imports `apiErrorMessage` from this module for the draft
+  // publish error toast.
+  apiErrorMessage: (err: unknown) => String(err),
   useOpenpeeps: () => ({
     currentProfile: mockProfile,
     openpeepsApi: {
@@ -72,6 +82,8 @@ jest.mock('@openpeepshq/react', () => ({
       unfollowProfileAction: () =>
         jest.fn().mockResolvedValue({ success: true }),
       admin: { pinPostGloballyAction: () => jest.fn() },
+      // PostMenu builds the draft Publish mutation unconditionally.
+      publishPostAction: () => jest.fn().mockResolvedValue({ id: 'post-1' }),
     },
     client: mockClient,
   }),
@@ -143,6 +155,8 @@ jest.mock('../../icons/index', () => ({
   BookmarkPlusIcon: () => null,
   BookmarkMinusIcon: () => null,
   Repeat2Icon: () => null,
+  FeatherIcon: () => null,
+  AlertTriangleIcon: () => null,
   HeartIcon: () => null,
   MessageCircleIcon: () => null,
   MoreVerticalIcon: () => null,
@@ -175,14 +189,36 @@ jest.mock('../../ui/index', () => {
       React.createElement('View', props, props.children),
     PopupMenuButton: (props: {
       text?: string;
+      title?: string;
       action?: unknown;
       onPress?: () => void;
+      disabled?: boolean;
     }) =>
       React.createElement('View', {
-        testID: `menu-${props.text}`,
-        onPress: typeof props.action === 'function' ? props.action : undefined,
+        'testID': `menu-${props.text}`,
+        // `data-title` mirrors the disabled-state title so tests can pin the
+        // exact copy shown (round-9 rework: copy is asserted against the
+        // shipped en.json, not a hardcoded literal).
+        'data-title': props.title,
+        'disabled': props.disabled,
+        'onPress':
+          typeof props.action === 'function' && !props.disabled
+            ? props.action
+            : undefined,
       }),
     PopupSeparator: () => null,
+    ThemedView: (props: {
+      className?: string;
+      children?: ReactNode;
+      ['testID']?: string;
+    }) =>
+      React.createElement('View', { testID: props['testID'] }, props.children),
+    ThemedText: (props: {
+      className?: string;
+      children?: ReactNode;
+      ['testID']?: string;
+    }) =>
+      React.createElement('Text', { testID: props['testID'] }, props.children),
     Avatar: () => null,
     Badge: () => null,
     Button: () => null,
@@ -192,6 +228,7 @@ jest.mock('../../ui/index', () => {
 jest.mock('@openpeepshq/common', () => ({
   checkGroupCapabilities: () => ({}),
   checkRoleCapabilities: () => ({}),
+  canCreatePostTypeIgnoringScopes: () => mockCanCreateDraft,
 }));
 jest.mock('@openpeepshq/common/lib', () => ({
   checkRoleCapabilities: () => ({}),
@@ -233,6 +270,20 @@ function findByTestID(json: unknown, testID: string): TreeNode | undefined {
   return undefined;
 }
 
+// All rendered text, concatenated — the warning pin below asserts on an
+// apostrophe-free prefix (the component's inline defaultValue uses curly
+// quotes; the locale file uses straight ones), so word-level containment is
+// the stable comparison.
+function flattenText(json: unknown): string {
+  if (json === null || typeof json !== 'object') return '';
+  const node = json as TreeNode;
+  let out = '';
+  for (const c of node.children || []) {
+    out += typeof c === 'string' ? c : flattenText(c);
+  }
+  return out;
+}
+
 const BASE_POST = {
   id: 'post-1',
   profile: { id: 'owner-1', displayName: 'Owner' },
@@ -254,6 +305,7 @@ function render(): ReactTestRenderer.ReactTestRenderer {
 
 beforeEach(() => {
   mockProfile = { id: 'u-1', displayName: 'Me', handle: 'me', following: [] };
+  mockCanCreateDraft = true;
   mountedReactions.length = 0;
   mountedReposts.length = 0;
   (Toast.show as jest.Mock).mockClear();
@@ -330,4 +382,73 @@ test('5. follow/unfollow toasts render the shared profile.follow.* keys (#2110)'
   );
   tree.unmount();
   tree2.unmount();
+});
+
+// Draft publish (#382): offered only for a draft, enabled when the author
+// can still post at the draft's visibility, success/error toasts wired.
+test('6. draft post: Publish action toasts success; blocked visibility disables it', async () => {
+  const draftPost = {
+    ...BASE_POST,
+    isDraft: true,
+    profile: { id: 'u-1', displayName: 'Me' },
+  };
+  let tree!: ReactTestRenderer.ReactTestRenderer;
+  ReactTestRenderer.act(() => {
+    tree = ReactTestRenderer.create(
+      <PostMenu post={draftPost as never} deleteCallback={jest.fn()} />
+    );
+  });
+
+  // A non-draft post never offers the action.
+  const baseTree = render();
+  expect(findByTestID(baseTree.toJSON(), 'menu-Publish')).toBeUndefined();
+
+  const publishItem = findByTestID(tree.toJSON(), 'menu-Publish');
+  expect(publishItem).toBeDefined();
+  expect(publishItem?.props?.disabled).toBe(false);
+  await ReactTestRenderer.act(async () => {
+    await (publishItem?.props?.onPress as () => Promise<void>)();
+  });
+  expect(Toast.show).toHaveBeenCalledWith(
+    expect.objectContaining({ text1: 'posts.create.successToast' })
+  );
+  tree.unmount();
+  baseTree.unmount();
+
+  // Lost permission to post at the draft's visibility -> disabled + warning
+  // (the button keeps its `text`, only the title flips to the warning).
+  mockCanCreateDraft = false;
+  ReactTestRenderer.act(() => {
+    tree = ReactTestRenderer.create(
+      <PostMenu post={draftPost as never} deleteCallback={jest.fn()} />
+    );
+  });
+  const blockedItem = findByTestID(tree.toJSON(), 'menu-Publish');
+  expect(blockedItem).toBeDefined();
+  expect(blockedItem?.props?.disabled).toBe(true);
+  // Pin the exact disabled-state copy against the shipped locale file (the
+  // title flips to the publishDisabled string, not the plain publish string).
+  expect(blockedItem?.props?.['data-title']).toBe(
+    (enJson as { posts: { menu: { publishDisabled: string } } }).posts.menu
+      .publishDisabled
+  );
+  expect(blockedItem?.props?.['data-title']).not.toBe('Publish');
+  // The inline warning is rendered (web/RN parity, round-14 suggestion 2).
+  // Pinned via an apostrophe-free prefix: the component's inline defaultValue
+  // uses curly quotes while the shipped en.json uses straight ones, so the
+  // full string would differ on punctuation, not wording.
+  expect(flattenText(tree.toJSON())).toContain(
+    'You no longer have permission to post at this draft'
+  );
+  // The enabled draft renders no warning.
+  mockCanCreateDraft = true;
+  ReactTestRenderer.act(() => {
+    tree = ReactTestRenderer.create(
+      <PostMenu post={draftPost as never} deleteCallback={jest.fn()} />
+    );
+  });
+  expect(flattenText(tree.toJSON())).not.toContain(
+    'You no longer have permission to post at this draft'
+  );
+  tree.unmount();
 });

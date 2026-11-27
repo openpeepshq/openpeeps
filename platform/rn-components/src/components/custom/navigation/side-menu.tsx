@@ -16,6 +16,7 @@ import {
   BellIcon,
   BookCheckIcon,
   BookmarkIcon,
+  FeatherIcon,
   BookUserIcon,
   CalendarDaysIcon,
   HomeIcon,
@@ -54,6 +55,7 @@ const menuIcons: Record<string, React.ComponentType<LucideProps>> = {
   messages: MessageSquareTextIcon,
   members: BookUserIcon,
   bookmarks: BookmarkIcon,
+  drafts: FeatherIcon,
   settings: SettingsIcon,
   resources: LibraryIcon,
 };

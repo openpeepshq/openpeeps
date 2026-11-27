@@ -135,6 +135,9 @@ const basePostFilterRelations: Relation[] = [
 const preFilterMapData = {
   collection: 'posts',
   softDelete: true,
+  // Drafts (unpublished) are excluded from every shared post query by default.
+  // The drafts finder opts out via `removeDefaultFilter()`.
+  defaultFilter: postFilters.published(),
 };
 
 const basePostMapData = {

@@ -22,6 +22,7 @@ const shardGroups = [
     'api/openpeeps/core/v1/jams/test.ts',
     'api/openpeeps/core/v1/plugins/test.ts',
     'api/openpeeps/core/v1/posts/test.ts',
+    'api/openpeeps/core/v1/posts/drafts/test.ts',
     'api/test.ts',
     'auth/register/test.ts',
     'ui/test.ts',

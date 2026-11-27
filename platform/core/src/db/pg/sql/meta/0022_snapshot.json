@@ -1,6 +1,6 @@
 {
   "id": "4a5587e2-755d-42e0-a8e0-4940132dbb19",
-  "prevId": "323109c5-d6e0-435d-b254-14a969464115",
+  "prevId": "cbe40fa6-6a27-404d-82fd-48551e54d6d2",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -899,6 +899,12 @@
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
+        },
+        "published_at": {
+          "name": "published_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -1047,6 +1053,27 @@
           ],
           "isUnique": true,
           "where": "type = 'article' AND body ->> 'slug' IS NOT NULL AND (body ->> 'instanceScoped' IS NULL OR body ->> 'instanceScoped' = 'false')",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "posts_creator_published_idx": {
+          "name": "posts_creator_published_idx",
+          "columns": [
+            {
+              "expression": "creator_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "published_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
           "concurrently": false,
           "method": "btree",
           "with": {}

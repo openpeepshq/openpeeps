@@ -96,6 +96,7 @@ export type MainStackParamList = {
     id: string;
   };
   MyEvents: undefined;
+  Drafts: undefined;
   About: undefined;
   CodeOfConduct: undefined;
   Events: undefined;
@@ -148,6 +149,7 @@ export const MAIN_ROUTES = {
   NEW_RESOURCE: 'NewResource',
   EDIT_RESOURCE: 'EditResource',
   MY_EVENTS: 'MyEvents',
+  DRAFTS: 'Drafts',
   ABOUT: 'About',
   CODE_OF_CONDUCT: 'CodeOfConduct',
   EVENT_PAGE: 'EventPage',

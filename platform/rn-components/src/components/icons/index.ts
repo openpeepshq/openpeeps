@@ -45,6 +45,7 @@ import {
   Mic,
   MicOff,
   Film,
+  Feather,
   Plus,
   ChevronRight,
   ChartColumn,
@@ -129,6 +130,7 @@ import {
   Smartphone,
   ChevronLeft,
   Laugh,
+  AlertTriangle,
   CircleEllipsis,
   CircleStop,
   Disc,
@@ -271,6 +273,7 @@ export const GlobeIcon = iconWithClassName(Globe);
 export const ScrollTextIcon = iconWithClassName(ScrollText);
 export const LibraryIcon = iconWithClassName(Library);
 export const BookmarkIcon = iconWithClassName(Bookmark);
+export const FeatherIcon = iconWithClassName(Feather);
 export const BookmarkMinusIcon = iconWithClassName(BookmarkMinus);
 export const BookmarkPlusIcon = iconWithClassName(BookmarkPlus);
 export const PaperclipIcon = iconWithClassName(Paperclip);
@@ -293,3 +296,4 @@ export const LayoutListIcon = iconWithClassName(LayoutList);
 export const ExternalLinkIcon = iconWithClassName(ExternalLink);
 export const PinOffIcon = iconWithClassName(PinOff);
 export const SmilePlusIcon = iconWithClassName(SmilePlus);
+export const AlertTriangleIcon = iconWithClassName(AlertTriangle);

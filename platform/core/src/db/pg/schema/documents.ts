@@ -116,6 +116,11 @@ export const posts = pgTable(
     creatorId: text('creator_id').notNull(),
     uri: text('uri'),
     inReplyToUri: text('in_reply_to_uri'),
+    /** NULL while the post is a draft; set to the publish timestamp. */
+    publishedAt: timestamp('published_at', {
+      withTimezone: true,
+      mode: 'string',
+    }),
     body: jsonb('body').notNull().default({}),
     searchVector: tsvector('search_vector'),
     lastActivityAt: timestamp('last_activity_at', {
@@ -151,6 +156,7 @@ export const posts = pgTable(
       .where(
         sql`type = 'article' AND body ->> 'slug' IS NOT NULL AND (body ->> 'instanceScoped' IS NULL OR body ->> 'instanceScoped' = 'false')`,
       ),
+    index('posts_creator_published_idx').on(t.creatorId, t.publishedAt),
   ],
 );
 

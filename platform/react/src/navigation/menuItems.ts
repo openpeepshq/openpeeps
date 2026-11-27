@@ -99,6 +99,13 @@ export const buildMainNavItems = (caps: MainMenuCapabilities): NavItemDef[] => {
       icon: 'Bookmark',
     },
     {
+      id: 'drafts',
+      target: { type: 'feed', feed: 'drafts' },
+      labelKey: 'common.entities.drafts',
+      tooltipKey: navTooltip('drafts'),
+      icon: 'Feather',
+    },
+    {
       id: 'settings',
       target: { type: 'settings' },
       labelKey: 'navigation.settings',

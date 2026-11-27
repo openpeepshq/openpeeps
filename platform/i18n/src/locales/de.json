@@ -188,7 +188,8 @@
       "plugins": "Installierte Plugins konfigurieren",
       "configuration": "Seitenkonfiguration bearbeiten",
       "diagnostics": "Systemdiagnose anzeigen",
-      "database": "Datenbankverwaltung öffnen"
+      "database": "Datenbankverwaltung öffnen",
+      "drafts": "Zeige deine unveröffentlichten Beiträge"
     }
   },
   "profile": {
@@ -367,6 +368,8 @@
     "create": {
       "title": "Beitrag erstellen",
       "submit": "Veröffentlichen",
+      "saveDraft": "Entwurf speichern",
+      "draftSavedToast": "Entwurf gespeichert",
       "error": "Beitrag konnte nicht erstellt werden",
       "errorGeneric": "Beim Erstellen des Beitrags ist ein Fehler aufgetreten",
       "loading": "Beitrag wird erstellt…",
@@ -414,7 +417,10 @@
     "menu": {
       "title": "Beitrag-Menü",
       "reposts": "Geteilte Beiträge",
-      "reactions": "Reaktionen"
+      "reactions": "Reaktionen",
+      "publish": "Veröffentlichen",
+      "publishDisabled": "Veröffentlichen (nicht erlaubt)",
+      "cannotPublishDraft": "Du hast keine Berechtigung mehr, mit der Sichtbarkeit dieses Entwurfs zu posten, daher kann er nicht veröffentlicht werden. Ändere die Sichtbarkeit oder wende dich an eine:n Admin:in."
     },
     "reactionsModal": {
       "title": "Reaktionen",
@@ -2607,7 +2613,8 @@
       "groups": "Gruppen",
       "members": "Mitglieder",
       "events": "Veranstaltungen",
-      "bookmarks": "Lesezeichen"
+      "bookmarks": "Lesezeichen",
+      "drafts": "Entwürfe"
     },
     "submit": "Absenden",
     "listEditor": {
@@ -4049,7 +4056,13 @@
     "pollClosed": "Diese Umfrage ist beendet.",
     "invalidPollVote": "Ungültige Umfrageantwort.",
     "unprocessableRequest": "Ungültige Anfrage",
-    "roleExists": "Eine Rolle mit diesem Schlüssel existiert bereits."
+    "roleExists": "Eine Rolle mit diesem Schlüssel existiert bereits.",
+    "draftNotReply": "Antworten können nicht als Entwürfe gespeichert werden.",
+    "draftNotRepost": "Wiederholungen können nicht als Entwürfe gespeichert werden.",
+    "draftNotDirect": "Direktnachrichten können nicht als Entwürfe gespeichert werden.",
+    "notDraftOwner": "Nur der Autor kann diesen Entwurf veröffentlichen oder bearbeiten.",
+    "alreadyPublished": "Dieser Entwurf wurde bereits veröffentlicht.",
+    "postNotPublished": "Dieser Beitrag wurde noch nicht veröffentlicht."
   },
   "payment": {
     "cancelled": "Bezahlvorgang wurde abgebrochen.",
@@ -4120,6 +4133,11 @@
         "title": "Zugriffstoken",
         "description": "Wer ein Dienstzugriffstoken verwalten kann, abhängig von der Beziehung zum Besitzer des Tokens."
       }
+    }
+  },
+  "feeds": {
+    "drafts": {
+      "filter": "Filtere deine Entwürfe…"
     }
   }
 }

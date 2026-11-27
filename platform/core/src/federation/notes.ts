@@ -1,4 +1,4 @@
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, eq, isNotNull, isNull } from 'drizzle-orm';
 import { pgDb } from '../db/pg/client';
 import { posts } from '../db/pg/schema/documents';
 
@@ -31,7 +31,13 @@ export const loadPublicNote = async (
       deletedAt: posts.deletedAt,
     })
     .from(posts)
-    .where(and(eq(posts.id, postId), isNull(posts.deletedAt)))
+    .where(
+      and(
+        eq(posts.id, postId),
+        isNull(posts.deletedAt),
+        isNotNull(posts.publishedAt),
+      ),
+    )
     .limit(1);
   if (!row || row.type !== 'note' || row.visibility !== 'public') return null;
   const body = (row.body ?? {}) as PostBody;

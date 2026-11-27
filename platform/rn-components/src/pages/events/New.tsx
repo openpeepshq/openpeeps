@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 import { useNewEvent } from '@openpeepshq/react';
-import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
+import { useSetPageHeader } from '../../components/layout';
+import { Button } from '../../components/ui/button';
 import { ThemedView } from '../../components/ui/themed-view';
 import { ThemedText } from '../../components/ui/themed-text';
 import { MainScreenProps } from '../../components/navigation/types/index';
@@ -33,17 +34,50 @@ export const NewEvent = (_props: NewEventProps) => {
     clearError();
   }, [error, clearError]);
 
-  useSetPageHeader(
-    t('events.create.title'),
-    canCreate ? (
-      <HeaderActionButton
-        title={submitting ? t('common.submitting') : t('events.create.title')}
-        onPress={() => void submit()}
-        disabled={submitting || !canSubmit}
-        loading={submitting}
-      />
-    ) : undefined
-  );
+  // Direct messages can't be drafts (error.draftNotDirect). A derived boolean
+  // keeps `headerActions` referentially stable — using `postData` directly
+  // would re-fire useSetPageHeader on every keystroke.
+  const isDirect = postData.visibility === 'direct';
+
+  const headerActions = useMemo(() => {
+    if (!canCreate) return undefined;
+    return (
+      <>
+        <Button
+          variant="ghost"
+          className="mr-1"
+          testID="events-save-draft"
+          onPress={async () => {
+            const saved = await submit(true);
+            if (saved) {
+              Toast.show({
+                type: 'success',
+                text1: t('posts.create.draftSavedToast', {
+                  defaultValue: 'Draft saved',
+                }),
+              });
+            }
+          }}
+          disabled={submitting || !canSubmit || isDirect}
+        >
+          <ThemedText>
+            {t('posts.create.saveDraft', { defaultValue: 'Save draft' })}
+          </ThemedText>
+        </Button>
+        <Button
+          onPress={() => submit()}
+          disabled={submitting || !canSubmit}
+          testID="events-create-submit"
+        >
+          <ThemedText className="text-primary-foreground font-semibold">
+            {submitting ? t('common.submitting') : t('events.create.title')}
+          </ThemedText>
+        </Button>
+      </>
+    );
+  }, [canCreate, canSubmit, submit, submitting, isDirect, t]);
+
+  useSetPageHeader(t('events.create.title'), headerActions);
 
   if (!canCreate) {
     return (

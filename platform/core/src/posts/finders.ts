@@ -150,6 +150,26 @@ export const findPostBySlug = async (
   return hideBlockedAuthorPost(post, undefined) ?? null;
 };
 
+/** The author's unpublished drafts, most-recently-edited first. */
+export const listMyDrafts = async (
+  profile: ProfileWithMeta,
+  options: { limit?: number; offset?: number } = {},
+): Promise<PostWithMeta[]> => {
+  const { limit = 100, offset = 0 } = options;
+  const mapping = postsMappingForProfile(profile)
+    .removeDefaultFilter()
+    .filter(postFilters.drafts())
+    .filter(postFilters.creatorId(profile.id))
+    // "Newest" = most-recently-edited (updatedAt, not createdAt), so a draft
+    // bubbles to the top after an edit — matching how the feed orders posts.
+    .sort(sorts.updatedAtDesc);
+  return toFilteredPostsList(mapping, {
+    authData: { profile, scopes: [] },
+    limit,
+    offset,
+  });
+};
+
 /** Lean post load for capability checks (no nested reply/repost). */
 export const findPostsForAuth = async (
   ids: string[],

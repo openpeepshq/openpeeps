@@ -776,8 +776,9 @@ export const canCreatePostType = (
  * Scope-free variant of {@link canCreatePostType}: may this profile create a
  * post of `type` in any of `visibilities`, judging capabilities only. Token
  * scopes load after the first paint in the clients, so gating UI on them would
- * flash a denial for allowed users; the create endpoints still enforce
- * scopes.
+ * flash a denial for allowed users; the create and publish endpoints still
+ * enforce scopes (publishing a draft goes through `core-posts-update`, the
+ * same capability-based scope-checked path as creation).
  */
 export const canCreatePostTypeIgnoringScopes = (
   authData: AuthorizationData,
@@ -809,12 +810,23 @@ export type PostActionAvailability = {
  * post stay fully disabled (existing feed rule). Each action also follows
  * the capability the matching write endpoint actually checks: feed replies
  * and reposts need create-*, reactions need core-posts-react.
+ *
+ * Drafts disable every action up front: the author's own `self` relationship
+ * grants the full post capabilities, so without this check the Drafts page
+ * would render live Reply / Repost / React buttons for the owner's own
+ * drafts — the server rejects reply/repost with `error.postNotPublished`,
+ * and react/vote have their own draft guards in core (no hidden state
+ * mutation on an unpublished post).
  */
 export const getPostActionAvailability = (
   authData: AuthorizationData,
   post: PublicPost,
   config: CapabilitiesConfig,
 ): PostActionAvailability => {
+  if (post.isDraft === true) {
+    return { canReply: false, canRepost: false, canReact: false };
+  }
+
   const isGroupPost = !!post.groupId || !!post.group;
   const membershipExists = !!authData.profile?.memberships?.some(
     (m) => m.group.id === post.group?.id || m.group.id === post.groupId,

@@ -77,6 +77,11 @@ type Finders = {
     ChronologicalInfiniteQueryParams
   >;
   listBookmarks: ChronologicalPosts;
+  listDrafts: OpenpeepsNoPayloadEndpoint<
+    PublicPost[],
+    undefined,
+    OffsetInfiniteQueryParams
+  >;
   findById: OpenpeepsNoPayloadEndpoint<PublicPost, { id: string }>;
   context: OpenpeepsNoPayloadEndpoint<PostContext, { id: string }>;
   reposts: OpenpeepsNoPayloadEndpoint<PublicPost[], { id: string }>;
@@ -126,6 +131,11 @@ const finders = (rawClient: FetchClient): Finders => ({
     undefined,
     ChronologicalInfiniteQueryParams
   >(rawClient, '/posts/bookmarks'),
+  listDrafts: allpeepNoPayloadEndpoint<
+    PublicPost[],
+    undefined,
+    OffsetInfiniteQueryParams
+  >(rawClient, '/posts/drafts'),
   findById: allpeepNoPayloadEndpoint<PublicPost, { id: string }>(
     rawClient,
     '/posts/:id',
@@ -337,6 +347,7 @@ type Mutators = {
   >;
   bookmark: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
   unbookmark: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
+  publish: OpenpeepsNoPayloadEndpoint<PublicPost, { id: string }>;
   seen: OpenpeepsPayloadEndpoint<SuccessResponse, PostsSeenRequest>;
   seenByGroup: OpenpeepsNoPayloadEndpoint<SuccessResponse, { groupId: string }>;
   repost: OpenpeepsNoPayloadEndpoint<SuccessResponse, { id: string }>;
@@ -386,6 +397,11 @@ const mutators = (rawClient: FetchClient): Mutators => ({
     rawClient,
     '/posts/:id/bookmark',
     'delete',
+  ),
+  publish: allpeepNoPayloadEndpoint<PublicPost, { id: string }>(
+    rawClient,
+    '/posts/:id/publish',
+    'post',
   ),
   seen: allpeepPayloadEndpoint<SuccessResponse, PostsSeenRequest>(
     rawClient,

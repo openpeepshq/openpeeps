@@ -22,6 +22,7 @@ import { useAuthData } from '../../components/layout/IdentityContext';
 import { useServerInfo } from '../../components/server-data/context';
 import { eventSanitizer, getNewPostStores } from '../../stores/newPosts';
 import { AUDIENCE_CHOICE_VALUES } from '../../lib/audienceChoices';
+import { apiErrorMessage } from '../../lib/apiErrorMessage';
 
 export const useNewEvent = () => {
   const t = useT();
@@ -65,56 +66,70 @@ export const useNewEvent = () => {
     stores.event = data;
   };
 
-  const submit = useCallback(async () => {
-    setError(null);
-    if (!event?.start) {
-      setError(
-        t('events.validation.startRequired', {
-          defaultValue: 'Start date is required',
-        }),
-      );
-      return;
-    }
-    if (!event.name?.trim()) {
-      setError(
-        t('events.validation.nameRequired', {
-          defaultValue: 'Event name is required',
-        }),
-      );
-      return;
-    }
-    if (postData.visibility === 'direct' && !postData.audience?.length) {
-      setError('Choose at least one recipient for a direct event.');
-      return;
-    }
-    setSubmitting(true);
-    try {
-      const created = await createPost({
-        ...postData,
-        type: 'event',
-        data: normalizeEventDataForSave(event),
-      });
-      if (notify && showNotify && created.id) {
-        await announcePost({ id: created.id });
+  const submit = useCallback(
+    async (saveAsDraft = false) => {
+      setError(null);
+      if (!event?.start) {
+        setError(
+          t('events.validation.startRequired', {
+            defaultValue: 'Start date is required',
+          }),
+        );
+        return;
       }
-      stores.resetNewEventState();
-      navigate({ type: 'post', id: created.id });
-    } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setSubmitting(false);
-    }
-  }, [
-    announcePost,
-    createPost,
-    event,
-    navigate,
-    notify,
-    postData,
-    showNotify,
-    stores,
-    t,
-  ]);
+      if (!event.name?.trim()) {
+        setError(
+          t('events.validation.nameRequired', {
+            defaultValue: 'Event name is required',
+          }),
+        );
+        return;
+      }
+      if (postData.visibility === 'direct' && !postData.audience?.length) {
+        setError('Choose at least one recipient for a direct event.');
+        return;
+      }
+      setSubmitting(true);
+      try {
+        const created = await createPost({
+          ...postData,
+          type: 'event',
+          data: normalizeEventDataForSave(event),
+          draft: saveAsDraft || undefined,
+        });
+        if (saveAsDraft) {
+          // A draft is not announced, so a checked "notify" box is silently
+          // dropped. Returns true so callers (web and RN) can confirm the
+          // save with a toast.
+          stores.resetNewEventState();
+          navigate({ type: 'feed', feed: 'drafts' });
+          return true;
+        }
+        if (notify && showNotify && created.id) {
+          await announcePost({ id: created.id });
+        }
+        stores.resetNewEventState();
+        navigate({ type: 'post', id: created.id });
+        return false;
+      } catch (err) {
+        setError(apiErrorMessage(err, t));
+        return false;
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [
+      announcePost,
+      createPost,
+      event,
+      navigate,
+      notify,
+      postData,
+      showNotify,
+      stores,
+      t,
+    ],
+  );
 
   return {
     postData,

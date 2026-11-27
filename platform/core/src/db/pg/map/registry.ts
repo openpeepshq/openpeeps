@@ -66,6 +66,7 @@ const postsSplit = (data: Record<string, unknown>) => {
     visibility,
     creatorId,
     lastActivityAt,
+    publishedAt,
     data: postBody,
     uri,
     inReplyToUri,
@@ -76,6 +77,7 @@ const postsSplit = (data: Record<string, unknown>) => {
   if (visibility !== undefined) scalars.visibility = visibility;
   if (creatorId !== undefined) scalars.creatorId = creatorId;
   if (lastActivityAt !== undefined) scalars.lastActivityAt = lastActivityAt;
+  if (publishedAt !== undefined) scalars.publishedAt = publishedAt;
   if (uri !== undefined) scalars.uri = uri;
   if (inReplyToUri !== undefined) scalars.inReplyToUri = inReplyToUri;
   const body =
@@ -85,6 +87,7 @@ const postsSplit = (data: Record<string, unknown>) => {
     delete (body as Record<string, unknown>).visibility;
     delete (body as Record<string, unknown>).creatorId;
     delete (body as Record<string, unknown>).lastActivityAt;
+    delete (body as Record<string, unknown>).publishedAt;
     delete (body as Record<string, unknown>).uri;
     delete (body as Record<string, unknown>).inReplyToUri;
   }
@@ -514,6 +517,9 @@ export const rowToDocument = (
             ...(typeof row.uri === 'string' ? { uri: row.uri } : {}),
             ...(typeof row.inReplyToUri === 'string'
               ? { inReplyToUri: row.inReplyToUri }
+              : {}),
+            ...(typeof row.publishedAt === 'string'
+              ? { publishedAt: normalizeIsoDatetime(row.publishedAt) }
               : {}),
             data: row.body ?? {},
           },

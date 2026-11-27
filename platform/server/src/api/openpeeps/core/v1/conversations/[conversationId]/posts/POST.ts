@@ -4,6 +4,7 @@ import {
   forbidden,
   notFound,
   rethrowIfOpenpeepsError,
+  unprocessableRequest,
 } from '#lib/errors';
 import {
   publicPostSchema,
@@ -42,6 +43,7 @@ export const Error = {
   400: badRequest(),
   403: forbidden(),
   404: notFound(),
+  422: unprocessableRequest(),
 };
 
 export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(

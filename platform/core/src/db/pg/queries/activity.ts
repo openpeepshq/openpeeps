@@ -6,6 +6,7 @@ import {
   gte,
   isNull,
   lt,
+  max,
   sql,
   type SQL,
   type SQLWrapper,
@@ -86,8 +87,38 @@ export const postHasYesOrMaybeRsvpExpr = (
       ),
   );
 
-export const groupLastPostAtExpr = (outerTable: PgTable): SQL =>
-  sql`(SELECT max(${postGroups.createdAt}) FROM ${postGroups} WHERE ${postGroups.toId} = ${outerIdText(outerTable)})`;
+// Draft rows (published_at IS NULL) and deleted posts must not count as
+// group activity: they are invisible to everyone but the author. The
+// subqueries are built with the query builder (as in postReplyCountExpr) so
+// every column renders fully qualified: a raw sql`max(${postGroups.createdAt})`
+// template drops the table qualification inside a select-object embedding,
+// which is ambiguous once the subquery joins posts (42702).
+export const groupLastPostAtExpr = (outerTable: PgTable): SQL => {
+  const query = queryBuilder
+    .select({ at: max(postGroups.createdAt) })
+    .from(postGroups)
+    .innerJoin(posts, eq(sql`${posts.id}::text`, postGroups.fromId))
+    .where(
+      and(
+        eq(postGroups.toId, outerIdText(outerTable)),
+        sql`${posts.publishedAt} IS NOT NULL`,
+        isNull(posts.deletedAt),
+      ),
+    );
+  return sql`(${query})`;
+};
 
-export const groupPostsCountExpr = (outerTable: PgTable): SQL =>
-  sql`(SELECT count(*)::int FROM ${postGroups} pg INNER JOIN ${posts} p ON p.id::text = pg.from_id WHERE pg.to_id = ${outerIdText(outerTable)} AND p.deleted_at IS NULL)`;
+export const groupPostsCountExpr = (outerTable: PgTable): SQL => {
+  const query = queryBuilder
+    .select({ total: count() })
+    .from(postGroups)
+    .innerJoin(posts, eq(sql`${posts.id}::text`, postGroups.fromId))
+    .where(
+      and(
+        eq(postGroups.toId, outerIdText(outerTable)),
+        sql`${posts.publishedAt} IS NOT NULL`,
+        isNull(posts.deletedAt),
+      ),
+    );
+  return sql`(${query})`.mapWith(Number);
+};

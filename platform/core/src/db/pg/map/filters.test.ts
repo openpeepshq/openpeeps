@@ -121,6 +121,23 @@ describe('map filters evaluation', () => {
     expect(remaining).toEqual([]);
   });
 
+  it('converts the drafts filter to an is-null published_at predicate', () => {
+    const drafts = filterToSql('posts', postsTable, postFilters.drafts());
+    expect(drafts).toBeDefined();
+    const flat = flattenSql(drafts);
+    expect(flat).toContain('published_at');
+    expect(flat).toMatch(/is\s+null/i);
+    expect(flat).not.toMatch(/is\s+not\s+null/i);
+  });
+
+  it('converts the default published filter to an is-not-null published_at predicate', () => {
+    const published = filterToSql('posts', postsTable, postFilters.published());
+    expect(published).toBeDefined();
+    const flat = flattenSql(published);
+    expect(flat).toContain('published_at');
+    expect(flat).toMatch(/is\s+not\s+null/i);
+  });
+
   it('evaluates string filters with DATE_TIMESTAMP, LENGTH, and capabilities', () => {
     const start = Date.parse('2026-01-01T00:00:00.000Z');
     const doc = {
