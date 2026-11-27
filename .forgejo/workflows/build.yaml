@@ -286,7 +286,7 @@ jobs:
           ref: ${{ needs.set-variables.outputs.full_sha }}
       - name: Install dependencies
         run: |
-          # bcrypt prebuilds live on GitHub; a 500 falls back to node-gyp.
+          # bcrypt 6 prebuilds ship inside the npm package (node-gyp-build).
           # imagemagick + libheif: HEIC decode for media preview tests.
           # poppler-utils: PDF rasterization for media preview tests.
           apk add --no-cache python3 make g++ imagemagick libheif poppler-utils
