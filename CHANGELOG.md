@@ -5,6 +5,9 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **client**: surface SSE non-2xx failures as an API error, not a parse error
+- **federation**: add per-host blocklist and core-federation-manage capability
+- **markdown**: enhance markdown input components and localization updates
 - **share**: add 'Share into group' and 'Send to conversation' targets
 - **waiting-room**: implement participant reject
 - **settings**: calendar feed link create/delete UI on web and RN
@@ -44,6 +47,13 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **rn-components**: use a fresh LiveKit Room per jam join
+- **react**: contain conversation thread scrolling to the message pane
+- **events**: hide "This event has ended." label while a Jam is in session
+- **events**: use the rescheduled occurrence's location in ICS exports
+- **groups**: use the i18n member-count plural in group headers and web card
+- **rn-components**: remove duplicate profile block in DM view
+- **rn-components**: size the reply-box avatar and separate it from the event tab bar
 - **events**: render feed event cards in the viewer's display time zone
 - **rn-components**: retry the first late screen share attach longer
 - **deps**: update i18next to ^26.3.4 to fix GHSA-6jcc-5g8w-32mx DoS advisory
@@ -173,8 +183,16 @@ Changelog for OpenPeeps
 - define the simplified issue flow in AGENTS.md
 - codify org-level and issue-flow label rules in AGENTS.md
 
+### Tests
+
+- **rn-components**: pin FeedEvent flex roles inside the DM wrapper stack
+
 ### Chores
 
+- **deps**: bump sucrase to 3.35.1 to drop the vulnerable glob path (GHSA-3g3m-2fjr-6pw4)
+- **deps**: remove unused google-auth-library devDependency from platform/core
+- **rn-components**: ship the merged #2147 push-logout fix (react/rn-components/common/fetch-client) + drift guard
+- **rn-components**: publish the #1808 mid-Jam camera fix
 - **rn-components**: bump version to 0.28.0
 - **deps**: override glob 9/10 to 14.0.6 (GHSA-3g3m-2fjr-6pw4)
 - **deps**: upgrade @sentry/node from 9.13.0 to 10.78.0 to resolve opentelemetry vulnerabilities
@@ -196,10 +214,6 @@ Changelog for OpenPeeps
 - **deps**: remove redundant pnpm overrides and pin dompurify (fix #2025)
 - **pnpm**: force fast-jwt 6.3.6 override to clear multiple advisories (3 critical)
 - **deps**: remove unused turbo devDependency from rn-components
-
-### Package Updates
-
-- **packages**: bump @openpeepshq/react 0.27.1, rn-components 0.37.0, common 0.18.0, fetch-client 0.2.2 to ship the #2147 push-logout fix, plus a publish-packages drift guard
 
 ## 2026-11-23
 
