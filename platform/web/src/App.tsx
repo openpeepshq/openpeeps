@@ -145,6 +145,7 @@ import {
   OidcCallback,
   OidcPending,
   AdminDb,
+  AdminAuditLog,
   AdminDiagnosticsJob,
   AdminDiagnosticsPerformance,
   AdminConfigurationCommunityLanguage,
@@ -348,6 +349,7 @@ const Admin = {
   ApiKeys: AdminApiKeys,
   Plugins: AdminPlugins,
   Db: AdminDb,
+  AuditLog: AdminAuditLog,
   Members: AdminMembers,
   MemberDetail: AdminMemberDetail,
   Invites: AdminInvites,
@@ -932,6 +934,13 @@ function AppShell() {
 
                     <Route element={<RequireAdminSection section="database" />}>
                       <Route path="/admin/db" element={<Admin.Db />} />
+                    </Route>
+
+                    <Route element={<RequireAdminSection section="auditLog" />}>
+                      <Route
+                        path="/admin/audit-log"
+                        element={<Admin.AuditLog />}
+                      />
                     </Route>
 
                     <Route path="*" element={<NotFound />} />

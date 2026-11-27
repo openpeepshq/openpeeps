@@ -2,6 +2,7 @@ import { endpoint } from '#lib/endpoint';
 import type { RequestEvent } from '@riddl/core';
 import { conflict, forbidden, rethrowIfOpenpeepsError } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
+import { auditAction } from '#lib/audit';
 import { createRole } from '@openpeepshq/core/roles';
 import { roleDataSchema, roleSchema } from '@openpeepshq/common/types';
 
@@ -20,8 +21,19 @@ export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
   async (input, event: RequestEvent) => {
     await ensureRoleCapabilities(event, ['core-roles-update']);
 
-    return createRole({ ...input, default: false }).catch(
+    const role = await createRole({ ...input, default: false }).catch(
       rethrowIfOpenpeepsError,
     );
+
+    if (event.context.currentProfile) {
+      void auditAction(event, event.context.currentProfile, {
+        action: 'role.create',
+        targetType: 'role',
+        targetId: role.id,
+        targetLabel: role.key,
+      });
+    }
+
+    return role;
   },
 );

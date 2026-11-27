@@ -139,6 +139,19 @@ const adminCanManageFederation = (roles: RoleData[]): RoleData[] =>
       : role,
   );
 
+const adminCanReadAuditLog = (roles: RoleData[]): RoleData[] =>
+  roles.map((role) =>
+    role.key === 'admin'
+      ? {
+          ...role,
+          capabilities: {
+            add: [...(role.capabilities?.add ?? []), 'core-auditLog-read'],
+            remove: [...(role.capabilities?.remove ?? [])],
+          },
+        }
+      : role,
+  );
+
 export const roleDefaultsHistory: RoleDefaultsVersion[] = [
   {
     version: '2026-10-06',
@@ -153,6 +166,19 @@ export const roleDefaultsHistory: RoleDefaultsVersion[] = [
     roles: versionedRoles(
       '2026-11-26',
       adminCanManageFederation(adminCanManageMedia(builtinRoles)),
+    ),
+  },
+  {
+    // Appended (never edited in place): a stored role anchored at
+    // '2026-11-26' rebases against this entry's baseline, which is
+    // what makes `rebaseRoleToCurrentDefaults` grant `core-auditLog-read`
+    // to customized admin roles.
+    version: '2026-11-27',
+    roles: versionedRoles(
+      '2026-11-27',
+      adminCanReadAuditLog(
+        adminCanManageFederation(adminCanManageMedia(builtinRoles)),
+      ),
     ),
   },
 ];

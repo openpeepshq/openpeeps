@@ -3,6 +3,7 @@ import { roleSchema } from '@openpeepshq/common/types';
 import { successResponseSchema } from '@openpeepshq/common/types';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
+import { auditAction } from '#lib/audit';
 import {
   findProfile,
   assignRole,
@@ -49,6 +50,18 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
       if (roleData) {
         await assignRole(profile, roleData);
       }
+    }
+
+    if (event.context.currentProfile) {
+      void auditAction(event, event.context.currentProfile, {
+        action: 'profile.roles.update',
+        targetType: 'profile',
+        targetId: input.profileId,
+        targetLabel: profile.handle,
+        metadata: {
+          roles: incomingUniqueRoles.map((role: { key: string }) => role.key),
+        },
+      });
     }
 
     return { success: true };

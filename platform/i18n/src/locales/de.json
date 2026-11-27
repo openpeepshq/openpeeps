@@ -150,6 +150,7 @@
     "bookmarks": "Lesezeichen",
     "apiKeys": "API-Schlüssel",
     "database": "Datenbank",
+    "auditLog": "Audit-Protokoll",
     "conversations": "Nachrichten",
     "primaryMobile": "Primär",
     "breadcrumbs": "Breadcrumbs",
@@ -189,7 +190,8 @@
       "configuration": "Seitenkonfiguration bearbeiten",
       "diagnostics": "Systemdiagnose anzeigen",
       "database": "Datenbankverwaltung öffnen",
-      "drafts": "Zeige deine unveröffentlichten Beiträge"
+      "drafts": "Zeige deine unveröffentlichten Beiträge",
+      "auditLog": "Das Audit-Protokoll der Verwaltungsvorgänge öffnen"
     }
   },
   "profile": {
@@ -1993,6 +1995,26 @@
         "tableLink": "Ausgehende URL-Herkunft und Pfad (Query-Strings entfernt).",
         "tableLinkClicks": "Anonyme Zählungen ausgehender Klicks im ausgewählten Zeitraum."
       }
+    },
+    "auditLog": {
+      "title": "Audit-Protokoll",
+      "hint": "Eine Aufzeichnung von Verwaltungsvorgängen auf dieser Instanz.",
+      "exportJson": "Als JSON exportieren",
+      "filterActor": "Nach Akteur filtern",
+      "filterActorPlaceholder": "Profil-Handle oder -ID",
+      "filterTargetType": "Nach Zieltyp filtern",
+      "filterTargetTypePlaceholder": "z. B. profile",
+      "filterTargetId": "Nach Ziel filtern",
+      "filterTargetIdPlaceholder": "Ziel-ID",
+      "columnTime": "Zeit",
+      "columnActor": "Akteur",
+      "columnAction": "Aktion",
+      "columnTarget": "Ziel",
+      "actorDeleted": "gelöschtes Konto",
+      "details": "Details",
+      "loadError": "Das Audit-Protokoll konnte nicht geladen werden.",
+      "loadOlder": "Ältere Einträge laden",
+      "empty": "Keine Einträge entsprechen den aktuellen Filtern."
     },
     "dashboard": {
       "title": "Administration"

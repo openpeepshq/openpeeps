@@ -144,6 +144,7 @@
     "apiKeys": "API Keys",
     "plugins": "Plugins",
     "database": "Database",
+    "auditLog": "Audit Log",
     "myJams": "My Jams",
     "myEvents": "My Events",
     "explore": "Explore",
@@ -189,7 +190,8 @@
       "configuration": "Edit site configuration",
       "diagnostics": "View system diagnostics",
       "database": "Open database administration tools",
-      "drafts": "View your unpublished posts"
+      "drafts": "View your unpublished posts",
+      "auditLog": "Open the audit log of administrative actions"
     }
   },
   "profile": {
@@ -1993,6 +1995,26 @@
         "tableLink": "Outbound URL origin and path (query strings stripped).",
         "tableLinkClicks": "Anonymous outbound click counts in the selected range."
       }
+    },
+    "auditLog": {
+      "title": "Audit Log",
+      "hint": "A record of administrative actions taken on this instance.",
+      "exportJson": "Export JSON",
+      "filterActor": "Filter by actor",
+      "filterActorPlaceholder": "Profile handle or ID",
+      "filterTargetType": "Filter by target type",
+      "filterTargetTypePlaceholder": "e.g. profile",
+      "filterTargetId": "Filter by target",
+      "filterTargetIdPlaceholder": "Target ID",
+      "columnTime": "Time",
+      "columnActor": "Actor",
+      "columnAction": "Action",
+      "columnTarget": "Target",
+      "actorDeleted": "deleted account",
+      "details": "Details",
+      "loadError": "Failed to load the audit log.",
+      "loadOlder": "Load older entries",
+      "empty": "No audit entries match the current filters."
     },
     "dashboard": {
       "title": "Administration"

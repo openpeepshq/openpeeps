@@ -56,6 +56,8 @@ import {
   PublicAccount,
   AdminPluginInfo,
   PluginInstallSource,
+  AuditLogEntry,
+  AuditLogListQuery,
 } from '@openpeepshq/common';
 import { FetchClient } from '@openpeepshq/fetch-client';
 import { allpeepNoPayloadEndpoint } from './helpers';
@@ -240,6 +242,18 @@ export type Admin = {
     backfill: OpenpeepsPayloadEndpoint<
       AnalyticsBackfillResponse,
       AnalyticsBackfillInput
+    >;
+  };
+  auditLog: {
+    list: OpenpeepsNoPayloadEndpoint<
+      { entries: AuditLogEntry[] },
+      undefined,
+      AuditLogListQuery
+    >;
+    export: OpenpeepsNoPayloadEndpoint<
+      AnalyticsExport,
+      undefined,
+      AuditLogListQuery
     >;
   };
   reports: {
@@ -574,6 +588,18 @@ export const admin = (rawClient: FetchClient): Admin => ({
       AnalyticsBackfillResponse,
       AnalyticsBackfillInput
     >(rawClient, '/admin/analytics/backfill', 'post'),
+  },
+  auditLog: {
+    list: allpeepNoPayloadEndpoint<
+      { entries: AuditLogEntry[] },
+      undefined,
+      AuditLogListQuery
+    >(rawClient, '/admin/audit-log'),
+    export: allpeepNoPayloadEndpoint<
+      AnalyticsExport,
+      undefined,
+      AuditLogListQuery
+    >(rawClient, '/admin/audit-log/export'),
   },
   reports: {
     list: allpeepNoPayloadEndpoint<ReportWithMeta[]>(

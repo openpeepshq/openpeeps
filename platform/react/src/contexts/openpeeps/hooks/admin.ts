@@ -8,6 +8,7 @@ import type {
   AnalyticsOverview,
   AnalyticsReportSettings,
   AnalyticsRetention,
+  AuditLogListQuery,
   SuccessFailureResponse,
 } from '@openpeepshq/common';
 import type { UseQueryResult } from '@tanstack/react-query';
@@ -235,11 +236,26 @@ const adminDiagnostics = (client: OpenpeepsClientInstance) => ({
 });
 type AdminDiagnostics = ReturnType<typeof adminDiagnostics>;
 
+const adminAuditLog = (client: OpenpeepsClientInstance) => ({
+  useAuditLogList: (query?: AuditLogListQuery) =>
+    apiHook(client.admin.auditLog.list, { queryParams: query }),
+  /**
+   * Download the full log as JSON (same blob pattern as the analytics export).
+   * Not an apiHook: it is a one-shot manual action, not a cacheable read.
+   */
+  auditLogExport: (query?: AuditLogListQuery) =>
+    client.admin.auditLog.export({
+      queryParameters: query as never,
+    }),
+});
+type AdminAuditLog = ReturnType<typeof adminAuditLog>;
+
 export type AdminHooks = AdminAccounts &
   AdminBackupsConfig &
   AdminDbInvites &
   AdminPeopleContent &
   AdminAnalytics &
+  AdminAuditLog &
   AdminDiagnostics;
 
 export const adminHooks = (client: OpenpeepsClientInstance): AdminHooks => ({
@@ -248,5 +264,6 @@ export const adminHooks = (client: OpenpeepsClientInstance): AdminHooks => ({
   ...adminDbInvites(client),
   ...adminPeopleContent(client),
   ...adminAnalytics(client),
+  ...adminAuditLog(client),
   ...adminDiagnostics(client),
 });

@@ -3,6 +3,7 @@ import { successResponseSchema } from '@openpeepshq/common/types';
 import { isCommunityWideVisibility } from '@openpeepshq/common/lib';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
+import { auditAction } from '#lib/audit';
 import { hub } from '@openpeepshq/core/events';
 import { findPost } from '@openpeepshq/core/posts';
 
@@ -33,6 +34,14 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
     }
 
     await hub.emit('postAnnounced', post);
+
+    if (event.context.currentProfile) {
+      void auditAction(event, event.context.currentProfile, {
+        action: 'post.announce',
+        targetType: 'post',
+        targetId: input.postId,
+      });
+    }
 
     return { success: true };
   },

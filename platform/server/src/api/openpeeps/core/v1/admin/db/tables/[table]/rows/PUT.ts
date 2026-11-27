@@ -5,6 +5,7 @@ import {
   explorerUpdateRowResponseSchema,
 } from '@openpeepshq/common/types';
 import { ensureRoleCapabilities } from '#lib/auth';
+import { auditAction } from '#lib/audit';
 import { updateExplorerRow } from '@openpeepshq/core/db';
 
 export const Param = z.object({
@@ -24,11 +25,24 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
   async (input, event) => {
     await ensureRoleCapabilities(event, ['core-db-access']);
     try {
-      return await updateExplorerRow({
+      const result = await updateExplorerRow({
         table: input.table,
         primaryKey: input.primaryKey,
         patch: input.patch,
       });
+
+      if (event.context.currentProfile) {
+        // Log the primary key only — row values can contain personal data.
+        void auditAction(event, event.context.currentProfile, {
+          action: 'db.explorer.update',
+          targetType: 'db',
+          targetId: input.table,
+          targetLabel: input.table,
+          metadata: { primaryKey: input.primaryKey },
+        });
+      }
+
+      return result;
     } catch (err) {
       const message =
         err instanceof globalThis.Error ? err.message : String(err);

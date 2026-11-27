@@ -67,6 +67,11 @@ export const adminSections = [
     path: '/admin/db',
     capabilities: ['core-db-access'],
   },
+  {
+    key: 'auditLog',
+    path: '/admin/audit-log',
+    capabilities: ['core-auditLog-read'],
+  },
 ] as const;
 
 export type AdminSectionKey = (typeof adminSections)[number]['key'];

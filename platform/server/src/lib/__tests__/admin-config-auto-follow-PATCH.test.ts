@@ -30,7 +30,9 @@ const call = (config: unknown) =>
     body: { config },
     query: {},
     param: { namespace: 'community', name: 'info' },
-    event: {},
+    // The authorization middleware always provides `context.currentProfile`;
+    // it is null in these tests, so the audit branch is skipped.
+    event: { context: { currentProfile: null } },
   });
 
 describe('admin config PATCH — autoFollow validation', () => {

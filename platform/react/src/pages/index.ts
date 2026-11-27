@@ -112,6 +112,7 @@ export { SsoCallback } from './auth/SsoCallback';
 export { OidcCallback } from './auth/OidcCallback';
 export { OidcPending } from './auth/OidcPending';
 export { AdminDb } from './admin/Db';
+export { AdminAuditLog } from './admin/AuditLog';
 export { AdminDiagnosticsJob } from './admin/DiagnosticsJob';
 export { AdminDiagnosticsPerformance } from './admin/DiagnosticsPerformance';
 export { AdminConfigurationCommunityLanguage } from './admin/ConfigurationCommunityLanguage';

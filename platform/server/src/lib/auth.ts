@@ -68,6 +68,19 @@ export const ensureAccount = (event: RequestEvent) => {
   return event.context.currentAccount;
 };
 
+/**
+ * Client IP for audit entries. The app sits behind a single TLS proxy, so the
+ * real client is the first entry of `X-Forwarded-For` (the proxy appends the
+ * hop it sees, leaving the originating client first) (see `server.ts`). Only
+ * that first entry is used; later entries are the proxy chain, not the client.
+ * Returns `undefined` when the header is absent.
+ */
+export const clientIp = (event: RequestEvent): string | undefined => {
+  const fwd = event.request.headers.get('x-forwarded-for');
+  const ip = fwd?.split(',')[0]?.trim();
+  return ip || undefined;
+};
+
 export const ensureRoleCapabilities = async (
   event: RequestEvent,
   capabilities: string[],

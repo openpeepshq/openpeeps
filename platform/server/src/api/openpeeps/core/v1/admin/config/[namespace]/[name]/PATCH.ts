@@ -7,6 +7,7 @@ import {
 import { patchTouchesFederation } from '@openpeepshq/common/lib';
 import { forbidden, notFound, badRequest } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
+import { auditAction } from '#lib/audit';
 import { normalizeAllowedReactions } from '#lib/normalizeReactions';
 import { updateConfigValues } from '@openpeepshq/core/config';
 import {
@@ -102,6 +103,23 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
     // Admin UI/CLI send sparse patches (e.g. only info.tagLine). Merge into the
     // stored overrides so unrelated keys like theme are preserved.
     await updateConfigValues(config, namespace, name);
+
+    if (event.context.currentProfile) {
+      // Sparse patches are nested objects (e.g. { info: { tagLine } }); log the
+      // top-level keys touched — a nested subtree counts as its single top-level
+      // key (e.g. `info`), never the values — so the audit entry names what an
+      // admin changed without echoing the config content.
+      const paths =
+        config && typeof config === 'object' ? Object.keys(config) : [];
+      void auditAction(event, event.context.currentProfile, {
+        action: 'config.update',
+        targetType: 'config',
+        targetId: `${namespace}/${name}`,
+        targetLabel: `${namespace}/${name}`,
+        metadata: { changedPaths: paths },
+      });
+    }
+
     return { success: true };
   },
 );

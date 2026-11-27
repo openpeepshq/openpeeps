@@ -2,6 +2,7 @@ import { endpoint, z } from '#lib/endpoint';
 import { successResponseSchema } from '@openpeepshq/common/types';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
+import { auditAction } from '#lib/audit';
 import { updateConfigValues } from '@openpeepshq/core/config';
 
 export const Input = z.object({
@@ -23,6 +24,15 @@ export const apiEndpoint = endpoint({ Input, Output, Error }).handle(
       'openpeeps',
       'community',
     );
+
+    if (event.context.currentProfile) {
+      // An empty postId clears the pinned post (unpin); otherwise it pins.
+      void auditAction(event, event.context.currentProfile, {
+        action: input.postId ? 'post.pin' : 'post.unpin',
+        targetType: 'post',
+        targetId: input.postId || null,
+      });
+    }
 
     return { success: true };
   },

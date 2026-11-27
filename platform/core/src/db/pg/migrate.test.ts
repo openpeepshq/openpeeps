@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -67,6 +67,53 @@ describe('schema version helpers', () => {
         `${next.tag} when (${next.when}) must be > ${prev.tag} (${prev.when})`,
       ).toBeGreaterThan(prev.when);
     }
+  });
+
+  it('keeps the snapshot chain linear (no forks after rebase)', () => {
+    // drizzle-kit reads the LATEST snapshot to diff against the current
+    // schema. If two snapshots both claimed the same `prevId` (a fork), the
+    // latest one would not know about the table the earlier branch created,
+    // and a future migration could regenerate/drop it. So for every pair of
+    // consecutive journal entries that both have a snapshot, the later one's
+    // `prevId` must equal the earlier one's `id`.
+    const journal = JSON.parse(
+      readFileSync(
+        join(dirname(fileURLToPath(import.meta.url)), 'sql/meta/_journal.json'),
+        'utf8',
+      ),
+    ) as { entries: { idx: number; tag: string }[] };
+
+    const snapshotPath = (idx: number) =>
+      join(
+        dirname(fileURLToPath(import.meta.url)),
+        `sql/meta/${String(idx).padStart(4, '0')}_snapshot.json`,
+      );
+    const withSnapshots = journal.entries.filter((e) =>
+      existsSync(snapshotPath(e.idx)),
+    );
+
+    for (let i = 1; i < withSnapshots.length; i++) {
+      const prev = JSON.parse(
+        readFileSync(snapshotPath(withSnapshots[i - 1]!.idx), 'utf8'),
+      ) as { id: string };
+      const next = JSON.parse(
+        readFileSync(snapshotPath(withSnapshots[i]!.idx), 'utf8'),
+      ) as { id: string; prevId: string; tables: Record<string, unknown> };
+      expect(
+        next.prevId,
+        `${withSnapshots[i]!.tag} must be a child of ${withSnapshots[i - 1]!.tag}`,
+      ).toBe(prev.id);
+    }
+
+    // The latest snapshot must carry every table an earlier snapshot in the
+    // chain introduced (here: `audit_logs` from 0020), not just its own diff.
+    const latest = JSON.parse(
+      readFileSync(
+        snapshotPath(withSnapshots[withSnapshots.length - 1]!.idx),
+        'utf8',
+      ),
+    ) as { tables: Record<string, unknown> };
+    expect(latest.tables).toHaveProperty('public.audit_logs');
   });
 
   it('resolves restore targets for postgres backups', () => {

@@ -8,6 +8,7 @@ import { forbidden, notFound } from '#lib/errors';
 import { findAccount, updateAccount } from '@openpeepshq/core/accounts';
 import type { RequestEvent } from '@riddl/core';
 import { ensureRoleCapabilities } from '#lib/auth';
+import { auditAction } from '#lib/audit';
 
 export const Param = z.object({
   accountId: z.string(),
@@ -37,6 +38,15 @@ export const apiEndpoint = endpoint({ Param, Input, Output, Error }).handle(
 
     if (!account) {
       throw notFound(`Account with id ${input.accountId}`);
+    }
+
+    if (event.context.currentProfile) {
+      void auditAction(event, event.context.currentProfile, {
+        action: 'account.update',
+        targetType: 'account',
+        targetId: input.accountId,
+        targetLabel: account.email,
+      });
     }
 
     return publicAccountSchema.parse(account) as PublicAccount;

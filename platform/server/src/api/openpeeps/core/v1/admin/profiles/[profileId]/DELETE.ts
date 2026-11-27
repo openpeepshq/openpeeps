@@ -2,6 +2,7 @@ import { endpoint, z } from '#lib/endpoint';
 import { deleteProfile, findProfile } from '@openpeepshq/core/profiles';
 import type { RequestEvent } from '@riddl/core';
 import { ensureRoleCapabilities } from '#lib/auth';
+import { auditAction } from '#lib/audit';
 import { forbidden, notFound } from '#lib/errors';
 import { successResponseSchema } from '@openpeepshq/common/types';
 
@@ -26,6 +27,15 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
     }
 
     await deleteProfile(param.profileId);
+
+    if (event.context.currentProfile) {
+      void auditAction(event, event.context.currentProfile, {
+        action: 'profile.delete',
+        targetType: 'profile',
+        targetId: param.profileId,
+        targetLabel: requestedProfile.handle,
+      });
+    }
 
     return { success: true };
   },

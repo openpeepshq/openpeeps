@@ -70,6 +70,7 @@ const adminSectionIcons: Record<AdminSectionKey, LucideIcon> = {
   configuration: Wrench,
   diagnostics: Stethoscope,
   database: Database,
+  auditLog: ScrollText,
 };
 
 const adminSectionLabelKeys: Record<AdminSectionKey, string> = {
@@ -85,6 +86,7 @@ const adminSectionLabelKeys: Record<AdminSectionKey, string> = {
   configuration: 'navigation.configuration',
   diagnostics: 'navigation.diagnostics',
   database: 'navigation.database',
+  auditLog: 'navigation.auditLog',
 };
 
 const adminSectionTooltipKeys: Record<AdminSectionKey, string> = {
@@ -100,6 +102,7 @@ const adminSectionTooltipKeys: Record<AdminSectionKey, string> = {
   configuration: 'navigation.tooltips.configuration',
   diagnostics: 'navigation.tooltips.diagnostics',
   database: 'navigation.tooltips.database',
+  auditLog: 'navigation.tooltips.auditLog',
 };
 
 function NavItem({

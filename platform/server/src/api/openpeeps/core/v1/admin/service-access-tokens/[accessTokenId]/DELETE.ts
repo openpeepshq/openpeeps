@@ -8,6 +8,7 @@ import {
 } from '@openpeepshq/core/accessTokens';
 import { forbidden, notFound } from '#lib/errors';
 import { ensureRoleCapabilities } from '#lib/auth';
+import { auditAction } from '#lib/audit';
 
 export const Param = z.object({
   accessTokenId: z.string().uuid(),
@@ -30,6 +31,16 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
     }
 
     await revokeAccessToken(token.id);
+
+    if (event.context.currentProfile) {
+      void auditAction(event, event.context.currentProfile, {
+        action: 'accessToken.delete',
+        targetType: 'accessToken',
+        targetId: token.id,
+        targetLabel: token.name,
+      });
+    }
+
     return { success: true as const };
   },
 );

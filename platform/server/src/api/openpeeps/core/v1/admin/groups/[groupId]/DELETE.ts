@@ -4,6 +4,7 @@ import { forbidden, notFound } from '#lib/errors';
 import { successResponseSchema } from '@openpeepshq/common/types';
 import { deleteGroup, findGroup } from '@openpeepshq/core/groups';
 import type { RequestEvent } from '@riddl/core';
+import { auditAction } from '#lib/audit';
 
 export const Output = successResponseSchema;
 export const Param = z.object({
@@ -25,6 +26,16 @@ export const apiEndpoint = endpoint({ Param, Output, Error }).handle(
     }
 
     await deleteGroup(group);
+
+    if (event.context.currentProfile) {
+      void auditAction(event, event.context.currentProfile, {
+        action: 'group.delete',
+        targetType: 'group',
+        targetId: param.groupId,
+        targetLabel: group.handle,
+      });
+    }
+
     return { success: true };
   },
 );
