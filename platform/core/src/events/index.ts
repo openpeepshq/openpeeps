@@ -21,6 +21,8 @@ export type CoreEvents = {
   postCreated: (post: PostWithMeta) => void;
   jamRecordingCompleted: (recording: JamRecordingWithMeta) => void;
   followCreated: (follower: Profile, followed: Profile) => void;
+  /** Follow edge removed (unfollow). Federation reacts by sending Undo(Follow) for outbound follows only. */
+  followDeleted: (follower: Profile, followed: Profile) => void;
   notificationCreated: (notification: Notification) => void;
   reactionCreated: (
     profile: Profile,
@@ -55,6 +57,7 @@ const validEventKeyMap = {
   postCreated: true,
   jamRecordingCompleted: true,
   followCreated: true,
+  followDeleted: true,
   notificationCreated: true,
   reactionCreated: true,
   entryCreated: true,

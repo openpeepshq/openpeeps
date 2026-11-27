@@ -24,10 +24,12 @@ import {
   FOLLOWERS_PATH,
   NOTE_PATH,
   SHARED_INBOX_PATH,
+  deleteOutboundFollow,
   federatedHandleFrom,
   federationOrigin,
   findApActivityByUri,
   findLocalActorIdByHandle,
+  findOutboundFollow,
   findProfileByUri,
   ingestIncomingFollow,
   ingestIncomingUnfollow,
@@ -377,6 +379,16 @@ export const federatePublicNote = async (
   });
 };
 
+/**
+ * Canonical local actor URI for AP activity `actor` fields. Derived from the
+ * `ACTOR_PATH` template (the same one `ctx.getActorUri` resolves), so the two
+ * forms can't drift (#241 review #4).
+ */
+const localActorUri = (origin: string, profileId: string) =>
+  new URL(
+    origin.replace(/\/$/, '') + ACTOR_PATH.replace('{identifier}', profileId),
+  );
+
 export const federateFollow = async (
   federation: Federation<void>,
   origin: string,
@@ -388,15 +400,42 @@ export const federateFollow = async (
   // Never send a Follow to a host on the federation blocklist (deny wins).
   if (!(await peerHostAllowed(followed.uri))) return;
 
+  const actorUri = localActorUri(origin, follower.id);
+
+  // Idempotency + audit (#241): every outbound Follow is recorded before it
+  // is sent, and re-follows of an already-followed remote actor (e.g. the
+  // follow-schedule worker re-applying the same relationship) skip the send.
+  // The check must key off the same canonical actor URI that `recordApActivity`
+  // stores below — `follower.uri` is not reliably backfilled for local
+  // profiles, so `localActorUri` is the stable form. The Undo listener keys off
+  // this row, so it is the "we followed them" marker that keeps local-only
+  // edges from producing Undo spam.
+  //
+  // The row is normally deleted when the edge goes away (federateUnfollow).
+  // A row found here for a freshly re-created edge is therefore stale — left
+  // behind when the edge was deleted without a federated Undo (e.g. blocking,
+  // which deletes edges in core without emitting `followDeleted`). Clear it
+  // and re-send so the remote host learns about the re-follow (#241 review #1).
+  if (await findOutboundFollow(actorUri.href, followed.uri)) {
+    await deleteOutboundFollow(actorUri.href, followed.uri);
+  }
+
   const ctx = federation.createContext(new URL(`${origin}/`), undefined);
   const followId = uuidv7();
   const follow = new Follow({
     id: new URL(`${origin}/ap/objects/${followId}`),
-    actor: ctx.getActorUri(follower.id),
+    actor: actorUri,
     // Wrap the actor URI in a Person Object so Fedify's Follow constructor
     // accepts it (it requires Object|URL, not plain strings) and the
     // router doesn't try to resolve the remote URL.
     object: new Person({ id: new URL(followed.uri) }),
+  });
+  await recordApActivity({
+    uri: follow.id!.href,
+    type: 'Follow',
+    actorUri: actorUri.href,
+    objectUri: followed.uri,
+    direction: 'out',
   });
   await ctx.sendActivity(
     { identifier: follower.id },
@@ -410,4 +449,69 @@ export const federateFollow = async (
     follow,
     { preferSharedInbox: true },
   );
+};
+
+/**
+ * Send `Undo(Follow)` for an unfollow of a remote actor — but only for
+ * follows we actually sent (#241). The `ap_activities` guard makes
+ * schedule-driven and remote-initiated edges (where they followed *us*)
+ * silent local deletions, so no Undo spam on unrelated unfollows.
+ */
+export const federateUnfollow = async (
+  federation: Federation<void>,
+  origin: string,
+  follower: Profile,
+  followed: ProfileWithMeta,
+) => {
+  if (followed.type !== 'federated') return;
+  if (!followed.uri || !followed.inboxUrl) return;
+
+  // Same canonical local-actor URI that `federateFollow` recorded, so the
+  // lookup finds the outbound Follow row (and stays silent when we never
+  // followed them — e.g. they followed *us*, or a schedule-only edge).
+  const actorUri = localActorUri(origin, follower.id);
+  const recorded = await findOutboundFollow(actorUri.href, followed.uri);
+  if (!recorded) return;
+
+  const ctx = federation.createContext(new URL(`${origin}/`), undefined);
+  const undoId = uuidv7();
+  const undo = new Undo({
+    id: new URL(`${origin}/ap/objects/${undoId}`),
+    actor: actorUri,
+    // Embed the Follow instead of a bare URI (review #3): remotes that
+    // dereference the Undo's object (Mastodon does) would otherwise hit a
+    // URI we cannot serve — there is no Follow object dispatcher on
+    // `/ap/objects/…`, so the GET resolves through the Note dispatcher and
+    // 404s, and the unfollow may be silently ignored.
+    object: new Follow({
+      id: new URL(recorded.uri),
+      actor: actorUri,
+      object: new Person({ id: new URL(followed.uri) }),
+    }),
+  });
+  await recordApActivity({
+    uri: undo.id!.href,
+    type: 'Undo',
+    actorUri: actorUri.href,
+    objectUri: recorded.uri,
+    direction: 'out',
+  });
+  await ctx.sendActivity(
+    { identifier: follower.id },
+    {
+      id: new URL(followed.uri),
+      inboxId: new URL(followed.inboxUrl),
+      endpoints: followed.sharedInboxUrl
+        ? { sharedInbox: new URL(followed.sharedInboxUrl) }
+        : undefined,
+    },
+    undo,
+    { preferSharedInbox: true },
+  );
+
+  // Drop the outbound Follow row once the Undo is sent, so the ledger mirrors
+  // the live follow edge and a re-follow re-sends a fresh Follow (#241 review
+  // #1) — otherwise the re-follow would find this stale row and silently
+  // return, leaving the remote host unaware of it.
+  await deleteOutboundFollow(actorUri.href, followed.uri);
 };

@@ -398,6 +398,12 @@ export type Jam = JamData;
 export const followDataSchema = z.object({
   /** ActivityPub Follow activity id when federated. */
   uri: z.string().url().optional(),
+  /**
+   * Remote account to follow when no resolvable `profileId` is supplied.
+   * Accepts `user@domain`, `@user@domain`, or an `https` actor URL. Discovered
+   * over ActivityPub (WebFinger) before the follow is created (#241).
+   */
+  handle: z.string().optional(),
   reblogs: z.boolean().optional(),
   notify: z.boolean().optional(),
   languages: z

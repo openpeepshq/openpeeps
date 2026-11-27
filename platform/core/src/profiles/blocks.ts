@@ -78,6 +78,17 @@ const eitherFollowRequest = (a: string, b: string) =>
     and(eq(requestsFollow.fromId, b), eq(requestsFollow.toId, a)),
   )!;
 
+/**
+ * Delete both directions of follow edges and pending follow requests between
+ * two profiles. Called from `blockProfile`.
+ *
+ * Deliberately local-only (#241): blocking a profile we federally follow does
+ * NOT emit `followDeleted`, so no `Undo(Follow)` is fanned out to remote
+ * inboxes — the dropped outbound follow rows would otherwise leave remote
+ * hosts believing we still follow. Fan-out Undos on block would add remote
+ * calls with no correctness value; the edge is removed locally, which is what
+ * the block is for.
+ */
 export const dropFollowsBetween = async (
   db: PgDb,
   a: string,

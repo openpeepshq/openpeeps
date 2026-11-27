@@ -12,6 +12,7 @@ import {
   createOpenPeepsFederation,
   federateFollow,
   federatePublicNote,
+  federateUnfollow,
 } from './fedify';
 
 const log = logger('server:federation');
@@ -40,6 +41,16 @@ export const installFederation = async (app: Express) => {
       followed as ProfileWithMeta,
     ).catch((error: unknown) => {
       log.error('Failed to federate follow activity', error);
+    });
+  });
+  hub.on('followDeleted', (follower: Profile, followed: Profile) => {
+    void federateUnfollow(
+      federation,
+      origin,
+      follower,
+      followed as ProfileWithMeta,
+    ).catch((error: unknown) => {
+      log.error('Failed to federate unfollow activity', error);
     });
   });
   log.info(`ActivityPub federation mounted at ${origin}`);

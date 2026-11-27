@@ -1,4 +1,9 @@
-export { findApActivityByUri, recordApActivity } from './activities';
+export {
+  deleteOutboundFollow,
+  findApActivityByUri,
+  findOutboundFollow,
+  recordApActivity,
+} from './activities';
 export type { ApActivity, ApActivityDirection } from './activities';
 export {
   federatedHandleFrom,
@@ -37,3 +42,10 @@ export { loadPublicNote } from './notes';
 export type { PublicNote } from './notes';
 export { federationIsActive, hostnameOf, peerHostAllowed } from './peers';
 export { findProfileByHandleAndDomain, findProfileByUri } from './profiles';
+export {
+  actorDocToRemoteInput,
+  asHttpUrl,
+  asText,
+  parseRemoteAccountQuery,
+  resolveRemoteAccount,
+} from './discovery';

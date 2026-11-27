@@ -7,10 +7,19 @@ import { describe, expect, it, vi } from 'vitest';
 // this test only asserts federateFollow honours the gate's verdict, so the
 // early-return can't be dropped in a later refactor.
 const peerHostAllowedMock = vi.hoisted(() => vi.fn(async () => true));
+// The idempotency lookup (#241) hits ap_activities; keep this gate test
+// hermetic — the lookup's behavior is covered in fedify.test.ts.
+const findOutboundFollowMock = vi.hoisted(() => vi.fn(async () => undefined));
+// The outbound Follow is recorded in ap_activities before it is sent (#241).
+// Mock it the same way so this gate test never touches the DB; the record's
+// contents are asserted below, and its behavior lives in fedify.test.ts.
+const recordApActivityMock = vi.hoisted(() => vi.fn(async () => undefined));
 
 vi.mock('@openpeepshq/core/federation', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@openpeepshq/core/federation')>()),
+  findOutboundFollow: findOutboundFollowMock,
   peerHostAllowed: peerHostAllowedMock,
+  recordApActivity: recordApActivityMock,
 }));
 
 import type { Federation } from '@fedify/fedify';
@@ -96,5 +105,15 @@ describe('federateFollow blocklist gate', () => {
     expect(t.id.href).toBe('https://allowed.example/@remote');
     expect(t.inboxId.href).toBe('https://allowed.example/inbox');
     expect(opts).toEqual({ preferSharedInbox: true });
+    // The outbound Follow is recorded in ap_activities before it is sent
+    // (#241): keyed off the canonical local-actor URI, pointing at the
+    // followed actor.
+    expect(recordApActivityMock).toHaveBeenCalledTimes(1);
+    expect(recordApActivityMock.mock.calls[0][0]).toMatchObject({
+      type: 'Follow',
+      actorUri: 'http://origin/ap/users/local-1',
+      objectUri: 'https://allowed.example/@remote',
+      direction: 'out',
+    });
   });
 });

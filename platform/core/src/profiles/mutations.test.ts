@@ -56,8 +56,13 @@ vi.mock('./blocks', () => ({
 }));
 vi.mock('../federation/identity', () => ({ localActorScalars: vi.fn() }));
 
-import { followConnector, followFinder } from './helpers';
-import { getLocalProfileByHandle, getProfile, profilesCache } from './cache';
+import { followConnector, followDisconnector, followFinder } from './helpers';
+import {
+  clearProfileCache,
+  getLocalProfileByHandle,
+  getProfile,
+  profilesCache,
+} from './cache';
 import { hub } from '../events';
 import {
   capabilitiesConfig,
@@ -70,6 +75,7 @@ import {
   deleteProfile,
   followDesignatedProfiles,
   normalizeAutoFollowHandle,
+  unfollow,
 } from './mutations';
 import { registerAutoFollowHandler } from './autoFollow';
 import { profilesMapping } from './mapping';
@@ -341,5 +347,20 @@ describe('deleteProfile', () => {
       revokeAllCalendarFeedTokens.mock.invocationCallOrder[0],
     ).toBeGreaterThan(deleteAccessTokensForProfile.mock.invocationCallOrder[0]);
     expect(profilesMapping.delete).toHaveBeenCalledWith({}, 'profile-1');
+  });
+});
+
+describe('unfollow', () => {
+  it('emits followDeleted so federation can send Undo(Follow)', async () => {
+    vi.mocked(followDisconnector).mockClear();
+    vi.mocked(clearProfileCache).mockClear();
+    vi.mocked(hub.emit).mockClear();
+
+    await unfollow(member, news);
+
+    expect(followDisconnector).toHaveBeenCalledWith(db, member, news);
+    expect(hub.emit).toHaveBeenCalledWith('followDeleted', member, news);
+    expect(clearProfileCache).toHaveBeenCalledWith(member);
+    expect(clearProfileCache).toHaveBeenCalledWith(news);
   });
 });
