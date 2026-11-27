@@ -30,6 +30,10 @@ export const apiEndpoint = endpoint({ Param, Query, Output, Error }).handle(
 
     await ensurePostCapabilities(event, jamEvent, ['core-posts-jam-moderate']);
 
+    // startRecording marks the row active and starts egress before its
+    // trailing best-effort steps (participant notification, auto-stop
+    // schedule), so a rejection here means the take never started and the
+    // 500 is a real failure — unlike the false positives it used to emit.
     return startRecording(
       profile,
       jamEvent,

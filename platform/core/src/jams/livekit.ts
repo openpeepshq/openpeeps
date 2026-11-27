@@ -230,25 +230,38 @@ export const startRecording = async (
     status: 'active',
   })) as JamRecording;
 
-  const jamEvent = await createJamEvent({
-    id: uuidv7(),
-    jamId,
-    type: 'recordStart',
-    profileId: profile.id,
-    recurrenceId,
-  });
+  // The take is live from here: egress is running and the recording row is
+  // active. Everything below only notifies participants and schedules the
+  // max-duration auto-stop — a failure there (room already closed, Redis
+  // blip) must not turn a started recording into a 500 that makes the UI
+  // show "Failed to start recording" (issue #2345).
+  try {
+    const jamEvent = await createJamEvent({
+      id: uuidv7(),
+      jamId,
+      type: 'recordStart',
+      profileId: profile.id,
+      recurrenceId,
+    });
 
-  await roomService().then(async (rs) =>
-    rs?.sendData(
-      roomName,
-      encoder.encode(JSON.stringify(jamEvent)),
-      DataPacket_Kind.LOSSY,
-      {},
-    ),
-  );
+    await roomService().then(async (rs) =>
+      rs?.sendData(
+        roomName,
+        encoder.encode(JSON.stringify(jamEvent)),
+        DataPacket_Kind.LOSSY,
+        {},
+      ),
+    );
 
-  // BullMQ delayed job survives API/worker restarts (unlike setTimeout).
-  await scheduleRecordingAutoStop(jamId, persistedRecordingId);
+    // BullMQ delayed job survives API/worker restarts (unlike setTimeout).
+    await scheduleRecordingAutoStop(jamId, persistedRecordingId);
+  } catch (e) {
+    log.warn(
+      `Recording ${persistedRecordingId} started, but post-start steps failed: ${
+        (e as Error).message
+      }`,
+    );
+  }
 
   return recording;
 };

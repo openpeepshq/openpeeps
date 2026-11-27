@@ -59,11 +59,19 @@ export const scheduleRecordingAutoStop = async (
   const queue = jamRecordingStopQueue();
   const jobId = recordingStopJobId(recordingId);
   await queue.remove(jobId).catch(() => undefined);
-  await queue.add(
-    'stop',
-    { jamPostId, recordingId },
-    { jobId, delay: delayMs },
-  );
+  // Best-effort: the recording is already live by the time this runs, so a
+  // transient Redis failure must not fail the start request. The cost of a
+  // missed schedule is bounded — the 2h cap stops enforcing, which is
+  // strictly better than a false "recording failed" (issue #2345).
+  await queue
+    .add('stop', { jamPostId, recordingId }, { jobId, delay: delayMs })
+    .catch((e: unknown) => {
+      log.warn(
+        `Could not schedule auto-stop for recording ${recordingId}: ${
+          (e as Error).message
+        }`,
+      );
+    });
 };
 
 export const cancelRecordingAutoStop = async (recordingId: string) => {
