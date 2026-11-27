@@ -95,6 +95,8 @@ export function EventTypeSwitcher({
     switchFormat,
     moderatorProfiles,
     setModerators,
+    coOrganizerProfiles,
+    setCoOrganizers,
     setWaitingRoom,
     setNotifyEveryone,
     setUrl,
@@ -155,6 +157,28 @@ export function EventTypeSwitcher({
           </div>
         </div>
       ) : null}
+
+      <div className="space-y-2">
+        <Label>
+          {t('events.form.coOrganizers', { defaultValue: 'Co-organizers' })}
+        </Label>
+        <ProfilesInput
+          value={coOrganizerProfiles}
+          onChange={setCoOrganizers}
+          // The server skips the caller when validating the list; mirror it
+          // in the picker (pattern: groups/New.tsx).
+          banlist={authData.profile ? [authData.profile] : []}
+          // Deliberate: the list is NOT pre-filtered per event visibility
+          // (the jam-moderator picker behaves the same). For group events the
+          // server rejects a non-member with 422 eventCoOrganizerInvisible;
+          // pinned in platform/core eventCollaborators.test.ts.
+          filter={(profile) => profile.type !== 'federated'}
+          placeholder={t('events.form.coOrganizersDescription', {
+            defaultValue:
+              'Click to select co-organizers who can edit this event and manage RSVPs',
+          })}
+        />
+      </div>
 
       {eventFormat === 'jam' ? (
         <>

@@ -22,6 +22,15 @@ import { EventTypeSwitcher } from './EventTypeSwitcher';
 const roles = (key: string): Role[] =>
   defaultRoles.filter((role) => role.key === key) as Role[];
 
+// The component renders two `ProfilesInput`s (co-organizers + jam
+// moderators); the mock records each call's props so tests can assert the
+// co-organizer picker is wired with the hydrated profiles + the federated
+// filter, and that it reports edits back through `setCoOrganizers`.
+const { pickerProps, coOrganizerChange } = vi.hoisted(() => ({
+  pickerProps: [] as Array<Record<string, unknown>>,
+  coOrganizerChange: [] as Array<unknown[]>,
+}));
+
 vi.mock('@openpeepshq/react-ui', () => ({
   Input: (props: Record<string, unknown>) => createElement('input', props),
   Label: ({ children, title }: { children?: ReactNode; title?: string }) =>
@@ -46,6 +55,10 @@ vi.mock('../../../hooks/events/useEventTypeSwitcher', () => ({
     switchFormat: () => undefined,
     moderatorProfiles: [],
     setModerators: () => undefined,
+    coOrganizerProfiles: [],
+    setCoOrganizers: (profiles: unknown) => {
+      coOrganizerChange.push(profiles as unknown[]);
+    },
     setWaitingRoom: () => undefined,
     setNotifyEveryone: () => undefined,
     setUrl: () => undefined,
@@ -58,7 +71,10 @@ vi.mock('../../layout/IdentityContext', () => ({
 }));
 
 vi.mock('../../profile', () => ({
-  ProfilesInput: () => createElement('ProfilesInput'),
+  ProfilesInput: (props: Record<string, unknown>) => {
+    pickerProps.push(props);
+    return createElement('ProfilesInput');
+  },
 }));
 
 const event = { type: 'event', name: 'Standup', jam: {} } as never;
@@ -142,5 +158,99 @@ describe('EventTypeSwitcher community jam broadcast opt-in', () => {
     authDataState.roles = roles('moderator');
     render(undefined);
     expect(notifyCheckbox()).toBeFalsy();
+  });
+});
+
+describe('EventTypeSwitcher co-organizer picker', () => {
+  let root: Root | undefined;
+  let container: HTMLDivElement | undefined;
+
+  beforeEach(() => {
+    (
+      globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
+    ).IS_REACT_ACT_ENVIRONMENT = true;
+    pickerProps.length = 0;
+    coOrganizerChange.length = 0;
+    authDataState.roles = [];
+    authDataState.profileId = 'u-1';
+    container = document.createElement('div');
+    document.body.appendChild(container);
+    root = createRoot(container);
+  });
+
+  afterEach(() => {
+    act(() => {
+      root?.unmount();
+    });
+    container?.remove();
+  });
+
+  const render = () => {
+    act(() => {
+      root?.render(
+        createElement(EventTypeSwitcher, {
+          event,
+          onChange: () => undefined,
+          visibility: 'public',
+        }),
+      );
+    });
+  };
+
+  // The co-organizer picker is the `ProfilesInput` that takes a `filter`
+  // (federated profiles can't act); the jam-moderator picker does not.
+  const coOrganizerPicker = () =>
+    pickerProps.find((props) => typeof props.filter === 'function');
+
+  it('renders the co-organizer picker for every event format', () => {
+    render();
+    expect(coOrganizerPicker()).toBeTruthy();
+  });
+
+  it('wires the hydrated profiles as the picker value', () => {
+    render();
+    expect(coOrganizerPicker()?.value).toEqual([]);
+  });
+
+  it('excludes federated profiles from the candidate list', () => {
+    render();
+    const filter = coOrganizerPicker()?.filter as
+      | ((profile: { type: string }) => boolean)
+      | undefined;
+    expect(typeof filter).toBe('function');
+    expect(filter?.({ type: 'local' })).toBe(true);
+    expect(filter?.({ type: 'federated' })).toBe(false);
+  });
+
+  it('reports picker edits back through setCoOrganizers', () => {
+    render();
+    const onChange = coOrganizerPicker()?.onChange as
+      | ((profiles: unknown[]) => void)
+      | undefined;
+    expect(typeof onChange).toBe('function');
+    onChange?.([{ id: '111', handle: 'peep' }]);
+    expect(coOrganizerChange).toEqual([[{ id: '111', handle: 'peep' }]]);
+  });
+
+  it('excludes the signed-in profile from the picker (banlist)', () => {
+    authDataState.roles = [{ capabilities: { add: ['core-posts-create'] } }];
+    render();
+    const banlist = coOrganizerPicker()?.banlist as
+      | Array<{ id?: string } | string>
+      | undefined;
+    expect(Array.isArray(banlist)).toBe(true);
+    // The picker must hide the caller — the server already skips it, and a
+    // picker that offered it would 422 on submit.
+    const ids = (banlist ?? []).map((b) =>
+      typeof b === 'string' ? b : b.id,
+    );
+    expect(ids).toContain('u-1');
+  });
+
+  it('leaves the banlist empty when signed out', () => {
+    authDataState.roles = [];
+    render();
+    const banlist = coOrganizerPicker()?.banlist as unknown[] | undefined;
+    expect(banlist).toEqual([]);
   });
 });

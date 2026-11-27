@@ -19,6 +19,8 @@ export type ProfilesInputProps = {
   disabled?: boolean;
   className?: string;
   title?: string;
+  /** Extra predicate over the candidate list (e.g. hide federated accounts). */
+  filter?: (profile: PublicProfile) => boolean;
 };
 
 export const ProfilesInput = ({
@@ -29,6 +31,7 @@ export const ProfilesInput = ({
   disabled = false,
   className,
   title,
+  filter,
 }: ProfilesInputProps) => {
   const { t } = useTranslation();
   const selectorRef = useRef<BottomSheetModal>(null);
@@ -75,6 +78,7 @@ export const ProfilesInput = ({
         selectType="sync"
         title={title}
         profilesToExclude={[...value, ...banlist]}
+        filter={filter}
       />
     </>
   );

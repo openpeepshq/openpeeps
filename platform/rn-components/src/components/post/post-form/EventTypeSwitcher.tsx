@@ -8,6 +8,7 @@ import {
 } from '@openpeepshq/common';
 import {
   useAuthData,
+  useCurrentProfile,
   useEventTypeSwitcher,
   useLocationSearch,
 } from '@openpeepshq/react';
@@ -81,6 +82,7 @@ export const EventTypeSwitcher = ({
 }: EventTypeSwitcherProps) => {
   const { t } = useTranslation();
   const authData = useAuthData();
+  const me = useCurrentProfile();
   const canNotify =
     canAnnouncePosts(authData.profile?.roles) &&
     isCommunityWideVisibility(visibility);
@@ -91,6 +93,8 @@ export const EventTypeSwitcher = ({
     switchFormat,
     moderatorProfiles,
     setModerators,
+    coOrganizerProfiles,
+    setCoOrganizers,
     setWaitingRoom,
     setNotifyEveryone,
     setUrl,
@@ -144,6 +148,25 @@ export const EventTypeSwitcher = ({
           />
         </View>
       ) : null}
+
+      <View className="gap-2">
+        <Label nativeID="event-co-organizers">
+          {t('events.form.coOrganizers')}
+        </Label>
+        <ProfilesInput
+          value={coOrganizerProfiles}
+          onChange={setCoOrganizers}
+          // The server skips the caller when validating the list; mirror it
+          // in the picker (pattern: groups/New.tsx).
+          banlist={me ? [me] : []}
+          // Deliberate: the list is NOT pre-filtered per event visibility
+          // (the jam-moderator picker behaves the same). For group events the
+          // server rejects a non-member with 422 eventCoOrganizerInvisible;
+          // pinned in platform/core eventCollaborators.test.ts.
+          filter={(profile) => profile.type !== 'federated'}
+          placeholder={t('events.form.coOrganizersDescription')}
+        />
+      </View>
 
       {eventFormat === 'jam' ? (
         <>

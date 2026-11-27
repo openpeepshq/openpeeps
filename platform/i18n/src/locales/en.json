@@ -2877,6 +2877,14 @@
           "label": "Jam Moderator",
           "description": "Manage how you receive live jam notifications when you are invited to moderate a jam"
         },
+        "coOrganizerAdded": {
+          "label": "Co-organizer Added",
+          "description": "Manage notifications for when you are added as a co-organizer of an event"
+        },
+        "coOrganizerRemoved": {
+          "label": "Co-organizer Removed",
+          "description": "Manage notifications for when you are removed as a co-organizer of an event"
+        },
         "jamSpeaker": {
           "label": "Jam Speaker",
           "description": "Manage how you receive live jam notifications when you are invited to speak at a jam"
@@ -3321,6 +3329,8 @@
       "waitlistOfferMinutes": "Waitlist response window (minutes)",
       "waitlistOfferMinutesDescription": "How long the next person on the waitlist has to claim a freed spot. Leave empty for 60 minutes.",
       "jamModerators": "Jam moderators (optional).",
+      "coOrganizers": "Co-organizers (optional)",
+      "coOrganizersDescription": "Co-organizers can edit this event and manage RSVPs.",
       "jamWaitingRoom": "Waiting Room",
       "jamWaitingRoomDescription": "Only approved users can join",
       "jamNotifyEveryone": "Notify everyone when the jam starts",
@@ -3511,6 +3521,18 @@
       "editAll": "Edit all events",
       "deleteThis": "Delete this event",
       "deleteAll": "Delete all events"
+    },
+    "coOrganizers": {
+      "title": "Co-organizers",
+      "description": "Profiles that can edit the event and manage RSVPs alongside you.",
+      "add": "Add co-organizer",
+      "remove": "Remove",
+      "removeConfirm": "Remove {profile} as a co-organizer? They will lose the right to edit this event and manage RSVPs.",
+      "removeConfirmAction": "Remove",
+      "leave": "Step down",
+      "leaveConfirm": "Step down as a co-organizer? You will lose the right to edit this event and manage RSVPs.",
+      "leaveConfirmAction": "Step down",
+      "empty": "No co-organizers yet."
     }
   },
   "reports": {
@@ -3581,6 +3603,12 @@
     },
     "jamModerator": {
       "text": "{{profileName}} invited you to moderate an event"
+    },
+    "coOrganizerAdded": {
+      "text": "{{profileName}} added you as a co-organizer of an event"
+    },
+    "coOrganizerRemoved": {
+      "text": "You were removed as a co-organizer of an event by {{profileName}}"
     },
     "jamStarted": {
       "text": "{{profileName}} started a jam: {{eventName}}",
@@ -3694,6 +3722,16 @@
       "scheduledFor": "The jam is scheduled for {{when}}",
       "cta": "View Event"
     },
+    "coOrganizerAdded": {
+      "subject": "You have been added as a co-organizer of {{eventName}}",
+      "body": "{{profileName}} added you as a co-organizer of this event.",
+      "cta": "View Event"
+    },
+    "coOrganizerRemoved": {
+      "subject": "You were removed as a co-organizer of {{eventName}}",
+      "body": "{{profileName}} removed you as a co-organizer of this event.",
+      "cta": "View Event"
+    },
     "jamSpeaker": {
       "subject": "{{profileName}} invited you to speak at a jam!",
       "body": "{{profileName}} invited you to speak at a jam!",
@@ -3801,6 +3839,9 @@
         "description": "{{profileName}} made you a speaker in a jam"
       },
       "started": "Jam Started"
+    },
+    "events": {
+      "coOrganizer": "Co-organizer"
     },
     "reset": {
       "password": {
@@ -4006,6 +4047,9 @@
     "jamRecordingForbidden": "You don't have permission to view recordings for this jam.",
     "rsvpRemoved": "The organizer has removed you from this event.",
     "rsvpRemovedForbidden": "Only the event organizer can remove attendees.",
+    "eventCoOrganizersForbidden": "You don't have permission to change this event's co-organizers.",
+    "eventCoOrganizerInvalid": "That profile can't be added as a co-organizer of this event.",
+    "eventCoOrganizerInvisible": "That profile can't be added as a co-organizer because they can't see this event.",
     "cannotInteractBlocked": "You cannot interact with this profile.",
     "reactionNotAllowed": "That reaction is not allowed in this community.",
     "emailAlreadyTaken": "That email is already in use.",

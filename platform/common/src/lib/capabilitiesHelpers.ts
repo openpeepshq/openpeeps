@@ -207,6 +207,16 @@ export const getPostRelationships = (
     relationships.push('attendee');
   }
 
+  // Co-organizer ids are event data (stored on the post), so no read gate:
+  // a co-organizer must already see the event; the write path enforces that.
+  if (
+    profile &&
+    post.data?.type === 'event' &&
+    post.data.coOrganizers?.includes(profile.id)
+  ) {
+    relationships.push('collaborator');
+  }
+
   return relationships;
 };
 

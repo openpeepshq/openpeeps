@@ -1,4 +1,6 @@
 export * from './Announcement';
+export * from './CoOrganizerAdded';
+export * from './CoOrganizerRemoved';
 export * from './DirectMessage';
 export * from './Follow';
 export * from './GroupMemberExit';

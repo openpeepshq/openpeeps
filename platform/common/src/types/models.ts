@@ -691,6 +691,8 @@ export const eventSchema = noteBaseSchema
     /** Minutes the next waitlisted member has to claim a freed seat. */
     waitlistOfferMinutes: z.number().int().positive().max(10080).optional(),
     attendeeListPublic: z.boolean().optional(),
+    /** Profile ids with edit + RSVP-management rights (the `collaborator` relationship). */
+    coOrganizers: z.string().uuid().array().optional(),
     moderators: z.string().uuid().array().optional(),
     jam: jamSchema.optional(),
     physicalLocation: locationSchema.optional(),

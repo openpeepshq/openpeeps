@@ -20,11 +20,13 @@ import ReactTestRenderer from 'react-test-renderer';
 let mockJamState: { active: boolean } | undefined;
 let mockProfile: { id: string; displayName?: string; handle?: string } | null =
   { id: 'u-1', displayName: 'Att', handle: 'att' };
+let mockCanManageRsvps = false;
 const mockNavigate = jest.fn();
 const mockClient = { posts: { exportRsvps: jest.fn() } };
 const mockUseServerInfo = jest.fn(() => ({
   jams: { livekit: { enabled: true } },
 }));
+const mockUpdatePostAction = jest.fn(async () => ({}));
 
 // --- react-native: host elements render as plain host tags ----------------
 jest.mock('react-native', () => {
@@ -73,6 +75,7 @@ jest.mock('@openpeepshq/react', () => {
         useJamState: () => ({ data: mockJamState }),
         usePostRecordings: () => ({ data: [] }),
         usePostContext: () => ({ data: undefined }),
+        updatePostAction: () => mockUpdatePostAction,
       },
       client: mockClient,
     }),
@@ -112,6 +115,7 @@ jest.mock('@openpeepshq/common/lib', () => ({
   canAccessJamRecordings: () => false,
   canModerateJam: () => false,
   canViewJamAttendees: () => false,
+  normalizeEventDataForSave: (event?: unknown) => event,
   effectiveEventTimes: (event?: { start?: string }) =>
     event?.start ? { start: event.start } : {},
   eventTimeZoneOptions: (timeZone?: string | null) => {
@@ -164,7 +168,7 @@ jest.mock('../../../../lib/utils', () => ({
     p?.displayName ?? p?.handle ?? '',
   groupName: (g?: { name?: string }) => g?.name ?? '',
   truncateText: (s: string, n: number) => (s ? s.slice(0, n) : ''),
-  canManageEventRsvps: () => false,
+  canManageEventRsvps: () => mockCanManageRsvps,
 }));
 jest.mock('../../../../lib/constants', () => ({
   BASE_URL: 'https://openpeeps.org',
@@ -245,6 +249,9 @@ jest.mock('../../../custom/date/updating-date', () => ({
 jest.mock('../../../custom/modals/common', () => ({
   BaseSheet: () => null,
   SheetFooter: () => null,
+}));
+jest.mock('../../../profile/ProfileSelector', () => ({
+  ProfileSelector: () => null,
 }));
 jest.mock('../../pieces/VideoPlayer', () => ({ VideoPlayer: () => null }));
 jest.mock('../../pieces/EventOccurrenceList', () => ({
@@ -355,6 +362,8 @@ beforeEach(() => {
   mockProfile = { id: 'u-1', displayName: 'Att', handle: 'att' };
   mockProfileSettingsTimeZone = undefined;
   mockCommunityDefaultTimeZone = undefined;
+  mockCanManageRsvps = false;
+  mockUpdatePostAction.mockClear();
   mockUseServerInfo.mockReset();
   mockUseServerInfo.mockReturnValue({ jams: { livekit: { enabled: true } } });
 });
@@ -583,6 +592,73 @@ describe('event display time zone', () => {
     expect(json).toContain('in your time zone');
     expect(json).toContain('(Europe/Berlin)');
     expect(json).not.toContain('Not/AZone');
+    tree.unmount();
+  });
+});
+
+// Co-organizer tab (issue #383, review S1): the RN screen must expose the
+// same management surface as the web FullEvent — a "Co-organizers" tab for
+// anyone who can manage RSVPs (primary organizer, co-organizer, or an
+// update-capable role), listing the current co-organizers with a Remove /
+// Step-down action, plus the Add control.
+describe('co-organizer tab', () => {
+  // The public post surface hydrates co-organizer UUIDs into full profiles at
+  // `post.coOrganizers` (not `post.data.coOrganizers`, the raw `string[]`), so
+  // the fixture mirrors that shape.
+  const eventWithCoOrganizer = {
+    ...BASE_POST,
+    coOrganizers: [{ id: 'co-1', displayName: 'Co One', handle: 'coone' }],
+    data: {
+      ...BASE_POST.data,
+      jam: false,
+      coOrganizers: ['co-1'],
+    },
+  };
+
+  test('18. rsvp manager -> co-organizer tab lists the co-organizers with an add control', () => {
+    mockCanManageRsvps = true;
+    const tree = render(eventWithCoOrganizer);
+    const json = JSON.stringify(tree.toJSON());
+    expect(json).toContain('Co-organizers');
+    expect(json).toContain('Add co-organizer');
+    expect(json).toContain('Co One');
+    tree.unmount();
+  });
+
+  test('19. non-manager (plain attendee) -> no co-organizer tab', () => {
+    mockCanManageRsvps = false;
+    const tree = render(eventWithCoOrganizer);
+    const json = JSON.stringify(tree.toJSON());
+    expect(json).not.toContain('Co-organizers');
+    expect(json).not.toContain('Co One');
+    tree.unmount();
+  });
+
+  test('20. primary organizer -> co-organizers get a Remove action, not Step down', () => {
+    mockCanManageRsvps = true;
+    // currentProfile 'u-1' owns the event, so the listed co-organizer is
+    // someone else: Remove, not Step down.
+    const ownerPost = { ...eventWithCoOrganizer, profile: { id: 'u-1', displayName: 'Me' } } as never;
+    const tree = render(ownerPost);
+    const json = JSON.stringify(tree.toJSON());
+    expect(json).toContain('Remove');
+    expect(json).not.toContain('Step down');
+    tree.unmount();
+  });
+
+  test('21. co-organizer viewing their own row -> Step down, not Remove', () => {
+    mockCanManageRsvps = true;
+    // 'u-1' is listed as a co-organizer (and not the post owner).
+    const coPost = {
+      ...eventWithCoOrganizer,
+      profile: { id: 'owner-1', displayName: 'Owner' },
+      coOrganizers: [{ id: 'u-1', displayName: 'Me', handle: 'me' }],
+      data: { ...eventWithCoOrganizer.data, coOrganizers: ['u-1'] },
+    } as never;
+    const tree = render(coPost);
+    const json = JSON.stringify(tree.toJSON());
+    expect(json).toContain('Step down');
+    expect(json).not.toContain('Remove');
     tree.unmount();
   });
 });

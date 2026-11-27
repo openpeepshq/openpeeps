@@ -16,9 +16,17 @@
  */
 type RoleLike = { capabilities?: { add?: string[] } };
 
-export const authDataState = { roles: [] as RoleLike[] };
+export const authDataState = {
+  roles: [] as RoleLike[],
+  profileId: 'u-1' as string | undefined,
+};
 
 export const makeAuthDataValue = () => ({
   profile:
-    authDataState.roles.length > 0 ? { roles: authDataState.roles } : undefined,
+    authDataState.roles.length > 0
+      ? {
+          ...(authDataState.profileId ? { id: authDataState.profileId } : {}),
+          roles: authDataState.roles,
+        }
+      : undefined,
 });

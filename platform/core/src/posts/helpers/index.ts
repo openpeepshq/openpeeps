@@ -260,6 +260,13 @@ export const transformPost = async (
         await Promise.all(post.audience.map((p) => loadPublicProfile(p.id)))
       ).filter((profile): profile is ProfileWithMeta => !!profile)
     : [];
+  const coOrganizerIds =
+    post.data?.type === 'event' ? (post.data.coOrganizers ?? []) : [];
+  const coOrganizers = coOrganizerIds.length
+    ? (
+        await Promise.all(coOrganizerIds.map((id) => loadPublicProfile(id)))
+      ).filter((profile): profile is ProfileWithMeta => !!profile)
+    : undefined;
   const mentions = post.mentions
     ? await Promise.all(post.mentions.map(addProfileForMention))
     : [];
@@ -321,6 +328,7 @@ export const transformPost = async (
       })),
     audience,
     mentions,
+    coOrganizers,
     profile: profile!,
     entries,
     reactions,

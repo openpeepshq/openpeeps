@@ -44,6 +44,8 @@ type CheckboxProps = {
 
 // Every Checkbox the tree renders, in order, with the props it was handed.
 let checkboxes: CheckboxProps[] = [];
+// Every ProfilesInput the tree renders, in order, with the props it was handed.
+let pickerProps: Record<string, unknown>[] = [];
 // Handler identities handed to the component this render, used to tell the
 // notify checkbox apart from the always-present waiting-room checkbox.
 let setWaitingRoom: ((value: boolean) => void) | undefined;
@@ -73,6 +75,9 @@ jest.mock('@openpeepshq/common', () => ({
 
 jest.mock('@openpeepshq/react', () => ({
   useAuthData: makeAuthDataValue,
+  // Same profile the tree sees via `useAuthData`, so the picker self-exclusion
+  // (banlist) the test asserts is the identity the component reads.
+  useCurrentProfile: () => makeAuthDataValue().profile,
   useEventTypeSwitcher: (args: {
     event: { jam?: Record<string, unknown> };
     onChange: (event: unknown) => void;
@@ -96,6 +101,9 @@ jest.mock('@openpeepshq/react', () => ({
       switchFormat: () => undefined,
       moderatorProfiles: [],
       setModerators: () => undefined,
+      coOrganizerProfiles: [],
+      setCoOrganizers: (profiles: unknown[]) =>
+        args.onChange({ ...args.event, coOrganizers: profiles }),
       setWaitingRoom,
       setNotifyEveryone,
       setUrl: () => undefined,
@@ -136,7 +144,10 @@ jest.mock('../../ui/themed-text', () => ({
 }));
 jest.mock('../../../lib/constants', () => ({ BASE_URL: 'http://localhost' }));
 jest.mock('../../profile/ProfilesInput', () => ({
-  ProfilesInput: () => React.createElement('ProfilesInput'),
+  ProfilesInput: (props: Record<string, unknown>) => {
+    pickerProps.push(props);
+    return React.createElement('ProfilesInput');
+  },
 }));
 
 const { EventTypeSwitcher } = require('./EventTypeSwitcher');
@@ -147,6 +158,7 @@ const event = { type: 'event', name: 'Standup', jam: {} };
 // so callers can pick the one wired to the setter they care about.
 const render = (visibility?: string, onChange?: (event: unknown) => void) => {
   checkboxes = [];
+  pickerProps = [];
   setWaitingRoom = undefined;
   setNotifyEveryone = undefined;
   ReactTestRenderer.act(() => {
@@ -243,5 +255,63 @@ describe('RN EventTypeSwitcher community jam broadcast opt-in', () => {
         jam: expect.objectContaining({ waitingRoom: true }),
       })
     );
+  });
+});
+
+describe('RN EventTypeSwitcher co-organizer picker', () => {
+  // The co-organizer picker is the `ProfilesInput` that takes a `filter`
+  // (federated profiles can't act); the jam-moderator picker does not.
+  const coOrganizerPicker = () =>
+    pickerProps.find((props) => typeof props.filter === 'function');
+
+  it('renders the co-organizer picker for every event format', () => {
+    render('public');
+    expect(coOrganizerPicker()).toBeDefined();
+  });
+
+  it('wires the hydrated profiles as the picker value', () => {
+    render('public');
+    expect(coOrganizerPicker()!.value).toEqual([]);
+  });
+
+  it('excludes federated profiles from the candidate list', () => {
+    render('public');
+    const filter = coOrganizerPicker()!.filter as (p: {
+      type: string;
+    }) => boolean;
+    expect(filter({ type: 'local' })).toBe(true);
+    expect(filter({ type: 'federated' })).toBe(false);
+  });
+
+  it('drives onChange with the picked co-organizer profiles', () => {
+    const onChange = jest.fn();
+    render('public', onChange);
+    const onChangePicker = coOrganizerPicker()!.onChange as (
+      profiles: unknown[]
+    ) => void;
+    onChangePicker([{ id: '111', handle: 'peep' }]);
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith(
+      expect.objectContaining({ coOrganizers: [{ id: '111', handle: 'peep' }] })
+    );
+  });
+
+  it('excludes the signed-in profile from the picker (banlist)', () => {
+    authDataState.roles = [{ capabilities: { add: ['core-posts-create'] } }];
+    render('public');
+    const banlist = coOrganizerPicker()!.banlist as
+      Array<{ id?: string } | string>;
+    expect(Array.isArray(banlist)).toBe(true);
+    // The picker must hide the caller — the server already skips it, and a
+    // picker that offered it would 422 on submit.
+    expect(banlist.map((b) => (typeof b === 'string' ? b : b.id))).toContain(
+      'u-1'
+    );
+  });
+
+  it('leaves the banlist empty when signed out', () => {
+    authDataState.roles = [];
+    render('public');
+    expect(coOrganizerPicker()!.banlist).toEqual([]);
   });
 });

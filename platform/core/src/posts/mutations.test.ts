@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import * as eventCollaborators from './eventCollaborators';
 import { defaultRoles } from '@openpeepshq/common';
 import type {
   PostData,
@@ -40,6 +41,12 @@ vi.mock('./eventOccurrences', () => ({
 vi.mock('./pollEndJobs', () => ({
   schedulePollEnd: vi.fn().mockResolvedValue(undefined),
   cancelPollEnd: vi.fn().mockResolvedValue(undefined),
+}));
+// Mocked so the co-organizer scoping tests can assert the validator is
+// (not) invoked for a given post type without loading the real capability
+// machinery.
+vi.mock('./eventCollaborators', () => ({
+  validateEventCoOrganizers: vi.fn(),
 }));
 
 const PARENT_ID = '01970000-0000-7000-8000-000000000001';
@@ -102,6 +109,104 @@ const mockDependencies = () => {
   vi.spyOn(postsMapping, 'deleteRelations').mockResolvedValue(undefined);
   vi.spyOn(postsMapping, 'delete').mockResolvedValue(undefined);
 };
+
+describe('co-organizer validator scoping (event-only, create + update)', () => {
+  // Review round 2 asked for coverage that `coOrganizers` handling is scoped
+  // to event posts and is not a general bypass that runs for every post type.
+  // The scoping is a call-site gate in `mutations.ts` — the validator itself
+  // never looks at the post type — so this pins the gate at the mutation
+  // layer. The validator is mocked (not the real capability machinery) so
+  // each case only asserts whether the gate fires.
+  const validator = vi.mocked(eventCollaborators.validateEventCoOrganizers);
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const runCreate = async (data: PostDataUnion) => {
+    mockDependencies();
+    validator.mockResolvedValue([]);
+    vi.spyOn(postsMapping, 'find').mockResolvedValue(undefined);
+    const create = vi.fn().mockResolvedValue(reply);
+    vi.spyOn(postsMapping, 'removeDefaultFilter').mockReturnValue({
+      create,
+    } as never);
+    vi.spyOn(helpers, 'groupConnector').mockResolvedValue({} as never);
+    vi.spyOn(eventOccurrences, 'rebuildEventOccurrences').mockResolvedValue(
+      undefined,
+    );
+    await createPost(data, moderatorProfile, localNotePostData(), {});
+  };
+
+  const runUpdate = async (data: PostDataUnion, storedData: unknown) => {
+    mockDependencies();
+    validator.mockResolvedValue([]);
+    vi.spyOn(eventOccurrences, 'rebuildEventOccurrences').mockResolvedValue(
+      undefined,
+    );
+    vi.spyOn(pollEndJobs, 'cancelPollEnd').mockResolvedValue(undefined);
+    vi.spyOn(pollEndJobs, 'schedulePollEnd').mockResolvedValue(undefined);
+    vi.spyOn(postsMapping, 'update').mockResolvedValue(reply as never);
+    vi.spyOn(postsMapping, 'find').mockResolvedValue(reply);
+    await updatePost(
+      {
+        id: REPLY_ID,
+        visibility: 'public',
+        profile: { id: 'creator-1' },
+        creatorId: 'creator-1',
+        data: storedData,
+      } as unknown as PostWithMeta,
+      moderatorProfile,
+      data,
+    );
+  };
+
+  it('validates co-organizers on event create (organizer = creator, empty previous)', async () => {
+    await runCreate({
+      type: 'event',
+      name: 'Standup',
+      start: '2026-01-01T09:00:00.000Z',
+      coOrganizers: ['target'],
+    } as unknown as PostDataUnion);
+    expect(validator).toHaveBeenCalledTimes(1);
+    expect(validator).toHaveBeenCalledWith(
+      expect.objectContaining({
+        organizerId: 'creator-1',
+        previous: [],
+        next: ['target'],
+      }),
+    );
+  });
+
+  it('does not run the validator when a non-event post is created', async () => {
+    await runCreate(note);
+    expect(validator).not.toHaveBeenCalled();
+  });
+
+  it('validates co-organizer changes on event update against the stored list', async () => {
+    await runUpdate(
+      {
+        type: 'event',
+        name: 'Standup',
+        start: '2026-01-01T09:00:00.000Z',
+        coOrganizers: ['target'],
+      } as unknown as PostDataUnion,
+      { type: 'event', name: 'Standup', start: '2026-01-01T09:00:00.000Z' },
+    );
+    expect(validator).toHaveBeenCalledTimes(1);
+    expect(validator).toHaveBeenCalledWith(
+      expect.objectContaining({
+        previous: [],
+        next: ['target'],
+      }),
+    );
+  });
+
+  it('does not run the validator when a non-event post is updated', async () => {
+    await runUpdate(note, { type: 'note', content: 'old' });
+    expect(validator).not.toHaveBeenCalled();
+  });
+});
 
 describe('createPost reply validation', () => {
   afterEach(() => {

@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from 'react';
 import type {
   Event,
   JamRecording,
+  PostDataUnion,
   PublicPost,
   PublicProfile,
 } from '@openpeepshq/common/types';
@@ -19,6 +20,7 @@ import {
   formatEventRecurrence,
   getJamUrl,
   groupName,
+  normalizeEventDataForSave,
   parseOccurrenceQuery,
   listRsvpOccurrences,
   profileName,
@@ -41,7 +43,7 @@ import { useCurrentProfile } from '../../../layout/IdentityContext';
 import { useToast } from '../../../layout/ToastProvider';
 import { usePostViewRef } from '../../../../lib/postViewCounter';
 import { useCreateNewConversation } from '../../../conversations';
-import { Avatar, ProfileFromId } from '../../../profile';
+import { Avatar, ProfileFromId, ProfileSelector } from '../../../profile';
 import { OpenpeepsMarkdown } from '../../../markdown/OpenpeepsMarkdown';
 import { ThreadedFeed } from '../../feed/threaded/ThreadedFeed';
 import { ReplyBox } from '../../ReplyBox';
@@ -66,7 +68,8 @@ type EventTab =
   | 'replies'
   | 'rsvps'
   | 'attendees'
-  | 'recordings';
+  | 'recordings'
+  | 'coOrganizers';
 
 export function FullEvent({ post, occurrence }: FullEventProps) {
   const t = useT();
@@ -100,6 +103,44 @@ export function FullEvent({ post, occurrence }: FullEventProps) {
   const myEvent = post.profile?.id === profile?.id;
   const iAmModerator = canModerateJam(profile, post);
   const canManageRsvps = canManageEventRsvps(profile, post);
+  const coOrganizerProfiles = post.coOrganizers ?? [];
+  const isPrimaryOrganizer = post.profile?.id === profile?.id;
+  const isCoOrganizer =
+    !!profile && coOrganizerProfiles.some((p) => p.id === profile.id);
+  // Same authority as RSVP management: primary organizer, co-organizer, or a
+  // role with core-posts-update. Server-side validation re-checks it.
+  const canManageCoOrganizers = canManageRsvps;
+  const [coOrganizerPickerOpen, setCoOrganizerPickerOpen] = useState(false);
+  const [coOrganizerToRemove, setCoOrganizerToRemove] =
+    useState<PublicProfile | null>(null);
+  const updatePostAction = openpeepsApi.updatePostAction({ id: post.id });
+  const setCoOrganizerList = useCallback(
+    async (next: PublicProfile[]) => {
+      try {
+        await updatePostAction(
+          normalizeEventDataForSave({
+            ...event,
+            coOrganizers: next.map((p) => p.id),
+          }) as PostDataUnion,
+        );
+      } catch (err) {
+        toastError((err as Error).message);
+      }
+    },
+    [event, toastError, updatePostAction],
+  );
+  const confirmRemoveCoOrganizer = useCallback(async () => {
+    if (!coOrganizerToRemove || !profile) return;
+    const next = coOrganizerProfiles.filter(
+      (p) => p.id !== coOrganizerToRemove.id,
+    );
+    await setCoOrganizerList(next);
+    setCoOrganizerToRemove(null);
+  }, [coOrganizerProfiles, coOrganizerToRemove, profile, setCoOrganizerList]);
+  const removingSelf = coOrganizerToRemove?.id === profile?.id;
+  const removingName = coOrganizerToRemove
+    ? profileName(coOrganizerToRemove)
+    : '';
   const slotsLeft = availableSpots(post, occurrenceId) ?? null;
   const times = effectiveEventTimes(event, occurrenceId);
   const recurrenceLabel = event.recurrence
@@ -323,6 +364,14 @@ export function FullEvent({ post, occurrence }: FullEventProps) {
             {t('events.tabs.recordings', { defaultValue: 'Recordings' })}
           </TabButton>
         ) : null}
+        {canManageCoOrganizers ? (
+          <TabButton
+            active={tab === 'coOrganizers'}
+            onClick={() => setTab('coOrganizers')}
+          >
+            {t('events.coOrganizers.title', { defaultValue: 'Co-organizers' })}
+          </TabButton>
+        ) : null}
       </nav>
 
       {tab === 'description' && event.content ? (
@@ -432,6 +481,128 @@ export function FullEvent({ post, occurrence }: FullEventProps) {
           </p>
         )
       ) : null}
+
+      {tab === 'coOrganizers' && canManageCoOrganizers ? (
+        <div className="flex flex-col gap-3 py-2">
+          <p className="text-muted-foreground text-sm">
+            {t('events.coOrganizers.description', {
+              defaultValue:
+                'Profiles that can edit the event and manage RSVPs alongside you.',
+            })}
+          </p>
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              compact
+              action={() => setCoOrganizerPickerOpen(true)}
+            >
+              {t('events.coOrganizers.add', {
+                defaultValue: 'Add co-organizer',
+              })}
+            </Button>
+          </div>
+          {coOrganizerProfiles.length ? (
+            coOrganizerProfiles.map((coOrganizer) => (
+              <div
+                key={coOrganizer.id}
+                className="flex items-center justify-between gap-2 border-border border-b py-2"
+              >
+                <div className="flex min-w-0 items-center gap-2">
+                  <Avatar profile={coOrganizer} size={2} />
+                  <span className="truncate text-sm">
+                    {profileName(coOrganizer)}
+                  </span>
+                </div>
+                {isPrimaryOrganizer && coOrganizer.id !== profile?.id ? (
+                  <Button
+                    variant="outline"
+                    compact
+                    action={() => setCoOrganizerToRemove(coOrganizer)}
+                  >
+                    <Trash2 className="mr-1 h-4 w-4" />
+                    {t('events.coOrganizers.remove', {
+                      defaultValue: 'Remove',
+                    })}
+                  </Button>
+                ) : null}
+                {isCoOrganizer && coOrganizer.id === profile?.id ? (
+                  <Button
+                    variant="outline"
+                    compact
+                    action={() => setCoOrganizerToRemove(coOrganizer)}
+                  >
+                    {t('events.coOrganizers.leave', {
+                      defaultValue: 'Step down',
+                    })}
+                  </Button>
+                ) : null}
+              </div>
+            ))
+          ) : (
+            <p className="text-muted-foreground py-2 text-sm">
+              {t('events.coOrganizers.empty', {
+                defaultValue: 'No co-organizers yet.',
+              })}
+            </p>
+          )}
+        </div>
+      ) : null}
+
+      <ProfileSelector
+        open={coOrganizerPickerOpen}
+        onOpenChange={setCoOrganizerPickerOpen}
+        mode="multiple"
+        selectedProfiles={coOrganizerProfiles}
+        // The server skips the caller when validating the list; keep the
+        // picker honest with the same exclusion (pattern: groups/New.tsx).
+        banlist={profile ? [profile] : []}
+        // Deliberate: the list is NOT pre-filtered per event visibility (the
+        // jam-moderator picker behaves the same). For group events the server
+        // rejects a non-member with 422 eventCoOrganizerInvisible; pinned in
+        // platform/core eventCollaborators.test.ts.
+        filter={(candidate) => candidate.type !== 'federated'}
+        onConfirm={async (selected) => {
+          await setCoOrganizerList(selected);
+          setCoOrganizerPickerOpen(false);
+        }}
+      />
+
+      <Dialog
+        open={coOrganizerToRemove != null}
+        onOpenChange={(next) => !next && setCoOrganizerToRemove(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {removingSelf
+                ? t('events.coOrganizers.leaveConfirm', {
+                    defaultValue:
+                      'Step down as a co-organizer? You will lose the right to edit this event and manage RSVPs.',
+                  })
+                : t('events.coOrganizers.removeConfirm', {
+                    profile: removingName,
+                    defaultValue:
+                      'Remove {profile} as a co-organizer? They will lose the right to edit this event and manage RSVPs.',
+                  })}
+            </DialogTitle>
+          </DialogHeader>
+          <DialogActions
+            cancelLabel={t('common.actions.cancel', { defaultValue: 'Cancel' })}
+            onCancel={() => setCoOrganizerToRemove(null)}
+            actionLabel={
+              removingSelf
+                ? t('events.coOrganizers.leaveConfirmAction', {
+                    defaultValue: 'Step down',
+                  })
+                : t('events.coOrganizers.removeConfirmAction', {
+                    defaultValue: 'Remove',
+                  })
+            }
+            onAction={confirmRemoveCoOrganizer}
+            actionVariant="destructive"
+          />
+        </DialogContent>
+      </Dialog>
 
       <div className="h-[40vh]" />
     </article>

@@ -26,6 +26,8 @@ import RNFS from 'react-native-fs';
 import {
   Event,
   PublicPost,
+  PublicProfile,
+  PostDataUnion,
   Profile,
   Group,
   GroupData,
@@ -64,6 +66,7 @@ import {
   listRsvpOccurrences,
   parseOccurrenceQuery,
   rsvpExportFilename,
+  normalizeEventDataForSave,
 } from '@openpeepshq/common/lib';
 import { ThemedView } from '../../../ui/themed-view';
 import { EventOccurrenceList } from '../../pieces/EventOccurrenceList';
@@ -79,6 +82,7 @@ import {
   useNewPostModal,
 } from '../../index';
 import { ReportProfileOrPostModal } from '../../../profile/index';
+import { ProfileSelector } from '../../../profile/ProfileSelector';
 import { OpenpeepsMarkdown } from '../../../markdown/index';
 import { downloadDocument } from '../../../../lib/downloadFile';
 import { useControlledSheet } from '../../../../hooks/use-controlled-sheet';
@@ -104,6 +108,48 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
   const event = useMemo(() => post?.data as Event, [post]);
 
   const canManageRsvps = canManageEventRsvps(currentProfile, post);
+  // The public post surface hydrates the stored co-organizer UUIDs into full
+  // profile objects at `post.coOrganizers` (web FullEvent reads the same
+  // field); `post.data.coOrganizers` is the raw `string[]` and unusable here.
+  const coOrganizerProfiles = (post.coOrganizers ?? []) as PublicProfile[];
+  const isPrimaryOrganizer = post.profile?.id === currentProfile?.id;
+  const isCoOrganizer = !!currentProfile && coOrganizerProfiles.some(
+    (p) => p.id === currentProfile.id
+  );
+  // Same authority as RSVP management: primary organizer, co-organizer, or a
+  // role with core-posts-update. Server-side validation re-checks it.
+  const canManageCoOrganizers = canManageRsvps;
+  const [coOrganizerToRemove, setCoOrganizerToRemove] = useState<
+    PublicProfile | null
+  >(null);
+  const coOrganizerPickerRef = useRef<BottomSheetModal>(null);
+  const updatePostAction = openpeepsApi.updatePostAction({ id: post.id });
+  const setCoOrganizerList = async (next: PublicProfile[]) => {
+    try {
+      await updatePostAction(
+        normalizeEventDataForSave({
+          ...event,
+          coOrganizers: next.map((p) => p.id),
+        }) as PostDataUnion
+      );
+    } catch (err) {
+      Toast.show({
+        type: 'error',
+        text1: err instanceof Error ? err.message : t('common.errors.error'),
+      });
+    }
+  };
+  const confirmRemoveCoOrganizer = async () => {
+    if (!coOrganizerToRemove) return;
+    await setCoOrganizerList(
+      coOrganizerProfiles.filter((p) => p.id !== coOrganizerToRemove.id)
+    );
+    setCoOrganizerToRemove(null);
+  };
+  const removingSelf = coOrganizerToRemove?.id === currentProfile?.id;
+  const removingName = coOrganizerToRemove
+    ? profileName(coOrganizerToRemove)
+    : '';
   const slotsLeft = availableSpots(post, occurrence) ?? null;
   const rsvpManage = openpeepsApi.rsvpManageAction();
   const exportRsvps = async () => {
@@ -534,6 +580,21 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
               </ThemedText>
             </TabsTrigger>
           ) : null}
+          {canManageCoOrganizers ? (
+            <TabsTrigger
+              value="coOrganizers"
+              className={
+                tabValue === 'coOrganizers' ? 'border-b-2 border-foreground' : ''
+              }
+              onPress={() => setTabValue('coOrganizers')}
+            >
+              <ThemedText>
+                {t('events.coOrganizers.title', {
+                  defaultValue: 'Co-organizers',
+                })}
+              </ThemedText>
+            </TabsTrigger>
+          ) : null}
         </TabsList>
         {event?.content ? (
           <TabsContent value="description" className="p-0">
@@ -620,7 +681,138 @@ export const FullEvent: React.FC<FullEventProps> = ({ post, occurrence }) => {
             )}
           </TabsContent>
         ) : null}
+        {canManageCoOrganizers ? (
+          <TabsContent value="coOrganizers" className="px-0 py-4">
+            <ThemedText className="mb-3 text-sm text-muted-foreground">
+              {t('events.coOrganizers.description', {
+                defaultValue:
+                  'Profiles that can edit the event and manage RSVPs alongside you.',
+              })}
+            </ThemedText>
+            <Button
+              variant="outline"
+              className="mb-3 self-end"
+              onPress={() => bottomSheetPresent(coOrganizerPickerRef)}
+            >
+              <ThemedText>
+                {t('events.coOrganizers.add', {
+                  defaultValue: 'Add co-organizer',
+                })}
+              </ThemedText>
+            </Button>
+            {coOrganizerProfiles.length ? (
+              coOrganizerProfiles.map((coOrganizer) => (
+                <View
+                  key={coOrganizer.id}
+                  className="mb-2 flex-row items-center justify-between border-b border-border py-2"
+                >
+                  <View className="flex-row items-center gap-2">
+                    <ProfileAvatar profile={coOrganizer} className="size-6" />
+                    <ThemedText className="text-sm">
+                      {profileName(coOrganizer)}
+                    </ThemedText>
+                  </View>
+                  {isPrimaryOrganizer &&
+                  coOrganizer.id !== currentProfile?.id ? (
+                    <Button
+                      variant="outline"
+                      onPress={() => setCoOrganizerToRemove(coOrganizer)}
+                    >
+                      <ThemedText>
+                        {t('events.coOrganizers.remove', {
+                          defaultValue: 'Remove',
+                        })}
+                      </ThemedText>
+                    </Button>
+                  ) : null}
+                  {isCoOrganizer &&
+                  coOrganizer.id === currentProfile?.id ? (
+                    <Button
+                      variant="outline"
+                      onPress={() => setCoOrganizerToRemove(coOrganizer)}
+                    >
+                      <ThemedText>
+                        {t('events.coOrganizers.leave', {
+                          defaultValue: 'Step down',
+                        })}
+                      </ThemedText>
+                    </Button>
+                  ) : null}
+                </View>
+              ))
+            ) : (
+              <ThemedText className="py-2 text-sm text-muted-foreground">
+                {t('events.coOrganizers.empty', {
+                  defaultValue: 'No co-organizers yet.',
+                })}
+              </ThemedText>
+            )}
+          </TabsContent>
+        ) : null}
       </Tabs>
+
+      {canManageCoOrganizers ? (
+        <ProfileSelector
+          ref={coOrganizerPickerRef}
+          selectType="async"
+          // `editMode` keeps the existing co-organizers selected so confirm
+          // sends the full list (web's ProfileSelector behaves the same); the
+          // selector already excludes the signed-in profile on its own.
+          // Deliberate: the list is NOT pre-filtered per event visibility (the
+          // jam-moderator picker behaves the same). For group events the
+          // server rejects a non-member with 422 eventCoOrganizerInvisible;
+          // pinned in platform/core eventCollaborators.test.ts.
+          editMode
+          initialProfiles={coOrganizerProfiles}
+          filter={(profile) => profile.type !== 'federated'}
+          asynOnSelect={(profiles) => setCoOrganizerList(profiles)}
+          title={t('events.coOrganizers.title', {
+            defaultValue: 'Co-organizers',
+          })}
+        />
+      ) : null}
+
+      {coOrganizerToRemove ? (
+        <BaseSheet
+          onDismiss={() => setCoOrganizerToRemove(null)}
+          stackBehavior="push"
+        >
+          <View className="flex-1 p-4">
+            <ThemedText className="mb-6 text-center text-xl font-semibold">
+              {t('events.coOrganizers.title', {
+                defaultValue: 'Co-organizers',
+              })}
+            </ThemedText>
+            <ThemedText className="mb-6 text-center text-base text-muted-foreground">
+              {removingSelf
+                ? t('events.coOrganizers.leaveConfirm', {
+                    defaultValue:
+                      'Step down as a co-organizer? You will lose the right to edit this event and manage RSVPs.',
+                  })
+                : t('events.coOrganizers.removeConfirm', {
+                    profile: removingName,
+                    defaultValue:
+                      'Remove {profile} as a co-organizer? They will lose the right to edit this event and manage RSVPs.',
+                  })}
+            </ThemedText>
+            <SheetFooter
+              onCancel={() => setCoOrganizerToRemove(null)}
+              cancelText={t('common.actions.cancel')}
+              onConfirm={() => void confirmRemoveCoOrganizer()}
+              confirmText={
+                removingSelf
+                  ? t('events.coOrganizers.leaveConfirmAction', {
+                      defaultValue: 'Step down',
+                    })
+                  : t('events.coOrganizers.removeConfirmAction', {
+                      defaultValue: 'Remove',
+                    })
+              }
+              confirmVariant="destructive"
+            />
+          </View>
+        </BaseSheet>
+      ) : null}
     </ThemedView>
   );
 };

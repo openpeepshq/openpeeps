@@ -247,6 +247,8 @@ const basePublicPostSchema = publicReplyPostSchema.extend({
   groupDiscoverable: z.boolean().optional().nullable(),
   updatedAt: z.string().datetime(),
   accountInteractions: accountInteractionsSchema.optional(),
+  /** Co-organizer profiles (events only); the UI manages the list off this field. */
+  coOrganizers: z.array(publicProfileSchema).optional().nullable(),
   rsvps: publicRsvpSchema.array(),
   seen: z.boolean().optional(),
   occurrenceRecurrenceId: z.string().datetime().optional(),

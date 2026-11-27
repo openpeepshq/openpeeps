@@ -119,6 +119,19 @@ export const useEventTypeSwitcher = ({
     });
   };
 
+  /** Hydrated co-organizer profiles (ids resolved against the profile cache). */
+  const coOrganizerProfiles = useMemo(() => {
+    const ids = event.coOrganizers ?? [];
+    const all = profilesQuery.data ?? [];
+    return ids
+      .map((id) => all.find((p) => p.id === id))
+      .filter((p): p is PublicProfile => Boolean(p));
+  }, [event.coOrganizers, profilesQuery.data]);
+
+  const setCoOrganizers = (profiles: PublicProfile[]) => {
+    onChange({ ...event, coOrganizers: profiles.map((p) => p.id) });
+  };
+
   // Both jam setters intentionally omit a `livekitEnabled` guard: the toggle is
   // UI-only (the checkboxes render `disabled={!livekitEnabled}`), so a saved
   // `jam` object keeps working when LiveKit is turned back on. Enforcing the
@@ -160,6 +173,8 @@ export const useEventTypeSwitcher = ({
     switchFormat,
     moderatorProfiles,
     setModerators,
+    coOrganizerProfiles,
+    setCoOrganizers,
     setWaitingRoom,
     setNotifyEveryone,
     setUrl,

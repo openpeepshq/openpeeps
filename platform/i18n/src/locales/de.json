@@ -2876,6 +2876,14 @@
           "label": "Jam-Moderator",
           "description": "Verwalten Sie, wie Sie Live-Jam-Benachrichtigungen erhalten, wenn Sie zur Moderation eines Jams eingeladen werden"
         },
+        "coOrganizerAdded": {
+          "label": "Mitorganisator:in hinzugefügt",
+          "description": "Benachrichtigungen verwalten, wenn du als Mitorganisator:in eines Events hinzugefügt wirst"
+        },
+        "coOrganizerRemoved": {
+          "label": "Mitorganisator:in entfernt",
+          "description": "Benachrichtigungen verwalten, wenn du als Mitorganisator:in eines Events entfernt wirst"
+        },
         "jamSpeaker": {
           "label": "Jam-Sprecher",
           "description": "Verwalten Sie, wie Sie Live-Jam-Benachrichtigungen erhalten, wenn Sie als Sprecher zu einem Jam eingeladen werden"
@@ -3316,6 +3324,8 @@
       "visibilityDescription": "Wählen Sie, wer Ihre Veranstaltung sehen und daran teilnehmen kann",
       "attendeeListPublic": "Teilnehmenden erlauben, andere Teilnehmende dieser Veranstaltung zu sehen",
       "jamModerators": "Jam-Moderatoren (optional).",
+      "coOrganizers": "Co-Organisatoren (optional)",
+      "coOrganizersDescription": "Co-Organisatoren können diese Veranstaltung bearbeiten und RSVPs verwalten.",
       "jamWaitingRoom": "Warteraum",
       "jamWaitingRoomDescription": "Nur genehmigte Benutzer können beitreten",
       "jamNotifyEveryone": "Alle benachrichtigen, wenn der Jam startet",
@@ -3511,6 +3521,18 @@
       "editAll": "Alle Veranstaltungen bearbeiten",
       "deleteThis": "Diese Veranstaltung löschen",
       "deleteAll": "Alle Veranstaltungen löschen"
+    },
+    "coOrganizers": {
+      "title": "Mitorganisatoren",
+      "description": "Profile, die diese Veranstaltung neben dir bearbeiten und RSVPs verwalten können.",
+      "add": "Mitorganisator hinzufügen",
+      "remove": "Entfernen",
+      "removeConfirm": "{profile} als Mitorganisator:in entfernen? Diese Person verliert das Recht, diese Veranstaltung zu bearbeiten und RSVPs zu verwalten.",
+      "removeConfirmAction": "Entfernen",
+      "leave": "Zurücktreten",
+      "leaveConfirm": "Als Mitorganisator:in zurücktreten? Du verlierst das Recht, diese Veranstaltung zu bearbeiten und RSVPs zu verwalten.",
+      "leaveConfirmAction": "Zurücktreten",
+      "empty": "Noch keine Mitorganisatoren."
     }
   },
   "reports": {
@@ -3581,6 +3603,12 @@
     },
     "jamModerator": {
       "text": "{{profileName}} hat Sie zur Moderation einer Veranstaltung eingeladen"
+    },
+    "coOrganizerAdded": {
+      "text": "{{profileName}} hat dich als Co-Organisator:in einer Veranstaltung hinzugefügt"
+    },
+    "coOrganizerRemoved": {
+      "text": "Du wurdest von {{profileName}} als Co-Organisator:in einer Veranstaltung entfernt"
     },
     "jamStarted": {
       "text": "{{profileName}} hat einen Jam gestartet: {{eventName}}",
@@ -3694,6 +3722,16 @@
       "scheduledFor": "Der Jam ist geplant für {{when}}",
       "cta": "Veranstaltung ansehen"
     },
+    "coOrganizerAdded": {
+      "subject": "Du wurdest als Co-Organisator:in von {{eventName}} hinzugefügt",
+      "body": "{{profileName}} hat dich als Co-Organisator:in dieser Veranstaltung hinzugefügt.",
+      "cta": "Veranstaltung ansehen"
+    },
+    "coOrganizerRemoved": {
+      "subject": "Du wurdest als Co-Organisator:in von {{eventName}} entfernt",
+      "body": "{{profileName}} hat dich als Co-Organisator:in dieser Veranstaltung entfernt.",
+      "cta": "Veranstaltung ansehen"
+    },
     "jamSpeaker": {
       "subject": "{{profileName}} hat Sie als Sprecher zu einem Jam eingeladen!",
       "body": "{{profileName}} hat Sie eingeladen, bei einem Jam zu sprechen!",
@@ -3790,6 +3828,9 @@
         "description": "{{profileName}} hat Sie zum Sprecher in einem Jam ernannt"
       },
       "started": "Jam gestartet"
+    },
+    "events": {
+      "coOrganizer": "Co-Organisator"
     },
     "reset": {
       "password": {
@@ -4054,6 +4095,9 @@
     "jamRecordingForbidden": "Sie haben keine Berechtigung, die Aufzeichnungen für diesen Jam anzusehen.",
     "rsvpRemoved": "Der Organisator hat Sie von dieser Veranstaltung entfernt.",
     "rsvpRemovedForbidden": "Nur der Organisator kann Teilnehmer entfernen.",
+    "eventCoOrganizersForbidden": "Du hast keine Berechtigung, die Co-Organisatoren dieser Veranstaltung zu ändern.",
+    "eventCoOrganizerInvalid": "Dieses Profil kann nicht als Co-Organisator dieser Veranstaltung hinzugefügt werden.",
+    "eventCoOrganizerInvisible": "Dieses Profil kann nicht als Co-Organisator hinzugefügt werden, weil es diese Veranstaltung nicht einsehen kann.",
     "cannotInteractBlocked": "Sie können mit diesem Profil nicht interagieren.",
     "reactionNotAllowed": "Diese Reaktion ist in dieser Community nicht erlaubt.",
     "emailAlreadyTaken": "Diese E-Mail wird bereits verwendet.",

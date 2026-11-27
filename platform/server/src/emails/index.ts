@@ -14,6 +14,8 @@ import announcementTemplate from './notifications/announcement';
 import directMessageTemplate from './notifications/direct-message';
 import followTemplate from './notifications/follow';
 import jamModeratorTemplate from './notifications/jam-moderator';
+import coOrganizerAddedTemplate from './notifications/co-organizer-added';
+import coOrganizerRemovedTemplate from './notifications/co-organizer-removed';
 import jamSpeakerTemplate from './notifications/jam-speaker';
 import jamStartedTemplate from './notifications/jam-started';
 import newProfileTemplate from './notifications/new-profile';
@@ -53,6 +55,8 @@ export const registerDefaultEmailTemplates = () => {
   register('notification-directMessage', directMessageTemplate);
   register('notification-follow', followTemplate);
   register('notification-jamModerator', jamModeratorTemplate);
+  register('notification-coOrganizerAdded', coOrganizerAddedTemplate);
+  register('notification-coOrganizerRemoved', coOrganizerRemovedTemplate);
   register('notification-jamSpeaker', jamSpeakerTemplate);
   register('notification-jamStarted', jamStartedTemplate);
   register('notification-newProfile', newProfileTemplate);

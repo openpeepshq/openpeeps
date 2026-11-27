@@ -35,6 +35,7 @@ import {
   transformPost,
 } from './helpers';
 import { postsMapping, repostRelation } from './mapping';
+import { validateEventCoOrganizers } from './eventCollaborators';
 import { bumpConversationActivity } from './activity';
 import { findGroup } from '../groups/finders';
 import {
@@ -184,6 +185,17 @@ export const createPost = async (
       profile.roles,
     );
   }
+  if (data.type === 'event') {
+    // Co-organizer ids are a grant of power: validate them (local + can see
+    // the event) before the post is written.
+    data.coOrganizers = await validateEventCoOrganizers({
+      caller: profile,
+      organizerId: profile.id,
+      post: { id: 'new', visibility: postData.visibility, group },
+      previous: [],
+      next: data.coOrganizers,
+    });
+  }
   const hashtags = extractHashtags(data);
   const id = uuidv7();
   const domain = (await config()).activityPub.defaultDomain;
@@ -320,7 +332,8 @@ export const updatePost = async (
   data: PostDataUnion,
 ) => {
   const previousEvent = post.data?.type === 'event' ? post.data : undefined;
-  const normalized =
+  const previousCoOrganizers = previousEvent?.coOrganizers ?? [];
+  let normalized: PostDataUnion =
     data.type === 'event'
       ? withoutCommunityJamNotifyEveryone(
           normalizeEventDataForSave(data),
@@ -330,6 +343,26 @@ export const updatePost = async (
       : data.type === 'article'
         ? applyArticleSlugPolicy(data, profile)
         : data;
+  if (normalized.type === 'event') {
+    // Co-organizer ids are a grant of power: validate the change (who may
+    // edit the list, and that every added target is local + can see the
+    // event) before it is written. Field-presence semantics: a payload that
+    // omits `coOrganizers` keeps the stored list — a partial update must not
+    // revoke co-organizer rights.
+    normalized = {
+      ...normalized,
+      coOrganizers: await validateEventCoOrganizers({
+        caller: profile,
+        organizerId: post.profile?.id ?? post.creatorId,
+        post,
+        previous: previousCoOrganizers,
+        next:
+          'coOrganizers' in normalized
+            ? normalized.coOrganizers
+            : previousCoOrganizers,
+      }),
+    };
+  }
   const dataForDb =
     normalized.type === 'event'
       ? eventDataForDbUpdate(previousEvent, normalized)
@@ -380,7 +413,12 @@ export const updatePost = async (
     await cancelPollEnd(post.id);
   }
 
-  hub.emit('postUpdated', newPost, previousEvent?.jam?.moderators ?? []);
+  hub.emit(
+    'postUpdated',
+    newPost,
+    previousEvent?.jam?.moderators ?? [],
+    previousCoOrganizers,
+  );
 
   return newPost!;
 };

@@ -6,6 +6,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { MainStackParamList } from '../../components/navigation/types/index';
 import {
   Announcement,
+  CoOrganizerAdded,
+  CoOrganizerRemoved,
   DirectMessage,
   Follow,
   GroupMemberExit,
@@ -38,6 +40,8 @@ const notificationComponentMap: Record<
   React.ComponentType<{ notification: PublicNotification }>
 > = {
   announcement: Announcement,
+  coOrganizerAdded: CoOrganizerAdded,
+  coOrganizerRemoved: CoOrganizerRemoved,
   directMessage: DirectMessage,
   follow: Follow,
   groupMemberLeft: GroupMemberExit,

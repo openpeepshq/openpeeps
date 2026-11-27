@@ -195,6 +195,7 @@ export const replyPostSchema = z.object({
   visibility: visibilityTypeSchema,
   group: groupWithMetaSchema.optional().nullable(),
   audience: z.array(profileWithMetaSchema).optional().nullable(),
+  coOrganizers: z.array(profileWithMetaSchema).optional().nullable(),
   seen: z.boolean().optional(),
   inReplyToId: z.string().optional().nullable(),
   hidden: z.boolean().optional(),
@@ -253,6 +254,8 @@ export type PostWithMeta = BasePost & {
   occurrenceRecurrenceId?: string;
   occurrenceStart?: string;
   occurrenceEnd?: string;
+  /** Co-organizer profiles for events (hydrated in `transformPost`). */
+  coOrganizers?: ProfileWithMeta[];
 };
 
 export interface ExpandedNotification {

@@ -24,6 +24,8 @@ interface ProfilePickerSheetProps {
   editMode?: boolean;
   single?: boolean;
   onDismiss?: () => void;
+  /** Extra predicate over the candidate list (e.g. hide federated accounts). */
+  filter?: (profile: PublicProfile) => boolean;
 }
 
 export const ProfileSelector = forwardRef<
@@ -41,6 +43,7 @@ export const ProfileSelector = forwardRef<
       editMode = false,
       single = false,
       onDismiss,
+      filter,
     },
     ref
   ) => {
@@ -74,6 +77,7 @@ export const ProfileSelector = forwardRef<
             )
             ?.filter((profile) => profile.id !== currentProfile?.id)
             ?.filter((profile) => profileMatchesQuery(profile, searchQuery))
+            ?.filter((profile) => (filter ? filter(profile) : true))
         );
       } else {
         setFilteredProfiles(
@@ -84,9 +88,10 @@ export const ProfileSelector = forwardRef<
                 : true
             )
             ?.filter((profile) => profile.id !== currentProfile?.id)
+            ?.filter((profile) => (filter ? filter(profile) : true))
         );
       }
-    }, [searchQuery, profiles, currentProfile, profilesToExclude]);
+    }, [searchQuery, profiles, currentProfile, profilesToExclude, filter]);
 
     // NativeWind v4 can't apply `/N` opacity to CSS-variable colors, so the
     // selected-row tint is built inline from the theme color (issue #1666).
