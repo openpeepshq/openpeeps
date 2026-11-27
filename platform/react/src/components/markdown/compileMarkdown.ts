@@ -7,6 +7,7 @@ import {
   MARKDOWN_HTML_ALLOWED_ATTRS,
   MARKDOWN_HTML_FORBIDDEN_TAGS,
   MARKDOWN_HTML_FORBIDDEN_ATTRS,
+  sanitizeMarkdownHtml,
 } from '@openpeepshq/common/lib';
 
 export type CompileMarkdownOptions = {
@@ -73,10 +74,11 @@ export const compileMarkdownToHtml = (
   let html = marked.parse(source, { renderer, async: false }) as string;
 
   if (shouldSanitize) {
-    // DOMPurify requires a DOM and is effectively browser-only: in Node
-    // (build-time docs manifest, server-side emails) DOMPurify.sanitize is
-    // not a function, so skip it. That HTML is re-sanitized at render time
-    // via CompiledMarkdown in the browser.
+    // DOMPurify requires a DOM and is effectively browser-only. In Node
+    // (server-rendered emails, build-time docs manifest) DOMPurify.sanitize
+    // is not a function, so fall back to the DOM-free sanitizer that applies
+    // the same allowlists. This closes the email-embed XSS gap where the
+    // Node branch previously skipped sanitization entirely.
     if (typeof DOMPurify.sanitize === 'function') {
       html = DOMPurify.sanitize(html, {
         ALLOWED_TAGS: [...MARKDOWN_HTML_ALLOWED_TAGS],
@@ -84,9 +86,11 @@ export const compileMarkdownToHtml = (
         FORBID_TAGS: [...MARKDOWN_HTML_FORBIDDEN_TAGS],
         FORBID_ATTR: [...MARKDOWN_HTML_FORBIDDEN_ATTRS],
       });
+    } else {
+      html = sanitizeMarkdownHtml(html);
     }
     // Inject sandbox/loading/containment attrs on iframes after sanitization
-    // so attackers can't smuggle attributes through DOMPurify's allowlist.
+    // so attackers can't smuggle attributes through the allowlist.
     html = injectIframeSafetyAttrs(html);
   }
 

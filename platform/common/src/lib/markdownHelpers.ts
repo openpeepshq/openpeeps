@@ -1,4 +1,10 @@
 import { mentionHandleRegexBase } from '../types';
+import {
+  MARKDOWN_HTML_ALLOWED_ATTRS,
+  MARKDOWN_HTML_ALLOWED_TAGS,
+  MARKDOWN_HTML_FORBIDDEN_ATTRS,
+  MARKDOWN_HTML_FORBIDDEN_TAGS,
+} from './markdownHtmlPolicy';
 
 export interface MarkdownRenderProps {
   source?: string;
@@ -341,71 +347,13 @@ export const toGotoUrl = (url: string, origin: string): string => {
 /* HTML sanitization helpers (shared allowlist + iframe safety)       */
 /* ------------------------------------------------------------------ */
 
-/**
- * Tags, attrs and forits shared by both the web (DOMPurify config) and
- * RN (custom HTML token renderers) so both platforms apply the same policy.
- */
-export const MARKDOWN_HTML_ALLOWED_TAGS = [
-  'b',
-  'i',
-  'em',
-  'strong',
-  'a',
-  'p',
-  'br',
-  'ul',
-  'ol',
-  'li',
-  'blockquote',
-  'code',
-  'pre',
-  'h1',
-  'h2',
-  'h3',
-  'h4',
-  'h5',
-  'h6',
-  'hr',
-  'img',
-  'iframe',
-  'video',
-  'source',
-  'picture',
-  'figcaption',
-] as const;
-
-export const MARKDOWN_HTML_ALLOWED_ATTRS = [
-  'href',
-  'src',
-  'title',
-  'alt',
-  'target',
-  'rel',
-  'width',
-  'height',
-  'loading',
-  'sandbox',
-  'frameborder',
-  'allowfullscreen',
-  'referrerpolicy',
-  'allow',
-  'style',
-] as const;
-
-export const MARKDOWN_HTML_FORBIDDEN_TAGS = [
-  'script',
-  'style',
-  'form',
-  'object',
-  'embed',
-] as const;
-
-export const MARKDOWN_HTML_FORBIDDEN_ATTRS = [
-  'onload',
-  'onerror',
-  'onclick',
-  'onmouseover',
-] as const;
+export {
+  MARKDOWN_HTML_ALLOWED_ATTRS,
+  MARKDOWN_HTML_ALLOWED_TAGS,
+  MARKDOWN_HTML_BLOCK_TAGS,
+  MARKDOWN_HTML_FORBIDDEN_ATTRS,
+  MARKDOWN_HTML_FORBIDDEN_TAGS,
+} from './markdownHtmlPolicy';
 
 /** Simple `<iframe>` tag detector for extracting embed URLs from raw HTML. */
 const IFRAME_SRC_RE =
@@ -453,4 +401,382 @@ export const injectIframeSafetyAttrs = (html: string): string => {
     }
     return `<iframe${safeAttrs}>`;
   });
+};
+
+/**
+ * Sanitize HTML without a DOM, applying the same tag/attribute allowlists as
+ * the browser (DOMPurify) path. Operates tag-by-tag: raw-text disallowed
+ * tags are removed along with their body, other disallowed tags lose only
+ * their tag, and allowed tags keep only allowlisted attributes whose values
+ * are re-escaped so they cannot forge a second attribute.
+ *
+ * This is the Node-side (no-DOM) equivalent of the DOMPurify call in
+ * `compileMarkdownToHtml`, used for server-rendered email embeds and
+ * build-time docs where a DOM is unavailable. It matches DOMPurify's
+ * *policy* — the tag/attribute allowlists and the default URI scheme policy —
+ * on the vector set pinned by the tests, verified against DOMPurify 3.4.17
+ * with this package's allowlist config. It is **not** a full HTML parser: it
+ * walks tags with a quote-aware scan rather than a real tokenizer, so it does
+ * not always reproduce DOMPurify's *output* byte-for-byte on exotic inputs
+ * (e.g. it re-serializes an unquoted attribute value containing a space as
+ * attribute + orphan text, where a real tokenizer parses the tag differently).
+ * That is acceptable here because the input is always HTML our own compiler
+ * (marked) produced, and the parity tests pin the security-relevant behavior
+ * (script/URI vectors, bare-`<` text) rather than claiming structural output
+ * identity.
+ */
+// C0 controls, space, and the full DOMPurify `ATTR_WHITESPACE` set (NBSP,
+// Mongolian vowel separator, U+180E, EN-quad..U+2029, narrow NBSP, ideographic
+// space) — every character a URL parser normalizes away before it decides a
+// URI's scheme. The range is intentional (that is the whole point);
+// `no-control-regex` is a heuristic that misfires on it, so the rule is
+// disabled for the literal itself (kept on its own line so the disable stays
+// attached to the regex after Prettier wraps the assignment).
+const SCHEME_NORMALIZE_RE =
+  // eslint-disable-next-line no-control-regex
+  /[\u0000-\u0020\u00a0\u1680\u180e\u2000-\u2029\u205f\u3000]/g;
+
+// Decode a character reference exactly once: numeric (`&#106;`, `&#x6a;`) and
+// the named references that matter to ASCII content. The full HTML5 table is
+// far larger than this, but this covers every reference that could spell a
+// scheme or its separators (`&colon;`, `&amp;`, ...). Deliberately decodes
+// WITHOUT requiring a trailing `;` and in a SINGLE pass (never re-decoding):
+// the HTML5 attribute-value tokenizer decodes `&#106avascript:` and
+// `jav&Tab;ascript:` (semicolonless numeric, named whitespace), while
+// `&amp;#106;avascript:` must stay inert — a single pass is what makes that
+// distinction.
+const NAMED_CHAR_REFS: Record<string, string> = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  colon: ':',
+  semicolon: ';',
+  tab: '\t',
+  newline: '\n',
+  lpar: '(',
+  rpar: ')',
+  equals: '=',
+  excl: '!',
+  quest: '?',
+  sol: '/',
+  bsol: '\\',
+  plus: '+',
+  num: '#',
+  percnt: '%',
+};
+
+const decodeHtmlEntities = (value: string): string =>
+  value.replace(/&(#x[0-9a-fA-F]+|#\d+|[a-zA-Z][a-zA-Z0-9]*);?/g, (m) => {
+    const body = m.slice(1, m.endsWith(';') ? -1 : undefined);
+    if (body[0] === '#') {
+      const isHex = body[1] === 'x' || body[1] === 'X';
+      const code = isHex
+        ? parseInt(body.slice(2), 16)
+        : parseInt(body.slice(1), 10);
+      return Number.isFinite(code) && code > 0 && code <= 0x10ffff
+        ? String.fromCodePoint(code)
+        : m;
+    }
+    const named = NAMED_CHAR_REFS[body.toLowerCase()];
+    return named ?? m;
+  });
+
+// DOMPurify 3.4.17's default URI allowlist (`IS_ALLOWED_URI`), copied
+// verbatim so the DOM-free branch applies the EXACT scheme policy the browser
+// path enforces: the named schemes http/https/ftp/mailto/tel/callto/sms/cid/
+// xmpp/matrix, any relative URL (a leading non-letter, or a letter token not
+// immediately followed by a bare `:`), and nothing else. `javascript:`,
+// `vbscript:`, `file:`, `blob:`, `about:`, `ms-msdt:`, `search-ms:`,
+// `chrome://` and every other scheme fail this test and are dropped — matching
+// the browser. (An earlier version allowlisted only the javascript/vbscript/
+// data cases, which let file:/blob:/about:/protocol-handler schemes through on
+// the email path; this replaces it with the full default policy.)
+// The hyphen is placed last in each class so it is a literal without an
+// escape: in the negated class a mid-class `-` would pair `.` and `:` into a
+// range that swallows `/` and the digits, breaking the URI-boundary test
+// (relative URLs fail, protocol-handler schemes survive). Reordering is
+// semantically identical (verified against the escaped form) but needs no
+// `\-` and no eslint-disable.
+const IS_ALLOWED_URI =
+  /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|matrix):|[^a-z]|[a-z+.-]+(?:[^a-z+:.-]|$))/i;
+
+// DOMPurify's `DEFAULT_DATA_URI_TAGS`: the only tags whose `src` may legally
+// carry a `data:` payload. `a` (href) and `iframe` are NOT in this set, so a
+// `data:` URI on their `src`/`href` is dropped, matching the browser. The
+// match is tag-based, not a `data:image/*` prefix test — a browser does not
+// execute a `data:` payload inside `<img>`/`<video>`/`<source>`, so DOMPurify
+// keeps any `data:` on those.
+const DATA_URI_SRC_TAGS = new Set([
+  'audio',
+  'video',
+  'img',
+  'source',
+  'image',
+  'track',
+]);
+
+// Decide whether a URI-carrying attribute value is allowed, mirroring
+// DOMPurify's default URI policy (`_isValidAttribute`): decode entities and
+// strip the whitespace/control chars a URL parser normalizes (exactly as
+// DOMPurify tests the decoded value with `ATTR_WHITESPACE` removed), then pass
+// the value through the `IS_ALLOWED_URI` allowlist, with the `data:`-on-media-
+// `src` special case. Decoding is a safe superset of what the browser does at
+// parse time: it also neutralizes entity-obfuscated `javascript:`/`vbscript:`.
+const isAllowedUri = (
+  value: string,
+  tagName: string,
+  attrName: string,
+): boolean => {
+  const normalized = decodeHtmlEntities(value).replace(SCHEME_NORMALIZE_RE, '');
+  if (IS_ALLOWED_URI.test(normalized)) {
+    return true;
+  }
+  return (
+    (attrName === 'src' || attrName === 'href') &&
+    normalized.startsWith('data:') &&
+    DATA_URI_SRC_TAGS.has(tagName)
+  );
+};
+
+// Re-serialize an allowlisted attribute value into a double-quoted attribute,
+// matching DOMPurify's output: decode the value to its literal text (so an
+// already-encoded `&amp;` does not get double-encoded), then re-escape `&`,
+// `"`, and `<`. The `"` escaping is what closes the class-1 re-serialization
+// hole — a single-quoted value like `title='x" href="javascript:…'` must not
+// be able to forge a second attribute; `&` and `<` escaping keeps the value
+// inert text.
+const escapeAttrValue = (value: string): string => {
+  const decoded = decodeHtmlEntities(value);
+  return decoded
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;');
+};
+
+export const sanitizeMarkdownHtml = (html: string): string => {
+  const allowed = new Set<string>(MARKDOWN_HTML_ALLOWED_TAGS);
+  const allowedAttrs = new Set<string>(MARKDOWN_HTML_ALLOWED_ATTRS);
+  const forbiddenTags = new Set<string>(MARKDOWN_HTML_FORBIDDEN_TAGS);
+  const forbiddenAttrs = new Set<string>(MARKDOWN_HTML_FORBIDDEN_ATTRS);
+
+  // Void elements never have a closing tag, so "everything they contain" is
+  // just the rest of the tag itself.
+  const VOID_TAGS = new Set<string>([
+    'br',
+    'img',
+    'hr',
+    'source',
+    'input',
+    'area',
+    'base',
+    'col',
+    'embed',
+    'link',
+    'meta',
+    'wbr',
+  ]);
+
+  // HTML5 raw-text (and script-data) elements: when unclosed, their "content"
+  // runs to the end of the document in a real parser, so an unclosed one
+  // swallows the rest of the input rather than leaking it as text. (`form`
+  // and `object` are *not* raw-text: unclosed, they keep their content as
+  // text, so only script and style from the forbidden list go here.)
+  const RAW_TEXT_TAGS = new Set<string>([
+    'script',
+    'style',
+    'noscript',
+    'template',
+    'plaintext',
+    'xmp',
+    'textarea',
+    'title',
+  ]);
+
+  let out = '';
+  let rest = html;
+
+  while (true) {
+    const lt = rest.indexOf('<');
+    if (lt === -1) {
+      out += rest;
+      break;
+    }
+    out += rest.slice(0, lt);
+    rest = rest.slice(lt);
+
+    // Comments: drop entirely (they can't carry visible content or script).
+    // A `-->` terminator is required: an *unclosed* comment drops the whole
+    // remainder of the input (a real parser would keep it as ordinary text
+    // running to end of input). That tail loss is an accepted approximation,
+    // not a script concern — comments are stripped either way.
+    if (rest.startsWith('<!--')) {
+      const end = rest.indexOf('-->');
+      rest = end === -1 ? '' : rest.slice(end + 3);
+      continue;
+    }
+
+    const tag = parseTagAt(rest);
+    if (tag === null) {
+      // A `<` that does not begin a well-formed tag (e.g. the bare `<` in
+      // "3 < 5", a `< b`, or an unterminated attribute quote). Escape it as
+      // `&lt;` and keep scanning, matching DOMPurify, instead of aborting and
+      // truncating the whole remainder of the document.
+      out += '&lt;';
+      rest = rest.slice(1);
+      continue;
+    }
+    const { name, isClosing, attrs, tagLength, selfClosing } = tag;
+    rest = rest.slice(tagLength);
+
+    if (!name) {
+      continue; // not a real tag; drop
+    }
+
+    if (!allowed.has(name) || forbiddenTags.has(name)) {
+      // Disallowed tag. Raw-text elements (script/style/...) carry their
+      // body up to the close tag (or the end of the document when unclosed,
+      // as in a real parser) — swallow that body so a `<script>` payload
+      // can't leak out as plain text. Every other disallowed element only
+      // loses its tag: its content is ordinary markup and keeps being
+      // scanned (a stray matching close tag is dropped when reached),
+      // which is also what the browser does.
+      if (!isClosing && !VOID_TAGS.has(name) && RAW_TEXT_TAGS.has(name)) {
+        const closeRe = new RegExp(`</${name}\\s*>`, 'gi');
+        const m = closeRe.exec(rest);
+        rest = m ? rest.slice(m.index + m[0].length) : '';
+      }
+      continue;
+    }
+
+    // Allowed tag: rebuild with only allowlisted, non-forbidden attributes.
+    if (isClosing) {
+      out += `</${name}>`;
+      continue;
+    }
+    const kept: string[] = [];
+    // A real DOM keeps the first-seen attribute for a repeated (or
+    // case-variant) name — `DOMPurify`'s `setAttribute` overwrites onto the
+    // existing node, so a later duplicate never survives. Track the names we
+    // have already kept (the parser lowercases them, so `class`/`CLASS`
+    // collapse together) and skip any repeat to match the browser's
+    // first-wins behavior instead of emitting the attribute twice.
+    const keptNames = new Set<string>();
+    for (const { attrName, attrValue, hasValue } of attrs) {
+      if (forbiddenAttrs.has(attrName) || !allowedAttrs.has(attrName)) {
+        continue;
+      }
+      // URI-carrying attributes must pass DOMPurify's default URI policy —
+      // the same `IS_ALLOWED_URI` allowlist the browser path applies — so the
+      // email path enforces one scheme policy instead of a narrower
+      // javascript/data-only one (which let file:/blob:/about:/protocol-
+      // handler schemes through).
+      if (
+        (attrName === 'href' || attrName === 'src') &&
+        hasValue &&
+        !isAllowedUri(attrValue, name, attrName)
+      ) {
+        continue;
+      }
+      if (keptNames.has(attrName)) {
+        continue;
+      }
+      keptNames.add(attrName);
+      if (hasValue) {
+        kept.push(`${attrName}="${escapeAttrValue(attrValue)}"`);
+      } else {
+        kept.push(attrName);
+      }
+    }
+    const slash = selfClosing ? ' /' : '';
+    out +=
+      kept.length > 0
+        ? `<${name} ${kept.join(' ')}${slash}>`
+        : `<${name}${slash}>`;
+  }
+
+  return out;
+};
+
+/**
+ * Parse a single HTML tag starting at index 0 of `s`. Returns the tag name,
+ * whether it is a closing tag, its attributes, the number of characters
+ * consumed, and whether it was self-closing. Returns `null` if no valid tag
+ * end is found. A quote-aware scan is used so a `>` inside a quoted attribute
+ * value does not terminate the tag early.
+ */
+const parseTagAt = (
+  s: string,
+): {
+  name: string;
+  isClosing: boolean;
+  selfClosing: boolean;
+  attrs: { attrName: string; attrValue: string; hasValue: boolean }[];
+  tagLength: number;
+} | null => {
+  const isClosing = s.startsWith('</');
+  let i = isClosing ? 2 : 1;
+  const nameMatch = s.slice(i).match(/^([a-zA-Z][a-zA-Z0-9]*)/);
+  if (!nameMatch) return null;
+  const name = nameMatch[1].toLowerCase();
+  i += nameMatch[0].length;
+
+  const attrs: { attrName: string; attrValue: string; hasValue: boolean }[] =
+    [];
+  let end = -1;
+  let selfClosing = false;
+  while (i < s.length) {
+    const ch = s[i];
+    if (ch === '>' || (ch === '/' && s[i + 1] === '>')) {
+      if (ch === '/') selfClosing = true;
+      end = i + (ch === '/' ? 2 : 1);
+      break;
+    }
+    if (ch === '"' || ch === "'") {
+      const closeIdx = s.indexOf(ch, i + 1);
+      if (closeIdx === -1) return null;
+      i = closeIdx + 1;
+      continue;
+    }
+    if (/[a-zA-Z]/.test(ch)) {
+      const m = /^[a-zA-Z][a-zA-Z0-9:-]*/.exec(s.slice(i));
+      if (m) {
+        const attrName = m[0].toLowerCase();
+        i += m[0].length;
+        let j = i;
+        while (j < s.length && s[j] === ' ') j += 1;
+        if (s[j] === '=') {
+          j += 1;
+          while (j < s.length && s[j] === ' ') j += 1;
+          let value = '';
+          if (s[j] === '"' || s[j] === "'") {
+            const q = s[j];
+            const closeIdx = s.indexOf(q, j + 1);
+            if (closeIdx === -1) return null;
+            value = s.slice(j + 1, closeIdx);
+            i = closeIdx + 1;
+          } else {
+            const v = /^[^\s>]+/.exec(s.slice(j));
+            if (!v) {
+              i = j;
+            } else {
+              value = v[0];
+              i = j + v[0].length;
+            }
+          }
+          attrs.push({ attrName, attrValue: value, hasValue: true });
+          j = i;
+          while (j < s.length && s[j] === ' ') j += 1;
+          i = j;
+          continue;
+        }
+        attrs.push({ attrName, attrValue: '', hasValue: false });
+        continue;
+      }
+    }
+    i += 1;
+  }
+  if (end === -1) return null;
+  return { name, isClosing, selfClosing, attrs, tagLength: end };
 };

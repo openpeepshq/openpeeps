@@ -5,10 +5,18 @@ import type { RenderFunction } from 'react-native-markdown-display';
 import {
   extractIframeSrcs,
   isExternalLink,
-  MARKDOWN_HTML_ALLOWED_TAGS,
+  MARKDOWN_HTML_BLOCK_TAGS,
 } from '@openpeepshq/common/lib';
 
 const TAG_RE = /<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>/g;
+
+// Built once from the shared block-tag list (module constant, matching
+// TAG_RE's style) so renderHtmlContent does not rebuild the RegExp on every
+// HTML token of every post render (review round-7 item 2).
+const BLOCK_TAG_RE = new RegExp(
+  `<\\/?(?:${MARKDOWN_HTML_BLOCK_TAGS.join('|')})(?:\\s[^>]*)?>`,
+  'gi'
+);
 
 /**
  * Renderer for markdown-it `html_inline` tokens.
@@ -79,23 +87,21 @@ const renderHtmlContent = (
     );
   }
 
-  // Strip all HTML tags — only allowlisted tags are permitted on the web
-  // (via DOMPurify). On RN we render safe tags as text and drop the rest.
-  const allowed = new Set<string>(MARKDOWN_HTML_ALLOWED_TAGS);
-  const tags: string[] = [];
-  let match: RegExpExecArray | null;
-  TAG_RE.lastIndex = 0;
-  while ((match = TAG_RE.exec(raw)) !== null) {
-    tags.push(match[1]?.toLowerCase());
-  }
-
-  // If all tags are allowlisted, strip them and render as text.
-  const text = raw.replace(TAG_RE, '');
-  if (tags.every((tag) => !tag || allowed.has(tag.toLowerCase()))) {
-    return <Text style={styles.text}>{text}</Text>;
-  }
-
-  // Disallowed tags present — strip everything to plain text.
+  // RN renders HTML as plain text (iframes are handled above): strip all
+  // tags. Block containers become line breaks so adjacent containers — e.g.
+  // the two side-by-side `<div>` columns of a hand-authored layout — don't
+  // run together into one orphan text run. Inline wrappers such as `<span>`
+  // are *not* block containers: their tags are stripped to nothing so
+  // "Hello <span>x</span> world" stays on one line. The block set is derived
+  // from the shared allowlist so one list drives web, Node, and RN.
+  const text = raw
+    .replace(BLOCK_TAG_RE, '\n')
+    .replace(TAG_RE, '')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .join('\n');
+  if (!text) return null;
   return <Text style={styles.text}>{text}</Text>;
 };
 

@@ -28,10 +28,15 @@ jest.mock('react-native', () => {
 
 /**
  * The built common package ships ESM which Jest's node transform doesn't
- * cover.  Mock the two helpers html.tsx needs with the real implementations
- * (mirrored from markdownHelpers.ts) so the integration test is accurate.
+ * cover, and its `lib` barrel re-exports `tokenHelpers.ts` (jose, ESM-only),
+ * so the whole barrel can't load here. The HTML policy constants, however,
+ * are plain data in the import-free leaf `markdownHtmlPolicy.ts` — so the
+ * mock requires the REAL constants (same source of truth html.tsx consumes
+ * at runtime) instead of keeping a hand-copied list that drifts silently.
+ * Only the two helpers below still need stand-ins.
  */
 jest.mock('@openpeepshq/common/lib', () => {
+  const realPolicy = require('../../../../../common/src/lib/markdownHtmlPolicy');
   const IFRAME_SRC_RE =
     /<iframe\b[^>]*?\bsrc\s*=\s*(?:"([^"]+)"|'([^']+)')[^>]*>/gi;
 
@@ -54,25 +59,8 @@ jest.mock('@openpeepshq/common/lib', () => {
         return !href.startsWith('/');
       }
     },
-    MARKDOWN_HTML_ALLOWED_TAGS: [
-      'a',
-      'b',
-      'blockquote',
-      'br',
-      'code',
-      'em',
-      'hr',
-      'img',
-      'iframe',
-      'li',
-      'ol',
-      'p',
-      'pre',
-      'strong',
-      'ul',
-      'video',
-      'source',
-    ],
+    MARKDOWN_HTML_ALLOWED_TAGS: realPolicy.MARKDOWN_HTML_ALLOWED_TAGS,
+    MARKDOWN_HTML_BLOCK_TAGS: realPolicy.MARKDOWN_HTML_BLOCK_TAGS,
   };
 });
 
@@ -167,6 +155,102 @@ describe('htmlInlineRenderer iframe navigation guard', () => {
     expect(result).toBe(true);
     expect(onIframePress).not.toHaveBeenCalled();
 
+    tree.unmount();
+  });
+});
+
+describe('htmlInlineRenderer plain-text fallback (no iframe)', () => {
+  const renderText = (html: string) => {
+    const tree = renderWithNode(jest.fn(), html);
+    const texts = tree.root
+      .findAll((n) => n.type === 'Text')
+      .map((n) => n.props.children);
+    tree.unmount();
+    return texts.filter((t) => typeof t === 'string').join('\n');
+  };
+
+  it('renders two side-by-side div columns as separate lines of text', () => {
+    const text = renderText(
+      '<div class="col">Left column</div><div class="col">Right column</div>'
+    );
+    expect(text).toContain('Left column');
+    expect(text).toContain('Right column');
+  });
+
+  it('flattens a table to its cell text', () => {
+    const text = renderText(
+      '<table><thead><tr><th>Name</th></tr></thead><tbody><tr><td>value</td></tr></tbody></table>'
+    );
+    expect(text).toContain('Name');
+    expect(text).toContain('value');
+  });
+
+  it('renders inline markup as plain text', () => {
+    const text = renderText('<p>Hello <b>world</b></p>');
+    expect(text).toContain('Hello');
+    expect(text).toContain('world');
+  });
+
+  it('keeps an inline <span> on the same line (not a block break)', () => {
+    // Regression: <span> is an inline wrapper, not a block container, so
+    // "Hello <span>x</span> world" must stay on one line rather than be split
+    // into three.
+    const text = renderText('Hello <span>x</span> world');
+    expect(text).not.toContain('\n');
+    expect(text).toBe('Hello x world');
+  });
+
+  it('returns null (renders nothing) for tags-only input', () => {
+    const element = htmlInlineRenderer(jest.fn())(
+      {
+        content: '<div></div><span></span>',
+      },
+      [],
+      {}
+    );
+    expect(element).toBeNull();
+  });
+});
+
+// Review round-7 item 7 (41662): pin the RN iframe trust level and the
+// `extractIframeSrcs` unquoted-src behavior. The RN WebView is fed the RAW
+// (unsanitized) token content, unlike the web branch (DOMPurify drops
+// data:/javascript: iframe srcs). These tests make that trust-level difference
+// explicit rather than silent, and pin that `extractIframeSrcs` only recognizes
+// QUOTED src (an unquoted `src=data:…` is not an iframe, so the safe plain-text
+// fallback is what renders).
+describe('htmlInlineRenderer iframe src trust level (round-7 item 7)', () => {
+  it('extractIframeSrcs returns [] for an unquoted src (falls back to text)', () => {
+    // Unquoted `src=data:…` does not match the quoted-src regex, so it is not
+    // treated as an iframe: with nothing else in the token, the renderer
+    // returns null (no WebView, no text) rather than loading a data: document.
+    const element = htmlInlineRenderer(jest.fn())(
+      { content: '<iframe src=data:text/html,abc>' },
+      [],
+      {}
+    );
+    expect(element).toBeNull();
+    // Whereas a QUOTED data: src IS recognized as an iframe (renders a
+    // WebView) — the recognition boundary is the quote, pinned here too.
+    const quoted = htmlInlineRenderer(jest.fn())(
+      { content: '<iframe src="data:text/html,abc"></iframe>' },
+      [],
+      {}
+    );
+    expect(quoted).not.toBeNull();
+  });
+
+  it('documents the current trust level: a quoted data: src reaches the WebView', () => {
+    // The RN renderer does not sanitize the iframe src (a pre-existing gap the
+    // web branch does not share — DOMPurify drops it). Pinned so the trust-level
+    // difference is explicit, not silently present. See the PR note for the
+    // dedicated follow-up to drop non-http(s) iframe srcs on RN too.
+    const tree = renderWithNode(
+      jest.fn(),
+      '<iframe src="data:text/html,abc"></iframe>'
+    );
+    const webView = tree.root.findByType(WebView);
+    expect(webView.props.source.uri).toBe('data:text/html,abc');
     tree.unmount();
   });
 });

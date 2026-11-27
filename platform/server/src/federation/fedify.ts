@@ -9,6 +9,7 @@ import {
   Note,
   PUBLIC_COLLECTION,
   Person,
+  Source,
   Tombstone,
   Undo,
 } from '@fedify/fedify/vocab';
@@ -167,6 +168,10 @@ export const createOpenPeepsFederation = async () => {
       id: ctx.getObjectUri(Note, { id: note.id }),
       attribution: ctx.getActorUri(note.creatorId),
       content: note.content,
+      source: new Source({
+        content: note.content,
+        mediaType: 'text/markdown',
+      }),
       published: asInstant(note.published),
       to: PUBLIC_COLLECTION,
       cc: ctx.getFollowersUri(note.creatorId),

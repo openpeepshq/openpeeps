@@ -8,8 +8,11 @@ import {
   linkProfileMentions,
   markdownPlainText,
   matchMentionHandles,
+  MARKDOWN_HTML_ALLOWED_ATTRS,
+  MARKDOWN_HTML_ALLOWED_TAGS,
   minutesToRead,
   preprocessMarkdownSource,
+  sanitizeMarkdownHtml,
   stripMarkdownImages,
   toGotoUrl,
   truncateMarkdown,
@@ -485,5 +488,387 @@ describe('injectIframeSafetyAttrs', () => {
       '<iframe src="https://example.com" allowfullscreen></iframe>',
     );
     expect(result).toContain('allow="autoplay');
+  });
+});
+
+describe('MARKDOWN_HTML_ALLOWED_TAGS/ATTRS', () => {
+  it('includes the layout/typographic primitives', () => {
+    for (const tag of [
+      'div',
+      'span',
+      'table',
+      'thead',
+      'tbody',
+      'tr',
+      'th',
+      'td',
+      'figure',
+    ]) {
+      expect(MARKDOWN_HTML_ALLOWED_TAGS).toContain(tag);
+    }
+  });
+
+  it('includes the layout attributes', () => {
+    for (const attr of ['class', 'colspan', 'rowspan']) {
+      expect(MARKDOWN_HTML_ALLOWED_ATTRS).toContain(attr);
+    }
+  });
+
+  it('still forbids script/style/form', () => {
+    expect(MARKDOWN_HTML_ALLOWED_TAGS).not.toContain('script');
+    expect(MARKDOWN_HTML_ALLOWED_TAGS).not.toContain('form');
+  });
+});
+
+describe('sanitizeMarkdownHtml (DOM-free sanitizer)', () => {
+  it('keeps allowed tags and class attributes', () => {
+    const out = sanitizeMarkdownHtml('<div class="col"><span>hi</span></div>');
+    expect(out).toContain('<div class="col">');
+    expect(out).toContain('<span>hi</span>');
+    expect(out).toContain('</div>');
+  });
+
+  it('round-trips a GFM table', () => {
+    const table =
+      '<table><thead><tr><th>a</th><th>b</th></tr></thead><tbody><tr><td>1</td><td>2</td></tr></tbody></table>';
+    const out = sanitizeMarkdownHtml(table);
+    expect(out).toContain('<table>');
+    expect(out).toContain('<thead>');
+    expect(out).toContain('<tr><th>a</th><th>b</th></tr>');
+    expect(out).toContain('<td>1</td>');
+    expect(out).toContain('</table>');
+  });
+
+  it('removes <script> and its body', () => {
+    const out = sanitizeMarkdownHtml('hello <script>alert(1)</script> world');
+    expect(out).not.toContain('<script');
+    expect(out).not.toContain('alert(1)');
+    expect(out).toContain('hello');
+    expect(out).toContain('world');
+  });
+
+  it('strips onerror/onclick handlers and javascript: hrefs', () => {
+    const out = sanitizeMarkdownHtml(
+      '<img src="x" onerror="alert(2)"><a href="javascript:alert(3)" onclick="alert(4)">x</a>',
+    );
+    expect(out).not.toContain('onerror');
+    expect(out).not.toContain('onclick');
+    expect(out).not.toContain('alert');
+    expect(out).toContain('<a');
+  });
+
+  it('drops disallowed tags (form, object) but keeps their content as text', () => {
+    // A `<form>`/`<object>` only loses its tag in a real parser — its
+    // content is ordinary markup and stays (the browser keeps the text).
+    const out = sanitizeMarkdownHtml('a <form action="x">secret</form> b');
+    expect(out).not.toContain('<form');
+    expect(out).toContain('secret');
+    expect(out).toContain('a');
+    expect(out).toContain('b');
+  });
+
+  it('keeps a quoted > inside an attribute value', () => {
+    const out = sanitizeMarkdownHtml(
+      '<a href="https://example.com/?a=1&amp;b=2" title="x > y">link</a>',
+    );
+    expect(out).toContain('<a');
+    expect(out).toContain('link');
+  });
+
+  it('returns empty-ish output for script-only input', () => {
+    const out = sanitizeMarkdownHtml('<script>alert(1)</script>');
+    expect(out.trim()).toBe('');
+  });
+
+  it('escapes a bare < as text instead of truncating the document', () => {
+    // Regression: the old code aborted on the first unparseable `<` and
+    // dropped everything after it.
+    const out = sanitizeMarkdownHtml('<div>Column 2 has 3 < 5 inside</div>');
+    expect(out).toContain('<div>');
+    expect(out).toContain('3 &lt; 5 inside');
+    expect(out).toContain('</div>');
+    expect(out).not.toContain('3 5 inside');
+  });
+
+  it('escapes a lone < followed by a space (a non-tag <)', () => {
+    const out = sanitizeMarkdownHtml('a < b and c');
+    expect(out).toContain('a &lt; b and c');
+  });
+
+  it('keeps scanning after a < that looks like a tag but is not closed', () => {
+    const out = sanitizeMarkdownHtml('before < b after');
+    expect(out).toContain('before');
+    expect(out).toContain('after');
+  });
+
+  it('strips an entity-encoded javascript: href (DOMPurify parity)', () => {
+    // `&#106;avascript:` and `jav&#x09;ascript:` decode to `javascript:`;
+    // DOMPurify strips both, so the DOM-free path must too.
+    const out = sanitizeMarkdownHtml(
+      '<a href="&#106;avascript:alert(1)">x</a> <a href="jav&#x09;ascript:alert(2)">y</a>',
+    );
+    expect(out).not.toContain('alert(1)');
+    expect(out).not.toContain('alert(2)');
+    expect(out).not.toMatch(/href="&#106;avascript/);
+    expect(out).not.toMatch(/href="jav&#x09;ascript/);
+    expect(out).toContain('x');
+    expect(out).toContain('y');
+  });
+
+  it('strips named-entity and semicolonless-numeric javascript: hrefs', () => {
+    // The HTML5 attribute-value tokenizer also decodes named references and
+    // semicolonless numeric ones, so `javascript&colon;alert(1)`,
+    // `jav&Tab;ascript:alert(1)` and `java&NewLine;script:alert(1)` are all
+    // `javascript:`/`vbscript:` schemes to the browser. DOMPurify 3.4.17
+    // strips all four; the DOM-free guard decodes the same set.
+    const out = sanitizeMarkdownHtml(
+      '<a href="javascript&colon;alert(1)">x</a> ' +
+        '<a href="jav&Tab;ascript:alert(2)">y</a> ' +
+        '<a href="java&NewLine;script:alert(3)">z</a> ' +
+        '<a href="&#106avascript:alert(4)">w</a>',
+    );
+    expect(out).not.toContain('alert(1)');
+    expect(out).not.toContain('alert(2)');
+    expect(out).not.toContain('alert(3)');
+    expect(out).not.toContain('alert(4)');
+    expect(out).not.toMatch(/href="javascript&colon;/i);
+    expect(out).not.toMatch(/href="jav&Tab;ascript/);
+    expect(out).not.toMatch(/href="java&NewLine;script/);
+    expect(out).not.toMatch(/href="&#106;avascript/);
+    expect(out).toContain('x');
+    expect(out).toContain('y');
+    expect(out).toContain('z');
+    expect(out).toContain('w');
+  });
+
+  it('strips a control-char-obfuscated javascript: href', () => {
+    const out = sanitizeMarkdownHtml('<a href="java\tscript:alert(1)">x</a>');
+    expect(out).not.toContain('alert(1)');
+    expect(out).not.toMatch(/href="java/);
+    expect(out).toContain('x');
+  });
+
+  it('drops a data: URI on href but keeps an image data: URI on img src', () => {
+    // DOMPurify drops data: on href always, and on img src except image/*.
+    const out = sanitizeMarkdownHtml(
+      '<a href="data:image/png;base64,AAAB">l</a> ' +
+        '<img src="data:image/png;base64,AAAB"> ' +
+        '<a href="data:text/html,<script>alert(1)</script>">t</a>',
+    );
+    // href data: (image and text/html) is dropped.
+    expect(out).not.toMatch(/href="data:/);
+    // img data:image/* is kept.
+    expect(out).toContain('src="data:image/png;base64,AAAB"');
+    // no script leak from the text/html payload.
+    expect(out).not.toContain('alert(1)');
+  });
+
+  it('keeps a double-encoded entity that does not spell an executable scheme', () => {
+    // `&amp;#106;avascript:` decodes (single pass) to the literal text
+    // `&#106;avascript:` — no executable scheme — so it is kept verbatim.
+    // This holds for the current decode set (named + numeric, single pass);
+    // it is not a general DOMPurify claim (DOMPurify 3.4.17's decode covers a
+    // much larger named table than this helper implements).
+    const out = sanitizeMarkdownHtml(
+      '<a href="&amp;#106;avascript:alert(1)">x</a>',
+    );
+    expect(out).toContain('href="&amp;#106;avascript:alert(1)"');
+    expect(out).toContain('x');
+  });
+
+  it('escapes a re-serialized attribute value so it cannot forge a second attribute', () => {
+    // Regression (review class-1): `title='x" href="javascript:alert(1)"'`
+    // is ONE attribute whose raw value contains `"` characters. Re-emitting
+    // that value unescaped into the double-quoted serialization turned it
+    // into a live `javascript:` href in email HTML. The value must be
+    // entity-escaped (`"` -> &quot;, `&` -> &amp;) so it stays inert text.
+    const out = sanitizeMarkdownHtml(
+      '<a title=\'x" href="javascript:alert(1)\'>safe text</a>',
+    );
+    expect(out).toBe(
+      '<a title="x&quot; href=&quot;javascript:alert(1)">safe text</a>',
+    );
+    // no executable href survives the re-serialization
+    expect(out).not.toMatch(/href="javascript:/);
+  });
+
+  it('keeps a benign quote-containing attribute value, escaped', () => {
+    // `title='has "quote" inside'` is harmless: keep the attribute (the
+    // quotes escaped) rather than dropping it.
+    const out = sanitizeMarkdownHtml(
+      '<img title=\'has "quote" inside\' alt="ok" />',
+    );
+    expect(out).toContain('title="has &quot;quote&quot; inside"');
+    expect(out).toContain('alt="ok"');
+  });
+
+  it('escapes & in attribute values on re-serialization', () => {
+    // `title="R&D"` keeps its attribute with the `&` entity-escaped, matching
+    // what DOMPurify emits (a raw `&` would be a malformed entity reference).
+    const out = sanitizeMarkdownHtml(
+      '<a title="R&D" href="https://x.example">t</a>',
+    );
+    expect(out).toContain('title="R&amp;D"');
+    expect(out).toContain('href="https://x.example"');
+  });
+
+  it('does not truncate the document after an unclosed non-raw-text disallowed tag', () => {
+    // Regression (review item 3): an unclosed `<form>` (a normal element, not
+    // raw-text) keeps its content as text and must not swallow the tail of the
+    // document. Pin the exact output so the semantics stay.
+    expect(sanitizeMarkdownHtml('KEEP1 <form>x KEEP2')).toBe('KEEP1 x KEEP2');
+    expect(sanitizeMarkdownHtml('A <object>x B-TAIL')).toBe('A x B-TAIL');
+    expect(sanitizeMarkdownHtml('A <form>x <b>y</b> B-TAIL')).toBe(
+      'A x <b>y</b> B-TAIL',
+    );
+  });
+
+  it('still swallows an unclosed raw-text disallowed tag to end of input', () => {
+    // An unclosed `<script>`/`<style>`/`<noscript>` is, in a real parser,
+    // content to end-of-document, so the tail is its (dropped) body — this is
+    // DOMPurify's behavior, not an error fallback.
+    expect(sanitizeMarkdownHtml('KEEP1 <script>x KEEP2')).toBe('KEEP1 ');
+    expect(sanitizeMarkdownHtml('KEEP1 <style>x KEEP2')).toBe('KEEP1 ');
+    expect(sanitizeMarkdownHtml('KEEP1 <noscript>x KEEP2')).toBe('KEEP1 ');
+  });
+
+  it('keeps a double-quoted value containing single quotes verbatim (mirror of the single-quoted pin)', () => {
+    // Mirror of the single-quoted class-1 re-serialization pin, for the
+    // other serialization family: the attribute is double-quoted in source
+    // and its raw value contains SINGLE quotes (`x' href='javascript:alert(2)'
+    // — note: a double-quoted HTML value cannot contain `"`, so this is
+    // the mirror). No `"` in the value, so the double-quoted
+    // serialization keeps it verbatim; it cannot forge a live second
+    // attribute (a live one would be `href="javascript:..."`, which never
+    // appears). DOMPurify 3.4.17 emits the identical value, so the pin is
+    // parity-anchored.
+    const out = sanitizeMarkdownHtml(
+      "<a title=\"x' href='javascript:alert(2)'\">safe</a>",
+    );
+    expect(out).toBe("<a title=\"x' href='javascript:alert(2)'\">safe</a>");
+    expect(out).not.toMatch(/href="javascript:/);
+  });
+
+  it('applies the data: URI policy per tag, matching DOMPurify (media src keeps, non-media drops)', () => {
+    // DOMPurify's `data:` special case is tag-based (`DEFAULT_DATA_URI_TAGS`
+    // = audio/video/img/source/image/track), NOT a `data:image/*` prefix test
+    // and NOT attribute-based: it keeps ANY `data:` payload on a media `src`
+    // (a browser does not execute it there) and drops `data:` on `href` and
+    // on `src` of a non-media tag such as `iframe`. This mirrors that exactly.
+    expect(
+      sanitizeMarkdownHtml(
+        '<video src="data:text/html,<script>alert(1)</script>"></video>',
+      ),
+    ).toBe(
+      '<video src="data:text/html,&lt;script>alert(1)&lt;/script>"></video>',
+    );
+    expect(
+      sanitizeMarkdownHtml('<source src="data:image/png;base64,AAAB">'),
+    ).toBe('<source src="data:image/png;base64,AAAB">');
+    // `iframe` is not a media tag and `a` has no `data:` allowance on `href`:
+    // both drop the `data:` URI, matching the browser.
+    expect(
+      sanitizeMarkdownHtml(
+        '<iframe src="data:image/svg+xml,&lt;svg onload=x&gt;"></iframe>',
+      ),
+    ).toBe('<iframe></iframe>');
+    expect(sanitizeMarkdownHtml('<a href="data:text/html,x">t</a>')).toBe(
+      '<a>t</a>',
+    );
+  });
+
+  it('drops C0-control-obfuscated javascript: hrefs (vtab, FF) and keeps NUL inert', () => {
+    // `&#xB;` (vertical tab) and `&#12;` (form feed) decode to C0 controls
+    // that SCHEME_NORMALIZE_RE strips, exposing `javascript:` -> the href is
+    // dropped, matching DOMPurify.
+    expect(
+      sanitizeMarkdownHtml('<a href="jav&#xB;ascript:alert(1)">x</a>'),
+    ).toBe('<a>x</a>');
+    expect(
+      sanitizeMarkdownHtml('<a href="jav&#12;ascript:alert(2)">x</a>'),
+    ).toBe('<a>x</a>');
+    // `&#0;` (NUL) is deliberately excluded from the single-pass decode
+    // (`code > 0`), so the guard cannot see through NUL obfuscation. It keeps
+    // the value as inert, re-escaped text rather than decoding it into a live
+    // scheme; a browser rendering it also sees a NUL-broken (non-executable)
+    // URL, so the payload is dead either way. Pinned so a future decode that
+    // starts handling code 0 is a deliberate, visible change.
+    expect(
+      sanitizeMarkdownHtml('<a href="jav&#0;ascript:alert(1)">x</a>'),
+    ).toBe('<a href="jav&amp;#0;ascript:alert(1)">x</a>');
+  });
+
+  it('drops an unclosed comment to end of input (accepted approximation)', () => {
+    // A `-->` terminator is required. An *unclosed* comment drops the whole
+    // remainder of the input — a real parser would keep it as ordinary text
+    // running to end of input, so the tail loss is a documented approximation
+    // (comments carry no script either way). Pinned like the unclosed-tag
+    // tails.
+    expect(sanitizeMarkdownHtml('x <!-- unclosed comment y')).toBe('x ');
+  });
+
+  it('strips a Unicode-whitespace-obfuscated scheme (full ATTR_WHITESPACE parity)', () => {
+    // DOMPurify tests the decoded value with its full `ATTR_WHITESPACE` set
+    // removed: NBSP, U+1680, U+180E, U+2000-U+2029, U+205F, U+3000. Any of
+    // these splitting `javascript:` must be stripped so the scheme is exposed
+    // and the href dropped — previously only `[\u0000-\u0020\u00a0]` was
+    // removed, so the non-ASCII half of the set leaked through verbatim on the
+    // email path while the browser dropped it.
+    for (const ws of [
+      '\u2000', // EN QUAD
+      '\u1680', // MONGOLIAN VOWEL SEPARATOR
+      '\u180e', // ARABIC LETTER MARK
+      '\u205f', // MEDIUM MATHEMATICAL SPACE
+      '\u3000', // IDEOGRAPHIC SPACE
+      '\u2028', // LINE SEPARATOR
+    ]) {
+      const out = sanitizeMarkdownHtml(
+        `<a href="jav${ws}ascript:alert(1)">t</a>`,
+      );
+      expect(out).toBe('<a>t</a>');
+    }
+    // NBSP (\u00a0) was already covered by the old range; pin it alongside for
+    // a single full-set reference.
+    expect(
+      sanitizeMarkdownHtml('<a href="jav\u00a0ascript:alert(1)">t</a>'),
+    ).toBe('<a>t</a>');
+  });
+
+  it('emits a repeated or case-variant attribute only once (first-wins, DOM parity)', () => {
+    // A real DOM (and DOMPurify's `setAttribute`) keeps the first-seen value for
+    // a repeated or case-variant attribute name; the DOM-free rebuilder must not
+    // emit the attribute twice.
+    expect(sanitizeMarkdownHtml('<div class="a" CLASS="b">t</div>')).toBe(
+      '<div class="a">t</div>',
+    );
+    expect(sanitizeMarkdownHtml('<td colspan="2" colSpan="3">x</td>')).toBe(
+      '<td colspan="2">x</td>',
+    );
+  });
+
+  it('keeps admitted-scheme and relative hrefs on the DOM-free path (no over-drop)', () => {
+    // The new URI guard can only drop an href, never keep a bad one, so the
+    // common suite must also pin the allowed classes: an over-broad
+    // `IS_ALLOWED_URI` tightening (e.g. silently stripping `mailto:`) would
+    // otherwise only be caught by the react parity suite.
+    expect(sanitizeMarkdownHtml('<a href="https://example.com">x</a>')).toBe(
+      '<a href="https://example.com">x</a>',
+    );
+    expect(sanitizeMarkdownHtml('<a href="http://example.com">x</a>')).toBe(
+      '<a href="http://example.com">x</a>',
+    );
+    expect(sanitizeMarkdownHtml('<a href="mailto:bob@example.com">x</a>')).toBe(
+      '<a href="mailto:bob@example.com">x</a>',
+    );
+    expect(sanitizeMarkdownHtml('<a href="tel:+15551234567">x</a>')).toBe(
+      '<a href="tel:+15551234567">x</a>',
+    );
+    // relative (no scheme) and same-page anchor both pass the policy.
+    expect(sanitizeMarkdownHtml('<a href="/relative/path">x</a>')).toBe(
+      '<a href="/relative/path">x</a>',
+    );
+    expect(sanitizeMarkdownHtml('<a href="#section-2">x</a>')).toBe(
+      '<a href="#section-2">x</a>',
+    );
   });
 });

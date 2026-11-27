@@ -13,6 +13,11 @@ export const Welcome = ({ globals }: Props) => {
   const { t } = globals.i18nContext;
   const welcomeMarkdown =
     globals.communityConfig.content?.welcomeEmail || 'Have fun!';
+  // Trusted admin-configured content, rendered without sanitization (deliberate
+  // — admin-authored, not user content, per platform/react/src/lib/Markdown.tsx).
+  // This is the one email path that bypasses `compileMarkdownToHtml`/
+  // `sanitizeMarkdownHtml`; routing it through the shared compiler is a
+  // documented follow-up, not required for the user-content policy.
   const welcomeHtml = marked.parse(welcomeMarkdown, { async: false }) as string;
 
   return (
