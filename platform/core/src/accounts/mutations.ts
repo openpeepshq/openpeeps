@@ -17,6 +17,7 @@ import { accountsCache } from './cache';
 import { assignRole, unassignRole } from '../profiles/mutations';
 import { hash } from 'bcrypt';
 import { profilesMapping } from '../profiles/mapping';
+
 import { assertProfileCapacity } from '../profiles/capacity';
 import { localActorScalars } from '../federation/identity';
 import { uuidv7 } from 'uuidv7';
@@ -37,6 +38,7 @@ import {
   deletePushSubscription,
   listPushSubscriptionsByAccount,
 } from '../pushSubscriptions';
+import { PASSWORD_HASH_COST } from '@openpeepshq/common/lib';
 
 const applyCommunityRoleChanges = async (
   profile: Profile,
@@ -105,7 +107,7 @@ export const createAccount = async (
 
   const account = await accountsMapping.create(db, {
     email: normalizedEmail,
-    passwordHash: await hash(password, 1024),
+    passwordHash: await hash(password, PASSWORD_HASH_COST),
     emailValidated,
   });
   await accountsCache.del(normalizedEmail);
@@ -206,7 +208,7 @@ export const updateAccount = async (accountData: AccountUpdateData) => {
     {
       email: updatedEmail,
       passwordHash: accountData.password
-        ? await hash(accountData.password, 12)
+        ? await hash(accountData.password, PASSWORD_HASH_COST)
         : undefined,
       emailValidated: accountData.emailValidated,
     },

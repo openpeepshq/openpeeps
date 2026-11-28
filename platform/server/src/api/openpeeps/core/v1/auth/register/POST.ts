@@ -5,14 +5,21 @@ import {
   tokenResponseSchema,
 } from '@openpeepshq/common/types';
 import { registerHandler } from '#lib/handlers/auth/register';
-import { conflict, forbidden } from '#lib/errors';
+import {
+  conflict,
+  forbidden,
+  internalError,
+  unprocessableRequest,
+} from '#lib/errors';
 
 export const Input = registerRequestSchema;
 export const Output = tokenResponseSchema;
 
 export const Error = {
-  422: conflict(),
   403: forbidden(),
+  409: conflict(),
+  422: unprocessableRequest(),
+  500: internalError(),
 };
 
 export const apiEndpoint = endpoint({ Input, Output, Error }).handle(

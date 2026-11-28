@@ -33,3 +33,4 @@ export * from './ssoProviders';
 export * from './federationHosts';
 export * from './reactions';
 export * from './videoEmbed';
+export * from './password';

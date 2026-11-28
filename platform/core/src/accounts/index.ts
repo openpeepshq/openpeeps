@@ -5,6 +5,7 @@ export { accountsMapping } from './mapping';
 export { sendEmailValidationMail } from './helpers';
 export * from './mutations';
 export * from './finders';
+export * from './rehash';
 export * from './export';
 export * from './exportStore';
 export * from './exportJob';

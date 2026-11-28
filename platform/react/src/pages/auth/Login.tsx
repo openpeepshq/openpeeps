@@ -24,7 +24,13 @@ import {
   Link,
   Toast,
 } from '@openpeepshq/react-ui';
-import { useT, useNavigate, useSearchParams, useHrefOf } from '../../index';
+import {
+  apiErrorMessage,
+  useT,
+  useNavigate,
+  useSearchParams,
+  useHrefOf,
+} from '../../index';
 import { sanitizeRedirect } from '../../lib/sanitizeRedirect';
 import { AuthLayout, useServerInfo, useToast } from '../../components';
 import { usePasswordLogin } from '../../hooks';
@@ -291,13 +297,13 @@ export function Login() {
             </Link>
           </span>
 
-          {error && (
+          {error != null && (
             <Toast
               variant="error"
               testId="auth-login-error"
               onDismiss={clearError}
             >
-              {error}
+              {apiErrorMessage(error, t, t('auth.login.error'))}
             </Toast>
           )}
 

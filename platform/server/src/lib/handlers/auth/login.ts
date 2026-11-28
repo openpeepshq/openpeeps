@@ -3,8 +3,13 @@ import type {
   LoginRequest,
   TokenResponse,
 } from '@openpeepshq/common/types';
-import { forbidden, notFound } from '#lib/errors';
-import { checkPassword, findAccountByEmail } from '@openpeepshq/core/accounts';
+import { authNeeded, internalError } from '#lib/errors';
+import {
+  checkPassword,
+  findAccountByEmail,
+  rehashPasswordIfBelowCost,
+} from '@openpeepshq/core/accounts';
+import { DUMMY_ACCOUNT } from '#lib/handlers/auth/dummyAccount';
 import {
   findProfile,
   listProfilesByAccount,
@@ -42,38 +47,55 @@ export const loginHandler = async (
   const lowerCaseRequestEmail = loginRequest.email.toLowerCase();
   const account = await findAccountByEmail(lowerCaseRequestEmail);
 
+  // One status and one key for both cases so the response does not reveal
+  // whether the account exists.
+  //
+  // The unknown-email path also runs an equivalent bcrypt comparison against
+  // a dummy hash so both branches take the same time for accounts at the
+  // current cost. Without it the short-circuit would skip bcrypt entirely for
+  // a non-existent account, and the faster response would leak which emails
+  // exist even though the status and copy no longer do.
   if (!account) {
-    throw notFound(`Account with email ${lowerCaseRequestEmail}`);
+    await checkPassword(DUMMY_ACCOUNT, loginRequest.password);
+    throw authNeeded('auth.login.invalidCredentials');
   }
-
-  const profile = await retrieveProfile(account);
-  if (!profile) {
-    throw notFound(
-      `Profile associated with account with email ${account.email}`,
-    );
-  }
-
   if (!(await checkPassword(account, loginRequest.password))) {
-    throw forbidden(
-      `This email/password combination doesn't match a valid account.`,
-    );
+    throw authNeeded('auth.login.invalidCredentials');
   }
 
-  const subscriptionNeeded = !(await checkSubscription(profile, account, true));
+  // The timing equalization only holds once the account's stored hash is at
+  // PASSWORD_HASH_COST: a legacy lower-cost hash would make this branch
+  // measurably faster than the dummy compare, re-opening the oracle for
+  // pre-existing accounts. Migrate it on the first successful login.
+  const migrated = await rehashPasswordIfBelowCost(
+    account,
+    loginRequest.password,
+  );
+
+  const profile = await retrieveProfile(migrated);
+  if (!profile) {
+    throw internalError();
+  }
+
+  const subscriptionNeeded = !(await checkSubscription(
+    profile,
+    migrated,
+    true,
+  ));
 
   const checkoutUrl = subscriptionNeeded
-    ? await createStripeCheckoutUrl(profile, account)
+    ? await createStripeCheckoutUrl(profile, migrated)
     : undefined;
 
   const token = await createSignedProfileAccessToken({
-    account,
+    account: migrated,
     profile,
     name: 'login',
     expirationTime: '1w',
   }).then((accessToken) => accessToken.signedToken);
 
   if (!token) {
-    throw forbidden('login.access-token-creation-failed');
+    throw internalError();
   }
 
   return { success: true, token, checkoutUrl };

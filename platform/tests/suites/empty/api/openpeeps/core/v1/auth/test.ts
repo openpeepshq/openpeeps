@@ -168,7 +168,7 @@ test.describe('auth register flows', () => {
 
       expect(response.status()).toBe(403);
       expect(responseJson).toMatchObject({
-        message: 'Sign-ups are closed and no valid invite code provided',
+        message: 'auth.register.signupsClosed',
       });
       expect(await existsAccountByEmail(body.email)).toBe(false);
       expect(await existsProfileByHandle(body.handle)).toBe(false);
@@ -251,5 +251,36 @@ test.describe('auth register flows', () => {
       expect(await existsAccountByEmail(body.email)).toBe(false);
       expect(await existsProfileByHandle(body.handle)).toBe(false);
     });
+  });
+
+  test('6. open / existing email -> 409 with the i18n key', async ({
+    request,
+  }) => {
+    const body = registrationBody('dup');
+    // First registration (open sign-ups) succeeds, so the email exists.
+    const first = await request.post('/api/openpeeps/core/v1/auth/register', {
+      data: body,
+    });
+    await expectSuccessfulRegister(request, first, body);
+
+    // A second registration with the same email but a fresh handle is a
+    // 409 whose `message` is the i18n key — not a raw English string. The
+    // client's `apiErrorMessage` translates that key, so this pins that
+    // the two halves of the wire contract agree on the key string (the
+    // register toast must not regress to untranslated English if the
+    // server key is ever renamed or the mapper's key lookup changes).
+    const dupBody = { ...body, handle: uniqueHandle('dup2') };
+    const response = await request.post(
+      '/api/openpeeps/core/v1/auth/register',
+      { data: dupBody },
+    );
+    const responseJson = await response.json();
+
+    expect(response.status()).toBe(409);
+    expect(responseJson).toMatchObject({
+      message: 'error.emailAlreadyTaken',
+    });
+    // The second account/profile must not have been created.
+    expect(await existsProfileByHandle(dupBody.handle)).toBe(false);
   });
 });

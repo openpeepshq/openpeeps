@@ -4,14 +4,14 @@ import {
   tokenResponseSchema,
 } from '@openpeepshq/common/types';
 import { loginHandler } from '#lib/handlers/auth/login';
-import { forbidden, notFound } from '#lib/errors';
+import { authNeeded, internalError } from '#lib/errors';
 
 export const Input = loginRequestSchema;
 export const Output = tokenResponseSchema;
 
 export const Error = {
-  403: forbidden(),
-  404: notFound(),
+  401: authNeeded(),
+  500: internalError(),
 };
 
 export const apiEndpoint = endpoint({ Input, Output, Error }).handle(

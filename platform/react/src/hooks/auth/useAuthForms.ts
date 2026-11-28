@@ -19,7 +19,11 @@ export const usePasswordLogin = () => {
   const { client } = useOpenpeeps();
   const { credentialsStore } = useCredentialsStore();
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Typed `unknown` (not `string | null`): the hook deliberately keeps the
+  // whole wire error object — not just its `message` — so `status` survives
+  // to `apiErrorMessage`, which accepts `unknown`. A `string | null` type
+  // would erase the status the mapper needs for 401/403/5xx copy.
+  const [error, setError] = useState<unknown>(null);
 
   const login = async (data: LoginRequest): Promise<TokenResponse> => {
     setSubmitting(true);
@@ -27,7 +31,7 @@ export const usePasswordLogin = () => {
     try {
       return await performLogin(client, credentialsStore, data);
     } catch (err) {
-      setError((err as Error).message);
+      setError(err);
       throw err;
     } finally {
       setSubmitting(false);
@@ -41,7 +45,10 @@ export const useRegisterAccount = () => {
   const { client } = useOpenpeeps();
   const { credentialsStore } = useCredentialsStore();
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Typed `unknown` to match `usePasswordLogin`: the hook keeps the whole
+  // wire error object (not just its `message`) so `status` survives to the
+  // shared mapper. Pages render their own localized copy from it.
+  const [error, setError] = useState<unknown>(null);
 
   const register = async (data: RegisterRequest): Promise<TokenResponse> => {
     setSubmitting(true);
@@ -49,7 +56,7 @@ export const useRegisterAccount = () => {
     try {
       return await performRegister(client, credentialsStore, data);
     } catch (err) {
-      setError((err as Error).message);
+      setError(err);
       throw err;
     } finally {
       setSubmitting(false);

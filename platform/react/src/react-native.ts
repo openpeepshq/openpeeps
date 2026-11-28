@@ -29,6 +29,7 @@ export {
   performResetPassword,
   performLogout,
 } from './lib/auth';
+export { registerApiErrorMessage } from './lib/registerErrors';
 export type {
   MarkdownRenderProps,
   MentionProfileRef,
