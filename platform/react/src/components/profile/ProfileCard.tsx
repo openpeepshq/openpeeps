@@ -33,15 +33,19 @@ export function ProfileCard({
   action,
 }: ProfileCardProps) {
   const bio = markdownPlainText(profile.bio);
+  const domain = profile.activityPub?.domain;
+  const displayHandle = domain
+    ? `@${profile.handle}@${domain}`
+    : `@${profile.handle}`;
   const details = (
     <>
       <Avatar profile={profile} size={3} />
       <div className="flex min-w-0 flex-col">
         <span className="truncate text-sm font-semibold">
-          {profile.displayName || `@${profile.handle}`}
+          {profile.displayName || displayHandle}
         </span>
         <span className="text-muted-foreground truncate text-xs">
-          @{profile.handle}
+          {displayHandle}
         </span>
         {bio ? (
           <span className="text-muted-foreground mt-1 line-clamp-2 text-sm">

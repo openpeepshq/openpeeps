@@ -50,6 +50,23 @@ import { importRsaPemPair } from './crypto';
 
 const log = logger('server:federation');
 
+type ActiveFederation = { federation: Federation<void>; origin: string };
+
+/**
+ * The federation instance mounted at server start, retained so request-time
+ * callers (e.g. the profile-search remote-identity resolver) can reuse the
+ * same WebFinger / document-loader configuration. `null` until
+ * `installFederation` runs (and when federation is inactive).
+ */
+let activeFederation: ActiveFederation | null = null;
+
+export const setActiveFederation = (value: ActiveFederation | null) => {
+  activeFederation = value;
+};
+
+export const getActiveFederation = (): ActiveFederation | null =>
+  activeFederation;
+
 const documentLoaderOpts = (ctx: {
   documentLoader: unknown;
   contextLoader: unknown;
@@ -58,7 +75,7 @@ const documentLoaderOpts = (ctx: {
   contextLoader: ctx.contextLoader as never,
 });
 
-const asText = (value: unknown): string | undefined => {
+export const asText = (value: unknown): string | undefined => {
   if (value == null) return undefined;
   const text = String(value);
   return text.length > 0 ? text : undefined;

@@ -313,3 +313,74 @@ describe('MiniProfileCard compact chip (issue #1666 round-11 S2)', () => {
     expect(noAction.root.findAllByType('Pressable')).toHaveLength(0);
   });
 });
+
+describe('ProfileCard federated handle line (issue #279)', () => {
+  // The RN-side half of the #279 handle-line coverage: the web card's suite
+  // (platform/react) pins the same `activityPub.domain` branch from the web
+  // side, and this one pins the native rendering of `@handle@domain` (and the
+  // name fallback).
+  const renderFederatedCard = (profile: ProfileCardProps['profile']) => {
+    let tree: ReturnType<typeof ReactTestRenderer.create>;
+    ReactTestRenderer.act(() => {
+      tree = ReactTestRenderer.create(
+        React.createElement(ProfileCard, {
+          profile,
+          actionType: 'link',
+        } as ProfileCardProps)
+      );
+    });
+    return tree;
+  };
+
+  const federatedProfile = {
+    did: 'did:plc:remote',
+    handle: 'alice',
+    displayName: 'Alice',
+    bio: '',
+    activityPub: { domain: 'mastodon.social' },
+  } as unknown as ProfileCardProps['profile'];
+
+  const findHandleLine = (tree: ReturnType<typeof ReactTestRenderer.create>) =>
+    tree.root
+      .findAllByType('ThemedText')
+      .find((node: { props: { children?: unknown } }) =>
+        String(node.props.children).startsWith('@')
+      );
+
+  it('renders @handle@domain for a federated profile', () => {
+    const tree = renderFederatedCard(federatedProfile);
+    expect(String(findHandleLine(tree)?.props.children)).toBe(
+      '@alice@mastodon.social'
+    );
+  });
+
+  it('renders the bare handle as the name fallback when there is no display name', () => {
+    // RN parity note: the web card falls back to `displayHandle` for the name
+    // line, while the RN card falls back to the bare `profile.handle` — pin
+    // that so a drift back to the web form is a deliberate change. The
+    // federated `@handle@domain` lives on the handle line below it.
+    const tree = renderFederatedCard({
+      ...federatedProfile,
+      displayName: undefined,
+    } as unknown as ProfileCardProps['profile']);
+    const texts = tree.root.findAllByType('ThemedText');
+    const name = texts.find(
+      (node: { props: { children?: unknown } }) =>
+        node.props.children === 'alice'
+    );
+    const handleLine = texts.find(
+      (node: { props: { children?: unknown } }) =>
+        String(node.props.children) === '@alice@mastodon.social'
+    );
+    expect(name).toBeDefined();
+    expect(name.props.className).toBe('text-lg font-semibold truncate');
+    expect(handleLine).toBeDefined();
+  });
+
+  it('keeps the bare @handle for a local profile', () => {
+    const tree = renderFederatedCard(profile);
+    expect(String(findHandleLine(tree)?.props.children)).toBe(
+      '@lovelace.example'
+    );
+  });
+});

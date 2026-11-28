@@ -81,6 +81,10 @@ export const ProfileCard = ({
   };
 
   const bio = markdownPlainText(profile.bio);
+  const domain = profile.activityPub?.domain;
+  const displayHandle = domain
+    ? `@${profile.handle}@${domain}`
+    : `@${profile.handle}`;
 
   // Picker rows (actionType="select") are a fixed single-line row —
   // `px-4 mb-1 py-1.5`, name + handle, no bio — so the avatar stays
@@ -139,7 +143,7 @@ export const ProfileCard = ({
               {truncateText(profile.displayName, 18) || profile.handle}
             </ThemedText>
             <ThemedText className="truncate" numberOfLines={1}>
-              @{profile.handle}
+              {displayHandle}
             </ThemedText>
             {bio && !selectRow ? (
               <ThemedText

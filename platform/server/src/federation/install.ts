@@ -13,6 +13,7 @@ import {
   federateFollow,
   federatePublicNote,
   federateUnfollow,
+  setActiveFederation,
 } from './fedify';
 
 const log = logger('server:federation');
@@ -24,6 +25,7 @@ export const installFederation = async (app: Express) => {
   }
 
   const { federation, origin } = await createOpenPeepsFederation();
+  setActiveFederation({ federation, origin });
   app.set('trust proxy', true);
   app.use(integrateFederation(federation, () => undefined));
   hub.on('postCreated', (post: PostWithMeta) => {

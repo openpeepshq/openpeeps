@@ -113,6 +113,15 @@ export const publicProfileSchema = z.object({
   profileStats: profileStatsSchema.optional(),
   pinnedPostId: z.string().optional(),
   blockedByMe: z.boolean().optional(),
+  /**
+   * Present for federated (remote) profiles so the UI can show the full
+   * `@handle@domain` identity and deep-link to the remote profile.
+   */
+  activityPub: z
+    .object({
+      domain: z.string().min(4),
+    })
+    .optional(),
 });
 
 export type PublicProfile = z.infer<typeof publicProfileSchema>;
