@@ -2,8 +2,8 @@ import type { MediaStorage } from '@openpeepshq/common/types';
 import { communityConfig, config } from '../config';
 
 import openpeepsStorage from './openpeeps';
+import { ffprobe, runFfmpeg } from './ffmpeg';
 import sharp from 'sharp';
-import ffmpeg from 'fluent-ffmpeg';
 import path, { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import fs from 'node:fs/promises';
@@ -121,20 +121,22 @@ export const storeFromPath = (
  * Browsers record webm/ogg, which iOS cannot decode; AAC-in-MP4 plays on
  * every client, so the uploaded format is never what ships.
  */
-const transcodeAudio = (inputPath: string): Promise<string> => {
+const transcodeAudio = async (inputPath: string): Promise<string> => {
   const tempOutputPath = join(tmpdir(), `output-${randomString(16)}.m4a`);
-  return new Promise((resolve, reject) => {
-    ffmpeg(inputPath)
-      .noVideo()
-      .outputOptions('-c:a aac')
-      .outputOptions('-b:a 128k')
-      .output(tempOutputPath)
-      .on('end', () => resolve(tempOutputPath))
-      .on('error', (error) =>
-        reject(new Error(`Audio transcode failed: ${error}`)),
-      )
-      .run();
-  });
+  try {
+    await runFfmpeg(inputPath, tempOutputPath, [
+      '-vn',
+      '-c:a',
+      'aac',
+      '-b:a',
+      '128k',
+    ]);
+  } catch (error) {
+    throw new Error(
+      `Audio transcode failed: ${error instanceof Error ? error.message : error}`,
+    );
+  }
+  return tempOutputPath;
 };
 
 /**
@@ -143,52 +145,66 @@ const transcodeAudio = (inputPath: string): Promise<string> => {
  * as a 400 in the sync upload path (the handler maps `MediaContentError` to
  * `badRequest`), not as an opaque 500.
  */
-const probeAudioDuration = (inputPath: string): Promise<number> =>
-  new Promise((resolve, reject) => {
-    ffmpeg.ffprobe(inputPath, (err, metadata) => {
-      const duration = metadata?.format?.duration;
-      if (err || !duration) {
-        reject(
-          new MediaContentError(
-            `Could not probe audio duration: ${err || 'no duration in metadata'}`,
-          ),
-        );
-        return;
-      }
-      resolve(duration);
-    });
+const probeAudioDuration = async (inputPath: string): Promise<number> => {
+  const metadata = await ffprobe(inputPath).catch((err: unknown) => {
+    throw new MediaContentError(
+      `Could not probe audio duration: ${
+        err instanceof Error ? err.message : err
+      }`,
+    );
   });
+  const duration = metadata?.format?.duration;
+  if (!duration) {
+    throw new MediaContentError(
+      'Could not probe audio duration: no duration in metadata',
+    );
+  }
+  return duration;
+};
 
-const transcodeVideo = (
+const transcodeVideo = async (
   inputPath: string,
   isLargeFile: boolean,
 ): Promise<string> => {
   const tempOutputPath = join(tmpdir(), `output-${randomString(16)}.mp4`);
 
+  // Each pair is one `flag value` argv token — `runFfmpeg` passes the array
+  // verbatim to the process (unlike the old fluent-ffmpeg, which split each
+  // one-space string into two tokens), so the flag and value must be
+  // separate elements.
   const baseOutput = [
-    '-c:v h264', // Better for iOS hardware acceleration
-    '-profile:v baseline', // Ensures maximum device compatibility
-    '-level 3.0', // Compatible with older iOS devices
-    '-movflags +faststart', // Enables fast start for web playback
-    '-pix_fmt yuv420p', // Required for iOS compatibility
-    '-c:a aac', // AAC audio (iOS standard)
-    '-b:a 128k', // Audio bitrate
-    '-tune zerolatency', // Optimized for web streaming with minimal latency
-    '-keyint_min 24', // Minimum "Group of Pictures"(GOP) size for better seeking
-    '-g 24', // Standard GOP size
+    '-c:v',
+    'h264', // Better for iOS hardware acceleration
+    '-profile:v',
+    'baseline', // Ensures maximum device compatibility
+    '-level',
+    '3.0', // Compatible with older iOS devices
+    '-movflags',
+    '+faststart', // Enables fast start for web playback
+    '-pix_fmt',
+    'yuv420p', // Required for iOS compatibility
+    '-c:a',
+    'aac', // AAC audio (iOS standard)
+    '-b:a',
+    '128k', // Audio bitrate
+    '-tune',
+    'zerolatency', // Optimized for web streaming with minimal latency
+    '-keyint_min',
+    '24', // Minimum "Group of Pictures"(GOP) size for better seeking
+    '-g',
+    '24', // Standard GOP size
   ];
   if (isLargeFile) {
-    baseOutput.push('-max_muxing_queue_size 9999'); // Helps with complex MOV files
+    baseOutput.push('-max_muxing_queue_size', '9999'); // Helps with complex MOV files
   }
-  return new Promise((resolve, reject) => {
-    ffmpeg(inputPath)
-      .size(`${previewMaxWidth}x?`)
-      .output(tempOutputPath)
-      .outputOptions(baseOutput)
-      .on('end', () => resolve(tempOutputPath))
-      .on('error', reject)
-      .run();
-  });
+  await runFfmpeg(inputPath, tempOutputPath, [
+    // `700x?` keeps the source aspect ratio at a 700px cap (matches the old
+    // fluent-ffmpeg `.size(`${previewMaxWidth}x?`)`).
+    '-vf',
+    `scale=${previewMaxWidth}:trunc(ow/a/2)*2`,
+    ...baseOutput,
+  ]);
+  return tempOutputPath;
 };
 
 /**
@@ -607,22 +623,15 @@ const createFilePreview = async (
   return createDocumentCardPreview(originalName);
 };
 
-const _getMediaDuration = (filePath: string): Promise<number> =>
-  new Promise((resolve, reject) => {
-    ffmpeg.ffprobe(filePath, (err, metadata) => {
-      if (err) {
-        reject(err);
-      } else {
-        // Access the duration from the format section of the metadata
-        const duration = metadata.format.duration;
-        if (!duration) {
-          reject(new Error('No duration found'));
-        } else {
-          resolve(duration);
-        }
-      }
-    });
-  });
+const _getMediaDuration = async (filePath: string): Promise<number> => {
+  const metadata = await ffprobe(filePath);
+  // Access the duration from the format section of the metadata
+  const duration = metadata.format.duration;
+  if (!duration) {
+    throw new Error('No duration found');
+  }
+  return duration;
+};
 
 interface VideoStreamInfo {
   width: number;
@@ -630,24 +639,19 @@ interface VideoStreamInfo {
   duration: number;
 }
 
-const getVideoStreamInfo = (filePath: string): Promise<VideoStreamInfo> =>
-  new Promise((resolve, reject) => {
-    ffmpeg.ffprobe(filePath, (err, metadata) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      const stream = metadata.streams.find((s) => s.codec_type === 'video');
-      const duration =
-        metadata.format.duration ??
-        (stream?.duration ? Number(stream.duration) : undefined);
-      if (!stream?.width || !stream?.height || !duration) {
-        reject(new Error('Could not determine video stream info'));
-        return;
-      }
-      resolve({ width: stream.width, height: stream.height, duration });
-    });
-  });
+const getVideoStreamInfo = async (
+  filePath: string,
+): Promise<VideoStreamInfo> => {
+  const metadata = await ffprobe(filePath);
+  const stream = metadata.streams.find((s) => s.codec_type === 'video');
+  const duration =
+    metadata.format.duration ??
+    (stream?.duration ? Number(stream.duration) : undefined);
+  if (!stream?.width || !stream?.height || !duration) {
+    throw new Error('Could not determine video stream info');
+  }
+  return { width: stream.width, height: stream.height, duration };
+};
 
 const waveformColor = (hex: string): string => {
   const bare = hex.replace('#', '');
@@ -658,26 +662,22 @@ const waveformColor = (hex: string): string => {
  * Waveform still via ffmpeg. `audiowaveform` is not a project dependency and
  * is often missing locally; ffmpeg already is, because video processing uses it.
  */
-const renderWaveform = (
+const renderWaveform = async (
   inputPath: string,
   outputPath: string,
   color: string,
-): Promise<void> =>
-  new Promise((resolve, reject) => {
-    const size = `${previewMaxWidth}x${previewMaxWidth}`;
-    ffmpeg(inputPath)
-      .noVideo()
-      .outputOptions(
-        '-filter_complex',
-        `aformat=channel_layouts=mono,showwavespic=s=${size}:colors=${color}`,
-      )
-      .outputOptions('-frames:v', '1')
-      .outputOptions('-update', '1')
-      .output(outputPath)
-      .on('end', () => resolve())
-      .on('error', (error) => reject(error))
-      .run();
-  });
+): Promise<void> => {
+  const size = `${previewMaxWidth}x${previewMaxWidth}`;
+  await runFfmpeg(inputPath, outputPath, [
+    '-vn',
+    '-filter_complex',
+    `aformat=channel_layouts=mono,showwavespic=s=${size}:colors=${color}`,
+    '-frames:v',
+    '1',
+    '-update',
+    '1',
+  ]);
+};
 
 const createAudioPreview = async (inputPath: string): Promise<MediaFile> => {
   const outputPath = join(tmpdir(), `preview-${randomString(16)}.png`);
@@ -739,41 +739,47 @@ const createVideoPreview = async (inputPath: string): Promise<MediaFile> => {
   // filter. setpts resets PTS so `tile` collects the frames in order.
   const sampleRate = frameCount / Math.max(info.duration, 0.001);
 
-  return new Promise((resolve, reject) => {
-    ffmpeg(inputPath)
-      .noAudio()
-      .videoFilters([
+  // The filter chain (fps → scale → pad → setpts → tile) and the webp output
+  // options reproduce the old fluent-ffmpeg call (`noAudio().videoFilters(...)`
+  // `.frames(1)` `outputOptions(['-c:v libwebp', '-lossless 0', '-q:v 80'])`).
+  try {
+    await runFfmpeg(inputPath, tempOutputPath, [
+      '-an',
+      '-vf',
+      [
         `fps=${sampleRate}`,
         `scale=${cellWidth}:${cellHeight}:force_original_aspect_ratio=decrease`,
         `pad=${cellWidth}:${cellHeight}:(ow-iw)/2:(oh-ih)/2:color=black`,
-        `setpts=N/TB`,
+        'setpts=N/TB',
         `tile=${gridCols}x${gridRows}`,
-      ])
-      .frames(1)
-      .outputOptions(['-c:v libwebp', '-lossless 0', '-q:v 80'])
-      .output(tempOutputPath)
-      .on('end', async () => {
-        try {
-          const { size } = await fs.stat(tempOutputPath);
-          if (!size) {
-            throw new Error('Generated video preview is empty');
-          }
-          resolve({ path: tempOutputPath, mimetype: 'image/webp' });
-        } catch (error: unknown) {
-          await cleanup();
-          reject(
-            new Error(
-              `Error handling output file: ${error instanceof Error ? error.message : String(error)}`,
-            ),
-          );
-        }
-      })
-      .on('error', async (error) => {
-        await cleanup();
-        reject(new Error(`FFmpeg error: ${error.message}`));
-      })
-      .run();
-  });
+      ].join(','),
+      '-vframes',
+      '1',
+      '-c:v',
+      'libwebp',
+      '-lossless',
+      '0',
+      '-q:v',
+      '80',
+    ]);
+  } catch (error: unknown) {
+    await cleanup();
+    throw new Error(
+      `FFmpeg error: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+  try {
+    const { size } = await fs.stat(tempOutputPath);
+    if (!size) {
+      throw new Error('Generated video preview is empty');
+    }
+    return { path: tempOutputPath, mimetype: 'image/webp' };
+  } catch (error: unknown) {
+    await cleanup();
+    throw new Error(
+      `Error handling output file: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
 };
 
 export * from './processing';

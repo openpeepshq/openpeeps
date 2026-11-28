@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
-import ffmpeg from 'fluent-ffmpeg';
+import { ffprobe, runFfmpeg } from './ffmpeg';
 import { queueAndWorker } from '../jobs';
 import { logger } from '../log';
 import { mediaStorage } from './index';
@@ -72,56 +72,48 @@ interface ProbedSource {
   hasAudio: boolean;
 }
 
-const probeSource = (inputPath: string): Promise<ProbedSource> =>
-  new Promise((resolve, reject) => {
-    ffmpeg.ffprobe(inputPath, (err, metadata) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      const video = metadata.streams.find((s) => s.codec_type === 'video');
-      if (!video || !video.width || !video.height) {
-        reject(new Error('No video stream found in source'));
-        return;
-      }
-      const hasAudio = metadata.streams.some((s) => s.codec_type === 'audio');
+const probeSource = async (inputPath: string): Promise<ProbedSource> => {
+  const metadata = await ffprobe(inputPath);
+  const video = metadata.streams.find((s) => s.codec_type === 'video');
+  if (!video || !video.width || !video.height) {
+    throw new Error('No video stream found in source');
+  }
+  const hasAudio = metadata.streams.some((s) => s.codec_type === 'audio');
 
-      // `bit_rate` on the video stream is the most accurate signal. Fall back
-      // to the container-level bitrate (which includes audio) minus a rough
-      // audio allowance, then to a resolution-based heuristic.
-      const streamBitrate = Number(video.bit_rate);
-      let videoBitrateKbps =
-        Number.isFinite(streamBitrate) && streamBitrate > 0
-          ? Math.round(streamBitrate / 1000)
-          : 0;
-      if (!videoBitrateKbps) {
-        const formatBitrate = Number(metadata.format.bit_rate);
-        if (Number.isFinite(formatBitrate) && formatBitrate > 0) {
-          videoBitrateKbps = Math.max(
-            100,
-            Math.round(formatBitrate / 1000) -
-              (hasAudio ? AUDIO_BITRATE_KBPS : 0),
-          );
-        }
-      }
-      if (!videoBitrateKbps) {
-        const shorter = Math.min(video.width, video.height);
-        const fallback =
-          Object.entries(SOURCE_BITRATE_FALLBACK_KBPS)
-            .map(([s, kbps]) => ({ s: Number(s), kbps }))
-            .filter(({ s }) => s <= shorter)
-            .sort((a, b) => b.s - a.s)[0]?.kbps ?? 500;
-        videoBitrateKbps = fallback;
-      }
+  // `bit_rate` on the video stream is the most accurate signal. Fall back
+  // to the container-level bitrate (which includes audio) minus a rough
+  // audio allowance, then to a resolution-based heuristic.
+  const streamBitrate = Number(video.bit_rate);
+  let videoBitrateKbps =
+    Number.isFinite(streamBitrate) && streamBitrate > 0
+      ? Math.round(streamBitrate / 1000)
+      : 0;
+  if (!videoBitrateKbps) {
+    const formatBitrate = Number(metadata.format.bit_rate);
+    if (Number.isFinite(formatBitrate) && formatBitrate > 0) {
+      videoBitrateKbps = Math.max(
+        100,
+        Math.round(formatBitrate / 1000) - (hasAudio ? AUDIO_BITRATE_KBPS : 0),
+      );
+    }
+  }
+  if (!videoBitrateKbps) {
+    const shorter = Math.min(video.width, video.height);
+    const fallback =
+      Object.entries(SOURCE_BITRATE_FALLBACK_KBPS)
+        .map(([s, kbps]) => ({ s: Number(s), kbps }))
+        .filter(({ s }) => s <= shorter)
+        .sort((a, b) => b.s - a.s)[0]?.kbps ?? 500;
+    videoBitrateKbps = fallback;
+  }
 
-      resolve({
-        width: video.width,
-        height: video.height,
-        videoBitrateKbps,
-        hasAudio,
-      });
-    });
-  });
+  return {
+    width: video.width,
+    height: video.height,
+    videoBitrateKbps,
+    hasAudio,
+  };
+};
 
 interface Variant {
   /** Width in pixels, always even (libx264 requires divisible by 2). */
@@ -309,41 +301,20 @@ const runHls = async (
     segmentTemplate,
     '-master_pl_name',
     MASTER_PLAYLIST_TEMP_NAME,
-    // NOTE: `-var_stream_map` is passed separately below. fluent-ffmpeg splits
-    // any single array element containing exactly one space into two argv
-    // tokens, which breaks values like `v:0,a:0 v:1,a:1` and makes ffmpeg
-    // treat `v:1,a:1` as an output filename.
+    // `-var_stream_map` (below) carries a value with an embedded space
+    // (`v:0,a:0 v:1,a:1`). That is safe here: args are passed to ffmpeg as a
+    // pre-split argv, so the whole value reaches ffmpeg as a single token.
+    '-var_stream_map',
+    streamMap,
   ];
 
-  await new Promise<void>((resolve, reject) => {
-    ffmpeg(inputPath)
-      .outputOptions(outputOptions)
-      // Two-arg form disables fluent-ffmpeg's space-splitting heuristic.
-      .outputOptions('-var_stream_map', streamMap)
-      .output(variantPlaylistTemplate)
-      .on('start', (cmd) => log.debug(`ffmpeg command: ${cmd}`))
-      .on('end', () => resolve())
-      .on('error', (err, _stdout, stderr) => {
-        // fluent-ffmpeg's `err.message` is just "ffmpeg exited with code N:
-        // Conversion failed!" — the actual diagnostic is in stderr. We attach
-        // the last ~40 lines so the worker log (and errors.log) show what
-        // ffmpeg actually complained about instead of a useless exit code.
-        const tail = String(stderr ?? '')
-          .trim()
-          .split(/\r?\n/)
-          .slice(-40)
-          .join('\n');
-        const detail = tail
-          ? `${err.message}\n--- ffmpeg stderr (tail) ---\n${tail}`
-          : err.message;
-        const wrapped = new Error(detail);
-        // Preserve the original stack for debugging while keeping the rich
-        // message on `.message` for log lines.
-        if (err.stack) wrapped.stack = err.stack;
-        reject(wrapped);
-      })
-      .run();
-  });
+  log.debug(
+    `ffmpeg command: ffmpeg -i ${inputPath} ${outputOptions.join(' ')}`,
+  );
+  // `runFfmpeg` rejects on a non-zero exit with the stderr tail attached —
+  // ffmpeg's real diagnostic lives in stderr, not the bare exit code, so the
+  // worker log (and errors.log) show what ffmpeg complained about.
+  await runFfmpeg(inputPath, variantPlaylistTemplate, outputOptions);
 };
 
 const finalizeMasterPlaylist = async (streamDir: string): Promise<void> => {

@@ -4,13 +4,14 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
 import { MediaContentError, transcodeIncomingMedia } from './index';
+import { ffprobe } from './ffmpeg';
 import { VOICE_NOTE_MAX_SECONDS } from '@openpeepshq/common/lib';
 
 /**
  * End-to-end transcode test (review item 4): the real ffmpeg pipeline — a
  * generated WAV fixture is normalized to AAC-in-MP4 and the result is
  * ffprobe-probed to prove it actually decodes, and an over-cap fixture is
- * rejected by the probe before any transcode work. The mocked `fluent-ffmpeg`
+ * rejected by the probe before any transcode work. The mocked `./ffmpeg`
  * suite (`transcodeAudio.test.ts`) cannot catch a broken ffmpeg invocation or
  * a corrupt output, which is what this test guards.
  *
@@ -25,17 +26,12 @@ const hasFfmpeg = (): Promise<boolean> =>
     execFile('ffmpeg', ['-version'], (error) => resolve(!error));
   });
 
-const probeDuration = (file: string): Promise<number> =>
-  new Promise((resolve, reject) => {
-    // Reuse the same ffprobe the production code shells out to.
-    import('fluent-ffmpeg').then(({ default: ffmpeg }) =>
-      ffmpeg.ffprobe(file, (err, meta) =>
-        err
-          ? reject(new Error(`ffprobe failed: ${err}`))
-          : resolve(meta?.format?.duration ?? NaN),
-      ),
-    );
+const probeDuration = async (file: string): Promise<number> => {
+  const meta = await ffprobe(file).catch((err) => {
+    throw new Error(`ffprobe failed: ${err}`);
   });
+  return meta?.format?.duration ?? NaN;
+};
 
 /** Write a mono 16-bit PCM WAV of `seconds` of 440 Hz at 8 kHz (small). */
 const createWav = async (outputPath: string, seconds: number) => {
@@ -93,14 +89,7 @@ describe('transcodeIncomingMedia — real ffmpeg pipeline (integration)', () => 
     expect(result.path).not.toBe(input);
 
     // The produced file is a real, decodable MP4/AAC container.
-    const metadata = await import('fluent-ffmpeg').then(
-      ({ default: ffmpeg }) =>
-        new Promise<any>((resolve, reject) =>
-          ffmpeg.ffprobe(result.path, (err, meta) =>
-            err ? reject(err) : resolve(meta),
-          ),
-        ),
-    );
+    const metadata = await ffprobe(result.path);
     const stream = (metadata.streams ?? []).find(
       (s: { codec_type?: string }) => s.codec_type === 'audio',
     );
