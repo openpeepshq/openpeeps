@@ -15,7 +15,7 @@ import { useParticipants } from '@livekit/react-native';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
-import { useJamChat } from '@openpeepshq/react';
+import { apiErrorMessage, useJamChat } from '@openpeepshq/react';
 import type { JamEvent } from '@openpeepshq/common';
 import { SendHorizontalIcon } from '../icons/index';
 import { Textarea } from '../ui/textarea';
@@ -123,8 +123,8 @@ const JamChatDrawerBody = ({
     try {
       await removeMessage(deletableMessageId);
       Toast.show({ type: 'success', text1: t('jams.chat.deleted') });
-    } catch {
-      Toast.show({ type: 'error', text1: t('jams.chat.deleteError') });
+    } catch (err) {
+      Toast.show({ type: 'error', text1: apiErrorMessage(err, t) });
     } finally {
       setDeletableMessageId(null);
     }

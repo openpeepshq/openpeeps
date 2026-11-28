@@ -370,7 +370,6 @@
       "submit": "Post",
       "saveDraft": "Save draft",
       "draftSavedToast": "Draft saved",
-      "error": "Failed to create post",
       "errorGeneric": "An error occurred while creating the post",
       "loading": "Creating post…",
       "success": "Post created",
@@ -382,7 +381,6 @@
     "delete": {
       "confirm": "Are you sure you want to delete this post?",
       "success": "Post deleted",
-      "error": "Failed to delete post",
       "deleting": "Deleting…"
     },
     "react": {
@@ -390,7 +388,6 @@
     },
     "repost": {
       "success": "Reposted successfully",
-      "error": "Failed to repost",
       "retractSuccess": "Repost retracted",
       "successToast": "Reposted successfully!"
     },
@@ -636,18 +633,15 @@
     "reposted": "Reposted",
     "unpinInGroup": {
       "title": "Unpin from group",
-      "success": "The post is no longer pinned to this group",
-      "error": "An error occurred while unpinning this post"
+      "success": "The post is no longer pinned to this group"
     },
     "pinInGroup": {
       "success": "This post will be pinned at the top of the group",
-      "title": "Pin to group",
-      "error": "An error occurred while pinning this post to the group"
+      "title": "Pin to group"
     },
     "pinGlobally": {
       "success": "The post is now pinned to the top of the Community feed",
-      "title": "Pin to feed",
-      "error": "An error occurred while pinning this post to the feed"
+      "title": "Pin to feed"
     },
     "rsvp": {
       "attendingMessage": "You are attending this event",
@@ -697,8 +691,7 @@
     },
     "pinOnProfile": {
       "title": "Pin to profile",
-      "success": "This post will be pinned at the top of your profile",
-      "error": "An error occurred while pinning this post to your profile"
+      "success": "This post will be pinned at the top of your profile"
     },
     "unpinOnProfile": {
       "title": "Unpin from profile",
@@ -746,7 +739,6 @@
     },
     "join": {
       "submit": "Join Group",
-      "error": "Failed to join group",
       "success": "Joined group"
     },
     "leave": {
@@ -3047,7 +3039,6 @@
       "copyWarning": "Copy this token now. It will not be shown again.",
       "create": "Create token",
       "createDescription": "Create a personal access token to use the API.",
-      "createError": "Failed to create token",
       "createTitle": "Create token",
       "creating": "Creating…",
       "descriptionLabel": "Description",

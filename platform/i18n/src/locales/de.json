@@ -370,7 +370,6 @@
       "submit": "Veröffentlichen",
       "saveDraft": "Entwurf speichern",
       "draftSavedToast": "Entwurf gespeichert",
-      "error": "Beitrag konnte nicht erstellt werden",
       "errorGeneric": "Beim Erstellen des Beitrags ist ein Fehler aufgetreten",
       "loading": "Beitrag wird erstellt…",
       "success": "Beitrag erstellt",
@@ -382,7 +381,6 @@
     "delete": {
       "confirm": "Möchten Sie diesen Beitrag wirklich löschen?",
       "success": "Beitrag gelöscht",
-      "error": "Beitrag konnte nicht gelöscht werden",
       "deleting": "Wird gelöscht…"
     },
     "react": {
@@ -390,7 +388,6 @@
     },
     "repost": {
       "success": "Erfolgreich geteilt",
-      "error": "Teilen fehlgeschlagen",
       "retractSuccess": "Geteilter Beitrag zurückgezogen",
       "successToast": "Erfolgreich geteilt!"
     },
@@ -620,18 +617,15 @@
     "reposted": "Geteilt",
     "unpinInGroup": {
       "title": "Von Gruppe lösen",
-      "success": "Der Beitrag ist nicht mehr in dieser Gruppe angepinnt",
-      "error": "Beim Lösen dieses Beitrags aus der Gruppe ist ein Fehler aufgetreten"
+      "success": "Der Beitrag ist nicht mehr in dieser Gruppe angepinnt"
     },
     "pinInGroup": {
       "success": "Dieser Beitrag wird oben in der Gruppe angepinnt",
-      "title": "In Gruppe anpinnen",
-      "error": "Beim Anpinnen dieses Beitrags in der Gruppe ist ein Fehler aufgetreten"
+      "title": "In Gruppe anpinnen"
     },
     "pinGlobally": {
       "success": "Der Beitrag ist jetzt oben im Community-Feed angepinnt",
-      "title": "Im Feed anpinnen",
-      "error": "Beim Anpinnen dieses Beitrags in den Feed ist ein Fehler aufgetreten"
+      "title": "Im Feed anpinnen"
     },
     "rsvp": {
       "attendingMessage": "Sie nehmen an dieser Veranstaltung teil",
@@ -681,8 +675,7 @@
     },
     "pinOnProfile": {
       "title": "An Profil anpinnen",
-      "success": "Dieser Beitrag wird oben auf Ihrem Profil angepinnt",
-      "error": "Beim Anpinnen dieses Beitrags an Ihr Profil ist ein Fehler aufgetreten"
+      "success": "Dieser Beitrag wird oben auf Ihrem Profil angepinnt"
     },
     "unpinOnProfile": {
       "title": "Vom Profil lösen",
@@ -734,7 +727,6 @@
     },
     "join": {
       "submit": "Gruppe beitreten",
-      "error": "Beitritt zur Gruppe fehlgeschlagen",
       "success": "Gruppe beigetreten"
     },
     "leave": {
@@ -3046,7 +3038,6 @@
       "copyWarning": "Kopieren Sie dieses Token jetzt. Es wird nicht erneut angezeigt.",
       "create": "Token erstellen",
       "createDescription": "Erstellen Sie ein persönliches Zugriffstoken für die API.",
-      "createError": "Token konnte nicht erstellt werden",
       "createTitle": "Token erstellen",
       "creating": "Wird erstellt…",
       "descriptionLabel": "Beschreibung",

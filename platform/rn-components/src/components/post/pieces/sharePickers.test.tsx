@@ -94,6 +94,9 @@ jest.mock('@openpeepshq/react', () => {
   } = require('../../../../../react/src/hooks/conversations/conversationTitle');
   return {
     conversationTitle,
+    // The modals route failure toasts through the shared mapper; stub it the
+    // same way PostMenu.test.tsx does so the component can call it.
+    apiErrorMessage: (err: unknown) => String(err),
     useCurrentProfile: () => state.me,
     useAuthData: () => state.authData,
     useOpenpeeps: () => ({
@@ -343,10 +346,12 @@ test('group modal: a failed share toasts the error and keeps the sheet open (#18
     pressByText(tree.toJSON(), 'Yes Group');
   });
   expect(onShare).toHaveBeenCalledWith('g-yes');
+  // Failure path routes through the shared mapper (stubbed to `String(err)`),
+  // so the toast carries the error's string form, not the old fixed copy.
   expect(Toast.show).toHaveBeenCalledWith(
     expect.objectContaining({
       type: 'error',
-      text1: "Couldn't share the post",
+      text1: 'Error: boom',
     })
   );
   expect(onClose).not.toHaveBeenCalled();
@@ -570,10 +575,11 @@ test('conversation modal: a failed send toasts the error and keeps the sheet ope
     pressByText(tree.toJSON(), 'Ada');
   });
   expect(onSend).toHaveBeenCalledWith(CONVERSATION);
+  // Failure path routes through the shared mapper (stubbed to `String(err)`).
   expect(Toast.show).toHaveBeenCalledWith(
     expect.objectContaining({
       type: 'error',
-      text1: "Couldn't share the post",
+      text1: 'Error: boom',
     })
   );
   expect(onClose).not.toHaveBeenCalled();

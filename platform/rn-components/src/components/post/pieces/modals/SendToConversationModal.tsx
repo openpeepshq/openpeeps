@@ -5,6 +5,7 @@ import Toast from 'react-native-toast-message';
 import type { PublicPost } from '@openpeepshq/common/types';
 import { truncateText } from '@openpeepshq/common/lib';
 import {
+  apiErrorMessage,
   conversationTitle,
   useCurrentProfile,
   useOpenpeeps,
@@ -59,12 +60,16 @@ export const SendToConversationModal = ({
         }),
       });
       onClose();
-    } catch {
+    } catch (err) {
       Toast.show({
         type: 'error',
-        text1: t('posts.shareMenu.shareFailed', {
-          defaultValue: "Couldn't share the post",
-        }),
+        text1: apiErrorMessage(
+          err,
+          t,
+          t('posts.shareMenu.shareFailed', {
+            defaultValue: "Couldn't share the post",
+          })
+        ),
       });
     } finally {
       setSending(null);

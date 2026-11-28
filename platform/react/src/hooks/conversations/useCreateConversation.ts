@@ -6,6 +6,8 @@ import type {
 } from '@openpeepshq/common/types';
 import { useNavigate } from '../../contexts/router';
 import { useOpenpeeps } from '../../contexts/openpeeps';
+import { useT } from '../../i18n/context';
+import { apiErrorMessage } from '../../lib/apiErrorMessage';
 import { useCurrentProfile } from '../../components/layout/IdentityContext';
 
 export type UseCreateConversationArgs = {
@@ -26,6 +28,7 @@ export const useCreateConversation = ({
 }: UseCreateConversationArgs) => {
   const navigate = useNavigate();
   const me = useCurrentProfile();
+  const t = useT();
   const { openpeepsApi } = useOpenpeeps();
   const createPost = openpeepsApi.createPostAction();
 
@@ -58,7 +61,7 @@ export const useCreateConversation = ({
       onClose();
       navigate({ type: 'conversation', id: created.id });
     } catch (err) {
-      setError((err as Error).message);
+      setError(apiErrorMessage(err, t));
     } finally {
       setSubmitting(false);
     }

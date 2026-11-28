@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useOpenpeeps } from '@openpeepshq/react';
+import { apiErrorMessage, useOpenpeeps } from '@openpeepshq/react';
 import { HeaderActionButton, useSetPageHeader } from '../../components/layout';
 import { ThemedView } from '../../components/ui/themed-view';
 import Toast from 'react-native-toast-message';
@@ -98,16 +98,10 @@ export const EditPost = ({ route, navigation }: PostProps) => {
     try {
       setIsPosting(true);
 
-      const response = await updatePost(postData.data);
-
-      if (!response) {
-        Toast.show({ type: 'error', text1: t('posts.create.error') });
-      }
-
+      await updatePost(postData.data);
       handlePostSuccess();
     } catch (error) {
-      console.log('error', error);
-      Toast.show({ type: 'error', text1: t('posts.create.error') });
+      Toast.show({ type: 'error', text1: apiErrorMessage(error, t) });
     } finally {
       setIsPosting(false);
     }

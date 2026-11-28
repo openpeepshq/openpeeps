@@ -21,6 +21,7 @@ import {
 } from '../../components/layout/IdentityContext';
 import { applyAudienceSetting } from '../../lib/audienceSetting';
 import { buildAudienceChoiceValues } from '../../lib/audienceChoices';
+import { apiErrorMessage } from '../../lib/apiErrorMessage';
 
 export interface UseCreateNewJamFormArgs {
   onClose: () => void;
@@ -159,7 +160,7 @@ export const useCreateNewJamForm = ({ onClose }: UseCreateNewJamFormArgs) => {
       onClose();
       navigate({ type: 'jam', id: created.id, view: 'event' });
     } catch (err) {
-      setError((err as Error).message);
+      setError(apiErrorMessage(err, t));
     } finally {
       setSubmitting(false);
     }

@@ -78,6 +78,9 @@ jest.mock('@openpeepshq/common/lib', () => ({
 }));
 
 jest.mock('@openpeepshq/react', () => ({
+  // ShareMenu routes its failure toast through the shared mapper; stub it the
+  // same way PostMenu.test.tsx does so the component can call it.
+  apiErrorMessage: (err: unknown) => String(err),
   postPublicPath: (post: { id: string }) => `/posts/${post.id}`,
   useShareMenu: () => ({
     signedIn: mockSignedIn,
@@ -383,10 +386,13 @@ test('public-group post toasts an error and does not navigate when the community
   await ReactTestRenderer.act(async () => {
     await (item?.props?.onPress as () => Promise<void>)();
   });
+  // The failure path routes through the shared mapper (stubbed to
+  // `String(err)` in the @openpeepshq/react mock), so the toast carries the
+  // error's string form rather than the old hardcoded copy.
   expect(Toast.show).toHaveBeenCalledWith(
     expect.objectContaining({
       type: 'error',
-      text1: "Couldn't share to the community",
+      text1: 'Error: 403',
     })
   );
   expect(mockNavigate).not.toHaveBeenCalled();

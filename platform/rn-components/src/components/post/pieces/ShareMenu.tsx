@@ -8,7 +8,11 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { PublicPost } from '@openpeepshq/common';
 import { isPubliclyShareable } from '@openpeepshq/common/lib';
-import { postPublicPath, useShareMenu } from '@openpeepshq/react';
+import {
+  apiErrorMessage,
+  postPublicPath,
+  useShareMenu,
+} from '@openpeepshq/react';
 import {
   CalendarIcon,
   CopyIcon,
@@ -72,16 +76,20 @@ export const ShareMenu = ({ post, menuButton }: ShareMenuProps) => {
         }),
       });
       navigation.navigate('Post', { id: created.id });
-    } catch {
+    } catch (err) {
       // This menu owns the failure path: the action is invoked fire-and-forget
       // by the menu button, so the error is handled here (toast) and not
       // rethrown — rethrowing would surface as an unhandled rejection (a
       // redbox in dev builds).
       Toast.show({
         type: 'error',
-        text1: t('posts.shareMenu.repostToCommunityError', {
-          defaultValue: "Couldn't share to the community",
-        }),
+        text1: apiErrorMessage(
+          err,
+          t,
+          t('posts.shareMenu.repostToCommunityError', {
+            defaultValue: "Couldn't share to the community",
+          })
+        ),
       });
     }
   };

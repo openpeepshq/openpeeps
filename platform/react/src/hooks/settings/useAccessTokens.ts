@@ -8,6 +8,7 @@ import type {
 } from '@openpeepshq/common/types';
 import { useOpenpeeps } from '../../contexts/openpeeps';
 import { useT } from '../../i18n/context';
+import { apiErrorMessage } from '../../lib/apiErrorMessage';
 
 export const ACCESS_TOKEN_RESOURCE_TYPES = [
   '*',
@@ -146,12 +147,8 @@ export const useAccessTokens = () => {
       })) as AccessTokenWithMeta;
       setCreatedToken(created.signedToken);
       setForm(defaultForm);
-    } catch {
-      setError(
-        t('settings.accessTokens.createError', {
-          defaultValue: 'Failed to create token',
-        }),
-      );
+    } catch (err) {
+      setError(apiErrorMessage(err, t));
     } finally {
       setCreating(false);
     }

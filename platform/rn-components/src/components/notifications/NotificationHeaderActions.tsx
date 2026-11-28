@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { NotificationType } from '@openpeepshq/common';
 import {
+  apiErrorMessage,
   markCachedNotificationsSeen,
   useNotificationFeedFilter,
   useOpenpeeps,
@@ -51,8 +52,8 @@ export const NotificationHeaderActions = () => {
         type: 'success',
         text1: t('settings.notifications.markAllReadSuccess'),
       });
-    } catch {
-      Toast.show({ type: 'error', text1: t('notification.markAllReadError') });
+    } catch (err) {
+      Toast.show({ type: 'error', text1: apiErrorMessage(err, t) });
     }
   };
 

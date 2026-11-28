@@ -21,6 +21,7 @@ import {
 } from '../../components/layout/IdentityContext';
 import { useServerInfo } from '../../components/server-data';
 import { buildAudienceChoiceValues } from '../../lib/audienceChoices';
+import { apiErrorMessage } from '../../lib/apiErrorMessage';
 import { defaultNewResource, getNewPostStores } from '../../stores';
 
 const asResource = (data: PostDataUnion | undefined): ResourcePost | null =>
@@ -85,19 +86,6 @@ const issueMessage = (
   return t('resources.validation.directAudience', {
     defaultValue: 'Choose at least one recipient for a direct resource.',
   });
-};
-
-const submitErrorMessage = (
-  err: unknown,
-  t: (key: string, options: { defaultValue: string }) => string,
-) => {
-  const message = err instanceof Error ? err.message : '';
-  if (message === 'Forbidden' || message === 'postCreateForbidden') {
-    return t('resources.validation.audienceForbidden', {
-      defaultValue: 'Choose a group you can post this resource in.',
-    });
-  }
-  return message;
 };
 
 export const useNewResource = () => {
@@ -215,7 +203,7 @@ export const useNewResource = () => {
         stores.resetNewResourceState();
         navigate({ type: 'post', id: created.id });
       } catch (err) {
-        setError(submitErrorMessage(err, t));
+        setError(apiErrorMessage(err, t));
       } finally {
         setSubmitting(false);
       }
@@ -280,7 +268,7 @@ export const useEditResource = (resourceId: string) => {
       await updatePost(preparedResource(resource));
       navigate({ type: 'post', id: resourceId });
     } catch (err) {
-      setError((err as Error).message);
+      setError(apiErrorMessage(err, t));
     } finally {
       setSubmitting(false);
     }

@@ -74,6 +74,9 @@ export const authHooks = (
       }
       // Reported after the local reset so cleanup can never prevent logout,
       // but still surfaces to the user and the caller.
+      // The mapper's `fallback` is a *display copy* (used verbatim, not
+      // re-translated), so it must be passed as an already-translated string —
+      // hence the `t(...)` here rather than a raw i18n key.
       toastError?.(
         apiErrorMessage(
           pushCleanupError,

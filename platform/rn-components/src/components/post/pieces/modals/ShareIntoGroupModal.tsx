@@ -4,7 +4,11 @@ import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 import type { GroupWithMeta } from '@openpeepshq/common/types';
 import { checkGroupCapabilities, truncateText } from '@openpeepshq/common/lib';
-import { useAuthData, useCurrentProfile } from '@openpeepshq/react';
+import {
+  apiErrorMessage,
+  useAuthData,
+  useCurrentProfile,
+} from '@openpeepshq/react';
 import { useControlledSheet } from '../../../../hooks/use-controlled-sheet';
 import { BaseSheet } from '../../../custom/modals/common';
 import { ThemedText } from '../../../ui/themed-text';
@@ -57,12 +61,16 @@ export const ShareIntoGroupModal = ({
         }),
       });
       onClose();
-    } catch {
+    } catch (err) {
       Toast.show({
         type: 'error',
-        text1: t('posts.shareMenu.shareFailed', {
-          defaultValue: "Couldn't share the post",
-        }),
+        text1: apiErrorMessage(
+          err,
+          t,
+          t('posts.shareMenu.shareFailed', {
+            defaultValue: "Couldn't share the post",
+          })
+        ),
       });
     } finally {
       setSharing(null);

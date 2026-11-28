@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useOpenpeeps } from '@openpeepshq/react';
+import { apiErrorMessage, useOpenpeeps } from '@openpeepshq/react';
 import {
   AUTH_ROUTES,
   AuthStackParamList,
@@ -28,13 +28,13 @@ export const ValidateEmail = ({
     if (ranRef.current) return;
     ranRef.current = true;
 
-    const fail = () => {
+    const fail = (err: unknown) => {
       setFailed(true);
-      Toast.show({ type: 'error', text1: t('auth.emails.validation.error') });
+      Toast.show({ type: 'error', text1: apiErrorMessage(err, t) });
     };
 
     if (!token) {
-      fail();
+      fail(undefined);
       return;
     }
 
@@ -53,8 +53,8 @@ export const ValidateEmail = ({
           text1: t('auth.emails.validation.success'),
         });
         navigation.replace(AUTH_ROUTES.LOGIN);
-      } catch {
-        fail();
+      } catch (err) {
+        fail(err);
       }
     })();
   }, [token, navigation, t, client, queryClient]);

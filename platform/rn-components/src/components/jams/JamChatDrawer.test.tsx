@@ -145,6 +145,9 @@ jest.mock('react-i18next', () => ({
 }));
 
 jest.mock('@openpeepshq/react', () => ({
+  // The drawer routes its delete-failure toast through the shared mapper;
+  // stub it the same way PostMenu.test.tsx does so the component can call it.
+  apiErrorMessage: (err: unknown) => String(err),
   useJamChat: () => ({
     messages: jamChatState.messages,
     mentionProfiles: [],
@@ -398,9 +401,10 @@ describe('JamChatDrawer keyboard handling (issue #1705)', () => {
 
   it('shows the delete-error toast and no success toast when remove rejects (issue #1587)', async () => {
     // Failure-path pin (round-2 suggestion 3): the drawer owns RN's
-    // delete-error surface — a rejecting removeMessage shows
-    // `jams.chat.deleteError` and never rethrows (the sheet's catch was
-    // removed because the drawer's handler swallows the rejection).
+    // delete-error surface — a rejecting removeMessage toasts through the
+    // shared mapper (stubbed to `String(err)` here) and never rethrows (the
+    // sheet's catch was removed because the drawer's handler swallows the
+    // rejection).
     jamChatState.messages = [{ id: 'evt-1' }];
     jamChatState.canDelete = true;
     jamChatState.removeMessage.mockImplementation(async () => {
@@ -424,9 +428,11 @@ describe('JamChatDrawer keyboard handling (issue #1705)', () => {
       confirm.props.onPress?.();
     });
     expect(jamChatState.removeMessage).toHaveBeenCalledWith('evt-1');
+    // Mapped via the shared mapper (stubbed to `String(err)`), so the toast
+    // carries the error's string form, not the old `jams.chat.deleteError` key.
     expect(Toast.show).toHaveBeenCalledWith({
       type: 'error',
-      text1: 'jams.chat.deleteError',
+      text1: 'Error: delete failed',
     });
     // The drawer's own handler swallowed the rejection: exactly one toast
     // (no success toast, no second error path).

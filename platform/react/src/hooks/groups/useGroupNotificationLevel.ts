@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import type { GroupNotificationLevel } from '@openpeepshq/common';
 import { useOpenpeeps } from '../../contexts/openpeeps';
+import { useT } from '../../i18n/context';
+import { apiErrorMessage } from '../../lib/apiErrorMessage';
 
 export const useGroupNotificationLevel = (groupId: string) => {
   const { openpeepsApi } = useOpenpeeps();
+  const t = useT();
   const settingsQuery = openpeepsApi.useCurrentProfileSettings();
   const updateSettings = openpeepsApi.updateCurrentProfileSettingsAction();
   const [level, setLevel] = useState<GroupNotificationLevel>('all');
@@ -38,7 +41,7 @@ export const useGroupNotificationLevel = (groupId: string) => {
       });
       return true;
     } catch (err) {
-      setError((err as Error).message);
+      setError(apiErrorMessage(err, t));
       return false;
     } finally {
       setSaving(false);

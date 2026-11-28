@@ -12,6 +12,7 @@ import {
   TabStackParamList,
 } from '../../components/navigation/types/index';
 import {
+  apiErrorMessage,
   isSwitchablePostData,
   toNote,
   toQuestion,
@@ -163,8 +164,8 @@ export const NewPost = ({ route, navigation }: PostProps) => {
       }
 
       await handlePostSuccess();
-    } catch {
-      Toast.show({ type: 'error', text1: t('posts.create.errorGeneric') });
+    } catch (err) {
+      Toast.show({ type: 'error', text1: apiErrorMessage(err, t) });
     } finally {
       setIsPosting(false);
     }

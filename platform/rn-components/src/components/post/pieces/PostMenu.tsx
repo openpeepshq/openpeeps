@@ -143,32 +143,29 @@ export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
   }, []);
 
   const handleDelete = async () => {
-    void deletePost().then((res) => {
-      if (res) {
+    void (async () => {
+      try {
+        await deletePost();
         Toast.show({
           type: 'success',
           text1: t('posts.delete.success'),
         });
         deleteCallback?.();
-      } else {
+      } catch (err) {
         Toast.show({
           type: 'error',
-          text1: t('posts.delete.error'),
+          text1: apiErrorMessage(err, t),
         });
       }
-    });
+    })();
   };
 
   const handlePublishDraft = async () => {
     if (isPublishingDraft) return;
     setIsPublishingDraft(true);
     try {
-      const res = await publishPost(undefined);
-      if (res) {
-        Toast.show({ type: 'success', text1: t('posts.create.successToast') });
-      } else {
-        Toast.show({ type: 'error', text1: t('posts.create.errorGeneric') });
-      }
+      await publishPost(undefined);
+      Toast.show({ type: 'success', text1: t('posts.create.successToast') });
     } catch (err) {
       Toast.show({
         type: 'error',
@@ -180,36 +177,36 @@ export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
   };
 
   const handleFollow = async () => {
-    const response = await followProfile({ reblogs: true, notify: true });
-    if (response) {
+    try {
+      await followProfile({ reblogs: true, notify: true });
       setIsFollowing(true);
       Toast.show({
         type: 'success',
         text1: t('profile.follow.followedSuccess'),
       });
-    } else {
-      Toast.show({ type: 'error', text1: t('profile.follow.error') });
+    } catch (err) {
+      Toast.show({ type: 'error', text1: apiErrorMessage(err, t) });
     }
   };
 
   const handleUnfollow = async () => {
-    const response = await unfollowProfile(undefined);
-    if (response) {
+    try {
+      await unfollowProfile(undefined);
       setIsFollowing(false);
       Toast.show({
         type: 'success',
         text1: t('profile.follow.unfollowedSuccess'),
       });
-    } else {
-      Toast.show({ type: 'error', text1: t('profile.follow.error') });
+    } catch (err) {
+      Toast.show({ type: 'error', text1: apiErrorMessage(err, t) });
     }
   };
 
   const handlePinOnProfile = async () => {
-    const response = await pinOnProfileMutation({
-      postId: pinnedOnProfile ? '' : post.id,
-    });
-    if (response) {
+    try {
+      await pinOnProfileMutation({
+        postId: pinnedOnProfile ? '' : post.id,
+      });
       Toast.show({
         type: 'success',
         text1: t(
@@ -218,55 +215,55 @@ export const PostMenu = ({ post, deleteCallback }: PostMenuProps) => {
             : 'posts.pinOnProfile.success'
         ),
       });
-    } else {
-      Toast.show({ type: 'error', text1: t('posts.pinOnProfile.error') });
+    } catch (err) {
+      Toast.show({ type: 'error', text1: apiErrorMessage(err, t) });
     }
     refetchCurrentProfile();
   };
 
   const handlePinGlobally = async () => {
-    const response = await pinGloballyMutation({
-      postId: pinnedGlobally ? '' : post.id,
-    });
-    if (response) {
+    try {
+      await pinGloballyMutation({
+        postId: pinnedGlobally ? '' : post.id,
+      });
       Toast.show({
         type: 'success',
         text1: pinnedGlobally
           ? t('posts.unpinGlobally.success')
           : t('posts.pinGlobally.success'),
       });
-    } else {
-      Toast.show({ type: 'error', text1: t('posts.pinGlobally.error') });
+    } catch (err) {
+      Toast.show({ type: 'error', text1: apiErrorMessage(err, t) });
     }
   };
 
   const handlePinInGroup = async () => {
-    const response = await updateGroup({
-      ...post.group!,
-      pinnedPostId: post.id,
-    });
-    if (response) {
+    try {
+      await updateGroup({
+        ...post.group!,
+        pinnedPostId: post.id,
+      });
       Toast.show({
         type: 'success',
         text1: t('posts.pinInGroup.success'),
       });
-    } else {
-      Toast.show({ type: 'error', text1: t('posts.pinInGroup.error') });
+    } catch (err) {
+      Toast.show({ type: 'error', text1: apiErrorMessage(err, t) });
     }
   };
 
   const handleUnpinInGroup = async () => {
-    const response = await updateGroup({
-      ...post.group!,
-      pinnedPostId: '',
-    });
-    if (response) {
+    try {
+      await updateGroup({
+        ...post.group!,
+        pinnedPostId: '',
+      });
       Toast.show({
         type: 'success',
         text1: t('posts.unpinInGroup.success'),
       });
-    } else {
-      Toast.show({ type: 'error', text1: t('posts.unpinInGroup.error') });
+    } catch (err) {
+      Toast.show({ type: 'error', text1: apiErrorMessage(err, t) });
     }
   };
 

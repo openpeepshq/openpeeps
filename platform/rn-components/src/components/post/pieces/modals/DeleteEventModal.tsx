@@ -22,9 +22,10 @@ export const DeleteEventModal = forwardRef<
       setIsLoading(true);
       await onDelete();
       bottomSheetClose(ref);
-    } catch (error) {
-      console.error('Failed to delete event:', error);
     } finally {
+      // Loading cleanup runs before a rejection propagates to the caller,
+      // whose catch surfaces the toast (swallowing here would leave the
+      // failure console-only).
       setIsLoading(false);
     }
   };

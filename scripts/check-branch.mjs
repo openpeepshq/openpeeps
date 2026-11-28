@@ -34,6 +34,14 @@ function checkSingleCommitAheadOfMain() {
   }
   const n = parseInt(count, 10);
   if (n !== 1) {
+    // Counts every commit reachable from HEAD but not from `main`. A PR that
+    // is genuinely one commit ahead of the current `main` tip can still show
+    // n > 1 here as a transient false positive: when the branch shares a
+    // commit with a sibling open PR that has not yet merged, that shared
+    // commit is reachable from HEAD but not from `main`. Verify with
+    // `git merge-base <main> HEAD` — if it equals the `main` tip and the PR
+    // is one commit ahead, this is that artifact, and it clears once the
+    // shared commit lands on `main`. Do not re-squash in that case.
     console.error(
       `Check failed: branch has ${n} commit(s) ahead of ${base}; expected exactly 1.`,
     );

@@ -9,6 +9,7 @@ import {
   groupMembershipHasRole,
 } from '@openpeepshq/common/lib';
 import {
+  apiErrorMessage,
   markGroupPostsRead,
   useAuthData,
   useCurrentProfile,
@@ -91,8 +92,8 @@ export const GroupOptionsMenu = ({ group }: GroupOptionsMenuProps) => {
           defaultValue: 'Group posts marked as read',
         }),
       });
-    } catch {
-      Toast.show({ type: 'error', text1: t('groups.markAllRead.error') });
+    } catch (err) {
+      Toast.show({ type: 'error', text1: apiErrorMessage(err, t) });
     }
   };
 

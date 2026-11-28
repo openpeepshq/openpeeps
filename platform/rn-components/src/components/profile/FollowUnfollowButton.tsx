@@ -1,6 +1,10 @@
 import React from 'react';
 import type { PublicProfile, Profile } from '@openpeepshq/common';
-import { useFollowProfile, useOpenpeeps } from '@openpeepshq/react';
+import {
+  useFollowProfile,
+  useOpenpeeps,
+  apiErrorMessage,
+} from '@openpeepshq/react';
 import { Button } from '../ui/button';
 import { ThemedText } from '../ui/themed-text';
 import Toast from 'react-native-toast-message';
@@ -49,10 +53,14 @@ export const FollowUnfollowButton = ({
           text1: t('profile.follow.followedSuccess'),
         });
       }
-    } catch {
+    } catch (err) {
       Toast.show({
         type: 'error',
-        text1: t('profile.follow.error'),
+        text1: apiErrorMessage(
+          err,
+          t,
+          t('profile.follow.error', { defaultValue: 'Action failed' })
+        ),
       });
     } finally {
       setIsLoading(false);

@@ -5,7 +5,11 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import type { PublicPost } from '@openpeepshq/common';
-import { useEventMenu, useOpenpeeps } from '@openpeepshq/react';
+import {
+  apiErrorMessage,
+  useEventMenu,
+  useOpenpeeps,
+} from '@openpeepshq/react';
 import {
   CopyPlusIcon,
   MoreVerticalIcon,
@@ -48,12 +52,19 @@ export const EventMenu = ({ post, occurrence, menuButton }: EventMenuProps) => {
   if (!isOwner) return null;
 
   const handleDelete = async () => {
-    const res = await deletePost();
-    Toast.show({
-      type: res ? 'success' : 'error',
-      text1: res ? t('posts.delete.success') : t('posts.delete.error'),
-    });
-    if (res) navigation.goBack();
+    try {
+      await deletePost();
+      Toast.show({
+        type: 'success',
+        text1: t('posts.delete.success'),
+      });
+      navigation.goBack();
+    } catch (err) {
+      Toast.show({
+        type: 'error',
+        text1: apiErrorMessage(err, t),
+      });
+    }
   };
 
   return (

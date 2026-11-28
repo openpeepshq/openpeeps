@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 import type { GroupWithMeta } from '@openpeepshq/common/types';
-import { useJoinGroup } from '@openpeepshq/react';
+import { apiErrorMessage, useJoinGroup } from '@openpeepshq/react';
 import { Button } from '../ui/button';
 import { ThemedText } from '../ui/themed-text';
 
@@ -25,8 +25,8 @@ export const JoinGroupButton = ({ group, onJoined }: JoinGroupButtonProps) => {
     setSubmitting(true);
     try {
       await join();
-    } catch {
-      Toast.show({ type: 'error', text1: t('groups.join.error') });
+    } catch (err) {
+      Toast.show({ type: 'error', text1: apiErrorMessage(err, t) });
     } finally {
       setSubmitting(false);
     }
