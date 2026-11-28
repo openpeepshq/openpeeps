@@ -10,7 +10,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { ThemedText } from '../../../ui/themed-text';
 import { BaseSheet, SheetFooter } from '../common';
 import { useTranslation } from 'react-i18next';
-import AudioRecorderPlayer from 'react-native-audio-recorder-player';
+import { createSound } from 'react-native-nitro-sound';
 import RNFS from 'react-native-fs';
 import { Button } from '../../../ui/button';
 import {
@@ -30,6 +30,12 @@ interface RecordAudioSheetProps {
   onComplete: (url: string) => Promise<void> | void;
 }
 
+// The package's index.d.ts star-exports the `Sound` interface but also
+// declares and explicitly `export { Sound }` a `const Sound` of that type —
+// the explicit value shadows the star-re-exported interface, so `Sound`
+// cannot be imported as a type. Derive the instance type from the factory.
+type SoundInstance = ReturnType<typeof createSound>;
+
 /**
  * Records a voice note (up to VOICE_NOTE_MAX_SECONDS) for the composer.
  *
@@ -45,10 +51,12 @@ export const RecordAudioSheet = forwardRef<
 >(({ onComplete }, ref) => {
   const { t } = useTranslation();
 
-  // Lazy: one native recorder per mounted sheet, not a new object per render.
-  const recorderRef = useRef<AudioRecorderPlayer | null>(null);
+  // Lazy: one native sound (recorder+player) per mounted sheet, not a new
+  // object per render. `createSound()` is the nitro-sound replacement for the
+  // old library's `new AudioRecorderPlayer()` constructor.
+  const recorderRef = useRef<SoundInstance | null>(null);
   const getRecorder = () => {
-    if (!recorderRef.current) recorderRef.current = new AudioRecorderPlayer();
+    if (!recorderRef.current) recorderRef.current = createSound();
     return recorderRef.current;
   };
 
@@ -95,6 +103,7 @@ export const RecordAudioSheet = forwardRef<
     if (!recorder) return;
     recorder.removeRecordBackListener();
     recorder.removePlayBackListener();
+    recorder.removePlaybackEndListener();
   };
 
   // Clean up the native listeners and release the mic if the sheet unmounts
@@ -146,29 +155,22 @@ export const RecordAudioSheet = forwardRef<
     try {
       recorder.removeRecordBackListener();
       // No explicit audioSet: the `.m4a`/`audio/mp4` name+mimetype trusted in
-      // `uploadMedia` (isRecordedAudio) depends on react-native-audio-recorder-player
+      // `uploadMedia` (isRecordedAudio) depends on react-native-nitro-sound's
       // defaults — Android: OutputFormat.MPEG_4 + AudioEncoder.AAC → .mp4/AAC;
-      // iOS: AVFormatIDKeyIOS unset → ALAC → .m4a/ALAC. These defaults are for the
-      // version the lockfile resolves to (3.6.14); CI installs from that lock, so
-      // the build matches these defaults. The ALAC variant is also
-      // audio/mp4-shaped, so the server does not retranscode it, which some
-      // Android/Windows players cannot decode — a known, accepted trade (the
-      // dominant iOS player, AVAudioPlayer, decodes it). Do not change the
-      // recorder's output defaults — via an explicit audioSet or a dependency
-      // bump that changes them — without re-checking the `.m4a`/`audio/mp4`
-      // trust in `uploadMedia`'s `isRecordedAudio` branch.
+      // iOS: AVFormatIDKey unset → AAC → .m4a/AAC. These defaults are for the
+      // version the lockfile resolves to (0.2.21); CI installs from that lock,
+      // so the build matches these defaults. Do not change the recorder's
+      // output defaults — via an explicit audioSet or a dependency bump that
+      // changes them — without re-checking the `.m4a`/`audio/mp4` trust in
+      // `uploadMedia`'s `isRecordedAudio` branch.
       //
-      // Unique path per take: the library's default ("DEFAULT") writes every
-      // take to one fixed file (sound.mp4 / sound.m4a in the cache dir), and a
-      // sheet is dismissed only at confirm — so a second take would overwrite
-      // a previously confirmed take's bytes before the picker's Done uploads
-      // them. `uploadMedia` copies Android `file://` bytes only at Done, i.e.
-      // after the overwrite. Both platforms write a caller-supplied path
-      // verbatim (Android uses it directly; iOS prepends the caches dir for
-      // plain paths), so a fresh name per take keeps the confirmed take intact.
-      // The `.m4a` suffix keeps the name honest on both platforms — Android's
-      // MPEG_4/AAC output is audio/mp4-shaped like iOS's m4a, and `uploadMedia`
-      // (isRecordedAudio) maps the recorded output to audio/mp4 regardless.
+      // Unique path per take: both platforms write a caller-supplied path
+      // verbatim (Android uses it directly; iOS resolves it as an absolute
+      // path), so a fresh name per take keeps each take's bytes independent of
+      // the library's own default file. The `.m4a` suffix keeps the name
+      // honest on both platforms — Android's MPEG_4/AAC output is audio/mp4-
+      // shaped like iOS's m4a, and `uploadMedia` (isRecordedAudio) maps the
+      // recorded output to audio/mp4 regardless.
       const outputPath = `${RNFS.CachesDirectoryPath}/voice_${Date.now()}_${Math.random()
         .toString(36)
         .slice(2, 9)}.m4a`;
@@ -247,13 +249,14 @@ export const RecordAudioSheet = forwardRef<
     await recorder.startPlayer(url);
     recorder.addPlayBackListener((e) => {
       setPlayTime(recorder.mmss(Math.floor(e.currentPosition / 1000)));
-      // Natural end of the take: the callback keeps firing while playing, so
-      // `isFinished` distinguishes the take finishing on its own from a user
-      // stop (which goes through `onStopPlay`/`handleReRecord`). Tear down the
-      // player and reset the play state so one tap replays — parity with the
-      // picker sheet's `isFinished` end-of-playback transition.
-      if (e.isFinished) void onStopPlay();
-      return;
+    });
+    // Natural end of the take: nitro-sound reports playback finishing on its
+    // own through the dedicated playback-end listener (the old library folded
+    // this into the position callback's `isFinished` flag). Tear down the
+    // player and reset the play state so one tap replays — parity with the
+    // picker sheet's end-of-playback transition.
+    recorder.addPlaybackEndListener(() => {
+      void onStopPlay();
     });
     setIsPlaying(true);
     setIsPaused(false);
@@ -276,6 +279,7 @@ export const RecordAudioSheet = forwardRef<
     if (recorder) {
       await recorder.stopPlayer();
       recorder.removePlayBackListener();
+      recorder.removePlaybackEndListener();
     }
     setIsPlaying(false);
     setIsPaused(false);
@@ -317,6 +321,7 @@ export const RecordAudioSheet = forwardRef<
     const recorder = recorderRef.current;
     if (recorder) {
       recorder.removePlayBackListener();
+      recorder.removePlaybackEndListener();
       void recorder.stopPlayer().catch(() => undefined);
     }
     setUrl(null);

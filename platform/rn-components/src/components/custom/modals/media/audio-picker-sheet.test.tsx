@@ -109,7 +109,7 @@ jest.mock('../../../../lib/bottom-sheet-ref', () => ({
   bottomSheetDismiss,
 }));
 
-jest.mock('react-native-audio-recorder-player', () => {
+jest.mock('react-native-nitro-sound', () => {
   class MockRecorder {
     startRecorder = jest.fn(async () => 'file:///rec.m4a');
     stopRecorder = jest.fn(async () => 'file:///rec.m4a');
@@ -117,6 +117,8 @@ jest.mock('react-native-audio-recorder-player', () => {
     removeRecordBackListener = jest.fn();
     addPlayBackListener = jest.fn();
     removePlayBackListener = jest.fn();
+    addPlaybackEndListener = jest.fn();
+    removePlaybackEndListener = jest.fn();
     pauseRecorder = jest.fn(async () => 'file:///rec.m4a');
     resumeRecorder = jest.fn(async () => 'file:///rec.m4a');
     startPlayer = jest.fn(async () => 'file:///rec.m4a');
@@ -129,7 +131,9 @@ jest.mock('react-native-audio-recorder-player', () => {
       recorderInstances.push(this);
     }
   }
-  return { __esModule: true, default: MockRecorder };
+  // `createSound()` is the nitro-sound replacement for the old library's
+  // `new AudioRecorderPlayer()` constructor.
+  return { __esModule: true, createSound: () => new MockRecorder() };
 });
 
 jest.mock('../common', () => ({
@@ -772,11 +776,12 @@ describe('AudioPickerSheet → RecordAudioSheet → uploadMedia (RN voice note)'
     ).toBe(1);
   });
 
-  it("flips back to play when the take finishes (isFinished), like web's `ended`", async () => {
+  it("flips back to play when the take finishes (playback end), like web's `ended`", async () => {
     // Round-19 item 2: a take that ends on its own must leave the playing
     // state (label and icon back to play) instead of a stuck Pause that
     // needs a manual stop-then-play. Web gets this from <audio>'s `ended`;
-    // RN drives the same transition off the player's `isFinished` event.
+    // RN drives the same transition off the player's dedicated playback-end
+    // listener (nitro-sound's replacement for the old `isFinished` flag).
     const attachment = { id: 'att-voice', type: 'audio' };
     uploadMedia.mockResolvedValue(attachment);
     const onSelect = jest.fn();
@@ -802,26 +807,21 @@ describe('AudioPickerSheet → RecordAudioSheet → uploadMedia (RN voice note)'
     const rec = recorderInstances[recorderInstances.length - 1] as {
       startPlayer: jest.Mock;
       stopPlayer: jest.Mock;
-      addPlayBackListener: jest.Mock;
+      addPlaybackEndListener: jest.Mock;
     };
     expect(rec.startPlayer).toHaveBeenCalledWith('file:///rec.m4a');
     expect(
       findButtonBy(tree, (p) => p.accessibilityLabel === 'Pause audio').length
     ).toBe(1);
 
-    // The natural end of the take: the player reports `isFinished`.
-    expect(rec.addPlayBackListener).toHaveBeenCalled();
-    const playListener = rec.addPlayBackListener.mock.calls.at(-1)![0] as (e: {
-      isFinished: boolean;
-      currentPosition: number;
-      duration: number;
-    }) => void;
+    // The natural end of the take: the player reports it through the
+    // dedicated playback-end listener.
+    expect(rec.addPlaybackEndListener).toHaveBeenCalled();
+    const playbackEndListener = rec.addPlaybackEndListener.mock.calls.at(
+      -1
+    )![0] as () => void;
     await ReactTestRenderer.act(async () => {
-      playListener({
-        isFinished: true,
-        currentPosition: 10000,
-        duration: 10000,
-      });
+      playbackEndListener();
       await flush();
     });
 

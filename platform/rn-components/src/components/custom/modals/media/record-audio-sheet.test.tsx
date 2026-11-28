@@ -49,7 +49,7 @@ jest.mock('@gorhom/bottom-sheet', () => ({
   BottomSheetModal: 'BottomSheetModal',
 }));
 
-jest.mock('react-native-audio-recorder-player', () => {
+jest.mock('react-native-nitro-sound', () => {
   class MockRecorder {
     // Mirrors the real native contract: both platforms write a caller-supplied
     // path verbatim and resolve `file://<path>` on start and stop, so the
@@ -68,22 +68,25 @@ jest.mock('react-native-audio-recorder-player', () => {
     );
     addRecordBackListener = jest.fn();
     removeRecordBackListener = jest.fn();
-    // Captures the position/finish callback so a test can fire `isFinished`
-    // (the record sheet's preview end-of-playback transition, mirroring the
-    // picker sheet's).
-    playListener?: (e: {
-      isFinished: boolean;
-      currentPosition: number;
-      duration: number;
-    }) => void;
+    // Captures the position callback so a test can drive the preview's
+    // play-time display.
+    playListener?: (e: { currentPosition: number; duration: number }) => void;
     addPlayBackListener = jest.fn((cb: unknown) => {
       this.playListener = cb as (e: {
-        isFinished: boolean;
         currentPosition: number;
         duration: number;
       }) => void;
     });
     removePlayBackListener = jest.fn();
+    // Captures the playback-end callback so a test can fire the record
+    // sheet's preview end-of-playback transition (mirroring the picker
+    // sheet's). Nitro-sound reports a natural end through this dedicated
+    // listener rather than an `isFinished` flag on the position event.
+    playbackEndListener?: () => void;
+    addPlaybackEndListener = jest.fn((cb: unknown) => {
+      this.playbackEndListener = cb as () => void;
+    });
+    removePlaybackEndListener = jest.fn();
     pauseRecorder = jest.fn(async () => 'file:///rec.m4a');
     resumeRecorder = jest.fn(async () => 'file:///rec.m4a');
     startPlayer = jest.fn(async () => 'file:///rec.m4a');
@@ -96,7 +99,10 @@ jest.mock('react-native-audio-recorder-player', () => {
       recorderInstances.push(this);
     }
   }
-  return { __esModule: true, default: MockRecorder };
+  // `createSound()` is the nitro-sound replacement for the old library's
+  // `new AudioRecorderPlayer()` constructor — each call is a fresh instance,
+  // so the sheet's lazy-creation ref keeps one per mounted sheet.
+  return { __esModule: true, createSound: () => new MockRecorder() };
 });
 
 jest.mock('../common', () => ({
@@ -550,13 +556,13 @@ describe('RecordAudioSheet 90s cap', () => {
     expect(onComplete).toHaveBeenLastCalledWith(`file://${pathB}`);
   });
 
-  it('flips back to play when the take finishes naturally (isFinished), like the picker sheet', async () => {
+  it('flips back to play when the take finishes naturally (playback end), like the picker sheet', async () => {
     // Round-20 review item 2: the record sheet's *own* preview had no
     // end-of-playback transition — the play loop is the same one the picker
-    // sheet drives off `isFinished`, so a take that ends on its own must tear
-    // down the player and reset the play state (one tap replays) instead of
-    // leaving the button stuck "stop-like" and the `{playTime} / {recordTime}`
-    // row frozen at the take's end values.
+    // sheet drives off the playback-end event, so a take that ends on its own
+    // must tear down the player and reset the play state (one tap replays)
+    // instead of leaving the button stuck "stop-like" and the
+    // `{playTime} / {recordTime}` row frozen at the take's end values.
     const onComplete = jest.fn();
     const tree = await ReactTestRenderer.act(async () => {
       jest.useFakeTimers();
@@ -591,22 +597,16 @@ describe('RecordAudioSheet 90s cap', () => {
     const rec = recorderInstances[recorderInstances.length - 1] as {
       startPlayer: jest.Mock;
       stopPlayer: jest.Mock;
-      playListener?: (e: {
-        isFinished: boolean;
-        currentPosition: number;
-        duration: number;
-      }) => void;
+      playbackEndListener?: () => void;
     };
     expect(rec.startPlayer).toHaveBeenCalledTimes(1);
 
-    // The player reports the natural end of the take via `isFinished`.
-    expect(typeof rec.playListener).toBe('function');
+    // The player reports the natural end of the take through the dedicated
+    // playback-end listener (nitro-sound's replacement for the old
+    // `isFinished` flag on the position event).
+    expect(typeof rec.playbackEndListener).toBe('function');
     await ReactTestRenderer.act(async () => {
-      rec.playListener!({
-        isFinished: true,
-        currentPosition: 10000,
-        duration: 10000,
-      });
+      rec.playbackEndListener!();
       await flush();
     });
 

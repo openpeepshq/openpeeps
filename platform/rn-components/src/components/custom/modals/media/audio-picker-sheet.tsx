@@ -12,7 +12,7 @@ import { AudioLinesIcon, MicIcon } from '../../../icons/index';
 import { PauseIcon, PlayIcon } from '../../../icons/index';
 import { BaseSheet, SheetFooter } from '../common';
 import { useTranslation } from 'react-i18next';
-import AudioRecorderPlayer from 'react-native-audio-recorder-player';
+import { createSound } from 'react-native-nitro-sound';
 import { MediaAttachment } from '@openpeepshq/common';
 import { useOpenpeeps } from '@openpeepshq/react';
 import { uploadMedia } from '../../../../lib/uploadMedia';
@@ -28,6 +28,11 @@ interface AudioPickerSheetProps {
   /** When false, the sheet selects a single file (no multiple toggle). */
   multiple?: boolean;
 }
+
+// See the note in `record-audio-sheet.tsx`: the package's `Sound` interface is
+// shadowed by an exported value of the same name, so the instance type is
+// derived from the factory instead of imported.
+type SoundInstance = ReturnType<typeof createSound>;
 
 export const AudioPickerSheet = forwardRef<
   BottomSheetModal,
@@ -48,7 +53,7 @@ export const AudioPickerSheet = forwardRef<
   // <audio controls> per selection; RN has no scrub bar, so the equivalent
   // parity is a play/pause affordance on the visible take).
   const [playingUri, setPlayingUri] = useState<string | null>(null);
-  const playerRef = useRef<AudioRecorderPlayer | null>(null);
+  const playerRef = useRef<SoundInstance | null>(null);
   const { t } = useTranslation();
   const { openpeepsApi } = useOpenpeeps();
   const createAttachment = openpeepsApi.createMediaAttachmentAction();
@@ -62,6 +67,7 @@ export const AudioPickerSheet = forwardRef<
     const player = playerRef.current;
     if (player) {
       player.removePlayBackListener();
+      player.removePlaybackEndListener();
       void player.stopPlayer().catch(() => undefined);
       playerRef.current = null;
     }
@@ -73,17 +79,17 @@ export const AudioPickerSheet = forwardRef<
       stopPreviewPlayback();
       return;
     }
-    const player = (playerRef.current ??= new AudioRecorderPlayer());
+    const player = (playerRef.current ??= createSound());
     void (async () => {
       if (playingUri) await player.stopPlayer().catch(() => undefined);
       await player.startPlayer(uri);
-      player.addPlayBackListener((e) => {
-        // The native player reports the end of the take through
-        // `isFinished` (the callback keeps firing while playing, so the
-        // flag distinguishes natural end from a user stop, which goes
-        // through `stopPreviewPlayback` and never sets it) — the same
-        // end-of-playback transition web's <audio> gets from `ended`.
-        if (e.isFinished) stopPreviewPlayback();
+      // The native player reports the end of the take through the dedicated
+      // playback-end listener (the old library folded this into the position
+      // callback's `isFinished` flag; a user stop goes through
+      // `stopPreviewPlayback` and is distinguishable either way) — the same
+      // end-of-playback transition web's <audio> gets from `ended`.
+      player.addPlaybackEndListener(() => {
+        stopPreviewPlayback();
       });
       setPlayingUri(uri);
     })().catch(() => stopPreviewPlayback());
@@ -95,6 +101,7 @@ export const AudioPickerSheet = forwardRef<
       const player = playerRef.current;
       if (player) {
         player.removePlayBackListener();
+        player.removePlaybackEndListener();
         void player.stopPlayer().catch(() => undefined);
       }
     },
