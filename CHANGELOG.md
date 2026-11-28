@@ -5,6 +5,13 @@ Changelog for OpenPeeps
 
 ### Features
 
+- **jams**: let hosts delete jam chat messages
+- **posts**: add draft status for posts (published_at lifecycle)
+- **federation**: follow any ActivityPub account by handle
+- **posts**: republish public-group posts to the community feed (#654)
+- **jams**: mirror the host spotlight into LiveKit room metadata
+- **plugins**: add slug URL support for articles
+- **welcome**: surface community federation and access status on /welcome
 - **client**: surface SSE non-2xx failures as an API error, not a parse error
 - **federation**: add per-host blocklist and core-federation-manage capability
 - **markdown**: enhance markdown input components and localization updates
@@ -47,6 +54,7 @@ Changelog for OpenPeeps
 
 ### Bug Fixes
 
+- **rn-components**: keep attendee count clear of participant avatars on the Live Jams card
 - **rn-components**: use a fresh LiveKit Room per jam join
 - **react**: contain conversation thread scrolling to the message pane
 - **events**: hide "This event has ended." label while a Jam is in session
@@ -189,6 +197,9 @@ Changelog for OpenPeeps
 
 ### Chores
 
+- **deps**: drop deprecated unused text-encoding from rn-components
+- **deps**: bump bcrypt to 6.0.0 and remove the tree-wide tar override
+- **deps**: pin @grpc/grpc-js 1.14.7 tree-wide to cover the ~1.9.0 firestore edge
 - **deps**: bump sucrase to 3.35.1 to drop the vulnerable glob path (GHSA-3g3m-2fjr-6pw4)
 - **deps**: remove unused google-auth-library devDependency from platform/core
 - **rn-components**: ship the merged #2147 push-logout fix (react/rn-components/common/fetch-client) + drift guard
