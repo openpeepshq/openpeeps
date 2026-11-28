@@ -1825,6 +1825,7 @@
         "reports": "Berichte",
         "growth": "Wachstum",
         "retention": "Bindung",
+        "onboarding": "Onboarding",
         "ai-insights": "KI-Erkenntnisse"
       },
       "export": "Exportieren",
@@ -1871,6 +1872,16 @@
       "visibility": {
         "public": "Öffentlich",
         "private": "Privat"
+      },
+      "onboarding": {
+        "cohortSize": "Neue Mitglieder im Zeitraum",
+        "completedAll": "Alle Schritte abgeschlossen",
+        "funnel": "Onboarding-Trichter",
+        "stepsTable": "Schritte",
+        "columnStep": "Schritt",
+        "columnCount": "Mitglieder",
+        "columnRate": "Rate",
+        "group": "Einer Gruppe beitreten"
       },
       "cohortRetention": "D7-Kohortenbindung",
       "retentionByGroup": "Aktivität nach Gruppe",
@@ -1991,7 +2002,14 @@
         "tablePage": "In-App-Pfad, der angesehen wurde.",
         "tablePageClicks": "Anonyme Seitenaufruf-Zählungen im ausgewählten Zeitraum.",
         "tableLink": "Ausgehende URL-Herkunft und Pfad (Query-Strings entfernt).",
-        "tableLinkClicks": "Anonyme Zählungen ausgehender Klicks im ausgewählten Zeitraum."
+        "tableLinkClicks": "Anonyme Zählungen ausgehender Klicks im ausgewählten Zeitraum.",
+        "onboardingCohortSize": "Lokale, nicht gelöschte Mitgliedsprofile, die im gewählten Zeitraum erstellt wurden. Jede Onboarding-Rate ist ein Anteil dieser Kohorte.",
+        "onboardingCompletedAll": "Mitglieder der Kohorte, die alle hier erfassten Onboarding-Schritte abgeschlossen haben. Der Prozentsatz ist ihr Anteil an der Kohorte.",
+        "onboardingFunnel": "Wie viele der im gewählten Zeitraum beigetretenen Mitglieder jeden Schritt der Willkommens-Checkliste abgeschlossen haben. Die Schritte spiegeln den aktuellen Mitgliedsstand wider, nicht die Abschlüsse über die Zeit.",
+        "onboardingStepsTable": "Abschluss-Anzahlen und -Raten pro Schritt für die Kohorte, in Willkommens-Checklisten-Reihenfolge.",
+        "onboardingColumnStep": "Ein Schritt der Willkommens-Checkliste, in der Reihenfolge, in der Mitglieder ihn ausführen sollen.",
+        "onboardingColumnCount": "Mitglieder der Kohorte, die den Schritt abgeschlossen haben.",
+        "onboardingColumnRate": "Anteil der Kohorte, der den Schritt abgeschlossen hat, in Prozent."
       }
     },
     "dashboard": {

@@ -87,6 +87,7 @@ import {
   AnalyticsContentPage,
   AnalyticsEngagementPage,
   AnalyticsGroupsPage,
+  AnalyticsOnboardingPage,
   AnalyticsPluginPage,
   AnalyticsReportSettingsPage,
   AdminBackups,
@@ -359,6 +360,7 @@ const Admin = {
   AnalyticsContent: AnalyticsContentPage,
   AnalyticsEngagement: AnalyticsEngagementPage,
   AnalyticsGroups: AnalyticsGroupsPage,
+  AnalyticsOnboarding: AnalyticsOnboardingPage,
   AnalyticsPlugin: AnalyticsPluginPage,
   AnalyticsReports: AnalyticsReportSettingsPage,
   Moderation: AdminModeration,
@@ -753,6 +755,10 @@ function AppShell() {
                         <Route
                           path="groups"
                           element={<Admin.AnalyticsGroups />}
+                        />
+                        <Route
+                          path="onboarding"
+                          element={<Admin.AnalyticsOnboarding />}
                         />
                         <Route
                           path="reports"

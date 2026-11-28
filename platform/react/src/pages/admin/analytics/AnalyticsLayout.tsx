@@ -57,6 +57,11 @@ const coreTabs: readonly AnalyticsTab[] = [
     i18nKey: 'common.entities.groups',
   },
   {
+    to: '/admin/analytics/onboarding',
+    labelKey: 'onboarding',
+    fallback: 'Onboarding',
+  },
+  {
     to: '/admin/analytics/reports',
     labelKey: 'reports',
     fallback: 'Reports',

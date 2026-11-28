@@ -1,6 +1,7 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import type {
   AnalyticsGrowth,
+  AnalyticsOnboarding,
   AnalyticsOverview,
 } from '@openpeepshq/common/types';
 import pg from 'pg';
@@ -9,7 +10,12 @@ import { closePostgres, pgConnectionString, pgPool } from '../db/pg/client';
 import { closeRedisConnections } from '../redis';
 import { invalidateAnalyticsCache } from './cache';
 import { eachUtcDay } from './dateRange';
-import { getAnalyticsGrowth, getAnalyticsOverview } from './read';
+import {
+  exportAnalyticsCsv,
+  getAnalyticsGrowth,
+  getAnalyticsOnboarding,
+  getAnalyticsOverview,
+} from './read';
 
 const FROM = '2026-08-01';
 const TO = '2026-08-07';
@@ -461,5 +467,403 @@ maybe('getAnalyticsOverview', () => {
     expect(card.deltaPct).toBe(100);
     // Series carries the per-day new_members rollups (0 except the two seed days).
     expect(card.series?.map((p) => p.value)).toEqual(CURRENT_NEW);
+  });
+});
+
+// Onboarding funnel: derives the Welcome checklist completion state for the
+// cohort of members created within the selected range. Unlike the overview /
+// growth reads (which lean on daily rollups), this is a pure state read, so it
+// needs no analytics_daily_totals seed — only the source tables the probes hit.
+maybe('getAnalyticsOnboarding', () => {
+  let onboarding: AnalyticsOnboarding;
+
+  const seed = async () => {
+    const pool = pgPool();
+    const id = async (handle: string, ts: string) => {
+      const res = await pool.query(
+        `INSERT INTO profiles (id, handle, type, created_at, updated_at)
+         VALUES (gen_random_uuid(), $1, 'local', $2, $2)
+         RETURNING id`,
+        [handle, ts],
+      );
+      return res.rows[0].id as string;
+    };
+    const linkAccount = async (
+      profileId: string,
+      email: string,
+      validated: boolean,
+    ) => {
+      const acc = await pool.query(
+        `INSERT INTO accounts (id, email, password_hash, email_validated, created_at, updated_at)
+         VALUES (gen_random_uuid(), $1, 'hash', $2, $3, $3)
+         RETURNING id`,
+        [email, validated, '2026-08-03T00:00:00.000Z'],
+      );
+      await pool.query(
+        `INSERT INTO controls (id, from_id, to_id, created_at, updated_at)
+         VALUES (gen_random_uuid(), $1, $2, $3, $3)`,
+        [acc.rows[0].id, profileId, '2026-08-03T00:00:00.000Z'],
+      );
+    };
+    const setBody = async (
+      profileId: string,
+      body: Record<string, unknown>,
+    ) => {
+      await pool.query(`UPDATE profiles SET body = $1 WHERE id = $2`, [
+        JSON.stringify(body),
+        profileId,
+      ]);
+    };
+    const follow = async (fromId: string, toId: string) => {
+      await pool.query(
+        `INSERT INTO follows (id, from_id, to_id, created_at, updated_at)
+         VALUES (gen_random_uuid(), $1, $2, $3, $3)`,
+        [fromId, toId, '2026-08-03T00:00:00.000Z'],
+      );
+    };
+    const post = async (creatorId: string, visibility: string) => {
+      const res = await pool.query(
+        `INSERT INTO posts (id, type, visibility, creator_id, created_at, updated_at)
+         VALUES (gen_random_uuid(), 'note', $1, $2, $3, $3)
+         RETURNING id`,
+        [visibility, creatorId, '2026-08-03T00:00:00.000Z'],
+      );
+      return res.rows[0].id as string;
+    };
+    const replyTo = async (replyId: string, parentPostId: string) => {
+      await pool.query(
+        `INSERT INTO reply_to (id, from_id, to_id, created_at, updated_at)
+         VALUES (gen_random_uuid(), $1, $2, $3, $3)`,
+        [replyId, parentPostId, '2026-08-03T00:00:00.000Z'],
+      );
+    };
+    const joinGroup = async (profileId: string) => {
+      const grp = await pool.query(
+        `INSERT INTO groups (id, handle, created_at, updated_at)
+         VALUES (gen_random_uuid(), 'onb-group', '2026-08-03T00:00:00.000Z', '2026-08-03T00:00:00.000Z')
+         RETURNING id`,
+      );
+      await pool.query(
+        `INSERT INTO user_groups (id, from_id, to_id, created_at, updated_at)
+         VALUES (gen_random_uuid(), $1, $2, $3, $3)`,
+        [profileId, grp.rows[0].id, '2026-08-03T00:00:00.000Z'],
+      );
+    };
+
+    // Cohort members are created 2026-08-03 (inside FROM..TO = 08-01..08-07).
+    //
+    // m1 — fully onboarded: verified account, complete profile body, a follow,
+    //   a non-direct post, and a group membership. All five steps complete.
+    const m1 = await id('onb-m1', '2026-08-03T00:00:00.000Z');
+    await linkAccount(m1, 'onb-m1@example.com', true);
+    await setBody(m1, {
+      avatar: 'https://cdn.example.com/a1.png',
+      bio: 'Hello world',
+      header: 'https://cdn.example.com/h1.png',
+    });
+    await follow(m1, m1); // a self-follow still counts (from_id probe only)
+    await post(m1, 'public');
+    await joinGroup(m1);
+
+    // m2 — unverified, incomplete profile, no follow, direct-only post, no group.
+    //   Only counts against the post probe if that probe wrongly ignored
+    //   visibility: it posts, but visibility 'direct' must NOT count.
+    const m2 = await id('onb-m2', '2026-08-03T00:00:00.000Z');
+    await linkAccount(m2, 'onb-m2@example.com', false);
+    await setBody(m2, { avatar: 'https://cdn.example.com/a2.png' });
+    await post(m2, 'direct');
+
+    // m3 — verified + full profile, but no follow, no post, no group.
+    const m3 = await id('onb-m3', '2026-08-03T00:00:00.000Z');
+    await linkAccount(m3, 'onb-m3@example.com', true);
+    await setBody(m3, {
+      avatar: 'https://cdn.example.com/a3.png',
+      bio: 'Hi',
+      header: 'https://cdn.example.com/h3.png',
+    });
+
+    // m4 — reply-only poster: the first and only post is a public reply. It
+    // shows up nowhere in the by-profile feed the Welcome checklist queries,
+    // so the checklist step stays incomplete; the probe must mirror that and
+    // NOT count this post. Pins the round-2 review item: the funnel counts
+    // exactly what the checklist marks done.
+    const m4 = await id('onb-m4', '2026-08-03T00:00:00.000Z');
+    await linkAccount(m4, 'onb-m4@example.com', true);
+    const parent = await post(m1, 'public');
+    const reply = await post(m4, 'public');
+    await replyTo(reply, parent);
+
+    // Edge-boundary member created in the last microsecond of range end (TO).
+    // Mirrors the totalMembersAt boundary pin: the exclusive next-day bound
+    // (created_at < 08-08) must include it. Give it a verified account only.
+    const edge = await id('onb-edge', '2026-08-07T23:59:59.999999Z');
+    await linkAccount(edge, 'onb-edge@example.com', true);
+
+    // Guest profile in range: must be excluded from the cohort.
+    await pool.query(
+      `INSERT INTO profiles (id, handle, type, created_at, updated_at)
+       VALUES (gen_random_uuid(), 'onb-guest', 'guest', $1, $1)`,
+      ['2026-08-03T00:00:00.000Z'],
+    );
+  };
+
+  beforeEach(async () => {
+    await empty();
+    try {
+      await Promise.race([
+        invalidateAnalyticsCache(),
+        new Promise((resolve) => setTimeout(resolve, 2000)),
+      ]);
+    } catch {
+      // Redis may be unavailable; the cache layer treats that as a miss.
+    }
+    await seed();
+    onboarding = await getAnalyticsOnboarding({ from: FROM, to: TO });
+  });
+
+  afterAll(async () => {
+    await closePostgres();
+    await closeRedisConnections();
+  });
+
+  const step = (key: string) => onboarding.steps.find((s) => s.key === key)!;
+
+  it('pins the cohort to local members created in range (incl. edge-boundary)', () => {
+    // m1, m2, m3, m4 (Aug 3) + edge-boundary (Aug 7 .999999) = 5. The guest
+    // profile is excluded. The boundary member is included only via the
+    // exclusive next-day bound, so an inclusive `<= 08-07T23:59:59.999Z`
+    // would read 4.
+    expect(onboarding.cohortSize.value).toBe(5);
+  });
+
+  it('computes per-step completion counts and rates', () => {
+    // email: m1, m3, m4, edge verified (m2 unverified) = 4 of 5 → 80%
+    expect(step('email').count).toBe(4);
+    expect(step('email').rate).toBe(80);
+    // profile: m1, m3 full; m2 has only avatar; m4/edge none = 2 of 5 → 40%
+    expect(step('profile').count).toBe(2);
+    expect(step('profile').rate).toBe(40);
+    // follow: only m1 = 1 of 5 → 20%
+    expect(step('follow').count).toBe(1);
+    expect(step('follow').rate).toBe(20);
+    // post: m1's public post counts; m2's direct post must NOT (visibility);
+    // m4's public post is a reply and must NOT (it would not surface in the
+    // by-profile feed the Welcome checklist marks the step from) = 1 of 5 → 20%
+    expect(step('post').count).toBe(1);
+    expect(step('post').rate).toBe(20);
+    // group: only m1 = 1 of 5 → 20%
+    expect(step('group').count).toBe(1);
+    expect(step('group').rate).toBe(20);
+  });
+
+  it('orders steps in Welcome checklist order (email, profile, follow, post, group)', () => {
+    expect(onboarding.steps.map((s) => s.key)).toEqual([
+      'email',
+      'profile',
+      'follow',
+      'post',
+      'group',
+    ]);
+  });
+
+  it('counts completedAll as members completing all five steps', () => {
+    // Only m1 completes all five; m3 lacks follow/post/group, m4 lacks
+    // profile/follow/post/group, m2/edge lack most.
+    expect(onboarding.completedAll.value).toBe(1);
+  });
+});
+
+// Onboarding funnel — negative edge cases the main seed does not cover.
+// Pins the three review-suggestion probes: a deleted-only post is not a first
+// post, a deleted (soft-removed) verified account is not a verified account,
+// and an empty-string profile field is not "set".
+maybe('getAnalyticsOnboarding negative edges', () => {
+  let onboarding: AnalyticsOnboarding;
+
+  const seed = async () => {
+    const pool = pgPool();
+    const id = async (handle: string, ts: string, deleted = false) => {
+      const res = await pool.query(
+        `INSERT INTO profiles (id, handle, type, created_at, updated_at, deleted_at)
+         VALUES (gen_random_uuid(), $1, 'local', $2, $2, $3)
+         RETURNING id`,
+        [handle, ts, deleted ? '2026-08-03T00:00:00.000Z' : null],
+      );
+      return res.rows[0].id as string;
+    };
+    const linkAccount = async (
+      profileId: string,
+      email: string,
+      validated: boolean,
+      accountDeleted = false,
+    ) => {
+      const acc = await pool.query(
+        `INSERT INTO accounts
+           (id, email, password_hash, email_validated, created_at, updated_at, deleted_at)
+         VALUES (gen_random_uuid(), $1, 'hash', $2, $3, $3, $4)
+         RETURNING id`,
+        [
+          email,
+          validated,
+          '2026-08-03T00:00:00.000Z',
+          accountDeleted ? '2026-08-03T00:00:00.000Z' : null,
+        ],
+      );
+      await pool.query(
+        `INSERT INTO controls (id, from_id, to_id, created_at, updated_at)
+         VALUES (gen_random_uuid(), $1, $2, $3, $3)`,
+        [acc.rows[0].id, profileId, '2026-08-03T00:00:00.000Z'],
+      );
+    };
+    const setBody = async (
+      profileId: string,
+      body: Record<string, unknown>,
+    ) => {
+      await pool.query(`UPDATE profiles SET body = $1 WHERE id = $2`, [
+        JSON.stringify(body),
+        profileId,
+      ]);
+    };
+    const post = async (creatorId: string, deleted = false) => {
+      await pool.query(
+        `INSERT INTO posts
+           (id, type, visibility, creator_id, created_at, updated_at, deleted_at)
+         VALUES (gen_random_uuid(), 'note', 'public', $1, $2, $2, $3)`,
+        [
+          creatorId,
+          '2026-08-03T00:00:00.000Z',
+          deleted ? '2026-08-03T00:00:00.000Z' : null,
+        ],
+      );
+    };
+
+    const ts = '2026-08-03T00:00:00.000Z';
+    // na — only post is soft-deleted: must NOT count for the post step.
+    const na = await id('onb-na', ts);
+    await linkAccount(na, 'onb-na@example.com', true);
+    await post(na, true);
+    // nb — only linked account is soft-deleted: must NOT count for email.
+    const nb = await id('onb-nb', ts);
+    await linkAccount(nb, 'onb-nb@example.com', true, true);
+    // nc — bio is the empty string (avatar + header set): NOT complete.
+    const nc = await id('onb-nc', ts);
+    await linkAccount(nc, 'onb-nc@example.com', true);
+    await setBody(nc, {
+      avatar: 'https://cdn.example.com/na.png',
+      bio: '',
+      header: 'https://cdn.example.com/nh.png',
+    });
+    // nd — only follow targets a deleted profile: must NOT count for follow.
+    const nd = await id('onb-nd', ts);
+    await linkAccount(nd, 'onb-nd@example.com', true);
+    const deletedTarget = await id('onb-nd-target', ts, true);
+    await pool.query(
+      `INSERT INTO follows (id, from_id, to_id, created_at, updated_at)
+       VALUES (gen_random_uuid(), $1, $2, $3, $3)`,
+      [nd, deletedTarget, ts],
+    );
+  };
+
+  beforeEach(async () => {
+    await empty();
+    try {
+      await Promise.race([
+        invalidateAnalyticsCache(),
+        new Promise((resolve) => setTimeout(resolve, 2000)),
+      ]);
+    } catch {
+      // Redis may be unavailable; the cache layer treats that as a miss.
+    }
+    await seed();
+    onboarding = await getAnalyticsOnboarding({ from: FROM, to: TO });
+  });
+
+  const step = (key: string) => onboarding.steps.find((s) => s.key === key)!;
+
+  it('excludes a soft-deleted only-post from the post step', () => {
+    expect(onboarding.cohortSize.value).toBe(4);
+    expect(step('post').count).toBe(0);
+  });
+
+  it('excludes a soft-deleted only-account from the email step', () => {
+    // na/nc/nd keep their live verified accounts (3); nb's account is gone.
+    expect(step('email').count).toBe(3);
+  });
+
+  it('does not count an empty-string profile field as set', () => {
+    expect(step('profile').count).toBe(0);
+  });
+
+  it('does not count a follow to a deleted profile', () => {
+    expect(step('follow').count).toBe(0);
+  });
+});
+
+// Onboarding funnel — empty cohort: no profiles in the range at all. Pins the
+// 0-cohort branch of the per-step rate computation and the all-zero steps the
+// admin page's steps table renders when the cohort is empty.
+maybe('getAnalyticsOnboarding empty cohort', () => {
+  const emptyOnboarding = async () => {
+    await empty();
+    try {
+      await Promise.race([
+        invalidateAnalyticsCache(),
+        new Promise((resolve) => setTimeout(resolve, 2000)),
+      ]);
+    } catch {
+      // Redis may be unavailable; the cache layer treats that as a miss.
+    }
+    return getAnalyticsOnboarding({ from: FROM, to: TO });
+  };
+
+  it('reports a zero cohort with all-zero steps and rates', async () => {
+    const onboarding = await emptyOnboarding();
+    expect(onboarding.cohortSize.value).toBe(0);
+    expect(onboarding.completedAll.value).toBe(0);
+    expect(onboarding.steps.map((s) => s.key)).toEqual([
+      'email',
+      'profile',
+      'follow',
+      'post',
+      'group',
+    ]);
+    for (const step of onboarding.steps) {
+      expect(step.count).toBe(0);
+      expect(step.rate).toBe(0);
+    }
+  });
+});
+
+// Onboarding section of exportAnalyticsCsv: pins the section header, the
+// cohort_size row, and the per-step rows (labels included) so the export
+// cannot silently regress. The empty-DB state makes the expected values
+// static: cohort 0, every step 0,0.
+maybe('exportAnalyticsCsv onboarding section', () => {
+  it('exports the onboarding section rows for the selected range', async () => {
+    await empty();
+    try {
+      await Promise.race([
+        invalidateAnalyticsCache(),
+        new Promise((resolve) => setTimeout(resolve, 2000)),
+      ]);
+    } catch {
+      // Redis may be unavailable; the cache layer treats that as a miss.
+    }
+    const csv = await exportAnalyticsCsv({ from: FROM, to: TO });
+    const lines = csv.split('\n');
+    expect(lines).toContain('onboarding');
+    const cohortIdx = lines.indexOf('cohort_size');
+    expect(cohortIdx).toBeGreaterThan(-1);
+    expect(lines[cohortIdx + 1]).toBe('0');
+    const headerIdx = lines.indexOf('step,label,count,rate');
+    expect(headerIdx).toBeGreaterThan(-1);
+    const rows = lines.slice(headerIdx + 1, headerIdx + 6);
+    expect(rows).toEqual([
+      'email,Verify your email address,0,0',
+      'profile,Add profile details,0,0',
+      'follow,Connect with others,0,0',
+      'post,Make first post,0,0',
+      'group,Join a group,0,0',
+    ]);
   });
 });

@@ -5,6 +5,7 @@ import type {
   AnalyticsClicks,
   AnalyticsEngagement,
   AnalyticsGrowth,
+  AnalyticsOnboarding,
   AnalyticsOverview,
   AnalyticsReportSettings,
   AnalyticsRetention,
@@ -153,6 +154,9 @@ type AdminAnalytics = {
   useAnalyticsEngagement: (
     query?: Record<string, string>,
   ) => Query<AnalyticsEngagement>;
+  useAnalyticsOnboarding: (
+    query?: Record<string, string>,
+  ) => Query<AnalyticsOnboarding>;
   useAnalyticsRetention: (
     query?: Record<string, string>,
   ) => Query<AnalyticsRetention>;
@@ -175,6 +179,8 @@ const adminAnalytics = (client: OpenpeepsClientInstance): AdminAnalytics => ({
     apiHook(client.admin.analytics.growth, { queryParams: query }),
   useAnalyticsEngagement: (query?: Record<string, string>) =>
     apiHook(client.admin.analytics.engagement, { queryParams: query }),
+  useAnalyticsOnboarding: (query?: Record<string, string>) =>
+    apiHook(client.admin.analytics.onboarding, { queryParams: query }),
   useAnalyticsRetention: (query?: Record<string, string>) =>
     apiHook(client.admin.analytics.retention, { queryParams: query }),
   useAnalyticsClicks: (query?: Record<string, string>) =>

@@ -249,6 +249,35 @@ export const analyticsEngagementSchema = z.object({
 });
 export type AnalyticsEngagement = z.infer<typeof analyticsEngagementSchema>;
 
+export const analyticsOnboardingStepKeySchema = z.enum([
+  'email',
+  'profile',
+  'follow',
+  'post',
+  'group',
+]);
+export type AnalyticsOnboardingStepKey = z.infer<
+  typeof analyticsOnboardingStepKeySchema
+>;
+
+export const analyticsOnboardingStepSchema = z.object({
+  key: analyticsOnboardingStepKeySchema,
+  label: z.string(),
+  count: z.number(),
+  rate: z.number(),
+});
+export type AnalyticsOnboardingStep = z.infer<
+  typeof analyticsOnboardingStepSchema
+>;
+
+export const analyticsOnboardingSchema = z.object({
+  range: analyticsRangeMetaSchema,
+  cohortSize: analyticsMetricCardSchema,
+  completedAll: analyticsMetricCardSchema,
+  steps: analyticsOnboardingStepSchema.array(),
+});
+export type AnalyticsOnboarding = z.infer<typeof analyticsOnboardingSchema>;
+
 export const analyticsRetentionSchema = z.object({
   range: analyticsRangeMetaSchema,
   metrics: z.object({

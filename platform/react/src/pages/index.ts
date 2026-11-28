@@ -52,6 +52,7 @@ export { AdminDashboard } from './admin/Dashboard';
 export { AdminAnalytics } from './admin/Analytics';
 export { AnalyticsOverviewPage } from './admin/Analytics';
 export { AnalyticsMembersPage } from './admin/Analytics';
+export { AnalyticsOnboardingPage } from './admin/Analytics';
 export { AnalyticsContentPage } from './admin/Analytics';
 export { AnalyticsEngagementPage } from './admin/Analytics';
 export { AnalyticsGroupsPage } from './admin/Analytics';

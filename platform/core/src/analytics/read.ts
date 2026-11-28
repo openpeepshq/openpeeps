@@ -3,6 +3,8 @@ import type {
   AnalyticsDateQuery,
   AnalyticsEngagement,
   AnalyticsGrowth,
+  AnalyticsOnboarding,
+  AnalyticsOnboardingStepKey,
   AnalyticsOverview,
   AnalyticsRetention,
   AnalyticsSeriesPoint,
@@ -1149,10 +1151,131 @@ export const getAnalyticsRetention = async (
   });
 };
 
+export const getAnalyticsOnboarding = async (
+  query: AnalyticsDateQuery = {},
+): Promise<AnalyticsOnboarding> => {
+  const range = await resolveQueryRange(query);
+  // The cache key's suffix is a manual version, not derived from the payload:
+  // bump it to `-v<N+1>` whenever the step set, step keys, or label strings
+  // embedded in this result change shape, so stale cached payloads never
+  // surface under the new copy.
+  return withCache('onboarding-v1', range.from, range.to, async () => {
+    const db = await database();
+    // One scan over the cohort: local, non-deleted profiles created in the
+    // selected range (same boundary convention as totalMembersAt); the scope
+    // predicate is inlined (identical to localMemberScope's) — the fragment
+    // hardcodes alias `p` as a self-join, so it cannot compose into a query
+    // that already scans `profiles p`. Each per-profile completion probe
+    // mirrors the Welcome checklist — any linked verified account
+    // (verifiedMembersAt semantics), avatar + bio + header all set, at least
+    // one outgoing follow to a non-deleted profile (the checklist's
+    // me?.following?.length excludes deleted targets via the follows
+    // relation's softDelete mapping, so the probe joins the target profile
+    // and filters on deleted_at), at least one post that would show up in the
+    // member's by-profile feed (non-deleted, non-direct, not a
+    // reply — the same notDirect/notReply filters the default threaded
+    // timeline feed applies), and at least one group membership.
+    const start = utcDayStart(range.from);
+    const end = exclusiveEnd(range.to);
+    const result = await db.execute(sql`
+      with cohort as (
+        select p.id as profile_id,
+          exists(
+            select 1 from controls c
+              join accounts a on a.id::text = c.from_id
+            where c.to_id = p.id::text
+              and a.deleted_at is null
+              and a.email_validated
+          ) as email_done,
+          (p.body ->> 'avatar' is not null and p.body ->> 'avatar' <> ''
+            and p.body ->> 'bio' is not null and p.body ->> 'bio' <> ''
+            and p.body ->> 'header' is not null and p.body ->> 'header' <> '')
+            as profile_done,
+          exists(
+            select 1 from follows f
+              join profiles ft on ft.id::text = f.to_id
+            where f.from_id = p.id::text and ft.deleted_at is null
+          )
+            as follow_done,
+          exists(
+            select 1 from posts o
+            where o.creator_id = p.id::text
+              and o.deleted_at is null
+              and o.visibility <> 'direct'
+              and not exists (
+                select 1 from reply_to r
+                  where r.from_id = o.id::text
+              )
+          ) as post_done,
+          exists(select 1 from user_groups ug where ug.from_id = p.id::text)
+            as group_done
+        from profiles p
+        where p.type = 'local' and p.deleted_at is null
+          and p.created_at >= ${start} and p.created_at < ${end}
+      )
+      select
+        count(*)::int as cohort,
+        count(*) filter (where email_done)::int as email,
+        count(*) filter (where profile_done)::int as profile,
+        count(*) filter (where follow_done)::int as follow,
+        count(*) filter (where post_done)::int as post,
+        count(*) filter (where group_done)::int as grp,
+        count(*) filter (
+          where email_done and profile_done and follow_done and post_done
+            and group_done
+        )::int as completed_all
+      from cohort
+    `);
+    const row = (result.rows as Array<Record<string, number | null>>)[0] ?? {};
+    const cohort = Number(row.cohort ?? 0);
+    const counts: Record<AnalyticsOnboardingStepKey, number> = {
+      email: Number(row.email ?? 0),
+      profile: Number(row.profile ?? 0),
+      follow: Number(row.follow ?? 0),
+      post: Number(row.post ?? 0),
+      group: Number(row.grp ?? 0),
+    };
+    const completedAll = Number(row.completed_all ?? 0);
+    // Plain-English step labels, kept in sync with the member-facing Welcome
+    // checklist copy. They are the API default (zod-safe fallback) and the
+    // admin report CSV's `label` column — see the English-only contract at
+    // the exportAnalyticsCsv onboarding section below.
+    const labels: Record<AnalyticsOnboardingStepKey, string> = {
+      email: 'Verify your email address',
+      profile: 'Add profile details',
+      follow: 'Connect with others',
+      post: 'Make first post',
+      group: 'Join a group',
+    };
+    const rate = (count: number) =>
+      cohort === 0 ? 0 : Math.round((count / cohort) * 100);
+    const steps = (Object.keys(labels) as AnalyticsOnboardingStepKey[]).map(
+      (key) => ({
+        key,
+        label: labels[key],
+        count: counts[key],
+        rate: rate(counts[key]),
+      }),
+    );
+
+    return {
+      // State read, not a nightly rollup: there is no compiled data, so
+      // compiledAt stays null (same as the other pure state reads).
+      range: { ...range, compiledAt: null },
+      cohortSize: metricCard('cohortSize', cohort, 0),
+      completedAll: metricCard('completedAll', completedAll, 0),
+      steps,
+    };
+  });
+};
+
 export const exportAnalyticsCsv = async (
   query: AnalyticsDateQuery = {},
 ): Promise<string> => {
-  const overview = await getAnalyticsOverview(query);
+  const [overview, onboarding] = await Promise.all([
+    getAnalyticsOverview(query),
+    getAnalyticsOnboarding(query),
+  ]);
   const lines = [
     'bucket,label,active_members,posts,jams,articles,notes,polls,events,resources',
     ...overview.activeUsersSeries.map((p, i) => {
@@ -1178,6 +1301,18 @@ export const exportAnalyticsCsv = async (
         posts?.resource ?? 0,
       ].join(',');
     }),
+    // English-only contract: the `label` column here always carries the plain
+    // English step labels (from the read's default label map), never the
+    // translated `stepLabel` the onboarding page renders and exports in its
+    // per-section CSV. The admin report is a server-side, locale-independent
+    // export; the `step` key column lets a consumer re-localize if needed.
+    '',
+    'onboarding',
+    'cohort_size',
+    String(onboarding.cohortSize.value),
+    '',
+    'step,label,count,rate',
+    ...onboarding.steps.map((s) => [s.key, s.label, s.count, s.rate].join(',')),
   ];
   return lines.join('\n');
 };

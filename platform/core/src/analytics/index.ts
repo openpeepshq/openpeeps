@@ -19,6 +19,7 @@ export {
   getAnalyticsOverview,
   getAnalyticsGrowth,
   getAnalyticsEngagement,
+  getAnalyticsOnboarding,
   getAnalyticsRetention,
   exportAnalyticsCsv,
 } from './read';

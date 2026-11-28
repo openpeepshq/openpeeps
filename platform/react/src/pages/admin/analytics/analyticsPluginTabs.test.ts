@@ -18,6 +18,14 @@ describe('analyticsPluginTabSlug', () => {
     );
   });
 
+  it('rejects the reserved onboarding host route', () => {
+    // The onboarding funnel ships as a host route (not a plugin tab); the
+    // reserved-slug guard keeps a plugin from claiming that slot.
+    expect(analyticsPluginTabSlug('plugins.admin.analytics.onboarding')).toBe(
+      null,
+    );
+  });
+
   it('rejects nested or unknown prefixes', () => {
     expect(
       analyticsPluginTabSlug('plugins.admin.analytics.ai-insights.extra'),

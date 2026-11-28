@@ -15,6 +15,7 @@ import {
   AnalyticsDateQuery,
   AnalyticsEngagement,
   AnalyticsGrowth,
+  AnalyticsOnboarding,
   AnalyticsOverview,
   AnalyticsReportSettings,
   AnalyticsRetention,
@@ -212,6 +213,11 @@ export type Admin = {
     >;
     engagement: OpenpeepsNoPayloadEndpoint<
       AnalyticsEngagement,
+      undefined,
+      AnalyticsDateQuery
+    >;
+    onboarding: OpenpeepsNoPayloadEndpoint<
+      AnalyticsOnboarding,
       undefined,
       AnalyticsDateQuery
     >;
@@ -540,6 +546,11 @@ export const admin = (rawClient: FetchClient): Admin => ({
       undefined,
       AnalyticsDateQuery
     >(rawClient, '/admin/analytics/engagement'),
+    onboarding: allpeepNoPayloadEndpoint<
+      AnalyticsOnboarding,
+      undefined,
+      AnalyticsDateQuery
+    >(rawClient, '/admin/analytics/onboarding'),
     retention: allpeepNoPayloadEndpoint<
       AnalyticsRetention,
       undefined,

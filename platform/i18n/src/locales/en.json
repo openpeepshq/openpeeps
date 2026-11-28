@@ -1825,7 +1825,8 @@
         "reports": "Reports",
         "ai-insights": "AI Insights",
         "growth": "Growth",
-        "retention": "Retention"
+        "retention": "Retention",
+        "onboarding": "Onboarding"
       },
       "export": "Export",
       "exportCsv": "Export CSV",
@@ -1871,6 +1872,16 @@
       "visibility": {
         "public": "Public",
         "private": "Private"
+      },
+      "onboarding": {
+        "cohortSize": "New members in range",
+        "completedAll": "Completed all steps",
+        "funnel": "Onboarding funnel",
+        "stepsTable": "Steps",
+        "columnStep": "Step",
+        "columnCount": "Members",
+        "columnRate": "Rate",
+        "group": "Join a group"
       },
       "cohortRetention": "Cohort D7 retention",
       "retentionByGroup": "Activity by group",
@@ -1991,7 +2002,14 @@
         "tablePage": "In-app pathname that was viewed.",
         "tablePageClicks": "Anonymous page-view counts in the selected range.",
         "tableLink": "Outbound URL origin and path (query strings stripped).",
-        "tableLinkClicks": "Anonymous outbound click counts in the selected range."
+        "tableLinkClicks": "Anonymous outbound click counts in the selected range.",
+        "onboardingCohortSize": "Local, non-deleted member profiles created during the selected range. Every onboarding rate is a share of this cohort.",
+        "onboardingCompletedAll": "Members in the cohort who have completed all onboarding steps tracked here. The percentage is their share of the cohort.",
+        "onboardingFunnel": "How many of the members who joined in the selected range have completed each Welcome checklist step. Steps reflect current member state, not completion over time.",
+        "onboardingStepsTable": "Per-step completion counts and rates for the cohort, in Welcome checklist order.",
+        "onboardingColumnStep": "A Welcome checklist step, in the order members are prompted to complete it.",
+        "onboardingColumnCount": "Members in the cohort who have completed the step.",
+        "onboardingColumnRate": "Share of the cohort that has completed the step, as a percentage."
       }
     },
     "dashboard": {

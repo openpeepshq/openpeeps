@@ -4,6 +4,7 @@ export { AnalyticsMembersPage } from './analytics/Members';
 export { AnalyticsContentPage } from './analytics/Content';
 export { AnalyticsEngagementPage } from './analytics/Engagement';
 export { AnalyticsGroupsPage } from './analytics/Groups';
+export { AnalyticsOnboardingPage } from './analytics/Onboarding';
 export { AnalyticsPluginPage } from './analytics/PluginPage';
 export { AnalyticsReportSettingsPage } from './analytics/ReportSettings';
 /** @deprecated Use AnalyticsMembersPage */

@@ -8,6 +8,7 @@ const RESERVED_ANALYTICS_SLUGS = new Set([
   'reports',
   'growth',
   'retention',
+  'onboarding',
 ]);
 
 const PLUGIN_TAB_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;

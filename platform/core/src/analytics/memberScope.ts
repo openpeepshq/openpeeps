@@ -9,6 +9,13 @@ import { sql, type SQL } from 'drizzle-orm';
  * scope. Retention cohorts and topMembers intentionally do NOT compose from
  * it — they measure raw actor activity (whether the same profile acted, who
  * contributed most), not member-population actives.
+ *
+ * Composes as a self-join on the hardcoded alias `p` (`join profiles p on
+ * p.id::text = <actorIdColumn> where …`), so it can only be appended where
+ * `p` is free. Do NOT compose it into a query that already scans
+ * `from profiles p` — the duplicate alias fails at parse time
+ * (SQLSTATE 42712). Inline the predicate (`where p.type = 'local' and
+ * p.deleted_at is null`) there instead.
  */
 export const localMemberScope = (actorIdColumn: SQL): SQL =>
   sql`join profiles p on p.id::text = ${actorIdColumn}
